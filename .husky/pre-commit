@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Load optional PRE_COMMIT config from .env
+[ -f .env ] && . ./.env
+
+for check in ${PRE_COMMIT//,/ }; do
+  pnpm run "$check" || exit 1
+done
