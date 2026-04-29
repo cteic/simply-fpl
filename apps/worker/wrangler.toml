@@ -5,8 +5,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [[kv_namespaces]]
 binding = "FPL_CACHE"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+id = "478c306b8b974f85bc2a9b83a51d87d1"
+preview_id = "51fbb5bf51fb4ff7a2a6ff28bffaac0a"
 
 [vars]
 FPL_BASE_URL = "https://fantasy.premierleague.com/api"
