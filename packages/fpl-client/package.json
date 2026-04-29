@@ -1,0 +1,23 @@
+{
+  "name": "@simplyfpl/fpl-client",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test:unit": "vitest run"
+  },
+  "dependencies": {
+    "@simplyfpl/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@simplyfpl/tsconfig-config": "workspace:*",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.9"
+  }
+}

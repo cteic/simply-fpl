@@ -1,0 +1,21 @@
+{
+  "name": "@simplyfpl/ui",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@simplyfpl/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@simplyfpl/tsconfig-config": "workspace:*",
+    "typescript": "^5.7.0"
+  }
+}
