@@ -1,0 +1,22 @@
+{
+  "name": "@simplyfpl/worker",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@simplyfpl/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "@simplyfpl/tsconfig-config": "workspace:*",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.0.0"
+  }
+}
