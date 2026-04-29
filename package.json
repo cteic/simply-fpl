@@ -1,0 +1,62 @@
+{
+  "name": "simplyfpl-mono",
+  "author": "SimplyFPL",
+  "description": "SimplyFPL monorepo — FPL companion app",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "build:web": "turbo run build --filter=@simplyfpl/web",
+    "build:mobile": "turbo run build --filter=@simplyfpl/mobile",
+    "build:worker": "turbo run build --filter=@simplyfpl/worker",
+    "build:packages": "turbo run build --filter=\"./packages/*\"",
+    "build:watch": "turbo run build:watch",
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@simplyfpl/web",
+    "dev:mobile": "turbo run dev --filter=@simplyfpl/mobile",
+    "dev:worker": "turbo run dev --filter=@simplyfpl/worker",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:e2e": "playwright test",
+    "test:e2e:headless": "playwright test --project=chromium",
+    "test:e2e:ui": "playwright test --ui",
+    "clean": "git clean -dfX",
+    "install:clean": "rm -rf \"**/node_modules\" && pnpm -r clean",
+    "install:fresh": "pnpm install:clean && pnpm i",
+    "prepare": "husky",
+    "check:all": "turbo run check:all"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@playwright/test": "^1.59.1",
+    "@simplyfpl/eslint-config": "workspace:*",
+    "@simplyfpl/prettier-config": "workspace:*",
+    "@simplyfpl/tsconfig-config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.5.1",
+    "turbo": "^2.5.8",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.9"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0",
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "overrides": {}
+  }
+}
