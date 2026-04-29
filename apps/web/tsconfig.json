@@ -14,7 +14,9 @@
     "allowJs": true,
     "noEmit": true,
     "incremental": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "declaration": false,
+    "declarationMap": false
   },
   "include": [
     "next-env.d.ts",

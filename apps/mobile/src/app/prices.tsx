@@ -22,6 +22,12 @@ const COLORS = {
 
 type Filter = 'all' | 'rise' | 'fall';
 
+const FILTER_LABELS: Record<Filter, string> = {
+  all: 'All',
+  rise: '↑ Risers',
+  fall: '↓ Fallers',
+};
+
 export default function PricesScreen() {
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -44,7 +50,7 @@ export default function PricesScreen() {
             onPress={() => setFilter(f)}
           >
             <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
-              {f === 'all' ? 'All' : f === 'rise' ? '↑ Risers' : '↓ Fallers'}
+              {FILTER_LABELS[f]}
             </Text>
           </Pressable>
         ))}

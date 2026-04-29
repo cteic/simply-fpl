@@ -24,7 +24,6 @@ export function LiveRankView({ entryId }: Props) {
 
   const livePoints = calculateLivePoints(picks, liveGw, bootstrap);
   const transferHit = picks.entry_history.event_transfers_cost;
-  const gwPoints = picks.entry_history.points;
 
   // Rank movement indicator
   const prevRank = entry.summary_overall_rank;
