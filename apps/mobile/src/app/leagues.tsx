@@ -30,7 +30,10 @@ export default function LeaguesScreen() {
 
   const { data: league, isLoading } = useQuery({
     queryKey: ['classic-league', submittedId],
-    queryFn: () => fplClient.getClassicLeague(submittedId!),
+    queryFn: () => {
+      if (submittedId === null) throw new Error('submittedId required');
+      return fplClient.getClassicLeague(submittedId);
+    },
     enabled: submittedId !== null,
     refetchInterval: 90_000,
   });
@@ -85,10 +88,12 @@ export default function LeaguesScreen() {
         }
         renderItem={({ item }) => {
           const movement = item.last_rank - item.rank;
-          const movementColor =
-            movement > 0 ? COLORS.up : movement < 0 ? COLORS.down : COLORS.neutral;
-          const movementText =
-            movement > 0 ? `↑${movement}` : movement < 0 ? `↓${Math.abs(movement)}` : '—';
+          let movementColor = COLORS.neutral;
+          if (movement > 0) movementColor = COLORS.up;
+          else if (movement < 0) movementColor = COLORS.down;
+          let movementText = '—';
+          if (movement > 0) movementText = `↑${movement}`;
+          else if (movement < 0) movementText = `↓${Math.abs(movement)}`;
 
           return (
             <View style={styles.row}>
