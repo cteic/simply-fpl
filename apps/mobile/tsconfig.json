@@ -1,0 +1,9 @@
+{
+  "extends": "@simplyfpl/tsconfig-config/tsconfig.react-native.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "app.json"]
+}
