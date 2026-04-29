@@ -1,5 +1,7 @@
 import { LiveRankView } from '@/components/live-rank-view';
 
+export const runtime = 'edge';
+
 interface Props {
   params: Promise<{ entryId: string }>;
 }
