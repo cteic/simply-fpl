@@ -15,6 +15,6 @@ export default async function LiveRankPage({ params }: Props) {
   return <LiveRankView entryId={id} />;
 }
 
-export function generateMetadata({ params }: Props) {
+export function generateMetadata() {
   return { title: `Live Rank — SimplyFPL` };
 }
