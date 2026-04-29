@@ -1,0 +1,18 @@
+name = "simplyfpl-worker"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[kv_namespaces]]
+binding = "FPL_CACHE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+
+[vars]
+FPL_BASE_URL = "https://fantasy.premierleague.com/api"
+
+# Cache TTLs (seconds)
+BOOTSTRAP_TTL = "3600"
+LIVE_GW_TTL = "60"
+ENTRY_TTL = "120"
+LEAGUE_TTL = "90"
