@@ -36,20 +36,29 @@ export default function LiveRankScreen() {
 
   const { data: entry, isLoading: entryLoading } = useQuery({
     queryKey: ['entry', submittedId],
-    queryFn: () => fplClient.getEntry(submittedId!),
+    queryFn: () => {
+      if (submittedId === null) throw new Error('submittedId required');
+      return fplClient.getEntry(submittedId);
+    },
     enabled: submittedId !== null,
   });
 
   const { data: picks, isLoading: picksLoading } = useQuery({
     queryKey: ['entry-picks', submittedId, currentGw],
-    queryFn: () => fplClient.getEntryPicks(submittedId!, currentGw!),
+    queryFn: () => {
+      if (submittedId === null || currentGw === null) throw new Error('submittedId and currentGw required');
+      return fplClient.getEntryPicks(submittedId, currentGw);
+    },
     enabled: submittedId !== null && currentGw !== null,
     refetchInterval: 60_000,
   });
 
   const { data: liveGw, isLoading: liveLoading } = useQuery({
     queryKey: ['live-gw', currentGw],
-    queryFn: () => fplClient.getLiveGameweek(currentGw!),
+    queryFn: () => {
+      if (currentGw === null) throw new Error('currentGw required');
+      return fplClient.getLiveGameweek(currentGw);
+    },
     enabled: currentGw !== null,
     refetchInterval: 60_000,
   });
