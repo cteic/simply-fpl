@@ -1,4 +1,4 @@
-import type { FplBootstrapStatic, FplPlayer, FplTeam, PriceChange } from '@simplyfpl/types';
+import type { FplBootstrapStatic, FplTeam, PriceChange } from '@simplyfpl/types';
 
 // FPL price change thresholds (approximate — FPL doesn't publish exact algo)
 // A player rises if net transfers in > ~3% of their ownership

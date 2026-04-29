@@ -12,10 +12,9 @@ import type {
 export function calculateLivePoints(
   picks: FplEntryGameweekPicks,
   liveData: FplLiveGameweek,
-  bootstrap: FplBootstrapStatic
+  _bootstrap: FplBootstrapStatic
 ): number {
   const liveMap = new Map(liveData.elements.map(e => [e.id, e]));
-  const isBlankweek = picks.active_chip === 'freehit';
   const isBenchBoost = picks.active_chip === 'bboost';
   const isTripleCaptain = picks.active_chip === '3xc';
 
