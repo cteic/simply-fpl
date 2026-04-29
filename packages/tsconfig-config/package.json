@@ -1,0 +1,11 @@
+{
+  "name": "@simplyfpl/tsconfig-config",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.react.json": "./tsconfig.react.json",
+    "./tsconfig.react-native.json": "./tsconfig.react-native.json"
+  }
+}
