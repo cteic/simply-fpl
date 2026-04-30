@@ -1,14 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { fplClient, formatPrice, predictPriceChanges } from '@simplyfpl/fpl-client';
+
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { useQuery } from '@tanstack/react-query';
+
+import { formatPrice, fplClient, predictPriceChanges } from '@simplyfpl/fpl-client';
 
 const COLORS = {
   bg: '#0f1117',
@@ -38,12 +34,12 @@ export default function PricesScreen() {
   });
 
   const changes = bootstrap ? predictPriceChanges(bootstrap) : [];
-  const filtered = filter === 'all' ? changes : changes.filter(c => c.direction === filter);
+  const filtered = filter === 'all' ? changes : changes.filter((c) => c.direction === filter);
 
   return (
     <View style={styles.container}>
       <View style={styles.filterRow}>
-        {(['all', 'rise', 'fall'] as Filter[]).map(f => (
+        {(['all', 'rise', 'fall'] as Filter[]).map((f) => (
           <Pressable
             key={f}
             style={[styles.filterBtn, filter === f && styles.filterBtnActive]}
@@ -60,7 +56,7 @@ export default function PricesScreen() {
 
       <FlatList
         data={filtered}
-        keyExtractor={item => String(item.player.id)}
+        keyExtractor={(item) => String(item.player.id)}
         contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
           <View style={styles.row}>
@@ -71,13 +67,9 @@ export default function PricesScreen() {
             <View style={styles.rowRight}>
               <Text style={styles.price}>{formatPrice(item.player.now_cost)}</Text>
               <Text
-                style={[
-                  styles.direction,
-                  item.direction === 'rise' ? styles.rise : styles.fall,
-                ]}
+                style={[styles.direction, item.direction === 'rise' ? styles.rise : styles.fall]}
               >
-                {item.direction === 'rise' ? '↑' : '↓'}{' '}
-                {Math.round(item.probability * 100)}%
+                {item.direction === 'rise' ? '↑' : '↓'} {Math.round(item.probability * 100)}%
               </Text>
             </View>
           </View>
