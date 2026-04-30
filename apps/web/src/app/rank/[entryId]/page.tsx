@@ -1,6 +1,6 @@
 import { LiveRankRealView } from '@/components/views/live-rank-real-view';
 
-export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
 
 interface Props {
   params: Promise<{ entryId: string }>;
