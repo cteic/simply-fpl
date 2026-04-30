@@ -14,14 +14,12 @@ export function calculateLivePoints(
   liveData: FplLiveGameweek,
   _bootstrap: FplBootstrapStatic
 ): number {
-  const liveMap = new Map(liveData.elements.map(e => [e.id, e]));
+  const liveMap = new Map(liveData.elements.map((e) => [e.id, e]));
   const isBenchBoost = picks.active_chip === 'bboost';
   const isTripleCaptain = picks.active_chip === '3xc';
 
   // Active players: positions 1-11 (or 1-15 on bench boost)
-  const activePicks = isBenchBoost
-    ? picks.picks
-    : picks.picks.filter(p => p.position <= 11);
+  const activePicks = isBenchBoost ? picks.picks : picks.picks.filter((p) => p.position <= 11);
 
   let totalPoints = 0;
 
@@ -61,7 +59,7 @@ export function buildLiveLeagueTable(
   liveData: FplLiveGameweek,
   bootstrap: FplBootstrapStatic
 ): LiveRankEntry[] {
-  const withPoints = entries.map(entry => ({
+  const withPoints = entries.map((entry) => ({
     entryId: entry.entryId,
     entryName: entry.entryName,
     playerName: entry.playerName,
@@ -84,7 +82,7 @@ export function buildLiveLeagueTable(
  * Get current gameweek from bootstrap data.
  */
 export function getCurrentGameweek(bootstrap: FplBootstrapStatic): number | null {
-  const current = bootstrap.events.find(e => e.is_current);
+  const current = bootstrap.events.find((e) => e.is_current);
   return current?.id ?? null;
 }
 
@@ -92,6 +90,6 @@ export function getCurrentGameweek(bootstrap: FplBootstrapStatic): number | null
  * Get next gameweek from bootstrap data.
  */
 export function getNextGameweek(bootstrap: FplBootstrapStatic): number | null {
-  const next = bootstrap.events.find(e => e.is_next);
+  const next = bootstrap.events.find((e) => e.is_next);
   return next?.id ?? null;
 }

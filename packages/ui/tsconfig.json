@@ -1,5 +1,9 @@
 {
-  "extends": "@simplyfpl/tsconfig-config/tsconfig.base.json",
-  "compilerOptions": { "outDir": "dist" },
-  "include": ["src"]
+  "extends": "@simplyfpl/tsconfig-config/tsconfig.react.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src", "tamagui.config.ts"]
 }
