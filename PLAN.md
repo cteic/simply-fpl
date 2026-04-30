@@ -42,13 +42,13 @@ PR [#48](https://github.com/pete-watters/simply-fpl/pull/48) open against `dev`,
 - `<NavBar>` uses `usePathname` to highlight the active link.
 - 4 routes built/styled, 1 route restyled:
 
-  | Route | View | Data |
-  |---|---|---|
-  | `/` | `LiveRankShowcase` | seed |
-  | `/leagues` | `LeaguesShowcase` | seed |
-  | `/prices` | `PricesView` | **real FPL** (worker + React Query), seed fallback |
-  | `/planner` | `PlannerShowcase` | seed (Pro-gated) |
-  | `/rank/[entryId]` | `LiveRankRealView` | **real FPL** (worker + React Query) |
+  | Route             | View               | Data                                               |
+  | ----------------- | ------------------ | -------------------------------------------------- |
+  | `/`               | `LiveRankShowcase` | seed                                               |
+  | `/leagues`        | `LeaguesShowcase`  | seed                                               |
+  | `/prices`         | `PricesView`       | **real FPL** (worker + React Query), seed fallback |
+  | `/planner`        | `PlannerShowcase`  | seed (Pro-gated)                                   |
+  | `/rank/[entryId]` | `LiveRankRealView` | **real FPL** (worker + React Query)                |
 
 - Demo seed data in `apps/web/src/components/demo-data.ts` mirrors the prototype HTML exactly (Salah, Haaland, Gibbingtons league, etc.).
 
@@ -77,14 +77,14 @@ PR [#48](https://github.com/pete-watters/simply-fpl/pull/48) open against `dev`,
 
 ## Compromises (all have a follow-up issue)
 
-| # | What | Why | Issue |
-|---|---|---|---|
-| 1 | `@tamagui/next-plugin` extraction is **off** — runtime-only Tamagui | Hit React 19 + Tamagui SSR incompatibility (`createReactContext is not a function`, RSC client-call check). Small FOUC, no compile-time atomic CSS, no component flattening. | [#49](https://github.com/pete-watters/simply-fpl/issues/49) |
-| 2 | `/rank/[entryId]` has `force-dynamic`, **no edge runtime** | Same root cause as #1 — Tamagui chain trips Next's RSC checks during prerender + `@floating-ui/react` (transitive Tamagui Popover dep) fails edge React polyfill. | [#51](https://github.com/pete-watters/simply-fpl/issues/51) |
-| 3 | `'use client'` on `packages/ui/src/index.ts` barrel | Stops the barrel from pulling Tamagui into RSC server bundles. Side effect: zero RSC streaming for our components. | resolved by [#49](https://github.com/pete-watters/simply-fpl/issues/49) |
-| 4 | Patch on `@tamagui/next-plugin` | Real upstream bug — plugin imports its own `webpack` standalone instead of using Next's vendored webpack. | [#50](https://github.com/pete-watters/simply-fpl/issues/50) |
-| 5 | `/leagues` and `/planner` use seed data only | No backend wired yet. Visual demo is correct, data isn't real. | [#52](https://github.com/pete-watters/simply-fpl/issues/52), [#53](https://github.com/pete-watters/simply-fpl/issues/53) |
-| 6 | Cloudflare Pages deploy unverified | Haven't tried yet. | [#54](https://github.com/pete-watters/simply-fpl/issues/54) |
+| #   | What                                                                | Why                                                                                                                                                                          | Issue                                                                                                                    |
+| --- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `@tamagui/next-plugin` extraction is **off** — runtime-only Tamagui | Hit React 19 + Tamagui SSR incompatibility (`createReactContext is not a function`, RSC client-call check). Small FOUC, no compile-time atomic CSS, no component flattening. | [#49](https://github.com/pete-watters/simply-fpl/issues/49)                                                              |
+| 2   | `/rank/[entryId]` has `force-dynamic`, **no edge runtime**          | Same root cause as #1 — Tamagui chain trips Next's RSC checks during prerender + `@floating-ui/react` (transitive Tamagui Popover dep) fails edge React polyfill.            | [#51](https://github.com/pete-watters/simply-fpl/issues/51)                                                              |
+| 3   | `'use client'` on `packages/ui/src/index.ts` barrel                 | Stops the barrel from pulling Tamagui into RSC server bundles. Side effect: zero RSC streaming for our components.                                                           | resolved by [#49](https://github.com/pete-watters/simply-fpl/issues/49)                                                  |
+| 4   | Patch on `@tamagui/next-plugin`                                     | Real upstream bug — plugin imports its own `webpack` standalone instead of using Next's vendored webpack.                                                                    | [#50](https://github.com/pete-watters/simply-fpl/issues/50)                                                              |
+| 5   | `/leagues` and `/planner` use seed data only                        | No backend wired yet. Visual demo is correct, data isn't real.                                                                                                               | [#52](https://github.com/pete-watters/simply-fpl/issues/52), [#53](https://github.com/pete-watters/simply-fpl/issues/53) |
+| 6   | Cloudflare Pages deploy unverified                                  | Haven't tried yet.                                                                                                                                                           | [#54](https://github.com/pete-watters/simply-fpl/issues/54)                                                              |
 
 ---
 
