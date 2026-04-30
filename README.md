@@ -4,23 +4,23 @@ FPL companion app monorepo. Built with Turborepo + pnpm workspaces.
 
 ## Apps
 
-| App | Description |
-|-----|-------------|
-| `apps/web` | Next.js 15 web app |
-| `apps/mobile` | Expo / React Native app |
+| App           | Description                                  |
+| ------------- | -------------------------------------------- |
+| `apps/web`    | Next.js 15 web app                           |
+| `apps/mobile` | Expo / React Native app                      |
 | `apps/worker` | Cloudflare Worker — FPL API proxy + KV cache |
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| `packages/types` | Shared FPL domain types |
-| `packages/fpl-client` | FPL API client + live rank / price change logic |
-| `packages/utils` | Pure utility functions |
-| `packages/ui` | Shared UI components (web + mobile) |
-| `packages/tsconfig-config` | Shared TypeScript configs |
-| `packages/eslint-config` | Shared ESLint config |
-| `packages/prettier-config` | Shared Prettier config |
+| Package                    | Description                                     |
+| -------------------------- | ----------------------------------------------- |
+| `packages/types`           | Shared FPL domain types                         |
+| `packages/fpl-client`      | FPL API client + live rank / price change logic |
+| `packages/utils`           | Pure utility functions                          |
+| `packages/ui`              | Shared UI components (web + mobile)             |
+| `packages/tsconfig-config` | Shared TypeScript configs                       |
+| `packages/eslint-config`   | Shared ESLint config                            |
+| `packages/prettier-config` | Shared Prettier config                          |
 
 ## Getting started
 
@@ -48,6 +48,7 @@ cp apps/mobile/.env.example apps/mobile/.env
 ```
 
 You need:
+
 - Supabase project URL + anon key
 - Stripe publishable key, secret key, and webhook secret
 - Cloudflare KV namespace IDs (from `wrangler kv:namespace create FPL_CACHE`)

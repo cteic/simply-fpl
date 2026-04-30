@@ -11,24 +11,106 @@ After ANY code changes, you MUST run verification (see Verification section). Do
 
 # SimplyFPL — Claude Instructions
 
-SimplyFPL is an FPL companion app: Next.js web, Expo mobile, and a Cloudflare Worker proxy.
+SimplyFPL is a freemium FPL (Fantasy Premier League) companion app — a faster, cleaner alternative to livefpl.net. Solo dev (Pete) plus non-technical co-marketer. Targeting launch before GW1 in August 2026.
+
+Architecture inspired by [leather-io/mono](https://github.com/leather-io/mono).
+
+## Stack
+
+- **Frontend:** Next.js 15 (App Router) + Expo (React Native, post-launch)
+- **Styling:** Tamagui (cross-platform compiled CSS-in-JS — only styling library)
+- **Backend:** Cloudflare Workers + KV (FPL proxy, caching, price predictor)
+- **Auth + DB:** Supabase (Postgres + Row Level Security)
+- **Payments:** Stripe (€4/mo or €25/yr Pro tier)
+- **Monorepo:** Turborepo + pnpm workspaces
 
 ## Architecture
 
 Turborepo monorepo using `pnpm`, following **clean architecture** layers:
 
 **Presentation**: `apps/web` (Next.js 15 app router), `apps/mobile` (Expo Router), `packages/ui`
-**Application**: React Query hooks in `apps/*/src/queries/`, auth hooks in `apps/*/src/hooks/`
-**Domain/Logic**: `packages/fpl-client` (FPL API client + live rank + price change logic)
+**Application**: React Query hooks in `apps/*/src/queries/`, auth hooks in `apps/*/src/hooks/`, cross-platform business logic in `packages/features`
+**Domain/Logic**: `packages/fpl-client` (FPL API client + live rank + price change logic, no React)
 **Types**: `packages/types` (all shared domain types — no logic here)
 **Foundation**: `packages/utils` (pure helpers), `packages/tsconfig-config`, `packages/eslint-config`, `packages/prettier-config`
 **Infrastructure**: `apps/worker` (Cloudflare Worker — FPL proxy + KV cache)
 
-### Key package rules
-- `packages/types` — types only, no logic, no dependencies
-- `packages/fpl-client` — depends on types only; no React, no RN, no Next
-- `packages/utils` — pure functions, no dependencies
-- `apps/web` and `apps/mobile` depend on packages; packages never depend on apps
+```
+.
+├── apps/
+│   ├── web/                    Next.js 15 web app (primary launch target)
+│   ├── mobile/                 Expo app (post-launch, not yet built)
+│   └── worker/                 Cloudflare Worker (FPL proxy + KV cache)
+├── packages/
+│   ├── ui/                     Cross-platform components + Tamagui design tokens
+│   ├── features/               React-aware business logic, hooks, orchestration
+│   ├── fpl-client/             Pure FPL API client + live rank / price logic (no React)
+│   ├── types/                  Shared domain types
+│   ├── utils/                  Pure helpers
+│   ├── tsconfig-config/        Shared TS configs
+│   ├── eslint-config/          Shared ESLint config
+│   └── prettier-config/        Shared Prettier config
+```
+
+### Where code goes
+
+When implementing a new feature, decide which package each piece belongs to BEFORE writing it:
+
+- **Pure FPL API calls, transforms, rank/price algorithms** → `packages/fpl-client` (no React)
+- **React hooks, cross-feature orchestration, auth/subscription state** → `packages/features`
+- **Visual components (buttons, cards, layouts, navigation)** → `packages/ui`
+- **Page composition, routing, env config, app-specific layouts** → `apps/*`
+
+If you find yourself putting business logic inside an app component, stop and move it to `features` (or `fpl-client` if it's pure). If you find yourself building UI inside `apps/web/components/`, ask whether it should be in `packages/ui` instead — most should.
+
+### Strict package rules
+
+#### `packages/types`
+
+- Types only, no logic, no dependencies
+
+#### `packages/fpl-client`
+
+- Depends on `types` only
+- No React, no React Native, no Next, no Expo
+- Pure TypeScript
+
+#### `packages/features`
+
+- MUST NOT import from `react-native`, `next`, `expo`, or any platform-specific package
+- React hooks only (e.g. `useEffect`, `useMemo`) — no platform-specific React APIs
+- Pure TypeScript and React are allowed
+- Test coverage matters here more than anywhere else — this is the heart of the product
+
+#### `packages/ui`
+
+- Cross-platform via Tamagui — single component definition works on web and native
+- Use Tamagui primitives (`<XStack>`, `<YStack>`, `<Stack>`, `<Text>`, etc.) instead of raw `<View>`/`<div>`
+- Reference design tokens via `$` prefix (`backgroundColor="$surface"`, `color="$t1"`)
+- No business logic, no API calls, no hooks beyond UI state
+
+#### `packages/utils`
+
+- Pure functions, no dependencies
+
+#### `apps/*`
+
+- Thin shells. Compose `features` + `ui`.
+- Routing, layouts, env config, platform-specific concerns only
+- A page component should be ~30-50 lines on average — if it's larger, extract logic into `features` or composition into `ui`
+- Apps depend on packages; packages never depend on apps
+
+## Design system
+
+The visual identity comes from a prototype at `apps/web/design/simplyfpl-demo.html`. The full design system reference lives in `packages/ui/DESIGN_SYSTEM.md`. Read both before building any UI component.
+
+Key design principles:
+
+- Linear.app-inspired — quiet, dense, information-first
+- Warm neutral light theme (`#F7F7F5` bg, not stark white)
+- DM Sans for UI, DM Mono for all numeric / data display
+- Subtle animations only (200ms-1.2s eased)
+- Borders separate, not shadows
 
 ## Development commands
 
@@ -55,6 +137,7 @@ pnpm dev:mobile     # Expo dev server
 - Tests co-located as `*.spec.ts`
 - Conventional commits with scope: `feat(web)`, `fix(worker)`, `refactor(fpl-client)`
 - Branches and PRs target `dev`, not `main`
+- Imports: use the workspace alias `@simplyfpl/<pkg>` rather than relative paths across packages
 
 ## FPL-specific notes
 
@@ -78,6 +161,19 @@ pnpm dev:mobile     # Expo dev server
 - Webhook handler: `apps/web/src/app/api/stripe/webhook/route.ts`
 - Price IDs in env: `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
 - Never expose `STRIPE_SECRET_KEY` to client — server routes only
+
+## What NOT to do
+
+- Don't put fetch calls or API clients in `apps/*` — they go in `packages/fpl-client` (or `packages/features` if React-aware)
+- Don't build the same component twice for web and native — use Tamagui primitives once
+- Don't use `react-native` imports in `packages/features` or `packages/fpl-client`
+- Don't introduce a new styling library — Tamagui is the only one
+- Don't create components outside `packages/ui` unless they're genuinely app-specific (page-level layouts, error boundaries, etc.)
+
+## Reference repos
+
+- [leather-io/mono](https://github.com/leather-io/mono) — monorepo structure, package boundaries, scripts
+- [Tamagui docs](https://tamagui.dev/docs) — primitives, tokens, themes
 
 ## Verification
 
