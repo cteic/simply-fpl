@@ -1,7 +1,7 @@
-import { PriceChangesView } from '@/components/price-changes-view';
+import { PricesView } from '@/components/views/prices-view';
 
 export default function PricesPage() {
-  return <PriceChangesView />;
+  return <PricesView />;
 }
 
 export const metadata = {

@@ -10,6 +10,7 @@
 A Fantasy Premier League companion app that competes directly with [livefpl.net](https://livefpl.net). The site gets millions of hits per week during the season. The opportunity: it has become cluttered and its mobile experience is poor. We build something cleaner, faster, and mobile-native.
 
 **Co-founders**
+
 - Pete — sole technical builder (15+ yrs frontend, React Native, TypeScript)
 - Marketing co-founder — 6,000 Twitter FPL followers, community distribution
 
@@ -19,12 +20,13 @@ A Fantasy Premier League companion app that competes directly with [livefpl.net]
 
 ## 2. Monetisation
 
-| Tier | Price | Features |
-|------|-------|----------|
-| Free | €0 | Live rank, live mini-leagues, price changes, web ads |
-| Pro | €4/month or €25/year | Push notifications, transfer planner, EO tracker, ad-free |
+| Tier | Price                | Features                                                  |
+| ---- | -------------------- | --------------------------------------------------------- |
+| Free | €0                   | Live rank, live mini-leagues, price changes, web ads      |
+| Pro  | €4/month or €25/year | Push notifications, transfer planner, EO tracker, ad-free |
 
 **Key decisions:**
+
 - Stripe for web payments only (avoid 30% App Store cut)
 - Annual plan at a discount to front-load cash and reduce churn
 - No mobile Stripe at launch — direct users to web to subscribe
@@ -35,34 +37,38 @@ A Fantasy Premier League companion app that competes directly with [livefpl.net]
 ## 3. Tech Stack
 
 ### Apps
-| App | Tech | Purpose |
-|-----|------|---------|
-| `apps/web` | Next.js 15 (App Router) | Main web app |
-| `apps/mobile` | Expo 52 + Expo Router | iOS + Android |
-| `apps/worker` | Cloudflare Worker | FPL API proxy + KV cache |
+
+| App           | Tech                    | Purpose                  |
+| ------------- | ----------------------- | ------------------------ |
+| `apps/web`    | Next.js 15 (App Router) | Main web app             |
+| `apps/mobile` | Expo 52 + Expo Router   | iOS + Android            |
+| `apps/worker` | Cloudflare Worker       | FPL API proxy + KV cache |
 
 ### Packages (shared)
-| Package | Purpose |
-|---------|---------|
-| `packages/types` | All FPL domain types — no logic |
-| `packages/fpl-client` | API client, live rank calc, price change logic |
-| `packages/utils` | Pure helpers (formatRank, formatDeadline, etc.) |
-| `packages/ui` | Shared components (cross-platform, future) |
-| `packages/tsconfig-config` | Shared TS configs (base, react, react-native) |
-| `packages/eslint-config` | Shared ESLint flat config |
-| `packages/prettier-config` | Shared Prettier + import ordering |
+
+| Package                    | Purpose                                         |
+| -------------------------- | ----------------------------------------------- |
+| `packages/types`           | All FPL domain types — no logic                 |
+| `packages/fpl-client`      | API client, live rank calc, price change logic  |
+| `packages/utils`           | Pure helpers (formatRank, formatDeadline, etc.) |
+| `packages/ui`              | Shared components (cross-platform, future)      |
+| `packages/tsconfig-config` | Shared TS configs (base, react, react-native)   |
+| `packages/eslint-config`   | Shared ESLint flat config                       |
+| `packages/prettier-config` | Shared Prettier + import ordering               |
 
 ### Infrastructure
-| Service | Use |
-|---------|-----|
-| Cloudflare Workers + KV | FPL proxy, caching |
-| Cloudflare Pages | Web app hosting (auto-deploy from GitHub) |
-| Supabase | Auth (email + Google OAuth), Postgres DB |
-| Stripe | Payments, subscription management |
-| EAS Build | Expo iOS + Android builds |
-| GitHub Actions | CI (typecheck, lint, Worker preview deploys) |
+
+| Service                 | Use                                          |
+| ----------------------- | -------------------------------------------- |
+| Cloudflare Workers + KV | FPL proxy, caching                           |
+| Cloudflare Pages        | Web app hosting (auto-deploy from GitHub)    |
+| Supabase                | Auth (email + Google OAuth), Postgres DB     |
+| Stripe                  | Payments, subscription management            |
+| EAS Build               | Expo iOS + Android builds                    |
+| GitHub Actions          | CI (typecheck, lint, Worker preview deploys) |
 
 ### Monorepo tooling
+
 - **pnpm** workspaces (not npm, not yarn)
 - **Turborepo** for task orchestration
 - **TypeScript** strict mode everywhere
@@ -73,7 +79,9 @@ A Fantasy Premier League companion app that competes directly with [livefpl.net]
 ## 4. Architecture Decisions
 
 ### Why Cloudflare Worker as proxy?
+
 The FPL API (`fantasy.premierleague.com/api`) has no auth, no official docs, and will rate-limit aggressive clients. The Worker sits between all our apps and FPL, adding:
+
 - KV caching per endpoint (bootstrap: 1hr, live GW: 60s, leagues: 90s)
 - CORS headers so the web app can call it
 - Single point to add auth, rate limiting, or fallback logic later
@@ -81,12 +89,15 @@ The FPL API (`fantasy.premierleague.com/api`) has no auth, no official docs, and
 All FPL API calls go through `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL` → Worker → FPL. Never direct from client.
 
 ### Why not a shared React Native Web setup?
+
 Push notifications (a key Pro feature) require native APIs. WebView solutions feel like native apps but aren't — the experience gap matters for a live sports tool used during matches.
 
 ### Why Supabase over custom auth?
+
 Speed. Supabase gives us email/password, Google OAuth, JWTs, RLS policies, and a typed Postgres client in one. The `profiles` and `subscriptions` tables are all we need to ship.
 
 ### Why Stripe web-only at launch?
+
 Apple and Google take 30% of in-app purchases. At €4/month, that's €1.20 gone per subscriber. At launch volumes, direct web subscriptions are fine. Add in-app purchase later only if retention data justifies it.
 
 ---
@@ -95,15 +106,16 @@ Apple and Google take 30% of in-app purchases. At €4/month, that's €1.20 gon
 
 All unofficial. No API key required. Base URL: `https://fantasy.premierleague.com/api`
 
-| Endpoint | TTL | Notes |
-|----------|-----|-------|
-| `/bootstrap-static/` | 1 hour | All players, teams, events. Heavy response (~500kb). |
-| `/event/{gw}/live/` | 60 sec | Live points, BPS for current GW. |
-| `/entry/{id}/` | 5 min | Manager overview, overall rank, points. |
-| `/entry/{id}/event/{gw}/picks/` | 2 min | Manager's picks for a GW, active chip. |
-| `/leagues-classic/{id}/standings/` | 90 sec | League table, paginated. |
+| Endpoint                           | TTL    | Notes                                                |
+| ---------------------------------- | ------ | ---------------------------------------------------- |
+| `/bootstrap-static/`               | 1 hour | All players, teams, events. Heavy response (~500kb). |
+| `/event/{gw}/live/`                | 60 sec | Live points, BPS for current GW.                     |
+| `/entry/{id}/`                     | 5 min  | Manager overview, overall rank, points.              |
+| `/entry/{id}/event/{gw}/picks/`    | 2 min  | Manager's picks for a GW, active chip.               |
+| `/leagues-classic/{id}/standings/` | 90 sec | League table, paginated.                             |
 
 **Important nuances:**
+
 - Prices in tenths: `now_cost: 55` = £5.5m. Use `formatPrice()` from `fpl-client`.
 - Captain multiplier: 2× normally, 3× with Triple Captain chip.
 - Bench Boost activates all 15 picks.
@@ -115,6 +127,7 @@ All unofficial. No API key required. Base URL: `https://fantasy.premierleague.co
 ## 6. Database Schema
 
 ### `profiles` (extends Supabase `auth.users`)
+
 ```sql
 id uuid (FK → auth.users)
 email text
@@ -125,6 +138,7 @@ created_at, updated_at
 ```
 
 ### `subscriptions`
+
 ```sql
 id uuid
 user_id uuid (FK → profiles)
@@ -142,18 +156,21 @@ Migration file: `docs/supabase/001_initial_schema.sql`
 ## 7. MVP Feature Set
 
 ### ✅ Free tier (launch)
+
 - **Live Rank** — enter team ID → see live GW points + overall rank, auto-refreshing
 - **Live Mini-Leagues** — enter league ID → live table with rank movement
 - **Price Change Predictor** — risers/fallers based on net transfer activity
 - **Saved team ID** — persisted per user account (requires signup)
 
 ### 🔒 Pro tier (launch or shortly after)
+
 - Push notifications (price changes, autosubs, bonus swings)
 - Transfer planner
 - Effective Ownership (EO) tracker
 - Ad-free
 
 ### ❌ Explicitly deferred
+
 - Live bonus/BPS tracker (v2)
 - What If? rank scenarios (v2)
 - Captain comparison tools (v2)
@@ -296,15 +313,18 @@ pnpm dev:mobile   # Expo dev server
 ```
 
 **Required external accounts before dev:web works:**
+
 - Supabase project → fill `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - Run `docs/supabase/001_initial_schema.sql` in Supabase SQL editor
 
 **Required for payments to work:**
+
 - Stripe account → test mode keys → fill `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - Create two Stripe products (Pro Monthly €4, Pro Yearly €25) → fill `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
 - `stripe listen --forward-to localhost:3000/api/stripe/webhook` for local webhook testing
 
 **Required for Worker KV:**
+
 ```bash
 cd apps/worker
 npx wrangler kv:namespace create FPL_CACHE
@@ -333,24 +353,24 @@ Mirrors `leather-io/mono`. See `CLAUDE.md` for full detail. Key rules:
 
 ## 12. Key Risks & Mitigations
 
-| Risk | Mitigation |
-|------|-----------|
-| FPL API rate limiting | Cloudflare Worker KV cache; never call FPL directly from client |
-| FPL API changes (unofficial) | Monitor livefpl.net; it breaks at the same time, giving early warning |
-| Bonus points accuracy | Mark provisional clearly; "Live (provisional bonus)" label |
-| App Store review delays | Submit early, use TestFlight for beta; web is the primary launch |
-| Low conversion to Pro | Free tier must be genuinely useful; Pro features must be visible but gated |
-| Seasonal traffic spikes (GW1, DGWs) | Cloudflare handles edge traffic; Worker KV absorbs FPL API load |
+| Risk                                | Mitigation                                                                 |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| FPL API rate limiting               | Cloudflare Worker KV cache; never call FPL directly from client            |
+| FPL API changes (unofficial)        | Monitor livefpl.net; it breaks at the same time, giving early warning      |
+| Bonus points accuracy               | Mark provisional clearly; "Live (provisional bonus)" label                 |
+| App Store review delays             | Submit early, use TestFlight for beta; web is the primary launch           |
+| Low conversion to Pro               | Free tier must be genuinely useful; Pro features must be visible but gated |
+| Seasonal traffic spikes (GW1, DGWs) | Cloudflare handles edge traffic; Worker KV absorbs FPL API load            |
 
 ---
 
 ## 13. Revenue Projections
 
-| Scenario | Pro Users | MRR | ARR |
-|----------|-----------|-----|-----|
-| Conservative | 200 | €640 | €7,680 |
-| Realistic | 750 | €2,400 | €28,800 |
-| Optimistic | 2,000 | €6,400 | €76,800 |
+| Scenario     | Pro Users | MRR    | ARR     |
+| ------------ | --------- | ------ | ------- |
+| Conservative | 200       | €640   | €7,680  |
+| Realistic    | 750       | €2,400 | €28,800 |
+| Optimistic   | 2,000     | €6,400 | €76,800 |
 
 Assumptions: 70% monthly / 30% annual mix. Annual at €25 = €2.08/month equivalent.
 
@@ -359,16 +379,19 @@ Assumptions: 70% monthly / 30% annual mix. Annual at €25 = €2.08/month equiv
 ## 14. Post-Launch Roadmap
 
 **v1.1 (September 2026)**
+
 - Live BPS / bonus tracker
 - Autosub projections
 - Push notification delivery (Expo Push + Supabase Edge Function)
 
 **v1.2 (October 2026)**
+
 - Transfer planner (Pro)
 - EO tracker (Pro)
 - Differential finder
 
 **v2.0 (January 2027)**
+
 - What If? rank scenarios
 - Captain comparison
 - Historical rank tracking
