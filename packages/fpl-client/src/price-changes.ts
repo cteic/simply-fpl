@@ -7,11 +7,11 @@ const RISE_THRESHOLD = 0.03;
 const FALL_THRESHOLD = 0.03;
 
 export function predictPriceChanges(bootstrap: FplBootstrapStatic): PriceChange[] {
-  const teamMap = new Map<number, FplTeam>(bootstrap.teams.map(t => [t.id, t]));
+  const teamMap = new Map<number, FplTeam>(bootstrap.teams.map((t) => [t.id, t]));
 
   return bootstrap.elements
-    .filter(player => player.chance_of_playing_next_round !== 0) // skip unavailable
-    .map(player => {
+    .filter((player) => player.chance_of_playing_next_round !== 0) // skip unavailable
+    .map((player) => {
       const team = teamMap.get(player.team);
       if (!team) return null;
 
@@ -42,7 +42,7 @@ export function predictPriceChanges(bootstrap: FplBootstrapStatic): PriceChange[
       } satisfies PriceChange;
     })
     .filter((p): p is PriceChange => p !== null)
-    .filter(p => p.direction !== 'none')
+    .filter((p) => p.direction !== 'none')
     .sort((a, b) => b.probability - a.probability);
 }
 

@@ -1,6 +1,6 @@
-import { LiveRankView } from '@/components/live-rank-view';
+import { LiveRankRealView } from '@/components/views/live-rank-real-view';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ entryId: string }>;
@@ -14,7 +14,7 @@ export default async function LiveRankPage({ params }: Props) {
     return <div>Invalid team ID</div>;
   }
 
-  return <LiveRankView entryId={id} />;
+  return <LiveRankRealView entryId={id} />;
 }
 
 export function generateMetadata() {

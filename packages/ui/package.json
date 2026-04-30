@@ -4,18 +4,35 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
+  "description": "Cross-platform UI components and design tokens for SimplyFPL",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./theme": "./src/theme/index.ts",
+    "./tamagui.config": "./tamagui.config.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint src"
   },
   "dependencies": {
-    "@simplyfpl/types": "workspace:*"
+    "@simplyfpl/types": "workspace:*",
+    "@tamagui/animations-react-native": "^1.121.0",
+    "@tamagui/shorthands": "^1.121.0",
+    "@tamagui/themes": "^1.121.0",
+    "tamagui": "^1.121.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@simplyfpl/tsconfig-config": "workspace:*",
+    "@types/react": "^19.0.0",
     "typescript": "^5.7.0"
   }
 }

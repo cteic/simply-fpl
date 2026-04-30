@@ -1,7 +1,9 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export default function RootLayout() {
   const [queryClient] = useState(
@@ -31,22 +33,10 @@ export default function RootLayout() {
           headerTintColor: '#f9fafb',
         }}
       >
-        <Tabs.Screen
-          name="index"
-          options={{ title: 'Live Rank', tabBarLabel: 'Rank' }}
-        />
-        <Tabs.Screen
-          name="prices"
-          options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
-        />
-        <Tabs.Screen
-          name="leagues"
-          options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues' }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{ title: 'Profile', tabBarLabel: 'Profile' }}
-        />
+        <Tabs.Screen name="index" options={{ title: 'Live Rank', tabBarLabel: 'Rank' }} />
+        <Tabs.Screen name="prices" options={{ title: 'Price Changes', tabBarLabel: 'Prices' }} />
+        <Tabs.Screen name="leagues" options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues' }} />
+        <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
       </Tabs>
     </QueryClientProvider>
   );

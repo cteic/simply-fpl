@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { fplClient } from '@simplyfpl/fpl-client';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 

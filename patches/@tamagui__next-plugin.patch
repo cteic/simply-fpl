@@ -1,0 +1,52 @@
+diff --git a/dist/cjs/withTamagui.cjs b/dist/cjs/withTamagui.cjs
+index 0e4be181b3d18cf57a194b73818cffd81715bee4..9a8a120828fb989f0e495adc5f3a7a2c2e8c2d6c 100644
+--- a/dist/cjs/withTamagui.cjs
++++ b/dist/cjs/withTamagui.cjs
+@@ -128,7 +128,7 @@ const {
+             use: cssLoader
+           });
+         }
+-        if (webpackConfig.plugins.push(new import_webpack.default.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
++        if (webpackConfig.plugins.push(new options.webpack.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
+           const externalize = (context, request) => {
+             const fullPath = request[0] === "." ? import_node_path.default.join(context, request) : request;
+             if (tamaguiOptions.shouldExcludeFromServer) {
+diff --git a/dist/cjs/withTamagui.js b/dist/cjs/withTamagui.js
+index f3e492a4a38252b052bfa4d1eb29b62b40de676e..737448f32b13639488d0a7af2bc666cbd2aa258d 100644
+--- a/dist/cjs/withTamagui.js
++++ b/dist/cjs/withTamagui.js
+@@ -112,7 +112,7 @@ const { loadTamaguiBuildConfigSync } = import_static.default, withTamagui = (tam
+           use: cssLoader
+         });
+       }
+-      if (webpackConfig.plugins.push(new import_webpack.default.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
++      if (webpackConfig.plugins.push(new options.webpack.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
+         const externalize = (context, request) => {
+           const fullPath = request[0] === "." ? import_node_path.default.join(context, request) : request;
+           if (tamaguiOptions.shouldExcludeFromServer) {
+diff --git a/dist/esm/withTamagui.js b/dist/esm/withTamagui.js
+index 525efa6c7f181bbcdb97cff350700bc6fadb4069..dd3cab29f7b7dfdb24499da58cdd6171a48ee651 100644
+--- a/dist/esm/withTamagui.js
++++ b/dist/esm/withTamagui.js
+@@ -91,7 +91,7 @@ const { loadTamaguiBuildConfigSync } = Static, withTamagui = (tamaguiOptionsIn)
+           use: cssLoader
+         });
+       }
+-      if (webpackConfig.plugins.push(new webpack.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
++      if (webpackConfig.plugins.push(new options.webpack.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
+         const externalize = (context, request) => {
+           const fullPath = request[0] === "." ? path.join(context, request) : request;
+           if (tamaguiOptions.shouldExcludeFromServer) {
+diff --git a/dist/esm/withTamagui.mjs b/dist/esm/withTamagui.mjs
+index c9b80be3dfb37866c29bf3cd79f552fdb2f28c38..50e80cf777dcc4732bdc8d741930829b7076fac0 100644
+--- a/dist/esm/withTamagui.mjs
++++ b/dist/esm/withTamagui.mjs
+@@ -92,7 +92,7 @@ const {
+             use: cssLoader
+           });
+         }
+-        if (webpackConfig.plugins.push(new webpack.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
++        if (webpackConfig.plugins.push(new options.webpack.DefinePlugin(defines)), process.env.IGNORE_TS_CONFIG_PATHS && (process.env.DEBUG && console.info(prefix, "ignoring tsconfig paths"), webpackConfig.resolve.plugins[0] && (delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"], delete webpackConfig.resolve.plugins[0].paths.tamagui)), tamaguiOptions.disableOptimizeLucideIcons || (nextConfig.experimental ||= {}, nextConfig.experimental.optimizePackageImports ||= [], nextConfig.experimental.optimizePackageImports.push("@tamagui/lucide-icons")), isServer) {
+           const externalize = (context, request) => {
+             const fullPath = request[0] === "." ? path.join(context, request) : request;
+             if (tamaguiOptions.shouldExcludeFromServer) {

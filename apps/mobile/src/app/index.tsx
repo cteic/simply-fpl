@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+
 import {
   ActivityIndicator,
   FlatList,
@@ -11,6 +11,9 @@ import {
   TextInput,
   View,
 } from 'react-native';
+
+import { useQuery } from '@tanstack/react-query';
+
 import { calculateLivePoints, fplClient, getCurrentGameweek } from '@simplyfpl/fpl-client';
 
 const COLORS = {
@@ -46,7 +49,8 @@ export default function LiveRankScreen() {
   const { data: picks, isLoading: picksLoading } = useQuery({
     queryKey: ['entry-picks', submittedId, currentGw],
     queryFn: () => {
-      if (submittedId === null || currentGw === null) throw new Error('submittedId and currentGw required');
+      if (submittedId === null || currentGw === null)
+        throw new Error('submittedId and currentGw required');
       return fplClient.getEntryPicks(submittedId, currentGw);
     },
     enabled: submittedId !== null && currentGw !== null,
@@ -73,9 +77,7 @@ export default function LiveRankScreen() {
   const isLoading = entryLoading || picksLoading || liveLoading;
 
   const livePoints =
-    picks && liveGw && bootstrap
-      ? calculateLivePoints(picks, liveGw, bootstrap)
-      : null;
+    picks && liveGw && bootstrap ? calculateLivePoints(picks, liveGw, bootstrap) : null;
 
   return (
     <KeyboardAvoidingView
@@ -127,11 +129,11 @@ export default function LiveRankScreen() {
           {picks && bootstrap && liveGw && (
             <FlatList
               data={picks.picks.slice(0, 11)}
-              keyExtractor={item => String(item.element)}
+              keyExtractor={(item) => String(item.element)}
               style={styles.picksList}
               renderItem={({ item: pick }) => {
-                const player = bootstrap.elements.find(e => e.id === pick.element);
-                const live = liveGw.elements.find(e => e.id === pick.element);
+                const player = bootstrap.elements.find((e) => e.id === pick.element);
+                const live = liveGw.elements.find((e) => e.id === pick.element);
                 const pts = (live?.stats.total_points ?? 0) * pick.multiplier;
                 return (
                   <View style={styles.pickRow}>
@@ -140,9 +142,7 @@ export default function LiveRankScreen() {
                       {pick.is_captain ? ' (C)' : ''}
                       {pick.is_vice_captain ? ' (V)' : ''}
                     </Text>
-                    <Text style={[styles.pickPoints, pts > 6 && styles.pickPointsGood]}>
-                      {pts}
-                    </Text>
+                    <Text style={[styles.pickPoints, pts > 6 && styles.pickPointsGood]}>{pts}</Text>
                   </View>
                 );
               }}

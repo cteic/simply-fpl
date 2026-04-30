@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+
 import {
   ActivityIndicator,
   FlatList,
@@ -11,6 +11,9 @@ import {
   TextInput,
   View,
 } from 'react-native';
+
+import { useQuery } from '@tanstack/react-query';
+
 import { fplClient } from '@simplyfpl/fpl-client';
 
 const COLORS = {
@@ -66,15 +69,13 @@ export default function LeaguesScreen() {
         </Pressable>
       </View>
 
-      {league && (
-        <Text style={styles.leagueName}>{league.league.name}</Text>
-      )}
+      {league && <Text style={styles.leagueName}>{league.league.name}</Text>}
 
       {isLoading && <ActivityIndicator color={COLORS.accent} style={{ marginTop: 40 }} />}
 
       <FlatList
         data={standings}
-        keyExtractor={item => String(item.id)}
+        keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{ paddingBottom: 40 }}
         ListHeaderComponent={
           standings.length > 0 ? (
@@ -102,8 +103,12 @@ export default function LeaguesScreen() {
                 <Text style={[styles.movement, { color: movementColor }]}>{movementText}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.entryName} numberOfLines={1}>{item.entry_name}</Text>
-                <Text style={styles.playerName} numberOfLines={1}>{item.player_name}</Text>
+                <Text style={styles.entryName} numberOfLines={1}>
+                  {item.entry_name}
+                </Text>
+                <Text style={styles.playerName} numberOfLines={1}>
+                  {item.player_name}
+                </Text>
               </View>
               <Text style={styles.gwTotal}>{item.event_total}</Text>
               <Text style={styles.total}>{item.total}</Text>

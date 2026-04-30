@@ -18,8 +18,8 @@ const CORS_HEADERS = {
 // Route → cache TTL mapping (seconds)
 function getTtl(pathname: string): number {
   if (pathname.includes('bootstrap-static')) return 3600; // 1 hour
-  if (pathname.includes('/live/')) return 60;             // 1 minute
-  if (pathname.includes('leagues-classic')) return 90;    // 90 seconds
+  if (pathname.includes('/live/')) return 60; // 1 minute
+  if (pathname.includes('leagues-classic')) return 90; // 90 seconds
   if (pathname.includes('/entry/') && pathname.includes('/picks/')) return 120;
   if (pathname.includes('/entry/')) return 300;
   return 120;

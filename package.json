@@ -17,8 +17,8 @@
     "dev:web": "turbo run dev --filter=@simplyfpl/web",
     "dev:mobile": "turbo run dev --filter=@simplyfpl/mobile",
     "dev:worker": "turbo run dev --filter=@simplyfpl/worker",
-    "format": "turbo run format",
-    "format:check": "turbo run format:check",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
@@ -40,6 +40,7 @@
     "@simplyfpl/eslint-config": "workspace:*",
     "@simplyfpl/prettier-config": "workspace:*",
     "@simplyfpl/tsconfig-config": "workspace:*",
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/node": "^22.0.0",
     "eslint": "^9.0.0",
     "husky": "^9.1.7",
@@ -57,6 +58,13 @@
   },
   "packageManager": "pnpm@9.15.0",
   "pnpm": {
-    "overrides": {}
+    "overrides": {
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0",
+      "react-native-web": "^0.21.0"
+    },
+    "patchedDependencies": {
+      "@tamagui/next-plugin": "patches/@tamagui__next-plugin.patch"
+    }
   }
 }

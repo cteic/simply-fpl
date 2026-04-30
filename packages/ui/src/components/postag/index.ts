@@ -1,0 +1,1 @@
+export { Postag } from './postag';

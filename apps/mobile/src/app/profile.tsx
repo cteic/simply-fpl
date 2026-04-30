@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Placeholder — auth integration added in next iteration
 const COLORS = {
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
             'Transfer planner',
             'Effective ownership tracker',
             'Ad-free experience',
-          ].map(feature => (
+          ].map((feature) => (
             <View key={feature} style={styles.featureRow}>
               <Text style={styles.featureTick}>✓</Text>
               <Text style={styles.featureText}>{feature}</Text>
