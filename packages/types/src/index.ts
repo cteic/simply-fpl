@@ -168,11 +168,4 @@ export interface PriceChange {
   probability: number; // 0-1
 }
 
-// Auth / app user types
-export interface UserProfile {
-  id: string;
-  email: string;
-  savedTeamIds: number[];
-  isPro: boolean;
-  proExpiresAt: string | null;
-}
+export * from './db';
