@@ -2,7 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 
+import { auth } from '@simplyfpl/features';
 import { Nav } from '@simplyfpl/ui';
+
+const { useAuth } = auth;
 
 const LINKS = [
   { label: 'Live Rank', href: '/' },
@@ -13,6 +16,7 @@ const LINKS = [
 
 export function NavBar() {
   const pathname = usePathname() ?? '/';
+  const { session, signOut } = useAuth();
 
   const links = LINKS.map((link) => {
     const active =
@@ -22,5 +26,13 @@ export function NavBar() {
     return { ...link, active };
   });
 
-  return <Nav links={links} liveLabel="GW30 Live" />;
+  const authProps = session
+    ? {
+        onSignOut: () => {
+          signOut();
+        },
+      }
+    : {};
+
+  return <Nav links={links} liveLabel="GW30 Live" signInHref="/login" {...authProps} />;
 }
