@@ -1,5 +1,5 @@
-import { LiveRankShowcase } from '@/components/views/live-rank-showcase';
+import { HomeSearchView } from '@/components/views/home-search-view';
 
 export default function HomePage() {
-  return <LiveRankShowcase />;
+  return <HomeSearchView />;
 }
