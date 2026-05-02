@@ -54,3 +54,11 @@ export function useClassicLeague(leagueId: number) {
     refetchInterval: 90_000,
   });
 }
+
+export function useFixtures(eventId: number | null) {
+  return useQuery({
+    queryKey: ['fixtures', eventId ?? 'all'],
+    queryFn: () => fplClient.getFixtures(eventId ?? undefined),
+    staleTime: 10 * 60 * 1000, // 10 minutes; matches worker TTL
+  });
+}

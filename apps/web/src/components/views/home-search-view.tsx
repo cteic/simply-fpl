@@ -118,13 +118,14 @@ export function HomeSearchView() {
               ? 'Look up any FPL team — yours is saved separately and follows you across devices.'
               : 'Enter your FPL team ID or paste your team URL to see your live rank, gameweek points, and pitch.'}
           </Text>
-          <XStack gap={10}>
+          <XStack gap={10} alignItems="center">
             <Input
               flex={1}
+              size="$4"
               value={input}
               onChangeText={setInput}
               onSubmitEditing={handleSubmit}
-              placeholder="e.g. 1234567 or fantasy.premierleague.com/entry/1234567/event/30"
+              placeholder="1234567 or paste FPL team URL"
               borderColor="$borderStrong"
               backgroundColor="$background"
             />

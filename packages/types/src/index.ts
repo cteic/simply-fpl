@@ -148,6 +148,27 @@ export interface FplLeague {
   };
 }
 
+// Fixtures
+export type FplDifficulty = 1 | 2 | 3 | 4 | 5;
+
+export interface FplFixture {
+  code: number;
+  event: number | null; // gameweek number; null for postponed/unscheduled
+  finished: boolean;
+  finished_provisional: boolean;
+  id: number;
+  kickoff_time: string | null;
+  minutes: number;
+  provisional_start_time: boolean;
+  started: boolean | null;
+  team_a: number; // away team id
+  team_a_score: number | null;
+  team_h: number; // home team id
+  team_h_score: number | null;
+  team_h_difficulty: FplDifficulty;
+  team_a_difficulty: FplDifficulty;
+}
+
 // Computed/app types
 export interface LiveRankEntry {
   entryId: number;
