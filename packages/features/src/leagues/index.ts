@@ -1,3 +1,2 @@
-// Mini-league logic — sorting, filtering, search by player, live updates
-// Placeholder: implement when Live Mini-League feature is started
-export {};
+export { useTrackedLeagues } from './use-tracked-leagues';
+export type { TrackedLeague } from './use-tracked-leagues';
