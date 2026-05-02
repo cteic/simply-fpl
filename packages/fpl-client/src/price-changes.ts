@@ -1,10 +1,11 @@
 import type { FplBootstrapStatic, FplTeam, PriceChange } from '@simplyfpl/types';
 
 // FPL price change thresholds (approximate — FPL doesn't publish exact algo)
-// A player rises if net transfers in > ~3% of their ownership
-// A player falls if net transfers out > ~3% of their ownership
-const RISE_THRESHOLD = 0.03;
-const FALL_THRESHOLD = 0.03;
+// Reverse-engineered from observed price changes: ~1% of ownership net flow
+// is roughly the trigger. Even peak transfer activity rarely exceeds 2% of
+// ownership, so a 3% threshold yielded zero predictions.
+const RISE_THRESHOLD = 0.01;
+const FALL_THRESHOLD = 0.01;
 
 export function predictPriceChanges(bootstrap: FplBootstrapStatic): PriceChange[] {
   const teamMap = new Map<number, FplTeam>(bootstrap.teams.map((t) => [t.id, t]));
