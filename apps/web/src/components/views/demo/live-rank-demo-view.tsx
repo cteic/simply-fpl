@@ -24,14 +24,19 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
-import { DEMO_BENCH, DEMO_FORMATION, DEMO_MINI_LEAGUE_ROWS, DEMO_PRICE_ROWS } from '../demo-data';
+import {
+  DEMO_BENCH,
+  DEMO_FORMATION,
+  DEMO_MINI_LEAGUE_ROWS,
+  DEMO_PRICE_ROWS,
+} from '../../demo-data';
 
-export function LiveRankShowcase() {
+export function LiveRankDemoView() {
   return (
     <PageShell>
       <PageHeader
-        title="Live Rank"
-        meta="Gameweek 30 · 8 of 10 matches played"
+        title="Live Rank — Demo"
+        meta="Static example · GW30"
         right={<TeamPill teamId="4821039" />}
       />
 
@@ -146,7 +151,7 @@ export function LiveRankShowcase() {
       </XStack>
 
       <FNote>
-        Data via Fantasy Premier League API · Updates every 60s during live gameweeks
+        Demo only · enter your team ID on the home page to see your real live rank.
         {'\n'}SimplyFPL is not affiliated with the Premier League or Fantasy Premier League
       </FNote>
     </PageShell>

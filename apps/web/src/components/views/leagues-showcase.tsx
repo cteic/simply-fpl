@@ -8,7 +8,6 @@ import {
   Card,
   FNote,
   Input,
-  LeagueCard,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -17,7 +16,6 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
-import { DEMO_GIBBINGTONS_ROWS, DEMO_WORK_LEAGUE_ROWS } from '../demo-data';
 import { TrackedLeagueCard } from './tracked-league-card';
 
 const { useAuth } = auth;
@@ -57,34 +55,37 @@ export function LeaguesShowcase() {
 function UnauthedView() {
   return (
     <PageShell>
-      <PageHeader title="My Leagues" meta="Demo data · sign in to track your own" />
+      <PageHeader title="My Leagues" meta="Sign in to track your FPL mini-leagues" />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
         <SectionHeader title="Sign in to track leagues" />
         <YStack gap={10} marginTop={4}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Sign in with a magic link to add and watch your FPL mini-leagues live.
+            Add any FPL mini-league by ID or URL and we'll keep its standings live for you. A magic
+            link to your email is all it takes — no password.
           </Text>
-          <XStack>
-            <Button tone="primary" size="md" onPress={() => (window.location.href = '/login')}>
-              Sign in
+          <XStack gap={10}>
+            <Button
+              tone="primary"
+              size="md"
+              onPress={() => {
+                window.location.href = '/login';
+              }}
+            >
+              Sign in with email
+            </Button>
+            <Button
+              tone="ghost"
+              size="md"
+              onPress={() => {
+                window.location.href = '/demo/leagues';
+              }}
+            >
+              See a demo
             </Button>
           </XStack>
         </YStack>
       </Card>
-
-      <YStack gap={10}>
-        <LeagueCard
-          name="The Gibbingtons"
-          meta="Classic · 12 managers"
-          rows={DEMO_GIBBINGTONS_ROWS}
-        />
-        <LeagueCard
-          name="Work League 2024/25"
-          meta="Classic · 28 managers"
-          rows={DEMO_WORK_LEAGUE_ROWS}
-        />
-      </YStack>
 
       <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
     </PageShell>

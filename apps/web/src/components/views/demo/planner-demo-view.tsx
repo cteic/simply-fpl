@@ -2,14 +2,14 @@
 
 import { FNote, PageHeader, PageShell, PlannerGrid, ProBanner, Text } from '@simplyfpl/ui';
 
-import { DEMO_PLANNER_CELLS } from '../demo-data';
+import { DEMO_PLANNER_CELLS } from '../../demo-data';
 
-export function PlannerShowcase() {
+export function PlannerDemoView() {
   return (
     <PageShell>
       <PageHeader
-        title="Transfer Planner"
-        meta="Plan your squad across upcoming gameweeks"
+        title="Transfer Planner — Demo"
+        meta="Static example of the Pro planner"
         right={
           <Text
             fontFamily="$body"
@@ -35,7 +35,9 @@ export function PlannerShowcase() {
         body="Plan transfers, chips and captain picks across the full season. €4/mo or €25/yr."
       />
 
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL&apos;s official data.</FNote>
+      <FNote>
+        Demo only · fixture difficulty ratings (FDR) are based on FPL&apos;s official data.
+      </FNote>
     </PageShell>
   );
 }
