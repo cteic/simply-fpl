@@ -47,6 +47,10 @@ jobs:
       - run: pnpm build:packages
       - name: Build web with @cloudflare/next-on-pages
         working-directory: apps/web
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: pnpm exec next-on-pages
       - name: Create Pages project if needed
         working-directory: apps/web
