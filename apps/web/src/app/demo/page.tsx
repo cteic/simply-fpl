@@ -14,10 +14,7 @@ export default function DemoIndexPage() {
 
       <YStack gap={10}>
         <Link href="/demo/live-rank" style={{ textDecoration: 'none' }}>
-          <DemoCard
-            title="Live Rank"
-            body="Pitch view, GW points, live rank delta, mini-league."
-          />
+          <DemoCard title="Live Rank" body="Pitch view, GW points, live rank delta, mini-league." />
         </Link>
         <Link href="/demo/leagues" style={{ textDecoration: 'none' }}>
           <DemoCard
