@@ -72,10 +72,20 @@ interface NavLinkItem {
 interface NavProps {
   links: NavLinkItem[];
   liveLabel?: string;
+  signInHref?: string;
+  onSignOut?: () => void;
   rightAction?: ReactNode;
 }
 
-export function Nav({ links, liveLabel = 'GW30 Live', rightAction }: NavProps) {
+export function Nav({
+  links,
+  liveLabel = 'GW30 Live',
+  signInHref = '/login',
+  onSignOut,
+  rightAction,
+}: NavProps) {
+  const isSignedIn = typeof onSignOut === 'function';
+
   return (
     <Bar tag="nav" style={STICKY_STYLE}>
       <Left>
@@ -97,9 +107,21 @@ export function Nav({ links, liveLabel = 'GW30 Live', rightAction }: NavProps) {
       <Right>
         <LivePill label={liveLabel} />
         <HideOnMobile>
-          <Button tone="ghost" size="md">
-            Sign in
-          </Button>
+          {isSignedIn ? (
+            <Button tone="ghost" size="md" onPress={onSignOut}>
+              Sign out
+            </Button>
+          ) : (
+            <Button
+              tone="ghost"
+              size="md"
+              onPress={() => {
+                window.location.href = signInHref;
+              }}
+            >
+              Sign in
+            </Button>
+          )}
         </HideOnMobile>
         {rightAction ?? (
           <Button tone="primary" size="md">
