@@ -16,6 +16,8 @@
     "@simplyfpl/fpl-client": "workspace:*",
     "@simplyfpl/types": "workspace:*",
     "@simplyfpl/ui": "workspace:*",
+    "@supabase/ssr": "^0.10.2",
+    "@supabase/supabase-js": "^2.0.0",
     "@tanstack/react-query": "^5.0.0",
     "next": "~15.4.11",
     "react": "^19.0.0",

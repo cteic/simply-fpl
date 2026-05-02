@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "@simplyfpl/fpl-client": "workspace:*",
-    "@simplyfpl/types": "workspace:*"
+    "@simplyfpl/types": "workspace:*",
+    "@supabase/supabase-js": "^2.0.0"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
