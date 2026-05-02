@@ -49,18 +49,20 @@ jobs:
         working-directory: apps/web
         run: pnpm exec next-on-pages
       - name: Create Pages project if needed
+        working-directory: apps/web
         run: pnpm exec wrangler pages project create simply-fpl --production-branch main 2>/dev/null || true
       - name: Deploy to Cloudflare Pages
         id: deploy
+        working-directory: apps/web
         run: |
           set -o pipefail
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            pnpm exec wrangler pages deploy apps/web/.vercel/output/static \
+            pnpm exec wrangler pages deploy .vercel/output/static \
               --project-name=simply-fpl \
               --branch="${{ github.head_ref }}" \
               --commit-dirty=true 2>&1 | tee deploy.log
           else
-            pnpm exec wrangler pages deploy apps/web/.vercel/output/static \
+            pnpm exec wrangler pages deploy .vercel/output/static \
               --project-name=simply-fpl \
               --commit-dirty=true 2>&1 | tee deploy.log
           fi
