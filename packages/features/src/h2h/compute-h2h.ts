@@ -37,6 +37,8 @@ export interface H2hSide {
   overallRank: number | null;
   captain: H2hPlayer | null;
   xi: H2hPlayer[];
+  bench: H2hPlayer[];
+  formation: string;
 }
 
 export interface H2hResult {
@@ -75,10 +77,12 @@ export function computeH2h({
 
   function buildSide(entry: FplEntry, picks: FplEntryGameweekPicks): H2hSide {
     const xi: H2hPlayer[] = [];
+    const bench: H2hPlayer[] = [];
     let captain: H2hPlayer | null = null;
 
-    for (const pick of picks.picks) {
-      if (pick.position > 11) continue;
+    const orderedPicks = [...picks.picks].sort((a, b) => a.position - b.position);
+
+    for (const pick of orderedPicks) {
       const player = playersById.get(pick.element);
       if (!player) continue;
       const live = liveById.get(pick.element);
@@ -95,12 +99,25 @@ export function computeH2h({
         isViceCaptain: pick.is_vice_captain,
         minutes: live?.stats.minutes ?? 0,
       };
-      xi.push(built);
-      if (pick.is_captain) captain = built;
+      if (pick.position <= 11) {
+        xi.push(built);
+        if (pick.is_captain) captain = built;
+      } else {
+        bench.push(built);
+      }
     }
 
     const gwPoints = xi.reduce((sum, p) => sum + p.effectivePoints, 0);
     const transferCost = picks.entry_history.event_transfers_cost;
+
+    let def = 0;
+    let mid = 0;
+    let fwd = 0;
+    for (const p of xi) {
+      if (p.position === 'def') def += 1;
+      else if (p.position === 'mid') mid += 1;
+      else if (p.position === 'fwd') fwd += 1;
+    }
 
     return {
       entryId: entry.id,
@@ -112,6 +129,8 @@ export function computeH2h({
       overallRank: entry.summary_overall_rank ?? null,
       captain,
       xi,
+      bench,
+      formation: `${def}–${mid}–${fwd}`,
     };
   }
 
