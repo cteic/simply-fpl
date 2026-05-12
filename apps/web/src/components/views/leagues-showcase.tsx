@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { auth, leagues as leaguesFeatures } from '@simplyfpl/features';
 import {
@@ -8,7 +8,6 @@ import {
   Card,
   FNote,
   Input,
-  LeagueCard,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -17,11 +16,15 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
-import { DEMO_GIBBINGTONS_ROWS, DEMO_WORK_LEAGUE_ROWS } from '../demo-data';
+import { useEntry } from '@/queries/fpl';
+
 import { TrackedLeagueCard } from './tracked-league-card';
 
 const { useAuth } = auth;
 const { useTrackedLeagues } = leaguesFeatures;
+
+const STORAGE_KEY = 'simplyfpl:lastEntryId';
+const MAX_CLASSIC_LEAGUES = 5;
 
 function parseLeagueId(input: string): number | null {
   const trimmed = input.trim();
@@ -38,8 +41,19 @@ function parseLeagueId(input: string): number | null {
 
 export function LeaguesShowcase() {
   const { session, isLoading: isAuthLoading } = useAuth();
+  const [entryId, setEntryId] = useState<number | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
-  if (isAuthLoading) {
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const id = saved ? Number(saved) : NaN;
+    if (Number.isInteger(id) && id > 0) {
+      setEntryId(id);
+    }
+    setHydrated(true);
+  }, []);
+
+  if (isAuthLoading || !hydrated) {
     return (
       <PageShell>
         <PageHeader title="My Leagues" meta="Loading…" />
@@ -47,44 +61,96 @@ export function LeaguesShowcase() {
     );
   }
 
-  if (!session) {
-    return <UnauthedView />;
+  if (session) {
+    return <AuthedView />;
   }
 
-  return <AuthedView />;
+  if (entryId !== null) {
+    return <PublicEntryLeaguesView entryId={entryId} />;
+  }
+
+  return <NoTeamView />;
 }
 
-function UnauthedView() {
+function PublicEntryLeaguesView({ entryId }: { entryId: number }) {
+  const { data: entry, isLoading, isError } = useEntry(entryId);
+
+  const classicLeagues = (entry?.leagues?.classic ?? [])
+    .filter((l) => l.league_type !== 's')
+    .slice(0, MAX_CLASSIC_LEAGUES);
+
   return (
     <PageShell>
-      <PageHeader title="My Leagues" meta="Demo data · sign in to track your own" />
+      <PageHeader
+        title="My Leagues"
+        meta={
+          entry ? `Team ${entryId} · ${entry.name}` : `Team ${entryId} · Live mini-league standings`
+        }
+      />
+
+      <Card paddingHorizontal={20} paddingVertical={16} marginBottom={20}>
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          Sign in to pin extra leagues and keep them across devices.
+        </Text>
+        <XStack marginTop={10}>
+          <Button
+            tone="ghost"
+            size="sm"
+            onPress={() => {
+              window.location.href = '/login';
+            }}
+          >
+            Sign in
+          </Button>
+        </XStack>
+      </Card>
+
+      <LeagueListBody
+        isLoading={isLoading}
+        isError={isError}
+        leagueIds={classicLeagues.map((l) => l.id)}
+        emptyMessage="No mini-leagues found for this team yet."
+      />
+
+      <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
+    </PageShell>
+  );
+}
+
+function NoTeamView() {
+  return (
+    <PageShell>
+      <PageHeader title="My Leagues" meta="Enter your FPL team ID to see your leagues" />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
-        <SectionHeader title="Sign in to track leagues" />
+        <SectionHeader title="Link your FPL team" />
         <YStack gap={10} marginTop={4}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Sign in with a magic link to add and watch your FPL mini-leagues live.
+            We pull your live mini-league standings straight from FPL once we know your team ID.
+            Sign in afterwards if you want to pin extra leagues across devices.
           </Text>
-          <XStack>
-            <Button tone="primary" size="md" onPress={() => (window.location.href = '/login')}>
+          <XStack gap={10}>
+            <Button
+              tone="primary"
+              size="md"
+              onPress={() => {
+                window.location.href = '/';
+              }}
+            >
+              Enter team ID
+            </Button>
+            <Button
+              tone="ghost"
+              size="md"
+              onPress={() => {
+                window.location.href = '/login';
+              }}
+            >
               Sign in
             </Button>
           </XStack>
         </YStack>
       </Card>
-
-      <YStack gap={10}>
-        <LeagueCard
-          name="The Gibbingtons"
-          meta="Classic · 12 managers"
-          rows={DEMO_GIBBINGTONS_ROWS}
-        />
-        <LeagueCard
-          name="Work League 2024/25"
-          meta="Classic · 28 managers"
-          rows={DEMO_WORK_LEAGUE_ROWS}
-        />
-      </YStack>
 
       <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
     </PageShell>
@@ -158,7 +224,7 @@ function AuthedView() {
       ) : null}
 
       <YStack gap={10}>
-        <LeagueListBody
+        <TrackedLeagueListBody
           isLoading={isLoading}
           leagues={leagues}
           onRemove={(leagueId) => {
@@ -186,11 +252,58 @@ function AuthedView() {
 
 interface LeagueListBodyProps {
   isLoading: boolean;
+  isError?: boolean;
+  leagueIds: number[];
+  emptyMessage: string;
+}
+
+function LeagueListBody({ isLoading, isError, leagueIds, emptyMessage }: LeagueListBodyProps) {
+  if (isLoading) {
+    return (
+      <Card paddingHorizontal={16} paddingVertical={13}>
+        <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+          Loading your leagues…
+        </Text>
+      </Card>
+    );
+  }
+
+  if (isError === true) {
+    return (
+      <Card paddingHorizontal={16} paddingVertical={13}>
+        <Text fontFamily="$body" fontSize={13} color="$danger">
+          Couldn't load this team. Check the team ID and try again.
+        </Text>
+      </Card>
+    );
+  }
+
+  if (leagueIds.length === 0) {
+    return (
+      <Card paddingHorizontal={16} paddingVertical={13}>
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          {emptyMessage}
+        </Text>
+      </Card>
+    );
+  }
+
+  return (
+    <YStack gap={10}>
+      {leagueIds.map((leagueId) => (
+        <TrackedLeagueCard key={leagueId} leagueId={leagueId} />
+      ))}
+    </YStack>
+  );
+}
+
+interface TrackedLeagueListBodyProps {
+  isLoading: boolean;
   leagues: { league_id: number }[];
   onRemove: (leagueId: number) => void;
 }
 
-function LeagueListBody({ isLoading, leagues, onRemove }: LeagueListBodyProps) {
+function TrackedLeagueListBody({ isLoading, leagues, onRemove }: TrackedLeagueListBodyProps) {
   if (isLoading && leagues.length === 0) {
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
