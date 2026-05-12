@@ -51,16 +51,9 @@ interface LeagueCardProps {
   meta: string;
   rows: LeagueTableRow[];
   badge?: string;
-  showOverallRank?: boolean;
 }
 
-export function LeagueCard({
-  name,
-  meta,
-  rows,
-  badge = 'Live',
-  showOverallRank = true,
-}: LeagueCardProps) {
+export function LeagueCard({ name, meta, rows, badge = 'Live' }: LeagueCardProps) {
   return (
     <Card>
       <Head>
@@ -70,7 +63,7 @@ export function LeagueCard({
         </YStack>
         <Badge>{badge}</Badge>
       </Head>
-      <LeagueTable rows={rows} showOverallRank={showOverallRank} />
+      <LeagueTable rows={rows} />
     </Card>
   );
 }
