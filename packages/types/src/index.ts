@@ -83,6 +83,14 @@ export interface FplLiveGameweek {
 }
 
 // Entry (manager) types
+export interface FplEntryLeague {
+  id: number;
+  name: string;
+  short_name: string | null;
+  league_type: 'x' | 'c' | 's';
+  entry_rank: number | null;
+}
+
 export interface FplEntry {
   id: number;
   player_first_name: string;
@@ -92,6 +100,10 @@ export interface FplEntry {
   summary_overall_points: number;
   summary_event_rank: number | null;
   summary_event_points: number;
+  leagues?: {
+    classic: FplEntryLeague[];
+    h2h: FplEntryLeague[];
+  };
 }
 
 export interface FplEntryPick {
