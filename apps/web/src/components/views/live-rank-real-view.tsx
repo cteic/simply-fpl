@@ -284,6 +284,15 @@ export function LiveRankRealView({ entryId }: Props) {
         </Pitch>
       </YStack>
 
+      <XStack marginTop={12} marginBottom={8} justifyContent="center">
+        <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+          Not your team?{' '}
+          <Text tag="a" href="/?change=1" color="$color" fontSize={12} fontFamily="$body">
+            Search again →
+          </Text>
+        </Text>
+      </XStack>
+
       <FNote>
         Data via Fantasy Premier League API · Live values refresh every 60s while gameweeks are
         active.
