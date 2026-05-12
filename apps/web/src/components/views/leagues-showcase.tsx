@@ -73,6 +73,7 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
         isLoading={isLoading}
         isError={isError}
         leagueIds={classicLeagues.map((l) => l.id)}
+        myEntryId={entryId}
         emptyMessage="No mini-leagues found for this team yet."
       />
 
@@ -145,10 +146,17 @@ interface LeagueListBodyProps {
   isLoading: boolean;
   isError: boolean;
   leagueIds: number[];
+  myEntryId?: number;
   emptyMessage: string;
 }
 
-function LeagueListBody({ isLoading, isError, leagueIds, emptyMessage }: LeagueListBodyProps) {
+function LeagueListBody({
+  isLoading,
+  isError,
+  leagueIds,
+  myEntryId,
+  emptyMessage,
+}: LeagueListBodyProps) {
   if (isLoading) {
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
@@ -182,7 +190,11 @@ function LeagueListBody({ isLoading, isError, leagueIds, emptyMessage }: LeagueL
   return (
     <YStack gap={10}>
       {leagueIds.map((leagueId) => (
-        <TrackedLeagueCard key={leagueId} leagueId={leagueId} />
+        <TrackedLeagueCard
+          key={leagueId}
+          leagueId={leagueId}
+          {...(myEntryId !== undefined ? { myEntryId } : {})}
+        />
       ))}
     </YStack>
   );

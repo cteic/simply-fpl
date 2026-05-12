@@ -12,6 +12,7 @@
     "./planner": "./src/planner/index.ts",
     "./prices": "./src/prices/index.ts",
     "./auth": "./src/auth/index.ts",
+    "./h2h": "./src/h2h/index.ts",
     "./subscriptions": "./src/subscriptions/index.ts"
   },
   "scripts": {
