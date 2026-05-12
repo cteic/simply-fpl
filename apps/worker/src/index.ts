@@ -77,6 +77,59 @@ async function fetchWithCache(
   });
 }
 
+const FPL_CDN_ORIGIN = 'https://fantasy.premierleague.com/dist/img/shirts/standard';
+
+const KIT_FALLBACK_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="110" height="110">' +
+  '<path d="M8 8h12l2 4v8H6v-8l2-4z" fill="#9CA3AF"/>' +
+  '<path d="M11 8v12M17 8v12" stroke="white" stroke-width="1.3"/>' +
+  '</svg>';
+
+function kitFallbackResponse(): Response {
+  return new Response(KIT_FALLBACK_SVG, {
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'image/svg+xml',
+      'Cache-Control': 'public, max-age=300',
+      'X-Kit-Fallback': '1',
+    },
+  });
+}
+
+async function handleKit(ctx: ExecutionContext, pathname: string): Promise<Response> {
+  const match = pathname.match(/^\/kits\/(?:(gk)-)?(\d+)-(110|220)\.webp$/);
+  if (!match) return kitFallbackResponse();
+
+  const isGk = match[1] === 'gk';
+  const teamCode = match[2];
+  const size = match[3];
+
+  const upstreamPath = isGk ? `shirt_${teamCode}_1-${size}.webp` : `shirt_${teamCode}-${size}.webp`;
+  const upstreamUrl = `${FPL_CDN_ORIGIN}/${upstreamPath}`;
+
+  const cache = caches.default;
+  const cacheKey = new Request(`https://kit-cache.simplyfpl/${pathname}`);
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  const upstream = await fetch(upstreamUrl, {
+    headers: { 'User-Agent': 'SimplyFPL/1.0', Accept: 'image/webp,image/*' },
+  });
+  if (!upstream.ok) return kitFallbackResponse();
+
+  const body = await upstream.arrayBuffer();
+  const response = new Response(body, {
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'image/webp',
+      'Cache-Control': 'public, max-age=604800, immutable',
+      'X-Cache': 'MISS',
+    },
+  });
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -88,6 +141,11 @@ export default {
 
     if (request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405 });
+    }
+
+    // Route: /kits/* → FPL kit image proxy
+    if (url.pathname.startsWith('/kits/')) {
+      return handleKit(ctx, url.pathname);
     }
 
     // Route: /fpl/* → proxy to FPL API

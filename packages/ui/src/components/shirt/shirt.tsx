@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { Stack, styled } from 'tamagui';
 
 const Box = styled(Stack, {
@@ -32,16 +34,33 @@ const FILL: Record<ShirtKind, string> = {
 
 interface ShirtProps {
   kind: ShirtKind;
+  kitUrl?: string | undefined;
+  kitUrl2x?: string | undefined;
 }
 
-export function Shirt({ kind }: ShirtProps) {
+export function Shirt({ kind, kitUrl, kitUrl2x }: ShirtProps) {
+  const [failed, setFailed] = useState(false);
   const fill = FILL[kind];
+  const showImage = kitUrl !== undefined && !failed;
+
   return (
     <Box kind={kind}>
-      <svg viewBox="0 0 28 28" fill="none" width={27} height={27}>
-        <path d="M8 8h12l2 4v8H6v-8l2-4z" fill={fill} />
-        <path d="M11 8v12M17 8v12" stroke="white" strokeWidth="1.3" />
-      </svg>
+      {showImage ? (
+        <img
+          src={kitUrl}
+          srcSet={kitUrl2x ? `${kitUrl} 1x, ${kitUrl2x} 2x` : undefined}
+          width={36}
+          height={36}
+          alt=""
+          onError={() => setFailed(true)}
+          style={{ display: 'block', objectFit: 'contain' }}
+        />
+      ) : (
+        <svg viewBox="0 0 28 28" fill="none" width={27} height={27}>
+          <path d="M8 8h12l2 4v8H6v-8l2-4z" fill={fill} />
+          <path d="M11 8v12M17 8v12" stroke="white" strokeWidth="1.3" />
+        </svg>
+      )}
     </Box>
   );
 }

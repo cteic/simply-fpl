@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { calculateLivePoints, getCurrentGameweek } from '@simplyfpl/fpl-client';
+import { calculateLivePoints, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -54,8 +54,10 @@ function rowsForFormation(
     elementsById.set(e.id, e);
   }
   const teamShortById = new Map<number, string>();
+  const teamCodeById = new Map<number, number>();
   for (const t of bootstrap.teams) {
     teamShortById.set(t.id, t.short_name);
+    teamCodeById.set(t.id, t.code);
   }
   const liveById = new Map(liveGw.elements.map((e) => [e.id, e]));
 
@@ -79,6 +81,8 @@ function rowsForFormation(
       const player = elementsById.get(pick.element);
       const live = liveById.get(pick.element);
       const teamShort = player ? (teamShortById.get(player.team) ?? '') : '';
+      const teamCode = player ? teamCodeById.get(player.team) : undefined;
+      const isGoalkeeper = player?.element_type === 1;
       const points = (live?.stats.total_points ?? 0) * pick.multiplier;
       const isCaptain = pick.is_captain;
       const tbp = (live?.stats.minutes ?? 0) === 0;
@@ -95,6 +99,9 @@ function rowsForFormation(
         position: POSITION[player?.element_type ?? 3] ?? 'mid',
         badge: tbp ? '–' : String(points),
         badgeTone: tone,
+        kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
+        kitUrl2x:
+          teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
       };
     });
   }
@@ -111,7 +118,11 @@ function benchPlayers(
   const elementsById = new Map<number, FplPlayer>();
   for (const e of bootstrap.elements) elementsById.set(e.id, e);
   const teamShortById = new Map<number, string>();
-  for (const t of bootstrap.teams) teamShortById.set(t.id, t.short_name);
+  const teamCodeById = new Map<number, number>();
+  for (const t of bootstrap.teams) {
+    teamShortById.set(t.id, t.short_name);
+    teamCodeById.set(t.id, t.code);
+  }
   const liveById = new Map(liveGw.elements.map((e) => [e.id, e]));
 
   return picks.picks
@@ -120,6 +131,8 @@ function benchPlayers(
       const player = elementsById.get(pick.element);
       const live = liveById.get(pick.element);
       const teamShort = player ? (teamShortById.get(player.team) ?? '') : '';
+      const teamCode = player ? teamCodeById.get(player.team) : undefined;
+      const isGoalkeeper = player?.element_type === 1;
       const points = live?.stats.total_points ?? 0;
       return {
         key: pick.element,
@@ -128,6 +141,9 @@ function benchPlayers(
         position: POSITION[player?.element_type ?? 3] ?? 'mid',
         badge: String(points),
         badgeTone: 'bench' as const,
+        kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
+        kitUrl2x:
+          teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
       };
     });
 }
@@ -238,6 +254,8 @@ export function LiveRankRealView({ entryId }: Props) {
                       position={p.position}
                       badge={p.badge}
                       badgeTone={p.badgeTone}
+                      kitUrl={p.kitUrl}
+                      kitUrl2x={p.kitUrl2x}
                     />
                   ))}
                 </PitchRow>
@@ -255,6 +273,8 @@ export function LiveRankRealView({ entryId }: Props) {
                     position={p.position}
                     badge={p.badge}
                     badgeTone={p.badgeTone}
+                    kitUrl={p.kitUrl}
+                    kitUrl2x={p.kitUrl2x}
                     bench
                   />
                 ))}
