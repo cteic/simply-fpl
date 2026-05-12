@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+
 import { LiveRankRealView } from '@/components/views/live-rank-real-view';
 
 export const runtime = 'edge';
@@ -10,8 +12,8 @@ export default async function LiveRankPage({ params }: Props) {
   const { entryId } = await params;
   const id = parseInt(entryId, 10);
 
-  if (isNaN(id)) {
-    return <div>Invalid team ID</div>;
+  if (isNaN(id) || id <= 0) {
+    notFound();
   }
 
   return <LiveRankRealView entryId={id} />;
