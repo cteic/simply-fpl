@@ -7,7 +7,9 @@ export interface Env {
   LEAGUE_TTL: string;
 }
 
-const FPL_ORIGIN = 'https://fantasy.premierleague.com/api';
+const FPL_HOST = 'https://fantasy.premierleague.com';
+const FPL_ORIGIN = `${FPL_HOST}/api`;
+const FPL_CDN_ORIGIN = `${FPL_HOST}/dist/img/shirts/standard`;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -76,8 +78,6 @@ async function fetchWithCache(
     },
   });
 }
-
-const FPL_CDN_ORIGIN = 'https://fantasy.premierleague.com/dist/img/shirts/standard';
 
 const KIT_FALLBACK_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="110" height="110">' +
