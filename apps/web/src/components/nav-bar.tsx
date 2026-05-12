@@ -18,9 +18,7 @@ export function NavBar() {
   const pathname = usePathname() ?? '/';
   const { session, signOut } = useAuth();
 
-  const allLinks = session
-    ? [...BASE_LINKS, { label: 'Settings', href: '/settings' }]
-    : BASE_LINKS;
+  const allLinks = session ? [...BASE_LINKS, { label: 'Settings', href: '/settings' }] : BASE_LINKS;
 
   const links = allLinks.map((link) => {
     const active =
