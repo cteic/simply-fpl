@@ -9,7 +9,6 @@ export {
   Text,
   ScrollView,
   Button as TamaguiButton,
-  Input,
   styled,
 } from 'tamagui';
 
@@ -21,6 +20,7 @@ export * from './components/demo-banner';
 export * from './components/fdr-badge';
 export * from './components/filter-button';
 export * from './components/fnote';
+export * from './components/input';
 export * from './components/league-card';
 export * from './components/league-table';
 export * from './components/live-pill';
