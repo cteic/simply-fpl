@@ -1,11 +1,17 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import { usePathname } from 'next/navigation';
 
 import { auth } from '@simplyfpl/features';
-import { Nav } from '@simplyfpl/ui';
+import { LiveRankPill, Nav } from '@simplyfpl/ui';
+
+import { useEntry } from '@/queries/fpl';
 
 const { useAuth } = auth;
+
+const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
 const BASE_LINKS = [
   { label: 'Live Rank', href: '/' },
@@ -17,6 +23,17 @@ const BASE_LINKS = [
 export function NavBar() {
   const pathname = usePathname() ?? '/';
   const { session, signOut } = useAuth();
+  const [entryId, setEntryId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const id = saved ? Number(saved) : NaN;
+    if (Number.isInteger(id) && id > 0) {
+      setEntryId(id);
+    }
+  }, []);
+
+  const { data: entry } = useEntry(entryId);
 
   const allLinks = session ? [...BASE_LINKS, { label: 'Settings', href: '/settings' }] : BASE_LINKS;
 
@@ -36,5 +53,18 @@ export function NavBar() {
       }
     : {};
 
-  return <Nav links={links} liveLabel="GW30 Live" signInHref="/login" {...authProps} />;
+  const liveRankPill =
+    entryId !== null && entry ? (
+      <LiveRankPill rank={entry.summary_overall_rank} href={`/rank/${entryId}`} />
+    ) : undefined;
+
+  return (
+    <Nav
+      links={links}
+      liveLabel="GW30 Live"
+      liveRankPill={liveRankPill}
+      signInHref="/login"
+      {...authProps}
+    />
+  );
 }
