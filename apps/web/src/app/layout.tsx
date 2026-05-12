@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { DM_Mono, DM_Sans } from 'next/font/google';
 
-import { DemoBanner } from '@simplyfpl/ui';
-
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
@@ -35,16 +33,24 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const cfBeaconToken = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;
+
   return (
     <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`} suppressHydrationWarning>
       <body>
         <TamaguiClientProvider>
           <Providers>
-            <DemoBanner />
             <NavBar />
             {children}
           </Providers>
         </TamaguiClientProvider>
+        {cfBeaconToken ? (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: cfBeaconToken })}
+          />
+        ) : null}
       </body>
     </html>
   );
