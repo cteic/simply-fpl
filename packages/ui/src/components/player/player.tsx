@@ -55,6 +55,8 @@ interface PlayerProps {
   badge?: string;
   badgeTone?: BadgeTone;
   bench?: boolean;
+  kitUrl?: string | undefined;
+  kitUrl2x?: string | undefined;
 }
 
 export function Player({
@@ -64,12 +66,14 @@ export function Player({
   badge,
   badgeTone = 'default',
   bench = false,
+  kitUrl,
+  kitUrl2x,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
   return (
     <Wrap>
       <ShirtWrap bench={bench}>
-        <Shirt kind={shirtKind} />
+        <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} />
         {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
       </ShirtWrap>
       <Name bench={bench}>{name}</Name>
