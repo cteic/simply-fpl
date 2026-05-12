@@ -1,7 +1,7 @@
-import { PlannerShowcase } from '@/components/views/planner-showcase';
+import { PlannerView } from '@/components/views/planner-view';
 
 export default function PlannerPage() {
-  return <PlannerShowcase />;
+  return <PlannerView />;
 }
 
 export const metadata = {

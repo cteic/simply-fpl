@@ -13,6 +13,7 @@
 
 export * as liveRank from './live-rank';
 export * as leagues from './leagues';
+export * as planner from './planner';
 export * as prices from './prices';
 export * as auth from './auth';
 export * as subscriptions from './subscriptions';

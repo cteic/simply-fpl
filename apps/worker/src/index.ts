@@ -24,6 +24,7 @@ function getTtl(pathname: string): number {
   if (pathname.includes('leagues-classic')) return 90; // 90 seconds
   if (pathname.includes('/entry/') && pathname.includes('/picks/')) return 120;
   if (pathname.includes('/entry/')) return 300;
+  if (pathname.includes('/fixtures/')) return 600; // 10 minutes
   return 120;
 }
 
