@@ -191,3 +191,15 @@ For a specific package:
 pnpm --filter @simplyfpl/{package} typecheck
 pnpm --filter @simplyfpl/{package} lint
 ```
+
+### Pre-commit hook gotcha
+
+The husky pre-commit hook (`.husky/pre-commit`) runs whatever's listed in the `PRE_COMMIT` env var (set in `.env`). If `PRE_COMMIT=format`, the hook runs `prettier --write` _after_ `git add` but does **not** re-stage. The commit lands with the pre-format content; CI's `format:check` then fails on the next push.
+
+**Always do this before `git commit`:**
+
+```
+pnpm format && git add -u
+```
+
+…then commit. Don't rely on the hook to format for you. CI runs `format:check`, not `format`, so any unformatted file in a commit fails the `checks` job until a follow-up `chore: prettier` commit lands.
