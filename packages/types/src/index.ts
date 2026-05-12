@@ -160,6 +160,22 @@ export interface FplLeague {
   };
 }
 
+// Fixtures
+export type FplDifficulty = 1 | 2 | 3 | 4 | 5;
+
+export interface FplFixture {
+  id: number;
+  event: number | null;
+  finished: boolean;
+  kickoff_time: string | null;
+  team_h: number;
+  team_a: number;
+  team_h_score: number | null;
+  team_a_score: number | null;
+  team_h_difficulty: FplDifficulty;
+  team_a_difficulty: FplDifficulty;
+}
+
 // Computed/app types
 export interface LiveRankEntry {
   entryId: number;
