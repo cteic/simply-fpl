@@ -7,6 +7,8 @@ import type { Database } from '@simplyfpl/types';
 
 type Client = SupabaseClient<Database>;
 
+const ENTRY_ID_STORAGE_KEY = 'simplyfpl:lastEntryId';
+
 interface AuthContextValue {
   client: Client;
   session: Session | null;
@@ -22,6 +24,18 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 interface AuthProviderProps {
   client: Client;
   children: ReactNode;
+}
+
+function readLocalEntryId(): number | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.localStorage.getItem(ENTRY_ID_STORAGE_KEY);
+  const parsed = raw ? Number(raw) : NaN;
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function writeLocalEntryId(id: number) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(ENTRY_ID_STORAGE_KEY, String(id));
 }
 
 export function AuthProvider({ client, children }: AuthProviderProps) {
@@ -57,18 +71,32 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
     let cancelled = false;
     const userId = session.user.id;
 
-    async function fetchProfile() {
+    async function fetchAndSyncProfile() {
       const { data } = await client
         .from('profiles')
-        .select('is_pro, pro_until')
+        .select('is_pro, pro_until, fpl_entry_id')
         .eq('id', userId)
-        .maybeSingle<{ is_pro: boolean; pro_until: string | null }>();
+        .maybeSingle<{
+          is_pro: boolean;
+          pro_until: string | null;
+          fpl_entry_id: number | null;
+        }>();
       if (cancelled || !data) return;
+
       const stillValid = data.pro_until === null || new Date(data.pro_until) > new Date();
       setIsPro(data.is_pro && stillValid);
+
+      const local = readLocalEntryId();
+      const remote = data.fpl_entry_id;
+      if (local !== null && local !== remote) {
+        // localStorage wins — represents the user's most recent action on this device.
+        await client.from('profiles').update({ fpl_entry_id: local }).eq('id', userId);
+      } else if (local === null && remote !== null) {
+        writeLocalEntryId(remote);
+      }
     }
 
-    fetchProfile();
+    fetchAndSyncProfile();
 
     return () => {
       cancelled = true;
