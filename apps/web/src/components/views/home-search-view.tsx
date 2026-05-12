@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import {
   Button,
@@ -34,13 +34,25 @@ function parseEntryId(input: string): number | null {
 
 export function HomeSearchView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const forceForm = searchParams?.get('change') === '1';
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) setInput(saved);
-  }, []);
+    const id = saved ? Number(saved) : NaN;
+    const hasSavedId = Number.isInteger(id) && id > 0;
+
+    if (hasSavedId && !forceForm) {
+      router.replace(`/rank/${id}`);
+      return;
+    }
+
+    if (hasSavedId) setInput(String(id));
+    setChecking(false);
+  }, [router, forceForm]);
 
   function handleSubmit() {
     setError(null);
@@ -51,6 +63,14 @@ export function HomeSearchView() {
     }
     window.localStorage.setItem(STORAGE_KEY, String(id));
     router.push(`/rank/${id}`);
+  }
+
+  if (checking) {
+    return (
+      <PageShell>
+        <PageHeader title="SimplyFPL" meta="Loading…" />
+      </PageShell>
+    );
   }
 
   return (
