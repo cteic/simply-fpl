@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -16,6 +16,8 @@ import {
   XStack,
   YStack,
 } from '@simplyfpl/ui';
+
+const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
 function parseEntryId(input: string): number | null {
   const trimmed = input.trim();
@@ -35,6 +37,11 @@ export function HomeSearchView() {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved) setInput(saved);
+  }, []);
+
   function handleSubmit() {
     setError(null);
     const id = parseEntryId(input);
@@ -42,6 +49,7 @@ export function HomeSearchView() {
       setError('Enter a numeric FPL team ID or paste an FPL team URL.');
       return;
     }
+    window.localStorage.setItem(STORAGE_KEY, String(id));
     router.push(`/rank/${id}`);
   }
 
