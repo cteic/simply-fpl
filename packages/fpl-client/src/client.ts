@@ -2,6 +2,7 @@ import type {
   FplBootstrapStatic,
   FplEntry,
   FplEntryGameweekPicks,
+  FplFixture,
   FplLeague,
   FplLiveGameweek,
 } from '@simplyfpl/types';
@@ -47,6 +48,11 @@ export function createFplClient(config: FplClientConfig = {}) {
 
     getClassicLeague(leagueId: number, page = 1): Promise<FplLeague> {
       return get<FplLeague>(`/fpl/leagues-classic/${leagueId}/standings/?page_standings=${page}`);
+    },
+
+    getFixtures(eventId?: number): Promise<FplFixture[]> {
+      const path = eventId ? `/fpl/fixtures/?event=${eventId}` : `/fpl/fixtures/`;
+      return get<FplFixture[]>(path);
     },
   };
 }
