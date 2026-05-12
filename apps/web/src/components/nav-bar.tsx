@@ -7,7 +7,7 @@ import { Nav } from '@simplyfpl/ui';
 
 const { useAuth } = auth;
 
-const LINKS = [
+const BASE_LINKS = [
   { label: 'Live Rank', href: '/' },
   { label: 'Leagues', href: '/leagues' },
   { label: 'Prices', href: '/prices' },
@@ -18,7 +18,11 @@ export function NavBar() {
   const pathname = usePathname() ?? '/';
   const { session, signOut } = useAuth();
 
-  const links = LINKS.map((link) => {
+  const allLinks = session
+    ? [...BASE_LINKS, { label: 'Settings', href: '/settings' }]
+    : BASE_LINKS;
+
+  const links = allLinks.map((link) => {
     const active =
       link.href === '/'
         ? pathname === '/' || pathname.startsWith('/rank')
