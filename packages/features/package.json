@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./live-rank": "./src/live-rank/index.ts",
     "./leagues": "./src/leagues/index.ts",
+    "./planner": "./src/planner/index.ts",
     "./prices": "./src/prices/index.ts",
     "./auth": "./src/auth/index.ts",
     "./subscriptions": "./src/subscriptions/index.ts"
