@@ -16,4 +16,5 @@ export * as leagues from './leagues';
 export * as planner from './planner';
 export * as prices from './prices';
 export * as auth from './auth';
+export * as h2h from './h2h';
 export * as subscriptions from './subscriptions';

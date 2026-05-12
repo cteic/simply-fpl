@@ -7,9 +7,10 @@ import { useClassicLeague } from '@/queries/fpl';
 
 interface TrackedLeagueCardProps {
   leagueId: number;
+  myEntryId?: number;
 }
 
-export function TrackedLeagueCard({ leagueId }: TrackedLeagueCardProps) {
+export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProps) {
   const { data, isLoading, error } = useClassicLeague(leagueId);
 
   if (isLoading) {
@@ -41,15 +42,25 @@ export function TrackedLeagueCard({ leagueId }: TrackedLeagueCardProps) {
     position: row.rank,
     managerName: row.player_name,
     teamName: row.entry_name,
+    entryId: row.entry,
+    isYou: myEntryId !== undefined && row.entry === myEntryId,
     gwScore: row.event_total,
     totalPoints: row.total,
   }));
+
+  const onRowClick =
+    myEntryId !== undefined
+      ? (theirEntryId: number) => {
+          window.location.href = `/h2h/${myEntryId}/${theirEntryId}`;
+        }
+      : undefined;
 
   return (
     <LeagueCard
       name={data.league.name}
       meta={`Classic · ${data.standings.results.length} managers`}
       rows={rows}
+      {...(onRowClick !== undefined ? { onRowClick } : {})}
     />
   );
 }

@@ -52,6 +52,7 @@ interface LeagueCardProps {
   rows: LeagueTableRow[];
   badge?: string;
   showOverallRank?: boolean;
+  onRowClick?: (entryId: number) => void;
 }
 
 export function LeagueCard({
@@ -60,6 +61,7 @@ export function LeagueCard({
   rows,
   badge = 'Live',
   showOverallRank = true,
+  onRowClick,
 }: LeagueCardProps) {
   return (
     <Card>
@@ -70,7 +72,11 @@ export function LeagueCard({
         </YStack>
         <Badge>{badge}</Badge>
       </Head>
-      <LeagueTable rows={rows} showOverallRank={showOverallRank} />
+      <LeagueTable
+        rows={rows}
+        showOverallRank={showOverallRank}
+        {...(onRowClick !== undefined ? { onRowClick } : {})}
+      />
     </Card>
   );
 }
