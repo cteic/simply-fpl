@@ -3,19 +3,24 @@
 import { useMemo } from 'react';
 
 import { h2h } from '@simplyfpl/features';
-import type { H2hPlayer, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
+import type { H2hPlayer, H2hPosition, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import {
+  BenchDivider,
   Card,
   FNote,
   PageHeader,
   PageShell,
+  Pitch,
+  PitchRow,
+  Player,
   SectionHeader,
   Text,
   XStack,
   YStack,
   styled,
 } from '@simplyfpl/ui';
+import type { ShirtKind } from '@simplyfpl/ui';
 
 import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
 
@@ -76,6 +81,8 @@ export function HeadToHeadView({ yourEntryId, theirEntryId }: Props) {
       <Scoreboard you={you} them={them} scoreDelta={scoreDelta} />
 
       <CaptainRow you={you} them={them} />
+
+      <PitchPair you={you} them={them} />
 
       <DifferentialBlock
         title={`Only ${you.managerName || 'you'} have`}
@@ -335,5 +342,97 @@ function PlayerRow({ player, last }: { player: H2hPlayer; last: boolean }) {
       <RowMeta>{player.teamShort}</RowMeta>
       <RowPts>{player.effectivePoints}</RowPts>
     </RowBox>
+  );
+}
+
+const PitchPairWrap = styled(XStack, {
+  gap: 12,
+  marginBottom: 20,
+  alignItems: 'stretch',
+  $sm: { flexDirection: 'column' },
+});
+
+const PitchColumn = styled(YStack, {
+  flex: 1,
+  minWidth: 0,
+});
+
+function PitchPair({ you, them }: { you: H2hSide; them: H2hSide }) {
+  return (
+    <PitchPairWrap>
+      <PitchColumn>
+        <PitchSide side={you} label="You" />
+      </PitchColumn>
+      <PitchColumn>
+        <PitchSide side={them} label="Them" />
+      </PitchColumn>
+    </PitchPairWrap>
+  );
+}
+
+const POSITION_TO_SHIRT: Record<H2hPosition, ShirtKind> = {
+  gk: 'gk',
+  def: 'def',
+  mid: 'mid',
+  fwd: 'fwd',
+};
+
+function pickBadgeTone(player: H2hPlayer): 'default' | 'hot' | 'captain' | 'tbp' {
+  if (player.minutes === 0) return 'tbp';
+  if (player.isCaptain) return 'captain';
+  if (player.effectivePoints >= 10) return 'hot';
+  return 'default';
+}
+
+function groupXiByPosition(xi: H2hPlayer[]): Record<H2hPosition, H2hPlayer[]> {
+  const grouped: Record<H2hPosition, H2hPlayer[]> = { gk: [], def: [], mid: [], fwd: [] };
+  for (const player of xi) {
+    grouped[player.position].push(player);
+  }
+  return grouped;
+}
+
+function PitchSide({ side, label }: { side: H2hSide; label: string }) {
+  const grouped = groupXiByPosition(side.xi);
+  const rows: H2hPlayer[][] = [grouped.gk, grouped.def, grouped.mid, grouped.fwd];
+  const headerLabel = `${label} · ${side.teamName}`;
+
+  return (
+    <Pitch teamName={headerLabel} formation={side.formation}>
+      {rows.map((row, i) =>
+        row.length === 0 ? null : (
+          <PitchRow key={`row-${i}`}>
+            {row.map((p) => (
+              <Player
+                key={p.id}
+                name={p.isCaptain ? `${p.name} (C)` : p.name}
+                detail={p.minutes === 0 ? `${p.teamShort} · TBP` : p.teamShort}
+                position={POSITION_TO_SHIRT[p.position]}
+                badge={p.minutes === 0 ? '–' : String(p.effectivePoints)}
+                badgeTone={pickBadgeTone(p)}
+              />
+            ))}
+          </PitchRow>
+        )
+      )}
+      {side.bench.length > 0 ? (
+        <>
+          <BenchDivider />
+          <PitchRow>
+            {side.bench.map((p) => (
+              <Player
+                key={p.id}
+                name={p.name}
+                detail={p.teamShort}
+                position={POSITION_TO_SHIRT[p.position]}
+                badge={String(p.rawPoints)}
+                badgeTone="bench"
+                bench
+              />
+            ))}
+          </PitchRow>
+        </>
+      ) : null}
+    </Pitch>
   );
 }
