@@ -2,8 +2,125 @@ import { useEffect, useState } from 'react';
 
 import type { PlayerSeed, Position } from './types';
 
-const API_URL =
-  import.meta.env.VITE_API_URL ?? 'https://simply-fpl-worker.peterwatters.workers.dev';
+const API_URL = import.meta.env.VITE_API_URL;
+
+/** 4-4-2 mock XI used as a fallback when no worker URL is configured or the fetch fails. */
+const MOCK_XI: PlayerSeed[] = [
+  // GK
+  {
+    id: 1,
+    webName: 'Raya',
+    teamShort: 'ARS',
+    position: 'gk',
+    totalPoints: 162,
+    form: 5.4,
+    defaultX: 0,
+    defaultZ: -22,
+  },
+  // DEF (back four)
+  {
+    id: 2,
+    webName: 'Saliba',
+    teamShort: 'ARS',
+    position: 'def',
+    totalPoints: 158,
+    form: 5.0,
+    defaultX: -15,
+    defaultZ: -12,
+  },
+  {
+    id: 3,
+    webName: 'Van Dijk',
+    teamShort: 'LIV',
+    position: 'def',
+    totalPoints: 151,
+    form: 4.8,
+    defaultX: -5,
+    defaultZ: -12,
+  },
+  {
+    id: 4,
+    webName: 'Gabriel',
+    teamShort: 'ARS',
+    position: 'def',
+    totalPoints: 144,
+    form: 4.6,
+    defaultX: 5,
+    defaultZ: -12,
+  },
+  {
+    id: 5,
+    webName: 'Alexander-Arnold',
+    teamShort: 'LIV',
+    position: 'def',
+    totalPoints: 138,
+    form: 5.1,
+    defaultX: 15,
+    defaultZ: -12,
+  },
+  // MID
+  {
+    id: 6,
+    webName: 'Salah',
+    teamShort: 'LIV',
+    position: 'mid',
+    totalPoints: 287,
+    form: 8.6,
+    defaultX: -15,
+    defaultZ: 0,
+  },
+  {
+    id: 7,
+    webName: 'Saka',
+    teamShort: 'ARS',
+    position: 'mid',
+    totalPoints: 198,
+    form: 6.7,
+    defaultX: -5,
+    defaultZ: 0,
+  },
+  {
+    id: 8,
+    webName: 'Foden',
+    teamShort: 'MCI',
+    position: 'mid',
+    totalPoints: 184,
+    form: 6.2,
+    defaultX: 5,
+    defaultZ: 0,
+  },
+  {
+    id: 9,
+    webName: 'Palmer',
+    teamShort: 'CHE',
+    position: 'mid',
+    totalPoints: 224,
+    form: 7.4,
+    defaultX: 15,
+    defaultZ: 0,
+  },
+  // FWD
+  {
+    id: 10,
+    webName: 'Haaland',
+    teamShort: 'MCI',
+    position: 'fwd',
+    totalPoints: 232,
+    form: 7.8,
+    defaultX: -7,
+    defaultZ: 14,
+  },
+  {
+    id: 11,
+    webName: 'Isak',
+    teamShort: 'NEW',
+    position: 'fwd',
+    totalPoints: 178,
+    form: 6.5,
+    defaultX: 7,
+    defaultZ: 14,
+  },
+];
 
 interface FplPlayer {
   id: number;
@@ -89,11 +206,13 @@ function pick442(players: FplPlayer[], teams: FplTeam[]): PlayerSeed[] {
   return seeds;
 }
 
-export function useFplSeedXi(): { seeds: PlayerSeed[] | null; error: string | null } {
-  const [seeds, setSeeds] = useState<PlayerSeed[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export function useFplSeedXi(): { seeds: PlayerSeed[]; isLive: boolean } {
+  const [seeds, setSeeds] = useState<PlayerSeed[]>(MOCK_XI);
+  const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
+    if (!API_URL) return;
+
     let cancelled = false;
 
     async function load() {
@@ -102,10 +221,14 @@ export function useFplSeedXi(): { seeds: PlayerSeed[] | null; error: string | nu
         if (!res.ok) throw new Error(`FPL fetch failed: ${res.status}`);
         const data = (await res.json()) as FplBootstrap;
         if (cancelled) return;
-        setSeeds(pick442(data.elements, data.teams));
-      } catch (err) {
-        if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        const picked = pick442(data.elements, data.teams);
+        if (picked.length === 11) {
+          setSeeds(picked);
+          setIsLive(true);
+        }
+      } catch {
+        // Silently keep the MOCK_XI fallback — the demo's job is to show
+        // Three.js + Y.js working, not to gate that on a worker being up.
       }
     }
 
@@ -115,5 +238,5 @@ export function useFplSeedXi(): { seeds: PlayerSeed[] | null; error: string | nu
     };
   }, []);
 
-  return { seeds, error };
+  return { seeds, isLive };
 }

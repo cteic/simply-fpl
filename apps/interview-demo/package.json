@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
-    "deploy": "vite build && wrangler pages deploy dist --project-name=simply-fpl-interview-demo --commit-dirty=true"
+    "deploy:setup": "wrangler pages project create simply-fpl-interview-demo --production-branch=main || true",
+    "deploy": "pnpm run deploy:setup && vite build && wrangler pages deploy dist --project-name=simply-fpl-interview-demo --commit-dirty=true"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",

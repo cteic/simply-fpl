@@ -17,7 +17,7 @@ function readRoomFromHash(): string {
 
 export function App() {
   const [room, setRoom] = useState(readRoomFromHash);
-  const { seeds, error } = useFplSeedXi();
+  const { seeds, isLive } = useFplSeedXi();
   const { positions, peers, setPosition } = useYRoom(room);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -30,7 +30,7 @@ export function App() {
   }, []);
 
   const selectedSeed: PlayerSeed | null = useMemo(() => {
-    if (selectedId === null || !seeds) return null;
+    if (selectedId === null) return null;
     return seeds.find((s) => s.id === selectedId) ?? null;
   }, [selectedId, seeds]);
 
@@ -47,7 +47,7 @@ export function App() {
             shadow-mapSize={[1024, 1024]}
           />
           <Pitch />
-          {seeds?.map((seed) => {
+          {seeds.map((seed) => {
             const live = positions.get(seed.id);
             const x = live?.x ?? seed.defaultX;
             const z = live?.z ?? seed.defaultZ;
@@ -85,8 +85,11 @@ export function App() {
           Open this URL in a second window — or share it — to test multiplayer. Optional room name:
           add <code>#my-room</code> to the URL.
         </p>
-        {error ? <p style={{ color: '#fb7185' }}>FPL fetch failed: {error}</p> : null}
-        {!seeds && !error ? <p>Loading top FPL XI…</p> : null}
+        <p style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
+          {isLive
+            ? 'Players from live FPL bootstrap.'
+            : 'Players are mock data — set VITE_API_URL to pull from the live FPL worker.'}
+        </p>
       </div>
 
       <div className="panel presence">
