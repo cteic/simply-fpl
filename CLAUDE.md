@@ -192,14 +192,18 @@ pnpm --filter @simplyfpl/{package} typecheck
 pnpm --filter @simplyfpl/{package} lint
 ```
 
-### Pre-commit hook gotcha
+### Pre-commit hook
 
-The husky pre-commit hook (`.husky/pre-commit`) runs whatever's listed in the `PRE_COMMIT` env var (set in `.env`). If `PRE_COMMIT=format`, the hook runs `prettier --write` _after_ `git add` but does **not** re-stage. The commit lands with the pre-format content; CI's `format:check` then fails on the next push.
+`.husky/pre-commit` always runs `pnpm format` and re-stages modified files via `git add -u` before the commit object is created — regardless of whether `.env` exists. So commits land prettier-clean by default, including from scheduled agents and fresh checkouts.
 
-**Always do this before `git commit`:**
+If you want extra checks (typecheck, lint, etc) to run on commit, add them to `.env`:
 
 ```
-pnpm format && git add -u
+PRE_COMMIT=typecheck,lint
 ```
 
-…then commit. Don't rely on the hook to format for you. CI runs `format:check`, not `format`, so any unformatted file in a commit fails the `checks` job until a follow-up `chore: prettier` commit lands.
+`.env` is gitignored. The format-and-restage step is unconditional and not configurable — that's the whole point: CI runs `format:check`, so any unformatted file in a commit fails the `checks` job.
+
+**Caveat for interactive `git add -p` users**: `git add -u` re-stages all modifications to tracked files, which can pull in partial-staging edits you meant to leave unstaged. Stage what you want with `git add`, then run `pnpm format && git add -u` manually before committing if you need precise control.
+
+**Bypassing**: `--no-verify` skips the hook entirely. Reserve for the rare case where the hook itself is the bug being fixed — never as a routine workflow.
