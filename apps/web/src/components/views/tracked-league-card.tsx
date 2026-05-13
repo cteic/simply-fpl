@@ -42,9 +42,7 @@ export function TrackedLeagueCard({ leagueId }: TrackedLeagueCardProps) {
 
   const totalRows = data.standings.results.length;
   const visible =
-    expanded || totalRows <= 10
-      ? data.standings.results
-      : data.standings.results.slice(0, 10);
+    expanded || totalRows <= 10 ? data.standings.results : data.standings.results.slice(0, 10);
 
   const rows: LeagueTableRow[] = visible.map((row) => ({
     position: row.rank,
@@ -56,11 +54,7 @@ export function TrackedLeagueCard({ leagueId }: TrackedLeagueCardProps) {
 
   return (
     <YStack gap={6}>
-      <LeagueCard
-        name={data.league.name}
-        meta={`Classic · ${totalRows} managers`}
-        rows={rows}
-      />
+      <LeagueCard name={data.league.name} meta={`Classic · ${totalRows} managers`} rows={rows} />
       {totalRows > 10 ? (
         <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
           {expanded ? 'Show top 10' : `Show all ${totalRows}`}
