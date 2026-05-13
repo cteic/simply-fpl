@@ -34,20 +34,26 @@ function pickColor() {
  */
 export function useYRoom(roomName: string) {
   const [positions, setPositions] = useState<Map<number, PlayerPos>>(new Map());
+  const [votes, setVotes] = useState<Map<number, number>>(new Map());
   const [peers, setPeers] = useState<PresenceUser[]>([]);
+  const [clientId, setClientId] = useState<number>(0);
   const docRef = useRef<Y.Doc | null>(null);
   const providerRef = useRef<WebrtcProvider | null>(null);
   const positionsMapRef = useRef<Y.Map<PlayerPos> | null>(null);
+  const votesMapRef = useRef<Y.Map<number> | null>(null);
 
   useEffect(() => {
     const doc = new Y.Doc();
     const provider = new WebrtcProvider(roomName, doc);
     const yPositions = doc.getMap<PlayerPos>('positions');
+    const yVotes = doc.getMap<number>('captain-votes');
     docRef.current = doc;
     providerRef.current = provider;
     positionsMapRef.current = yPositions;
+    votesMapRef.current = yVotes;
+    setClientId(provider.awareness.clientID);
 
-    function snapshot() {
+    function snapshotPositions() {
       const next = new Map<number, PlayerPos>();
       yPositions.forEach((value, key) => {
         next.set(Number(key), value);
@@ -55,12 +61,20 @@ export function useYRoom(roomName: string) {
       setPositions(next);
     }
 
+    function snapshotVotes() {
+      const next = new Map<number, number>();
+      yVotes.forEach((playerId, voterId) => {
+        next.set(Number(voterId), playerId);
+      });
+      setVotes(next);
+    }
+
     function snapshotPeers() {
       const states = provider.awareness.getStates();
       const list: PresenceUser[] = [];
-      states.forEach((state, clientId) => {
+      states.forEach((state, peerId) => {
         const user = (state as { user?: PresenceUser }).user;
-        if (user) list.push({ ...user, clientId });
+        if (user) list.push({ ...user, clientId: peerId });
       });
       setPeers(list);
     }
@@ -71,14 +85,17 @@ export function useYRoom(roomName: string) {
       color: pickColor(),
     });
 
-    yPositions.observe(snapshot);
+    yPositions.observe(snapshotPositions);
+    yVotes.observe(snapshotVotes);
     provider.awareness.on('change', snapshotPeers);
 
-    snapshot();
+    snapshotPositions();
+    snapshotVotes();
     snapshotPeers();
 
     return () => {
-      yPositions.unobserve(snapshot);
+      yPositions.unobserve(snapshotPositions);
+      yVotes.unobserve(snapshotVotes);
       provider.awareness.off('change', snapshotPeers);
       provider.destroy();
       doc.destroy();
@@ -91,5 +108,17 @@ export function useYRoom(roomName: string) {
     map.set(String(playerId), pos);
   }
 
-  return { positions, peers, setPosition };
+  function castCaptainVote(playerId: number) {
+    const map = votesMapRef.current;
+    if (!map || !clientId) return;
+    const key = String(clientId);
+    if (map.get(key) === playerId) {
+      // Tapping your already-voted player retracts the vote.
+      map.delete(key);
+    } else {
+      map.set(key, playerId);
+    }
+  }
+
+  return { positions, votes, peers, clientId, setPosition, castCaptainVote };
 }

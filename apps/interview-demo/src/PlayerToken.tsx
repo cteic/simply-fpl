@@ -19,12 +19,30 @@ interface Props {
   x: number;
   z: number;
   isSelected: boolean;
+  voteCount: number;
+  voterColors: string[];
+  isYourCaptain: boolean;
   onSelect: () => void;
+  onVote: () => void;
   onDrag: (x: number, z: number) => void;
   onDragEnd: () => void;
 }
 
-export function PlayerToken({ seed, x, z, isSelected, onSelect, onDrag, onDragEnd }: Props) {
+const DRAG_THRESHOLD = 0.5;
+
+export function PlayerToken({
+  seed,
+  x,
+  z,
+  isSelected,
+  voteCount,
+  voterColors,
+  isYourCaptain,
+  onSelect,
+  onVote,
+  onDrag,
+  onDragEnd,
+}: Props) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -33,11 +51,13 @@ export function PlayerToken({ seed, x, z, isSelected, onSelect, onDrag, onDragEn
   const raycaster = useRef(new THREE.Raycaster());
   const ndc = useRef(new THREE.Vector2());
   const hit = useRef(new THREE.Vector3());
+  const downAt = useRef({ x: 0, z: 0, moved: false });
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
     event.stopPropagation();
     setDragging(true);
     onSelect();
+    downAt.current = { x, z, moved: false };
     gl.domElement.setPointerCapture(event.pointerId);
   }
 
@@ -50,6 +70,11 @@ export function PlayerToken({ seed, x, z, isSelected, onSelect, onDrag, onDragEn
     );
     raycaster.current.setFromCamera(ndc.current, camera);
     if (raycaster.current.ray.intersectPlane(dragPlane.current, hit.current)) {
+      const dx = hit.current.x - downAt.current.x;
+      const dz = hit.current.z - downAt.current.z;
+      if (Math.sqrt(dx * dx + dz * dz) > DRAG_THRESHOLD) {
+        downAt.current.moved = true;
+      }
       onDrag(hit.current.x, hit.current.z);
     }
   }
@@ -58,6 +83,10 @@ export function PlayerToken({ seed, x, z, isSelected, onSelect, onDrag, onDragEn
     if (!dragging) return;
     setDragging(false);
     gl.domElement.releasePointerCapture(event.pointerId);
+    if (!downAt.current.moved) {
+      // Treat as click — register a captain vote.
+      onVote();
+    }
     onDragEnd();
   }
 
@@ -93,10 +122,17 @@ export function PlayerToken({ seed, x, z, isSelected, onSelect, onDrag, onDragEn
         />
       </mesh>
 
+      {voteCount > 0 ? (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.99, 0]}>
+          <ringGeometry args={[1.55, 1.95, 32]} />
+          <meshBasicMaterial color={voterColors[0] ?? '#facc15'} transparent opacity={0.85} />
+        </mesh>
+      ) : null}
+
       <Html position={[0, 2.2, 0]} center distanceFactor={20}>
         <div
           style={{
-            background: 'rgba(11, 15, 20, 0.85)',
+            background: 'rgba(11, 15, 20, 0.9)',
             color: '#e6edf6',
             padding: '2px 6px',
             borderRadius: '4px',
@@ -104,10 +140,35 @@ export function PlayerToken({ seed, x, z, isSelected, onSelect, onDrag, onDragEn
             fontFamily: 'ui-monospace, monospace',
             whiteSpace: 'nowrap',
             pointerEvents: 'none',
-            border: `1px solid ${color}`,
+            border: `1px solid ${isYourCaptain ? '#facc15' : color}`,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
           }}
         >
-          {seed.webName}
+          {voteCount > 0 ? (
+            <span style={{ color: '#facc15' }}>
+              {'👑'.repeat(Math.min(voteCount, 3))}
+              {voteCount > 3 ? `×${voteCount}` : ''}
+            </span>
+          ) : null}
+          <span>{seed.webName}</span>
+          {voterColors.length > 1 ? (
+            <span style={{ display: 'inline-flex', gap: 2, marginLeft: 2 }}>
+              {voterColors.map((c, i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: 'inline-block',
+                    width: 5,
+                    height: 5,
+                    borderRadius: '50%',
+                    background: c,
+                  }}
+                />
+              ))}
+            </span>
+          ) : null}
         </div>
       </Html>
     </group>
