@@ -18,8 +18,34 @@ function readRoomFromHash(): string {
 export function App() {
   const [room, setRoom] = useState(readRoomFromHash);
   const { seeds, isLive } = useFplSeedXi();
-  const { positions, peers, setPosition } = useYRoom(room);
+  const { positions, votes, peers, clientId, setPosition, castCaptainVote } = useYRoom(room);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const peerById = useMemo(() => {
+    const map = new Map<number, (typeof peers)[number]>();
+    for (const peer of peers) map.set(peer.clientId, peer);
+    return map;
+  }, [peers]);
+
+  const votesByPlayer = useMemo(() => {
+    const out = new Map<number, number[]>(); // playerId -> voter clientIds
+    votes.forEach((playerId, voterId) => {
+      const arr = out.get(playerId) ?? [];
+      arr.push(voterId);
+      out.set(playerId, arr);
+    });
+    return out;
+  }, [votes]);
+
+  const myVoteId = votes.get(clientId) ?? null;
+
+  const tally = useMemo(() => {
+    const counts: Array<{ playerId: number; count: number }> = [];
+    votesByPlayer.forEach((voters, playerId) => {
+      counts.push({ playerId, count: voters.length });
+    });
+    return counts.sort((a, b) => b.count - a.count).slice(0, 5);
+  }, [votesByPlayer]);
 
   useEffect(() => {
     function onHashChange() {
@@ -51,6 +77,10 @@ export function App() {
             const live = positions.get(seed.id);
             const x = live?.x ?? seed.defaultX;
             const z = live?.z ?? seed.defaultZ;
+            const voterIds = votesByPlayer.get(seed.id) ?? [];
+            const voterColors = voterIds
+              .map((id) => peerById.get(id)?.color)
+              .filter((c): c is string => Boolean(c));
             return (
               <PlayerToken
                 key={seed.id}
@@ -58,7 +88,11 @@ export function App() {
                 x={x}
                 z={z}
                 isSelected={selectedId === seed.id}
+                voteCount={voterIds.length}
+                voterColors={voterColors}
+                isYourCaptain={myVoteId === seed.id}
                 onSelect={() => setSelectedId(seed.id)}
+                onVote={() => castCaptainVote(seed.id)}
                 onDrag={(nx, nz) => setPosition(seed.id, { x: nx, z: nz })}
                 onDragEnd={() => {
                   /* no-op — sync is per-move */
@@ -76,19 +110,18 @@ export function App() {
       </div>
 
       <div className="panel intro">
-        <h1>Three.js + Y.js · Collaborative FPL Pitch</h1>
+        <h1>FPL Captain Pick Party</h1>
         <p>
-          Drag any player token. Position state is a Y.js <code>Y.Map</code> synced over WebRTC, so
-          another tab on this page sees the move within ~50&nbsp;ms.
+          <strong>Tap a player</strong> to cast your captain vote. <strong>Drag</strong> to move
+          them around. Everyone in the room sees votes and positions update live.
         </p>
         <p>
-          Open this URL in a second window — or share it — to test multiplayer. Optional room name:
-          add <code>#my-room</code> to the URL.
+          Open this URL in a second window — or share it with the league chat — to debate captaincy
+          in real time. Optional room name: append <code>#my-room</code>.
         </p>
         <p style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 4 }}>
-          {isLive
-            ? 'Players from live FPL bootstrap.'
-            : 'Players are mock data — set VITE_API_URL to pull from the live FPL worker.'}
+          Two Y.Maps under the hood — one for positions, one for votes — sync over WebRTC.{' '}
+          {isLive ? 'Players from live FPL bootstrap.' : 'Mock XI (set VITE_API_URL for live).'}
         </p>
       </div>
 
@@ -129,8 +162,43 @@ export function App() {
             <span>Form</span>
             <span>{selectedSeed.form.toFixed(1)}</span>
           </div>
+          <div className="panel-row">
+            <span>Captain votes</span>
+            <span>{(votesByPlayer.get(selectedSeed.id) ?? []).length}</span>
+          </div>
         </div>
       ) : null}
+
+      <div className="panel tally">
+        <div className="panel-title">Captain tally</div>
+        {tally.length === 0 ? (
+          <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+            No votes yet — tap a player.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {tally.map(({ playerId, count }) => {
+              const seed = seeds.find((s) => s.id === playerId);
+              if (!seed) return null;
+              const isMine = myVoteId === playerId;
+              return (
+                <div
+                  key={playerId}
+                  className="panel-row"
+                  style={{ color: isMine ? 'var(--accent)' : undefined }}
+                >
+                  <span>
+                    {isMine ? '★ ' : ''}
+                    {seed.webName}{' '}
+                    <span style={{ color: 'var(--text-muted)' }}>{seed.teamShort}</span>
+                  </span>
+                  <span>{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <div className="panel footer">
         <a href="https://github.com/pete-watters/simply-fpl" target="_blank" rel="noreferrer">
