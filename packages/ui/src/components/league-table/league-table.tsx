@@ -103,17 +103,14 @@ export interface LeagueTableRow {
   entryId?: number;
   gwScore: number | string;
   totalPoints: number | string;
-  overallRank?: number | string;
-  remaining?: number;
 }
 
 interface LeagueTableProps {
   rows: LeagueTableRow[];
-  showOverallRank?: boolean;
   onRowClick?: (entryId: number) => void;
 }
 
-export function LeagueTable({ rows, showOverallRank = false, onRowClick }: LeagueTableProps) {
+export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
   return (
     <TableRoot>
       <HeaderRow>
@@ -129,18 +126,9 @@ export function LeagueTable({ rows, showOverallRank = false, onRowClick }: Leagu
         <Stack width={70} alignItems="flex-end">
           <HeaderCell>Pts</HeaderCell>
         </Stack>
-        {showOverallRank ? (
-          <Stack width={60} alignItems="flex-end">
-            <HeaderCell>OR</HeaderCell>
-          </Stack>
-        ) : null}
-        <Stack width={50} alignItems="flex-end">
-          <HeaderCell>Rem</HeaderCell>
-        </Stack>
       </HeaderRow>
       {rows.map((row, idx) => {
         const isLast = idx === rows.length - 1;
-        const remTone: 'amber' | 'subtle' = (row.remaining ?? 0) > 0 ? 'amber' : 'subtle';
         const canClick = onRowClick !== undefined && row.entryId !== undefined && !row.isYou;
         return (
           <Row
@@ -170,14 +158,6 @@ export function LeagueTable({ rows, showOverallRank = false, onRowClick }: Leagu
             </Stack>
             <Stack width={70} alignItems="flex-end">
               <MonoCell look="strong">{row.totalPoints}</MonoCell>
-            </Stack>
-            {showOverallRank ? (
-              <Stack width={60} alignItems="flex-end">
-                <MonoCell look="muted">{row.overallRank ?? '—'}</MonoCell>
-              </Stack>
-            ) : null}
-            <Stack width={50} alignItems="flex-end">
-              <MonoCell look={remTone}>{row.remaining ?? 0}</MonoCell>
             </Stack>
           </Row>
         );
