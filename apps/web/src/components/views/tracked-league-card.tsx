@@ -1,6 +1,8 @@
 'use client';
 
-import { Card, LeagueCard, Text, YStack } from '@simplyfpl/ui';
+import { useState } from 'react';
+
+import { Button, Card, LeagueCard, Text, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
 
 import { useClassicLeague } from '@/queries/fpl';
@@ -12,6 +14,7 @@ interface TrackedLeagueCardProps {
 
 export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProps) {
   const { data, isLoading, error } = useClassicLeague(leagueId);
+  const [expanded, setExpanded] = useState(false);
 
   if (isLoading) {
     return (
@@ -38,7 +41,11 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
     );
   }
 
-  const rows: LeagueTableRow[] = data.standings.results.slice(0, 10).map((row) => ({
+  const totalRows = data.standings.results.length;
+  const visible =
+    expanded || totalRows <= 10 ? data.standings.results : data.standings.results.slice(0, 10);
+
+  const rows: LeagueTableRow[] = visible.map((row) => ({
     position: row.rank,
     managerName: row.player_name,
     teamName: row.entry_name,
@@ -56,11 +63,18 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
       : undefined;
 
   return (
-    <LeagueCard
-      name={data.league.name}
-      meta={`Classic · ${data.standings.results.length} managers`}
-      rows={rows}
-      {...(onRowClick !== undefined ? { onRowClick } : {})}
-    />
+    <YStack gap={6}>
+      <LeagueCard
+        name={data.league.name}
+        meta={`Classic · ${totalRows} managers`}
+        rows={rows}
+        {...(onRowClick !== undefined ? { onRowClick } : {})}
+      />
+      {totalRows > 10 ? (
+        <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
+          {expanded ? 'Show top 10' : `Show all ${totalRows}`}
+        </Button>
+      ) : null}
+    </YStack>
   );
 }

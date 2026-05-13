@@ -1,5 +1,8 @@
+export { LiveGwDO } from './live-gw-do';
+
 export interface Env {
   FPL_CACHE: KVNamespace;
+  LIVE_GW: DurableObjectNamespace;
   FPL_BASE_URL: string;
   BOOTSTRAP_TTL: string;
   LIVE_GW_TTL: string;
@@ -142,6 +145,20 @@ export default {
 
     if (request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405 });
+    }
+
+    // Route: /live/ws?gw=N → LiveGwDO WebSocket
+    if (url.pathname === '/live/ws' || url.pathname === '/live/ws/') {
+      const gw = url.searchParams.get('gw');
+      if (!gw || !/^\d+$/.test(gw)) {
+        return new Response(JSON.stringify({ error: 'Missing or invalid ?gw=' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      const id = env.LIVE_GW.idFromName(`gw:${gw}`);
+      const stub = env.LIVE_GW.get(id);
+      return stub.fetch(request);
     }
 
     // Route: /kits/* → FPL kit image proxy
