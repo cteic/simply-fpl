@@ -1,0 +1,142 @@
+:root {
+  --bg: #0b0f14;
+  --surface: #131922;
+  --border: #233040;
+  --text: #e6edf6;
+  --text-muted: #8b9aaf;
+  --accent: #34d399;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.canvas-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.panel {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  backdrop-filter: blur(8px);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.panel-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.panel-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-row + .panel-row {
+  margin-top: 4px;
+}
+
+.intro {
+  top: 16px;
+  left: 16px;
+  max-width: 320px;
+}
+
+.intro h1 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.intro p {
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.intro code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  background: var(--bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.presence {
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.presence-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.presence-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.player-card {
+  bottom: 16px;
+  left: 16px;
+  min-width: 220px;
+}
+
+.player-card .name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.footer {
+  bottom: 16px;
+  right: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
