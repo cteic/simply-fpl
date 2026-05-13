@@ -15,6 +15,6 @@ fi
 # PRE_COMMIT=typecheck,lint
 [ -f .env ] && . ./.env
 
-for check in ${PRE_COMMIT//,/ }; do
+for check in $(echo "${PRE_COMMIT}" | tr ',' ' '); do
   pnpm run "$check" || exit 1
 done
