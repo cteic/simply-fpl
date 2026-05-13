@@ -8,6 +8,14 @@ binding = "FPL_CACHE"
 id = "478c306b8b974f85bc2a9b83a51d87d1"
 preview_id = "51fbb5bf51fb4ff7a2a6ff28bffaac0a"
 
+[[durable_objects.bindings]]
+name = "LIVE_GW"
+class_name = "LiveGwDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["LiveGwDO"]
+
 [vars]
 FPL_BASE_URL = "https://fantasy.premierleague.com/api"
 
