@@ -1,0 +1,35 @@
+{
+  "name": "@simplyfpl/interview-demo",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "Three.js + Y.js demo — collaborative 3D FPL pitch. Built standalone for an interview, not part of the SimplyFPL product.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "deploy": "vite build && wrangler pages deploy dist --project-name=simply-fpl-interview-demo --commit-dirty=true"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.0",
+    "@react-three/fiber": "^9.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.170.0",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.20"
+  },
+  "devDependencies": {
+    "@simplyfpl/tsconfig-config": "workspace:*",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.170.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "wrangler": "^4.86.0"
+  }
+}
