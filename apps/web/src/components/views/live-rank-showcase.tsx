@@ -123,7 +123,7 @@ export function LiveRankShowcase() {
         <YStack flex={1} minWidth={0}>
           <SectionHeader title="Mini League" />
           <Card>
-            <LeagueTable rows={DEMO_MINI_LEAGUE_ROWS} showOverallRank={false} />
+            <LeagueTable rows={DEMO_MINI_LEAGUE_ROWS} />
           </Card>
         </YStack>
         <YStack flex={1} minWidth={0}>
