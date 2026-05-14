@@ -75,6 +75,7 @@ interface NavProps {
   liveRankPill?: ReactNode;
   signInHref?: string;
   onSignOut?: () => void;
+  showAuthButton?: boolean;
   rightAction?: ReactNode;
 }
 
@@ -84,6 +85,7 @@ export function Nav({
   liveRankPill,
   signInHref = '/login',
   onSignOut,
+  showAuthButton = true,
   rightAction,
 }: NavProps) {
   const isSignedIn = typeof onSignOut === 'function';
@@ -109,28 +111,26 @@ export function Nav({
       <Right>
         <LivePill label={liveLabel} />
         {liveRankPill}
-        <HideOnMobile>
-          {isSignedIn ? (
-            <Button tone="ghost" size="md" onPress={onSignOut}>
-              Sign out
-            </Button>
-          ) : (
-            <Button
-              tone="ghost"
-              size="md"
-              onPress={() => {
-                window.location.href = signInHref;
-              }}
-            >
-              Sign in
-            </Button>
-          )}
-        </HideOnMobile>
-        {rightAction ?? (
-          <Button tone="primary" size="md">
-            Go Pro ✦
-          </Button>
-        )}
+        {showAuthButton ? (
+          <HideOnMobile>
+            {isSignedIn ? (
+              <Button tone="ghost" size="md" onPress={onSignOut}>
+                Sign out
+              </Button>
+            ) : (
+              <Button
+                tone="ghost"
+                size="md"
+                onPress={() => {
+                  window.location.href = signInHref;
+                }}
+              >
+                Sign in
+              </Button>
+            )}
+          </HideOnMobile>
+        ) : null}
+        {rightAction}
       </Right>
     </Bar>
   );
