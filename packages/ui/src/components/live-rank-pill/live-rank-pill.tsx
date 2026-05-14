@@ -13,7 +13,7 @@ const Pill = styled(XStack, {
   borderRadius: '$7',
   cursor: 'pointer',
   hoverStyle: { backgroundColor: '$border' },
-  animation: 'fast',
+  transition: 'fast',
 });
 
 const ANCHOR_STYLE = { textDecoration: 'none' as const };
@@ -48,11 +48,7 @@ export function LiveRankPill({ rank, href }: LiveRankPillProps) {
   );
 
   if (href !== undefined) {
-    return (
-      <Pill tag="a" href={href} role="link" style={ANCHOR_STYLE}>
-        {content}
-      </Pill>
-    );
+    return <Pill render={<a href={href} role="link" style={ANCHOR_STYLE} />}>{content}</Pill>;
   }
 
   return <Pill>{content}</Pill>;

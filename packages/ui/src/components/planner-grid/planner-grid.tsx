@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 import { FdrBadge } from '../fdr-badge';
 
@@ -47,7 +47,7 @@ const PlayerRow = styled(XStack, {
   } as const,
 });
 
-const Dot = styled(Stack, {
+const Dot = styled(YStack, {
   width: 6,
   height: 6,
   borderRadius: 999,

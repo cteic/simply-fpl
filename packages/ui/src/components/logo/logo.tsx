@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 const LogoLink = styled(XStack, {
   alignItems: 'center',
@@ -8,7 +8,7 @@ const LogoLink = styled(XStack, {
   cursor: 'pointer',
 });
 
-const LogoMark = styled(Stack, {
+const LogoMark = styled(YStack, {
   width: 26,
   height: 26,
   backgroundColor: '$color',
@@ -32,7 +32,7 @@ interface LogoProps {
 
 export function Logo({ showText = true }: LogoProps) {
   return (
-    <LogoLink tag="a" href="/">
+    <LogoLink render={<a href="/" />}>
       <LogoMark>
         <svg viewBox="0 0 14 14" fill="none" width={14} height={14}>
           <rect x="1" y="1" width="5" height="5" rx="1.3" fill="white" />

@@ -287,7 +287,7 @@ export function LiveRankRealView({ entryId }: Props) {
       <XStack marginTop={12} marginBottom={8} justifyContent="center">
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
           Not your team?{' '}
-          <Text tag="a" href="/?change=1" color="$color" fontSize={12} fontFamily="$body">
+          <Text render={<a href="/?change=1" />} color="$color" fontSize={12} fontFamily="$body">
             Search again →
           </Text>
         </Text>
