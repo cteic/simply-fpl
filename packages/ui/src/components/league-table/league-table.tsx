@@ -102,16 +102,13 @@ export interface LeagueTableRow {
   isYou?: boolean;
   gwScore: number | string;
   totalPoints: number | string;
-  overallRank?: number | string;
-  remaining?: number;
 }
 
 interface LeagueTableProps {
   rows: LeagueTableRow[];
-  showOverallRank?: boolean;
 }
 
-export function LeagueTable({ rows, showOverallRank = false }: LeagueTableProps) {
+export function LeagueTable({ rows }: LeagueTableProps) {
   return (
     <TableRoot>
       <HeaderRow>
@@ -127,18 +124,9 @@ export function LeagueTable({ rows, showOverallRank = false }: LeagueTableProps)
         <Stack width={70} alignItems="flex-end">
           <HeaderCell>Pts</HeaderCell>
         </Stack>
-        {showOverallRank ? (
-          <Stack width={60} alignItems="flex-end">
-            <HeaderCell>OR</HeaderCell>
-          </Stack>
-        ) : null}
-        <Stack width={50} alignItems="flex-end">
-          <HeaderCell>Rem</HeaderCell>
-        </Stack>
       </HeaderRow>
       {rows.map((row, idx) => {
         const isLast = idx === rows.length - 1;
-        const remTone: 'amber' | 'subtle' = (row.remaining ?? 0) > 0 ? 'amber' : 'subtle';
         return (
           <Row key={`${row.position}-${row.managerName}`} you={row.isYou} last={isLast}>
             <Stack width={28}>
@@ -156,14 +144,6 @@ export function LeagueTable({ rows, showOverallRank = false }: LeagueTableProps)
             </Stack>
             <Stack width={70} alignItems="flex-end">
               <MonoCell look="strong">{row.totalPoints}</MonoCell>
-            </Stack>
-            {showOverallRank ? (
-              <Stack width={60} alignItems="flex-end">
-                <MonoCell look="muted">{row.overallRank ?? '—'}</MonoCell>
-              </Stack>
-            ) : null}
-            <Stack width={50} alignItems="flex-end">
-              <MonoCell look={remTone}>{row.remaining ?? 0}</MonoCell>
             </Stack>
           </Row>
         );
