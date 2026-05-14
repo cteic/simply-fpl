@@ -16,6 +16,9 @@ class_name = "LiveGwDO"
 tag = "v1"
 new_sqlite_classes = ["LiveGwDO"]
 
+[triggers]
+crons = ["0 11 * * 6", "*/15 11-22 * * 6,0,1"]
+
 [vars]
 FPL_BASE_URL = "https://fantasy.premierleague.com/api"
 
@@ -24,3 +27,6 @@ BOOTSTRAP_TTL = "3600"
 LIVE_GW_TTL = "60"
 ENTRY_TTL = "120"
 LEAGUE_TTL = "90"
+
+# Set via wrangler secret: wrangler secret put COHORT_ADMIN_TOKEN
+COHORT_ADMIN_TOKEN = ""

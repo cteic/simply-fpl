@@ -1,3 +1,8 @@
+import type { FplBootstrapStatic, FplEntryGameweekPicks, FplLiveGameweek } from '@simplyfpl/types';
+
+import { fetchPicksBatch, fetchRandomEntries, fetchTopEntries } from './cohort/fetch';
+import type { CohortSnapshot, CohortWip } from './cohort/types';
+
 export { LiveGwDO } from './live-gw-do';
 
 export interface Env {
@@ -8,6 +13,7 @@ export interface Env {
   LIVE_GW_TTL: string;
   ENTRY_TTL: string;
   LEAGUE_TTL: string;
+  COHORT_ADMIN_TOKEN: string;
 }
 
 const FPL_HOST = 'https://fantasy.premierleague.com';
@@ -19,6 +25,14 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+const COHORT_NAMES = ['top10k', 'overall'] as const;
+type CohortName = (typeof COHORT_NAMES)[number];
+
+const COHORT_SIZE = 10000;
+const PICKS_PER_FIRING = 400;
+const ESTIMATED_OVERALL_PAGES = 260000;
+const COHORT_KV_TTL = 7 * 24 * 3600;
 
 // Route → cache TTL mapping (seconds)
 function getTtl(pathname: string): number {
@@ -134,6 +148,175 @@ async function handleKit(ctx: ExecutionContext, pathname: string): Promise<Respo
   return response;
 }
 
+async function getCurrentGameweek(env: Env): Promise<number | null> {
+  const cacheKey = 'fpl:/bootstrap-static/';
+  const cached = await env.FPL_CACHE.get(cacheKey, 'text');
+  const raw =
+    cached ??
+    (await (async () => {
+      const res = await fetch(`${env.FPL_BASE_URL}/bootstrap-static/`, {
+        headers: { 'User-Agent': 'SimplyFPL/1.0', Accept: 'application/json' },
+      });
+      return res.ok ? res.text() : null;
+    })());
+
+  if (raw === null) return null;
+
+  const bootstrap = JSON.parse(raw) as FplBootstrapStatic;
+  const current = bootstrap.events.find((e) => e.is_current);
+  return current?.id ?? null;
+}
+
+async function getLiveGw(env: Env, gameweek: number): Promise<FplLiveGameweek | null> {
+  const cacheKey = `fpl:/event/${gameweek}/live/`;
+  const cached = await env.FPL_CACHE.get(cacheKey, 'text');
+  if (cached !== null) return JSON.parse(cached) as FplLiveGameweek;
+
+  const res = await fetch(`${env.FPL_BASE_URL}/event/${gameweek}/live/`, {
+    headers: { 'User-Agent': 'SimplyFPL/1.0', Accept: 'application/json' },
+  });
+  if (!res.ok) return null;
+
+  const text = await res.text();
+  return JSON.parse(text) as FplLiveGameweek;
+}
+
+function wipToSnapshot(wip: CohortWip): CohortSnapshot {
+  const { processedCount } = wip;
+
+  const playerOwnership: Record<number, number> = {};
+  for (const [rawId, count] of Object.entries(wip.playerOwnerCount)) {
+    const id = Number(rawId);
+    playerOwnership[id] = ((count ?? 0) / processedCount) * 100;
+  }
+
+  const captainOwnership: Record<number, number> = {};
+  for (const [rawId, count] of Object.entries(wip.captainOwnerCount)) {
+    const id = Number(rawId);
+    captainOwnership[id] = ((count ?? 0) / processedCount) * 100;
+  }
+
+  return {
+    cohortName: wip.cohortName,
+    gameweek: wip.gameweek,
+    capturedAt: new Date().toISOString(),
+    sampleSize: processedCount,
+    averageScore: wip.totalScore / processedCount,
+    averagePlayersPlayed: wip.totalPlayersPlayed / processedCount,
+    averageBudgetUsed: 0,
+    averageCaptainPoints: wip.totalCaptainPoints / processedCount,
+    playerOwnership,
+    captainOwnership,
+    topThreshold: wip.topThreshold,
+  };
+}
+
+function accumulateIntoBatch(
+  wip: CohortWip,
+  entryPicks: Array<{ entryId: number; picks: FplEntryGameweekPicks }>,
+  liveGw: FplLiveGameweek
+): void {
+  const livePointsById = new Map<number, number>(
+    liveGw.elements.map((el) => [el.id, el.stats.total_points])
+  );
+  const liveMinutesById = new Map<number, number>(
+    liveGw.elements.map((el) => [el.id, el.stats.minutes])
+  );
+
+  for (const { picks: entryGwPicks } of entryPicks) {
+    const { picks } = entryGwPicks;
+    let entryScore = 0;
+    let entryPlayersPlayed = 0;
+    let entryCaptainPoints = 0;
+
+    for (const pick of picks) {
+      const livePoints = livePointsById.get(pick.element) ?? 0;
+      const minutes = liveMinutesById.get(pick.element) ?? 0;
+
+      wip.playerOwnerCount[pick.element] = (wip.playerOwnerCount[pick.element] ?? 0) + 1;
+
+      if (pick.is_captain) {
+        wip.captainOwnerCount[pick.element] = (wip.captainOwnerCount[pick.element] ?? 0) + 1;
+        entryCaptainPoints = livePoints * pick.multiplier;
+      }
+
+      if (pick.multiplier > 0) {
+        entryScore += livePoints * pick.multiplier;
+        if (minutes > 0) entryPlayersPlayed++;
+      }
+    }
+
+    wip.totalScore += entryScore;
+    wip.totalPlayersPlayed += entryPlayersPlayed;
+    wip.totalCaptainPoints += entryCaptainPoints;
+    wip.topThreshold = entryGwPicks.entry_history.points;
+    wip.processedCount++;
+  }
+}
+
+async function runCohortBatch(
+  env: Env,
+  gameweek: number,
+  cohortName: CohortName
+): Promise<{ status: 'processing' | 'done'; remaining: number }> {
+  const wipKey = `cohort:wip:gw:${gameweek}:${cohortName}`;
+  const finalKey = `cohort:gw:${gameweek}:${cohortName}`;
+
+  const wipRaw = await env.FPL_CACHE.get(wipKey, 'text');
+  let wip: CohortWip;
+
+  if (wipRaw === null) {
+    const entryIds =
+      cohortName === 'overall'
+        ? await fetchRandomEntries(env.FPL_BASE_URL, COHORT_SIZE, ESTIMATED_OVERALL_PAGES, fetch)
+        : await fetchTopEntries(env.FPL_BASE_URL, COHORT_SIZE, fetch);
+
+    wip = {
+      cohortName,
+      gameweek,
+      startedAt: new Date().toISOString(),
+      remainingIds: entryIds,
+      processedCount: 0,
+      playerOwnerCount: {},
+      captainOwnerCount: {},
+      totalScore: 0,
+      totalPlayersPlayed: 0,
+      totalCaptainPoints: 0,
+      topThreshold: 0,
+    };
+  } else {
+    wip = JSON.parse(wipRaw) as CohortWip;
+  }
+
+  if (wip.remainingIds.length === 0) {
+    return { status: 'done', remaining: 0 };
+  }
+
+  const batch = wip.remainingIds.slice(0, PICKS_PER_FIRING);
+  wip.remainingIds = wip.remainingIds.slice(PICKS_PER_FIRING);
+
+  const liveGw = await getLiveGw(env, gameweek);
+  if (liveGw !== null) {
+    const picksResult = await fetchPicksBatch(env.FPL_BASE_URL, batch, gameweek, fetch);
+    accumulateIntoBatch(wip, picksResult, liveGw);
+  }
+
+  await env.FPL_CACHE.put(wipKey, JSON.stringify(wip), {
+    expirationTtl: COHORT_KV_TTL,
+  });
+
+  if (wip.remainingIds.length === 0 && wip.processedCount > 0) {
+    const snapshot = wipToSnapshot(wip);
+    await env.FPL_CACHE.put(finalKey, JSON.stringify(snapshot), {
+      expirationTtl: COHORT_KV_TTL,
+    });
+    await env.FPL_CACHE.delete(wipKey);
+    return { status: 'done', remaining: 0 };
+  }
+
+  return { status: 'processing', remaining: wip.remainingIds.length };
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -141,6 +324,53 @@ export default {
     // CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
+    }
+
+    // Route: GET /cohort/:gw/:cohortName
+    const cohortReadMatch = url.pathname.match(/^\/cohort\/(\d+)\/(top10k|overall|top25k)$/);
+    if (cohortReadMatch && request.method === 'GET') {
+      const gw = cohortReadMatch[1];
+      const cohortName = cohortReadMatch[2];
+      const key = `cohort:gw:${gw}:${cohortName}`;
+      const data = await env.FPL_CACHE.get(key, 'text');
+      if (data === null) {
+        return new Response(JSON.stringify({ error: 'Not found' }), {
+          status: 404,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(data, {
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=300',
+        },
+      });
+    }
+
+    // Route: POST /cohort/admin/backfill/:gw
+    const backfillMatch = url.pathname.match(/^\/cohort\/admin\/backfill\/(\d+)$/);
+    if (backfillMatch && request.method === 'POST') {
+      const token = request.headers.get('Authorization');
+      if (token !== `Bearer ${env.COHORT_ADMIN_TOKEN}`) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      const gameweek = Number(backfillMatch[1]);
+      const results: Record<string, { status: string; remaining: number }> = {};
+
+      for (const cohortName of COHORT_NAMES) {
+        results[cohortName] = await runCohortBatch(env, gameweek, cohortName);
+      }
+
+      const allDone = Object.values(results).every((r) => r.status === 'done');
+      return new Response(
+        JSON.stringify({ status: allDone ? 'done' : 'processing', cohorts: results }),
+        { headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     if (request.method !== 'GET') {
@@ -181,5 +411,14 @@ export default {
     const ttl = getTtl(fplPath);
 
     return fetchWithCache(env, ctx, cacheKey, upstreamUrl, ttl);
+  },
+
+  async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
+    const gameweek = await getCurrentGameweek(env);
+    if (gameweek === null) return;
+
+    for (const cohortName of COHORT_NAMES) {
+      await runCohortBatch(env, gameweek, cohortName);
+    }
   },
 };
