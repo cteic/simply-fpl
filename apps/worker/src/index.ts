@@ -1,3 +1,5 @@
+import { runScheduled } from './cohort/cohort';
+
 export { LiveGwDO } from './live-gw-do';
 
 export interface Env {
@@ -8,6 +10,8 @@ export interface Env {
   LIVE_GW_TTL: string;
   ENTRY_TTL: string;
   LEAGUE_TTL: string;
+  SUPABASE_URL?: string;
+  SUPABASE_SERVICE_ROLE?: string;
 }
 
 const FPL_HOST = 'https://fantasy.premierleague.com';
@@ -181,5 +185,9 @@ export default {
     const ttl = getTtl(fplPath);
 
     return fetchWithCache(env, ctx, cacheKey, upstreamUrl, ttl);
+  },
+
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    await runScheduled(event.scheduledTime, env, ctx);
   },
 };
