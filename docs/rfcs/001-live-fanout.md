@@ -41,7 +41,7 @@ Effective worst-case freshness today: 60s (KV TTL) + up to 60s (client polling d
 │   │ alarm() ── poll FPL /event/{gw}/live ──► diff vs state  │     │
 │   │   ├─ store snapshot in this.state.storage               │     │
 │   │   ├─ broadcast delta to all WebSockets (hibernated OK)  │     │
-│   │   └─ schedule next alarm (15s / 60s / 300s adaptive)    │     │
+│   │   └─ schedule next alarm (5s / 120s / 300s adaptive)    │     │
 │   │ webSocketMessage() ── client→server (subscribe/ping)     │     │
 │   │ webSocketClose() ── hibernation API drops idle conns    │     │
 │   └─────────────────────────────────────────────────────────┘     │
@@ -82,24 +82,26 @@ Key invariants:
 
 ### Polling cadence (adaptive)
 
-Derived once per alarm from `bootstrap-static.events[gw]` and `fixtures[gw]`:
+Derived once per alarm from `bootstrap-static.events[gw]` and `fixtures[gw]`. Numbers updated from the GW36 measurement (2026-05-13, single-match, ~5 h, 1,760 observations — see `docs/notes/fpl-live-cadence.md`):
 
-| State                                    | Cadence              |
-| ---------------------------------------- | -------------------- |
-| Match in progress (any fixture, 0–120 m) | **15 s**             |
-| Match window starts in <30 m             | 30 s                 |
-| Within 2h of FT but bonus not yet locked | 60 s                 |
-| Gameweek live but no active match        | 5 min                |
-| Gameweek not live (deadline > 1h away)   | 30 min               |
-| Gameweek finished and bonus locked       | DO sleeps (no alarm) |
+| State                                    | Cadence              | Source                                                                                                                     |
+| ---------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Match in progress (any fixture, 0–120 m) | **5 s**              | Measured — FPL updates ≤ 5 s during active play. May tighten further once a sub-second probe finds the real upstream rate. |
+| Match window starts in <30 m             | 120 s                | Measured — 0 changes observed across 117 obs in 30-min pre window.                                                         |
+| Within 2h of FT but bonus not yet locked | 30 s                 | Conservative guess; the GW36 run didn't isolate this sub-state. Validate during GW37 weekend.                              |
+| Gameweek live but no active match        | 120 s                | Measured — 0 changes across 73 obs ~1 h between matches.                                                                   |
+| Gameweek not live (deadline > 1h away)   | 5 min                | Measured — 2 changes at 5-min cadence (final settling pass).                                                               |
+| Gameweek finished and bonus locked       | DO sleeps (no alarm) | —                                                                                                                          |
 
 The DO checks fixture kickoffs from a snapshot it pulls once per alarm (cheap KV read of `bootstrap-static`). When it sleeps, no cost.
+
+**Methodological caveat.** The `match` cadence of 5 s is a Nyquist floor from the measurement run, not a measured FPL upstream rate — we polled at 5 s, so we cannot see anything faster. FPL probably updates more often. The proposed 5 s cadence is the conservative starting point; tighten after a follow-up sub-second probe (flagged in the findings doc).
 
 ### Bonus + BPS
 
 These two are subtle and worth calling out:
 
-- `bps` updates **with every event** during a match — already covered by the 15s cadence.
+- `bps` updates **with every event** during a match — already covered by the 5 s cadence.
 - `bonus` is **provisional mid-match** (FPL recalculates frequently) and **locked at full-time**. The provisional value shows up in `element.stats.bonus` once FPL begins computing it.
 - The diff loop treats `bonus` as just another stat — when it changes, broadcast. UI marks bonus as `provisional` until `is_bonus_added_in_lineups` (or equivalent — needs measurement, see open questions).
 - One additional alarm trigger: when all fixtures for the GW have `finished: true`, do a final fetch to capture locked bonus, then sleep.
@@ -146,7 +148,7 @@ Set `placement = { mode = "smart" }` for the Worker so that for users in a regio
 
 ### Cost shape (rough)
 
-- DO requests: 1 alarm fire per cadence step. At 15s for ~4h match windows + 5m for the rest of GW → ~1000 alarms per GW. Negligible.
+- DO requests: 1 alarm fire per cadence step. At 5 s for ~4 h match windows + 5 min for the rest of GW → ~3,000 alarms per GW. Still negligible at CF DO pricing, but ~3× the original RFC-001-placeholder estimate.
 - DO duration: hibernation keeps idle ms near zero. Charge ≈ poll-and-broadcast wall time × cadence.
 - WebSocket messages: one delta per change × N connected clients. Worst case ~20 deltas/min × 5000 connections = 100k messages/min, well under the 10k/sec/instance soft limit.
 
@@ -154,15 +156,15 @@ Honest uncertainty: I haven't measured what "5000 connected clients" actually co
 
 ## 6. FPL API endpoints + cadence
 
-| Endpoint                           | Polled by | Cadence                        | Notes                                                 |
-| ---------------------------------- | --------- | ------------------------------ | ----------------------------------------------------- |
-| `/event/{gw}/live/`                | DO        | 15 s / 60 s / 5 min (adaptive) | The hot path. Direct fetch, never through KV.         |
-| `/bootstrap-static/`               | Worker    | 1 h (KV TTL)                   | DO reads it to compute cadence — cheap KV hit.        |
-| `/fixtures/?event=N`               | Worker    | 10 min (KV TTL)                | DO reads it to know match kickoffs.                   |
-| `/entry/{id}/event/{gw}/picks/`    | Worker    | 2 m (KV TTL)                   | Unchanged. Per-user, low write rate.                  |
-| `/leagues-classic/{id}/standings/` | Worker    | 90 s (KV TTL)                  | Unchanged for now. Rivals view (RFC 002) will adjust. |
+| Endpoint                           | Polled by | Cadence                       | Notes                                                                                                      |
+| ---------------------------------- | --------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/event/{gw}/live/`                | DO        | 5 s / 30 s / 5 min (adaptive) | The hot path. Direct fetch, never through KV. See §4 for the full state table and the measurement caveats. |
+| `/bootstrap-static/`               | Worker    | 1 h (KV TTL)                  | DO reads it to compute cadence — cheap KV hit.                                                             |
+| `/fixtures/?event=N`               | Worker    | 10 min (KV TTL)               | DO reads it to know match kickoffs.                                                                        |
+| `/entry/{id}/event/{gw}/picks/`    | Worker    | 2 m (KV TTL)                  | Unchanged. Per-user, low write rate.                                                                       |
+| `/leagues-classic/{id}/standings/` | Worker    | 90 s (KV TTL)                 | Unchanged for now. Rivals view (RFC 002) will adjust.                                                      |
 
-**Honest uncertainty:** I don't know empirically how often FPL actually updates `/event/{gw}/live/`. The 60s TTL we currently use is a guess. The 15s adaptive cadence is also a guess — it could be wasted requests if FPL only updates every 30s upstream. **Prereq issue (`LF-01`)**: instrument a one-week measurement before tuning cadence.
+**Empirical update (2026-05-14):** GW36 single-match measurement (#72 / #104, findings in `docs/notes/fpl-live-cadence.md`) confirmed FPL updates `/event/{gw}/live/` **at least every ~5 s during active play** with no rate-limiting at that cadence. The 5 s match cadence in §4 reflects this. A follow-up sub-second probe is needed to find FPL's true upstream rate and tune further. The KV mirror TTL (60 s) is now the secondary path; the DO is authoritative during live windows.
 
 ## 7. Failure modes + fallbacks
 
