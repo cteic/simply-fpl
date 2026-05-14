@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Always format staged files and re-stage them, regardless of local .env.
 # This is what scheduled agents and fresh checkouts need; without it the
@@ -15,6 +14,6 @@ fi
 # PRE_COMMIT=typecheck,lint
 [ -f .env ] && . ./.env
 
-for check in $(echo "${PRE_COMMIT}" | tr ',' ' '); do
+for check in $(printf '%s' "${PRE_COMMIT:-}" | tr ',' ' '); do
   pnpm run "$check" || exit 1
 done

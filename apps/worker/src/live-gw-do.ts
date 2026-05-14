@@ -19,6 +19,20 @@ export class LiveGwDO {
       return new Response('Expected Upgrade: websocket', { status: 426 });
     }
 
+    const origin = request.headers.get('Origin');
+    const isAllowedOrigin =
+      !origin ||
+      origin === 'http://localhost:3000' ||
+      /^https:\/\/[a-z0-9-]+\.simply-fpl\.pages\.dev$/.test(origin);
+    if (!isAllowedOrigin) {
+      return new Response('Origin not allowed', { status: 403 });
+    }
+
+    const MAX_CONNECTIONS = 5000;
+    if (this.state.getWebSockets().length >= MAX_CONNECTIONS) {
+      return new Response('At capacity', { status: 503 });
+    }
+
     const pair = new WebSocketPair();
     const client = pair[0];
     const server = pair[1];
