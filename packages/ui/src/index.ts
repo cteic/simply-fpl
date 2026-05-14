@@ -1,8 +1,14 @@
-'use client';
-
 export * from './theme';
 
-export { Stack, XStack, YStack, Text, ScrollView, Button as TamaguiButton, styled } from 'tamagui';
+export {
+  Stack,
+  XStack,
+  YStack,
+  Text,
+  ScrollView,
+  TamaguiButton,
+  styled,
+} from './tamagui-primitives';
 
 export * from './components/bench-divider';
 export * from './components/button';
