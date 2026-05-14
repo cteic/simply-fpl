@@ -13,7 +13,7 @@ const PillBase = styled(XStack, {
   borderColor: '$borderStrong',
   backgroundColor: '$surface',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   hoverStyle: { borderColor: '$colorSubtle' },
 });
 
@@ -31,7 +31,7 @@ interface TeamPillProps {
 
 export function TeamPill({ teamId, onPress }: TeamPillProps) {
   return (
-    <PillBase tag="button" onPress={onPress}>
+    <PillBase render="button" onPress={onPress}>
       <svg width={9} height={9} viewBox="0 0 9 9" fill="none">
         <circle cx="4.5" cy="4.5" r="3.5" stroke="currentColor" strokeWidth="1.1" />
         <path d="M4.5 2.5v2l1.2 1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />

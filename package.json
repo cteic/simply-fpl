@@ -63,8 +63,6 @@
       "@types/react-dom": "^19.0.0",
       "react-native-web": "^0.21.0"
     },
-    "patchedDependencies": {
-      "@tamagui/next-plugin": "patches/@tamagui__next-plugin.patch"
-    }
+    "patchedDependencies": {}
   }
 }
