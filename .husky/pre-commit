@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 
-# Load optional PRE_COMMIT config from .env
+# Always format staged files and re-stage them, regardless of local .env.
+# This is what scheduled agents and fresh checkouts need; without it the
+# commit lands with pre-format content and CI's `format:check` fails.
+#
+# `git add -u` re-stages modifications to tracked files only; it doesn't
+# add untracked files into the commit.
+if pnpm run format > /dev/null 2>&1; then
+  git add -u
+fi
+
+# Optional extra checks listed in PRE_COMMIT env var in .env, e.g.
+# PRE_COMMIT=typecheck,lint
 [ -f .env ] && . ./.env
 
 for check in $(printf '%s' "${PRE_COMMIT:-}" | tr ',' ' '); do
