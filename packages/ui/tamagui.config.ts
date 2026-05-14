@@ -187,6 +187,11 @@ const light = {
   info: colors.blue,
   infoBg: colors.bbg,
 
+  // Brand (mono lockup wordmark + s. favicon)
+  brand: colors.brand,
+  brandHover: colors.brandHover,
+  brandBg: colors.brandBg,
+
   // Position shirt backgrounds
   shirtGk: colors.shirtGk,
   shirtDef: colors.shirtDef,
