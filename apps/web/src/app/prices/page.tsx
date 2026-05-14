@@ -1,6 +1,10 @@
+import { redirect } from 'next/navigation';
+
 import { PricesView } from '@/components/views/prices-view';
+import { FEATURE_PRICES } from '@/lib/feature-flags';
 
 export default function PricesPage() {
+  if (!FEATURE_PRICES) redirect('/');
   return <PricesView />;
 }
 

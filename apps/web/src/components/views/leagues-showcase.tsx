@@ -15,6 +15,7 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
+import { FEATURE_AUTH } from '@/lib/feature-flags';
 import { useEntry } from '@/queries/fpl';
 
 import { TrackedLeagueCard } from './tracked-league-card';
@@ -77,7 +78,7 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
         emptyMessage="No mini-leagues found for this team yet."
       />
 
-      {!signedIn ? (
+      {FEATURE_AUTH && !signedIn ? (
         <Card paddingHorizontal={20} paddingVertical={16} marginTop={20}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
             Sign in to keep your team ID across devices.
@@ -122,7 +123,7 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
             >
               Enter team ID
             </Button>
-            {signedIn ? null : (
+            {FEATURE_AUTH && !signedIn ? (
               <Button
                 tone="ghost"
                 size="md"
@@ -132,7 +133,7 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
               >
                 Sign in
               </Button>
-            )}
+            ) : null}
           </XStack>
         </YStack>
       </Card>
