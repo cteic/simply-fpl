@@ -139,6 +139,17 @@ pnpm dev:mobile     # Expo dev server
 - Branches and PRs target `dev`, not `main`
 - Imports: use the workspace alias `@simplyfpl/<pkg>` rather than relative paths across packages
 
+## Branching + release process (simplified GitFlow)
+
+- `main` is production. Auto-deploys to Cloudflare Pages + the Worker on every push.
+- `dev` is the integration branch and the **default branch** of the repo. PRs target `dev`.
+- Feature/fix/docs branches (`feat/*`, `fix/*`, `docs/*`, `chore/*`) branch from `dev` and PR back to `dev`.
+- Releases are PRs from `dev` → `main`. Merge with a merge commit (preserves the per-feature history). Tag the merge commit on main `v0.X.0`.
+- After a release lands on main, the next PR to dev should include a `chore: sync main into dev` merge so dev stays at-or-ahead of main.
+- Hotfix exception: a true production hotfix can branch off `main` and PR to `main`, then cherry-pick back to `dev`. Use sparingly.
+
+Branch protection is **not enforced via GitHub** (the repo is private on Free tier — branch protection rules cost Pro). Discipline replaces enforcement: don't direct-push to `main`, don't force-push either branch, don't delete `main` or `dev`.
+
 ## FPL-specific notes
 
 - All FPL API calls must go through the Cloudflare Worker (`apps/worker`), never directly from client
