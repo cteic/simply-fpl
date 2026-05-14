@@ -116,10 +116,10 @@ export function HomeSearchView() {
             • Mini-league standings with live captain and bench points
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Daily price-change predictions
+            • Head-to-head comparison against any rival in your leagues
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Fixture-difficulty planner (Pro)
+            • Free, no sign-up needed — just paste your team ID
           </Text>
         </YStack>
       </Card>
