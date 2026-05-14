@@ -2,7 +2,7 @@
 
 export * from './theme';
 
-export { Stack, XStack, YStack, Text, ScrollView, Button as TamaguiButton, styled } from 'tamagui';
+export { XStack, YStack, Text, ScrollView, Button as TamaguiButton, styled } from 'tamagui';
 
 export * from './components/bench-divider';
 export * from './components/button';
