@@ -24,3 +24,13 @@ BOOTSTRAP_TTL = "3600"
 LIVE_GW_TTL = "60"
 ENTRY_TTL = "120"
 LEAGUE_TTL = "90"
+
+# Cohort engine cron triggers — see docs/rfcs/004-cohort-engine.md
+# DISABLED by default. Uncomment to enable after setting Supabase secrets:
+#   wrangler secret put SUPABASE_URL
+#   wrangler secret put SUPABASE_SERVICE_ROLE
+# [triggers]
+# crons = [
+#   "*/10 * * * *",  # live-GW cadence
+#   "0 */6 * * *"    # idle cadence
+# ]
