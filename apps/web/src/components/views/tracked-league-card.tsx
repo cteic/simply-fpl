@@ -9,9 +9,10 @@ import { useClassicLeague } from '@/queries/fpl';
 
 interface TrackedLeagueCardProps {
   leagueId: number;
+  myEntryId?: number;
 }
 
-export function TrackedLeagueCard({ leagueId }: TrackedLeagueCardProps) {
+export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProps) {
   const { data, isLoading, error } = useClassicLeague(leagueId);
   const [expanded, setExpanded] = useState(false);
 
@@ -48,13 +49,27 @@ export function TrackedLeagueCard({ leagueId }: TrackedLeagueCardProps) {
     position: row.rank,
     managerName: row.player_name,
     teamName: row.entry_name,
+    entryId: row.entry,
+    isYou: myEntryId !== undefined && row.entry === myEntryId,
     gwScore: row.event_total,
     totalPoints: row.total,
   }));
 
+  const onRowClick =
+    myEntryId !== undefined
+      ? (theirEntryId: number) => {
+          window.location.href = `/h2h/${myEntryId}/${theirEntryId}`;
+        }
+      : undefined;
+
   return (
     <YStack gap={6}>
-      <LeagueCard name={data.league.name} meta={`Classic · ${totalRows} managers`} rows={rows} />
+      <LeagueCard
+        name={data.league.name}
+        meta={`Classic · ${totalRows} managers`}
+        rows={rows}
+        {...(onRowClick !== undefined ? { onRowClick } : {})}
+      />
       {totalRows > 10 ? (
         <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
           {expanded ? 'Show top 10' : `Show all ${totalRows}`}

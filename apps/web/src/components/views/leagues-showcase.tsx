@@ -15,6 +15,7 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
+import { FEATURE_AUTH } from '@/lib/feature-flags';
 import { useEntry } from '@/queries/fpl';
 
 import { TrackedLeagueCard } from './tracked-league-card';
@@ -73,10 +74,11 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
         isLoading={isLoading}
         isError={isError}
         leagueIds={classicLeagues.map((l) => l.id)}
+        myEntryId={entryId}
         emptyMessage="No mini-leagues found for this team yet."
       />
 
-      {!signedIn ? (
+      {FEATURE_AUTH && !signedIn ? (
         <Card paddingHorizontal={20} paddingVertical={16} marginTop={20}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
             Sign in to keep your team ID across devices.
@@ -121,7 +123,7 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
             >
               Enter team ID
             </Button>
-            {signedIn ? null : (
+            {FEATURE_AUTH && !signedIn ? (
               <Button
                 tone="ghost"
                 size="md"
@@ -131,7 +133,7 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
               >
                 Sign in
               </Button>
-            )}
+            ) : null}
           </XStack>
         </YStack>
       </Card>
@@ -145,10 +147,17 @@ interface LeagueListBodyProps {
   isLoading: boolean;
   isError: boolean;
   leagueIds: number[];
+  myEntryId?: number;
   emptyMessage: string;
 }
 
-function LeagueListBody({ isLoading, isError, leagueIds, emptyMessage }: LeagueListBodyProps) {
+function LeagueListBody({
+  isLoading,
+  isError,
+  leagueIds,
+  myEntryId,
+  emptyMessage,
+}: LeagueListBodyProps) {
   if (isLoading) {
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
@@ -182,7 +191,11 @@ function LeagueListBody({ isLoading, isError, leagueIds, emptyMessage }: LeagueL
   return (
     <YStack gap={10}>
       {leagueIds.map((leagueId) => (
-        <TrackedLeagueCard key={leagueId} leagueId={leagueId} />
+        <TrackedLeagueCard
+          key={leagueId}
+          leagueId={leagueId}
+          {...(myEntryId !== undefined ? { myEntryId } : {})}
+        />
       ))}
     </YStack>
   );
