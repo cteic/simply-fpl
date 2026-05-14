@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import {
   Button,
   Card,
   FNote,
   Input,
+  Logo,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -34,13 +35,25 @@ function parseEntryId(input: string): number | null {
 
 export function HomeSearchView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const forceForm = searchParams?.get('change') === '1';
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) setInput(saved);
-  }, []);
+    const id = saved ? Number(saved) : NaN;
+    const hasSavedId = Number.isInteger(id) && id > 0;
+
+    if (hasSavedId && !forceForm) {
+      router.replace(`/rank/${id}`);
+      return;
+    }
+
+    if (hasSavedId) setInput(String(id));
+    setChecking(false);
+  }, [router, forceForm]);
 
   function handleSubmit() {
     setError(null);
@@ -53,9 +66,17 @@ export function HomeSearchView() {
     router.push(`/rank/${id}`);
   }
 
+  if (checking) {
+    return (
+      <PageShell>
+        <PageHeader title={<Logo size="lg" />} meta="Loading…" />
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell>
-      <PageHeader title="SimplyFPL" meta="Live FPL companion · GW30" />
+      <PageHeader title={<Logo size="lg" />} meta="Live FPL companion · GW30" />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
         <SectionHeader title="Find your team" />
@@ -96,10 +117,10 @@ export function HomeSearchView() {
             • Mini-league standings with live captain and bench points
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Daily price-change predictions
+            • Head-to-head comparison against any rival in your leagues
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Fixture-difficulty planner (Pro)
+            • Free, no sign-up needed — just paste your team ID
           </Text>
         </YStack>
       </Card>

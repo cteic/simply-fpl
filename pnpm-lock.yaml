@@ -225,6 +225,9 @@ importers:
       '@simplyfpl/tsconfig-config':
         specifier: workspace:*
         version: link:../tsconfig-config
+      '@tanstack/react-query':
+        specifier: ^5.0.0
+        version: 5.100.6(react@19.2.5)
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
@@ -2516,7 +2519,7 @@ packages:
       {
         integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==,
       }
-    engines: { node: '>=0.10.0' }
+    engines: { '0': node >=0.10.0 }
 
   '@expo/cli@0.22.28':
     resolution:

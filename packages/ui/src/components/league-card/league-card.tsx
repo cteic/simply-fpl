@@ -51,9 +51,10 @@ interface LeagueCardProps {
   meta: string;
   rows: LeagueTableRow[];
   badge?: string;
+  onRowClick?: (entryId: number) => void;
 }
 
-export function LeagueCard({ name, meta, rows, badge = 'Live' }: LeagueCardProps) {
+export function LeagueCard({ name, meta, rows, badge = 'Live', onRowClick }: LeagueCardProps) {
   return (
     <Card>
       <Head>
@@ -63,7 +64,7 @@ export function LeagueCard({ name, meta, rows, badge = 'Live' }: LeagueCardProps
         </YStack>
         <Badge>{badge}</Badge>
       </Head>
-      <LeagueTable rows={rows} />
+      <LeagueTable rows={rows} {...(onRowClick !== undefined ? { onRowClick } : {})} />
     </Card>
   );
 }

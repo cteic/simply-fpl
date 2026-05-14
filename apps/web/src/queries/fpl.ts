@@ -23,10 +23,15 @@ export function useLiveGameweek(eventId: number | null) {
   });
 }
 
-export function useEntry(entryId: number) {
+export function useEntry(entryId: number | null) {
   return useQuery({
     queryKey: ['entry', entryId],
-    queryFn: () => fplClient.getEntry(entryId),
+    queryFn: () => {
+      if (entryId === null) throw new Error('entryId required');
+      return fplClient.getEntry(entryId);
+    },
+    enabled: entryId !== null,
+    refetchInterval: 60_000,
   });
 }
 

@@ -100,15 +100,17 @@ export interface LeagueTableRow {
   managerName: string;
   teamName?: string;
   isYou?: boolean;
+  entryId?: number;
   gwScore: number | string;
   totalPoints: number | string;
 }
 
 interface LeagueTableProps {
   rows: LeagueTableRow[];
+  onRowClick?: (entryId: number) => void;
 }
 
-export function LeagueTable({ rows }: LeagueTableProps) {
+export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
   return (
     <TableRoot>
       <HeaderRow>
@@ -127,8 +129,20 @@ export function LeagueTable({ rows }: LeagueTableProps) {
       </HeaderRow>
       {rows.map((row, idx) => {
         const isLast = idx === rows.length - 1;
+        const canClick = onRowClick !== undefined && row.entryId !== undefined && !row.isYou;
         return (
-          <Row key={`${row.position}-${row.managerName}`} you={row.isYou} last={isLast}>
+          <Row
+            key={`${row.position}-${row.managerName}`}
+            you={row.isYou}
+            last={isLast}
+            onPress={
+              canClick
+                ? () => {
+                    if (row.entryId !== undefined) onRowClick(row.entryId);
+                  }
+                : undefined
+            }
+          >
             <Stack width={28}>
               <Position>{row.position}</Position>
             </Stack>
