@@ -9,6 +9,7 @@ import {
   Card,
   FNote,
   Input,
+  Logo,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -68,14 +69,14 @@ export function HomeSearchView() {
   if (checking) {
     return (
       <PageShell>
-        <PageHeader title="SimplyFPL" meta="Loading…" />
+        <PageHeader title={<Logo size="lg" />} meta="Loading…" />
       </PageShell>
     );
   }
 
   return (
     <PageShell>
-      <PageHeader title="SimplyFPL" meta="Live FPL companion · GW30" />
+      <PageHeader title={<Logo size="lg" />} meta="Live FPL companion · GW30" />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
         <SectionHeader title="Find your team" />

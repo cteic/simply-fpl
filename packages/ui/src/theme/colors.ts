@@ -53,6 +53,11 @@ export const colors = {
   fdr4: '#EA580C',
   fdr5: '#DC2626',
 
+  // Brand (mono lockup wordmark + s. favicon)
+  brand: '#0F766E',
+  brandHover: '#115E59',
+  brandBg: '#F0FDFA',
+
   // Special
   youRow: '#F5F5FF',
   youRowHover: '#EDEDFD',
