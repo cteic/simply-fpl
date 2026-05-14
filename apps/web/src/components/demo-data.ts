@@ -43,7 +43,6 @@ export const DEMO_MINI_LEAGUE_ROWS: LeagueTableRow[] = [
     teamName: "James O'Brien",
     gwScore: 71,
     totalPoints: '1,842',
-    remaining: 0,
   },
   {
     position: 2,
@@ -51,7 +50,6 @@ export const DEMO_MINI_LEAGUE_ROWS: LeagueTableRow[] = [
     teamName: 'Aoife Murphy',
     gwScore: 68,
     totalPoints: '1,819',
-    remaining: 2,
   },
   {
     position: 3,
@@ -60,7 +58,6 @@ export const DEMO_MINI_LEAGUE_ROWS: LeagueTableRow[] = [
     isYou: true,
     gwScore: 67,
     totalPoints: '1,804',
-    remaining: 2,
   },
   {
     position: 4,
@@ -68,7 +65,6 @@ export const DEMO_MINI_LEAGUE_ROWS: LeagueTableRow[] = [
     teamName: 'Ciarán Kelly',
     gwScore: 54,
     totalPoints: '1,791',
-    remaining: 0,
   },
   {
     position: 5,
@@ -76,7 +72,6 @@ export const DEMO_MINI_LEAGUE_ROWS: LeagueTableRow[] = [
     teamName: 'Sinéad Byrne',
     gwScore: 49,
     totalPoints: '1,766',
-    remaining: 3,
   },
 ];
 
@@ -88,8 +83,6 @@ export const DEMO_GIBBINGTONS_ROWS: LeagueTableRow[] = [
     isYou: true,
     gwScore: 67,
     totalPoints: '1,804',
-    overallRank: '184k',
-    remaining: 2,
   },
   {
     position: 2,
@@ -97,8 +90,6 @@ export const DEMO_GIBBINGTONS_ROWS: LeagueTableRow[] = [
     teamName: 'Aoife Murphy',
     gwScore: 68,
     totalPoints: '1,801',
-    overallRank: '176k',
-    remaining: 2,
   },
   {
     position: 3,
@@ -106,8 +97,6 @@ export const DEMO_GIBBINGTONS_ROWS: LeagueTableRow[] = [
     teamName: "James O'Brien",
     gwScore: 71,
     totalPoints: '1,799',
-    overallRank: '163k',
-    remaining: 0,
   },
   {
     position: 4,
@@ -115,8 +104,6 @@ export const DEMO_GIBBINGTONS_ROWS: LeagueTableRow[] = [
     teamName: 'Ciarán Kelly',
     gwScore: 54,
     totalPoints: '1,791',
-    overallRank: '241k',
-    remaining: 0,
   },
   {
     position: 5,
@@ -124,8 +111,6 @@ export const DEMO_GIBBINGTONS_ROWS: LeagueTableRow[] = [
     teamName: 'Sinéad Byrne',
     gwScore: 49,
     totalPoints: '1,766',
-    overallRank: '389k',
-    remaining: 3,
   },
 ];
 
@@ -136,8 +121,6 @@ export const DEMO_WORK_LEAGUE_ROWS: LeagueTableRow[] = [
     teamName: 'Dan Higgins',
     gwScore: 74,
     totalPoints: '1,866',
-    overallRank: '98k',
-    remaining: 0,
   },
   {
     position: 2,
@@ -145,8 +128,6 @@ export const DEMO_WORK_LEAGUE_ROWS: LeagueTableRow[] = [
     teamName: 'Emer Doyle',
     gwScore: 69,
     totalPoints: '1,832',
-    overallRank: '142k',
-    remaining: 1,
   },
   {
     position: 7,
@@ -155,8 +136,6 @@ export const DEMO_WORK_LEAGUE_ROWS: LeagueTableRow[] = [
     isYou: true,
     gwScore: 67,
     totalPoints: '1,804',
-    overallRank: '184k',
-    remaining: 2,
   },
 ];
 
