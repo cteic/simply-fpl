@@ -14,7 +14,8 @@
     "./auth": "./src/auth/index.ts",
     "./h2h": "./src/h2h/index.ts",
     "./rivals": "./src/rivals/index.ts",
-    "./subscriptions": "./src/subscriptions/index.ts"
+    "./subscriptions": "./src/subscriptions/index.ts",
+    "./cohorts": "./src/cohorts/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
