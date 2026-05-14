@@ -80,7 +80,7 @@ RFC 001 §6 proposed: 15 s match / 30 s pre / 60 s live-idle / 5 min off. Revise
 | `live-idle` | 60 s                | Zero changes observed in 73 obs across ~1 h between matches.                     | **120 s** — same reasoning                                                       |
 | `off`       | 5 min               | 2 changes observed at 5 min cadence — almost certainly the GW finalisation pass. | **5 min** — unchanged                                                            |
 
-Net effect: **`match` gets ~3× tighter** (15 s → 5 s) and **`pre` / `live-idle` halve their request volume** (no information to gain there). The proposal needs RFC 001 §6 updating; that lives in the LF-04 PR rather than this one (which is the findings record).
+Net effect: **`match` gets ~3× tighter** (15 s → 5 s) and **`pre` / `live-idle` halve their request volume** (no information to gain there). **RFC 001 §4 (polling cadence table) and §6 (endpoint cadence) updated in PR #128's follow-up** to reflect these numbers, with the Nyquist caveat noted inline.
 
 ## Open questions surfaced by this run
 
@@ -97,9 +97,8 @@ Net effect: **`match` gets ~3× tighter** (15 s → 5 s) and **`pre` / `live-idl
 ## Tools shipped with this PR
 
 - **`scripts/analyze-fpl-cadence.mjs`** — reads JSONL files, produces the by-state cadence table + summary. Used by the auto-stop chain.
-- **`scripts/start-cadence-soak.sh`** — one-command wrapper for weekend runs. Starts the measurement under `caffeinate` (keeps macOS awake), schedules an auto-kill + analyzer at a baked-in stop time, detaches everything. Currently set to stop Sun 2026-05-17 21:00 UTC for the GW37 weekend. Update the `STOP_AT_UTC` constant for future weekends.
+- **`scripts/start-cadence-soak.sh`** — one-command wrapper for weekend runs. Starts the measurement under `caffeinate` (keeps macOS awake), schedules an auto-kill + analyzer at a stop time you pass in, detaches everything. Defaults to next Sunday 21:00 UTC when no arg is given. Usage: `./scripts/start-cadence-soak.sh [stop-utc-timestamp]`.
 
 ## Open follow-ups (out of scope for LF-01)
 
 - Repeating the measurement under different upstream conditions (deadline day, double gameweek, blank gameweek) once they happen.
-- Parameterising `start-cadence-soak.sh` to accept stop time as a CLI argument so we don't hand-edit the constant each weekend.
