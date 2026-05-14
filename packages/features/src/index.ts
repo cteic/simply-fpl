@@ -19,3 +19,4 @@ export * as auth from './auth';
 export * as h2h from './h2h';
 export * as rivals from './rivals';
 export * as subscriptions from './subscriptions';
+export * as rivals from './rivals';
