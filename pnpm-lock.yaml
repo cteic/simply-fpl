@@ -9,6 +9,14 @@ overrides:
   '@types/react-dom': ^19.0.0
   react-native-web: ^0.21.0
 
+patchedDependencies:
+  '@tamagui/next-plugin@2.0.0-rc.42':
+    hash: uesrtzhubcwypldktc5vw4raae
+    path: patches/@tamagui__next-plugin@2.0.0-rc.42.patch
+  tamagui-loader@2.0.0-rc.42:
+    hash: v5d4vs33vzeue6skc7useybxpq
+    path: patches/tamagui-loader@2.0.0-rc.42.patch
+
 importers:
   .:
     devDependencies:
@@ -151,7 +159,7 @@ importers:
         version: link:../../packages/tsconfig-config
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(@babel/core@7.29.0)(next@15.4.11(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.0)(next@15.4.11(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
@@ -15367,7 +15375,7 @@ snapshots:
     dependencies:
       react: 19.2.5
 
-  '@tamagui/next-plugin@2.0.0-rc.42(@babel/core@7.29.0)(next@15.4.11(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))':
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.0)(next@15.4.11(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))':
     dependencies:
       '@babel/preset-react': 7.28.5(@babel/core@7.29.0)
       '@tamagui/proxy-worm': 2.0.0-rc.42
@@ -15380,7 +15388,7 @@ snapshots:
       file-loader: 6.2.0(webpack@5.106.2(esbuild@0.27.3))
       html-webpack-plugin: 5.6.7(webpack@5.106.2(esbuild@0.27.3))
       next: 15.4.11(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      tamagui-loader: 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))
+      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))
       url-loader: 4.1.1(file-loader@6.2.0(webpack@5.106.2(esbuild@0.27.3)))(webpack@5.106.2(esbuild@0.27.3))
     transitivePeerDependencies:
       - '@babel/core'
@@ -20496,7 +20504,7 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  tamagui-loader@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3)):
+  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3)):
     dependencies:
       '@tamagui/cli-color': 2.0.0-rc.42
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
