@@ -28,7 +28,7 @@ const Meta = styled(Text, {
 });
 
 interface PageHeaderProps {
-  title: string;
+  title: string | ReactNode;
   meta?: string;
   right?: ReactNode;
 }
@@ -37,7 +37,7 @@ export function PageHeader({ title, meta, right }: PageHeaderProps) {
   return (
     <Header>
       <YStack>
-        <Title>{title}</Title>
+        {typeof title === 'string' ? <Title>{title}</Title> : title}
         {meta ? <Meta>{meta}</Meta> : null}
       </YStack>
       {right ? <YStack>{right}</YStack> : null}
