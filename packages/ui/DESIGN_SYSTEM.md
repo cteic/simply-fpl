@@ -41,6 +41,14 @@ Semantic tokens:
 - Warning: `$warning`, `$warningBg`, `$warningBorder`
 - Info: `$info`, `$infoBg`
 
+Brand tokens (mono lockup wordmark + `s.` favicon):
+
+- `$brand` (#0F766E) — deep teal, used for the period in `simply.fpl` and the `s.` mark; sparingly elsewhere
+- `$brandHover` (#115E59) — one step darker for hover/press
+- `$brandBg` (#F0FDFA) — tinted bg for future use (badges, callouts)
+
+Brand sits outside the semantic group — it's identity, not state.
+
 Raw tokens (for non-themed contexts like FDR scale, position shirts) are exported from `@simplyfpl/ui/theme` as plain values.
 
 ### Typography
