@@ -1,3 +1,7 @@
+import { withTamagui } from '@tamagui/next-plugin';
+
+const isProd = process.env.NODE_ENV === 'production';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
@@ -33,4 +37,14 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+const tamaguiPlugin = withTamagui({
+  config: './tamagui.config.ts',
+  components: ['tamagui', '@simplyfpl/ui'],
+  appDir: true,
+  outputCSS: isProd ? './public/tamagui.css' : null,
+  disableExtraction: !isProd,
+  logTimings: true,
+  doesMedia: true,
+});
+
+export default tamaguiPlugin(nextConfig);
