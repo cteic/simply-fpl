@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 
+import { useParams } from 'next/navigation';
+
 import { h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hPosition, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
@@ -26,12 +28,40 @@ import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/querie
 
 const { computeH2h } = h2h;
 
-interface Props {
+function parseId(raw: string | string[] | undefined): number | null {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof value !== 'string') return null;
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+export function HeadToHeadView() {
+  const params = useParams();
+  const yourEntryId = parseId(params?.a);
+  const theirEntryId = parseId(params?.b);
+
+  if (yourEntryId === null || theirEntryId === null || yourEntryId === theirEntryId) {
+    return (
+      <PageShell>
+        <PageHeader title="Head to Head" meta="Invalid team IDs in URL" />
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          The URL needs two different positive integer team IDs, like
+          <code> /h2h/123456/789012</code>.
+        </Text>
+      </PageShell>
+    );
+  }
+
+  return <HeadToHeadInner yourEntryId={yourEntryId} theirEntryId={theirEntryId} />;
+}
+
+interface InnerProps {
   yourEntryId: number;
   theirEntryId: number;
 }
 
-export function HeadToHeadView({ yourEntryId, theirEntryId }: Props) {
+function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const { data: yourEntry, isLoading: yourEntryLoading } = useEntry(yourEntryId);

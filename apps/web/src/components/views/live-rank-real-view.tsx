@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 
+import { useParams } from 'next/navigation';
+
 import { calculateLivePoints, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
@@ -33,8 +35,12 @@ import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
 import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
 
-interface Props {
-  entryId: number;
+function parseEntryIdParam(raw: string | string[] | undefined): number | null {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof value !== 'string') return null;
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) return null;
+  return parsed;
 }
 
 const POSITION: Record<number, ShirtKind> = {
@@ -92,6 +98,7 @@ function rowsForFormation(
       else if (points >= 10) tone = 'hot';
       const name = `${player?.web_name ?? '?'}${isCaptain ? ' (C)' : ''}`;
       const detail = tbp ? `${teamShort} · TBP` : teamShort;
+      const ownershipPercent = player ? Number.parseFloat(player.selected_by_percent) : undefined;
       return {
         key: pick.element,
         name,
@@ -102,6 +109,10 @@ function rowsForFormation(
         kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
         kitUrl2x:
           teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
+        ownershipPercent:
+          ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
+            ? ownershipPercent
+            : undefined,
       };
     });
   }
@@ -134,6 +145,7 @@ function benchPlayers(
       const teamCode = player ? teamCodeById.get(player.team) : undefined;
       const isGoalkeeper = player?.element_type === 1;
       const points = live?.stats.total_points ?? 0;
+      const ownershipPercent = player ? Number.parseFloat(player.selected_by_percent) : undefined;
       return {
         key: pick.element,
         name: player?.web_name ?? '?',
@@ -144,6 +156,10 @@ function benchPlayers(
         kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
         kitUrl2x:
           teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
+        ownershipPercent:
+          ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
+            ? ownershipPercent
+            : undefined,
       };
     });
 }
@@ -164,7 +180,30 @@ function deriveFormation(picks: FplEntryGameweekPicks, bootstrap: FplBootstrapSt
   return `${def}–${mid}–${fwd}`;
 }
 
-export function LiveRankRealView({ entryId }: Props) {
+export function LiveRankRealView() {
+  const params = useParams();
+  const entryId = parseEntryIdParam(params?.entryId);
+
+  if (entryId === null) {
+    return (
+      <PageShell>
+        <PageHeader title="Live Rank" meta="Invalid team ID in URL" />
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          The URL needs a positive integer FPL team ID, like
+          <code> /rank/123456</code>.
+        </Text>
+      </PageShell>
+    );
+  }
+
+  return <LiveRankInner entryId={entryId} />;
+}
+
+interface InnerProps {
+  entryId: number;
+}
+
+function LiveRankInner({ entryId }: InnerProps) {
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const { data: entry, isLoading: entryLoading, isError: entryError } = useEntry(entryId);
@@ -256,6 +295,7 @@ export function LiveRankRealView({ entryId }: Props) {
                       badgeTone={p.badgeTone}
                       kitUrl={p.kitUrl}
                       kitUrl2x={p.kitUrl2x}
+                      ownershipPercent={p.ownershipPercent}
                     />
                   ))}
                 </PitchRow>
@@ -275,6 +315,7 @@ export function LiveRankRealView({ entryId }: Props) {
                     badgeTone={p.badgeTone}
                     kitUrl={p.kitUrl}
                     kitUrl2x={p.kitUrl2x}
+                    ownershipPercent={p.ownershipPercent}
                     bench
                   />
                 ))}
@@ -287,7 +328,7 @@ export function LiveRankRealView({ entryId }: Props) {
       <XStack marginTop={12} marginBottom={8} justifyContent="center">
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
           Not your team?{' '}
-          <Text tag="a" href="/?change=1" color="$color" fontSize={12} fontFamily="$body">
+          <Text render={<a href="/?change=1" />} color="$color" fontSize={12} fontFamily="$body">
             Search again →
           </Text>
         </Text>
