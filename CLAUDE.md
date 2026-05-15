@@ -9,6 +9,21 @@ After ANY code changes, you MUST run verification (see Verification section). Do
 - **Branches**: short kebab-case, scoped prefix when useful (`fix/...`, `ci/...`, `feat/...`).
 - **Tone**: terse. Skip trailing "summary of what I just did" — the diff speaks for itself.
 
+### After opening a PR
+
+Immediately after `gh pr create` returns, do both of these:
+
+1. **Assign Pete** so the PR lands on his dashboard:
+   `gh pr edit <N> --add-assignee pete-watters`
+   GitHub rejects review requests on self-authored PRs, and our PRs (local + scheduled-agent) are all authored under Pete's account — so assignee is the equivalent visibility signal. Don't waste time on `--add-reviewer`.
+
+2. **Post a status comment** that opens with `@pete-watters` and uses this shape:
+   - **Shipped** — bullets of what landed in this PR
+   - **Pending / decisions needed** — anything Pete should look at, blockers, open questions
+   - **Verification** — confirm `pnpm typecheck / lint / format / build` are clean. List any manual steps Pete needs to take (env vars to set, services to sign up for, smoke-test URLs, migrations to run)
+
+This applies to PRs opened from any session — local CLI work AND scheduled remote agents. Scheduled-agent prompts include "post the final-response summary as a PR comment with `@pete-watters`" as a hard requirement.
+
 # SimplyFPL — Claude Instructions
 
 SimplyFPL is a freemium FPL (Fantasy Premier League) companion app — a faster, cleaner alternative to livefpl.net. Solo dev (Pete) plus non-technical co-marketer. Targeting launch before GW1 in August 2026.
