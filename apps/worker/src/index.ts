@@ -12,6 +12,7 @@ export interface Env {
   LEAGUE_TTL: string;
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE?: string;
+  GIT_SHA?: string;
 }
 
 const FPL_HOST = 'https://fantasy.premierleague.com';
@@ -104,6 +105,96 @@ function kitFallbackResponse(): Response {
   });
 }
 
+type StatusValue = 'ok' | 'degraded' | 'down' | `error: ${string}`;
+
+interface StatusResponse {
+  worker: 'ok';
+  kv: StatusValue;
+  fpl: StatusValue;
+  durable_object: StatusValue;
+  version: string;
+  timestamp: string;
+}
+
+async function checkKv(env: Env): Promise<StatusValue> {
+  try {
+    const key = 'health-check';
+    const value = `ping:${Date.now()}`;
+    await env.FPL_CACHE.put(key, value, { expirationTtl: 60 });
+    const read = await env.FPL_CACHE.get(key);
+    if (read !== value) {
+      return `error: kv readback mismatch`;
+    }
+    return 'ok';
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return `error: ${msg}`;
+  }
+}
+
+async function checkFpl(env: Env): Promise<StatusValue> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(`${env.FPL_BASE_URL}/bootstrap-static/`, {
+      headers: { 'User-Agent': 'SimplyFPL/1.0 (status-check)', Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    if (res.status === 200) return 'ok';
+    if (res.status >= 500) return 'down';
+    return 'degraded';
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') return 'down';
+    return 'down';
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function checkDurableObject(env: Env): Promise<StatusValue> {
+  try {
+    const id = env.LIVE_GW.idFromName('status-probe');
+    const stub = env.LIVE_GW.get(id);
+    if (!stub) return `error: durable object stub unavailable`;
+    return 'ok';
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return `error: ${msg}`;
+  }
+}
+
+async function handleStatus(env: Env): Promise<Response> {
+  const [kv, fpl, durableObject] = await Promise.all([
+    checkKv(env),
+    checkFpl(env),
+    checkDurableObject(env),
+  ]);
+
+  const body: StatusResponse = {
+    worker: 'ok',
+    kv,
+    fpl,
+    durable_object: durableObject,
+    version: env.GIT_SHA ?? 'unknown',
+    timestamp: new Date().toISOString(),
+  };
+
+  const anyDown =
+    kv.startsWith('error') ||
+    durableObject.startsWith('error') ||
+    fpl === 'down' ||
+    fpl.startsWith('error');
+
+  return new Response(JSON.stringify(body, null, 2), {
+    status: anyDown ? 503 : 200,
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
 async function handleKit(ctx: ExecutionContext, pathname: string): Promise<Response> {
   const match = pathname.match(/^\/kits\/(?:(gk)-)?(\d+)-(110|220)\.webp$/);
   if (!match) return kitFallbackResponse();
@@ -149,6 +240,11 @@ export default {
 
     if (request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405 });
+    }
+
+    // Route: /status → health check (uptime monitor target)
+    if (url.pathname === '/status' || url.pathname === '/status/') {
+      return handleStatus(env);
     }
 
     // Route: /live/ws?gw=N → LiveGwDO WebSocket

@@ -5,6 +5,7 @@ import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
 
+import '../../public/tamagui.css';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -18,7 +19,7 @@ const dmMono = DM_Mono({
   subsets: ['latin'],
   variable: '--font-dm-mono',
   weight: ['400', '500'],
-  display: 'swap',
+  display: 'optional',
 });
 
 export const metadata: Metadata = {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 const Wrap = styled(YStack, {
   marginTop: 12,
@@ -17,18 +17,18 @@ const Label = styled(Text, {
   color: '$colorSubtle',
 });
 
-const Track = styled(Stack, {
+const Track = styled(YStack, {
   height: 3,
   backgroundColor: '$border',
   borderRadius: 2,
   overflow: 'hidden',
 });
 
-const Fill = styled(Stack, {
+const Fill = styled(YStack, {
   height: '100%',
   backgroundColor: '$color',
   borderRadius: 2,
-  animation: 'bar',
+  transition: 'bar',
 });
 
 interface ProgressBarProps {
