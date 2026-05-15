@@ -5,6 +5,7 @@ import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
 
+import '../../public/tamagui.css';
 import './globals.css';
 
 const dmSans = DM_Sans({
