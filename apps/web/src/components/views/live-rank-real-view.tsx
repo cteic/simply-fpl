@@ -92,6 +92,7 @@ function rowsForFormation(
       else if (points >= 10) tone = 'hot';
       const name = `${player?.web_name ?? '?'}${isCaptain ? ' (C)' : ''}`;
       const detail = tbp ? `${teamShort} · TBP` : teamShort;
+      const ownershipPercent = player ? Number.parseFloat(player.selected_by_percent) : undefined;
       return {
         key: pick.element,
         name,
@@ -102,6 +103,10 @@ function rowsForFormation(
         kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
         kitUrl2x:
           teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
+        ownershipPercent:
+          ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
+            ? ownershipPercent
+            : undefined,
       };
     });
   }
@@ -134,6 +139,7 @@ function benchPlayers(
       const teamCode = player ? teamCodeById.get(player.team) : undefined;
       const isGoalkeeper = player?.element_type === 1;
       const points = live?.stats.total_points ?? 0;
+      const ownershipPercent = player ? Number.parseFloat(player.selected_by_percent) : undefined;
       return {
         key: pick.element,
         name: player?.web_name ?? '?',
@@ -144,6 +150,10 @@ function benchPlayers(
         kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
         kitUrl2x:
           teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
+        ownershipPercent:
+          ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
+            ? ownershipPercent
+            : undefined,
       };
     });
 }
@@ -256,6 +266,7 @@ export function LiveRankRealView({ entryId }: Props) {
                       badgeTone={p.badgeTone}
                       kitUrl={p.kitUrl}
                       kitUrl2x={p.kitUrl2x}
+                      ownershipPercent={p.ownershipPercent}
                     />
                   ))}
                 </PitchRow>
@@ -275,6 +286,7 @@ export function LiveRankRealView({ entryId }: Props) {
                     badgeTone={p.badgeTone}
                     kitUrl={p.kitUrl}
                     kitUrl2x={p.kitUrl2x}
+                    ownershipPercent={p.ownershipPercent}
                     bench
                   />
                 ))}
