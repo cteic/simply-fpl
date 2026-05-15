@@ -1,0 +1,39 @@
+{
+  "league": {
+    "id": 1001,
+    "name": "Ireland",
+    "created": "2025-07-01T00:00:00Z",
+    "admin_entry": null,
+    "start_event": 1,
+    "league_type": "s"
+  },
+  "standings": {
+    "has_next": true,
+    "page": 1,
+    "results": [
+      {
+        "id": 2001,
+        "entry": 200,
+        "entry_name": "Dublin Dons",
+        "player_name": "P. O'Connor",
+        "rank": 1,
+        "last_rank": 1,
+        "rank_sort": 1,
+        "total": 2460,
+        "event_total": 0
+      },
+      {
+        "id": 2002,
+        "entry": 1,
+        "entry_name": "FPL Test FC",
+        "player_name": "FPL Test",
+        "rank": 2410,
+        "last_rank": 2500,
+        "rank_sort": 2410,
+        "total": 2154,
+        "event_total": 0
+      }
+    ]
+  },
+  "new_entries": { "has_next": false, "page": 1, "results": [] }
+}
