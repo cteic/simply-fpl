@@ -181,6 +181,7 @@ const light = {
   positiveBorder: colors.gmid,
   negative: colors.red,
   negativeBg: colors.rbg,
+  danger: colors.red,
   warning: colors.amber,
   warningBg: colors.abg,
   warningBorder: colors.amid,
