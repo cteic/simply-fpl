@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, YStack, styled } from 'tamagui';
+import { Text, YStack, styled } from 'tamagui';
 
 import { PBadge } from '../pbadge';
 import { Shirt } from '../shirt';
@@ -13,7 +13,7 @@ const Wrap = styled(YStack, {
   cursor: 'pointer',
 });
 
-const ShirtWrap = styled(Stack, {
+const ShirtWrap = styled(YStack, {
   position: 'relative',
   variants: {
     bench: {
