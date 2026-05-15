@@ -16,7 +16,7 @@ const FilterBtn = styled(Text, {
   borderWidth: 1,
   borderStyle: 'solid',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   variants: {
     active: {
       true: {
@@ -43,7 +43,7 @@ interface FilterButtonProps {
 
 export function FilterButton({ children, active, onPress }: FilterButtonProps) {
   return (
-    <FilterBtn tag="button" active={active} onPress={onPress} role="button">
+    <FilterBtn render="button" active={active} onPress={onPress} role="button">
       {children}
     </FilterBtn>
   );

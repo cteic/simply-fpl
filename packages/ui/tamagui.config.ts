@@ -181,6 +181,7 @@ const light = {
   positiveBorder: colors.gmid,
   negative: colors.red,
   negativeBg: colors.rbg,
+  danger: colors.red,
   warning: colors.amber,
   warningBg: colors.abg,
   warningBorder: colors.amid,
@@ -220,10 +221,12 @@ const light = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const config = createTamagui({
-  defaultFont: 'body',
+  settings: {
+    defaultFont: 'body',
+    shouldAddPrefersColorThemes: false,
+    addThemeClassName: false,
+  },
   animations,
-  shouldAddPrefersColorThemes: false,
-  themeClassNameOnRoot: false,
   fonts: {
     body: dmSans,
     mono: dmMono,
