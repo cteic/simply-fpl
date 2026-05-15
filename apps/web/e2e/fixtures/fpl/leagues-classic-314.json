@@ -1,0 +1,54 @@
+{
+  "league": {
+    "id": 314,
+    "name": "Overall",
+    "created": "2025-07-01T00:00:00Z",
+    "admin_entry": null,
+    "start_event": 1,
+    "league_type": "s"
+  },
+  "standings": {
+    "has_next": true,
+    "page": 1,
+    "results": [
+      {
+        "id": 1001,
+        "entry": 100,
+        "entry_name": "Top FC",
+        "player_name": "Top Manager",
+        "rank": 1,
+        "last_rank": 1,
+        "rank_sort": 1,
+        "total": 2502,
+        "event_total": 0
+      },
+      {
+        "id": 1002,
+        "entry": 101,
+        "entry_name": "Second FC",
+        "player_name": "Second Manager",
+        "rank": 2,
+        "last_rank": 3,
+        "rank_sort": 2,
+        "total": 2498,
+        "event_total": 0
+      },
+      {
+        "id": 1003,
+        "entry": 1,
+        "entry_name": "FPL Test FC",
+        "player_name": "FPL Test",
+        "rank": 124356,
+        "last_rank": 130000,
+        "rank_sort": 124356,
+        "total": 2154,
+        "event_total": 0
+      }
+    ]
+  },
+  "new_entries": {
+    "has_next": false,
+    "page": 1,
+    "results": []
+  }
+}

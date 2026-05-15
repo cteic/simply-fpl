@@ -8,7 +8,7 @@ Given('I am on the home page', async ({ page }) => {
 });
 
 Then('the page title should contain SimplyFPL', async ({ page }) => {
-  await expect(page).toHaveTitle(/SimplyFPL/i);
+  await expect(page).toHaveTitle(/simply\.fpl/i);
 });
 
 Then('I should see a manager ID search field', async ({ page }) => {
