@@ -33,8 +33,8 @@ GIT_SHA = "unknown"
 # DISABLED by default. Uncomment to enable after setting Supabase secrets:
 #   wrangler secret put SUPABASE_URL
 #   wrangler secret put SUPABASE_SERVICE_ROLE
-# [triggers]
-# crons = [
-#   "*/10 * * * *",  # live-GW cadence
-#   "0 */6 * * *"    # idle cadence
-# ]
+[triggers]
+crons = [
+  "*/10 * * * *",  # live-GW cadence
+  "0 */6 * * *"    # idle cadence
+]
