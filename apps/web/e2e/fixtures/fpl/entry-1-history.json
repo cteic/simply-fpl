@@ -1,0 +1,32 @@
+{
+  "current": [
+    {
+      "event": 35,
+      "points": 64,
+      "total_points": 2076,
+      "rank": 1500000,
+      "rank_sort": 1500000,
+      "overall_rank": 130000,
+      "event_transfers": 1,
+      "event_transfers_cost": 0,
+      "points_on_bench": 4,
+      "value": 1024,
+      "bank": 6
+    },
+    {
+      "event": 36,
+      "points": 78,
+      "total_points": 2154,
+      "rank": 800000,
+      "rank_sort": 800000,
+      "overall_rank": 124356,
+      "event_transfers": 1,
+      "event_transfers_cost": 0,
+      "points_on_bench": 2,
+      "value": 1025,
+      "bank": 4
+    }
+  ],
+  "past": [],
+  "chips": []
+}

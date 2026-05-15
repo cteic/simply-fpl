@@ -1,0 +1,30 @@
+{
+  "id": 1,
+  "player_first_name": "FPL",
+  "player_last_name": "Test",
+  "name": "FPL Test FC",
+  "summary_overall_rank": 124356,
+  "summary_overall_points": 2154,
+  "summary_event_rank": null,
+  "summary_event_points": 0,
+  "leagues": {
+    "classic": [
+      {
+        "id": 314,
+        "name": "Overall",
+        "short_name": "ov",
+        "league_type": "s",
+        "entry_rank": 124356
+      },
+      { "id": 1001, "name": "Ireland", "short_name": "ie", "league_type": "s", "entry_rank": 2410 },
+      {
+        "id": 200001,
+        "name": "The Office Bantz",
+        "short_name": null,
+        "league_type": "x",
+        "entry_rank": 4
+      }
+    ],
+    "h2h": []
+  }
+}
