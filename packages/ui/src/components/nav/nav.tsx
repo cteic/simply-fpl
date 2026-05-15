@@ -44,7 +44,7 @@ const NavLinkBase = styled(Text, {
   paddingVertical: 5,
   borderRadius: '$3',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   variants: {
     active: {
       true: { color: '$color', backgroundColor: '$border', fontWeight: '500' },
@@ -91,17 +91,15 @@ export function Nav({
   const isSignedIn = typeof onSignOut === 'function';
 
   return (
-    <Bar tag="nav" style={STICKY_STYLE}>
+    <Bar render="nav" style={STICKY_STYLE}>
       <Left>
         <Logo />
         <NavLinks>
           {links.map((link) => (
             <NavLinkBase
               key={link.href}
-              tag="a"
-              href={link.href}
+              render={<a href={link.href} role="link" />}
               active={link.active === true}
-              role="link"
             >
               {link.label}
             </NavLinkBase>
