@@ -46,6 +46,14 @@ const Detail = styled(Text, {
   textAlign: 'center',
 });
 
+const Ownership = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: 8.5,
+  color: '$colorSubtle',
+  textAlign: 'center',
+  letterSpacing: 0,
+});
+
 type BadgeTone = 'default' | 'hot' | 'bench' | 'captain' | 'tbp';
 
 interface PlayerProps {
@@ -57,6 +65,7 @@ interface PlayerProps {
   bench?: boolean;
   kitUrl?: string | undefined;
   kitUrl2x?: string | undefined;
+  ownershipPercent?: number | undefined;
 }
 
 export function Player({
@@ -68,6 +77,7 @@ export function Player({
   bench = false,
   kitUrl,
   kitUrl2x,
+  ownershipPercent,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
   return (
@@ -78,6 +88,9 @@ export function Player({
       </ShirtWrap>
       <Name bench={bench}>{name}</Name>
       {detail ? <Detail>{detail}</Detail> : null}
+      {ownershipPercent !== undefined ? (
+        <Ownership>{ownershipPercent.toFixed(1)}%</Ownership>
+      ) : null}
     </Wrap>
   );
 }
