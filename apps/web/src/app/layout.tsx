@@ -22,13 +22,20 @@ const dmMono = DM_Mono({
   display: 'optional',
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.NODE_ENV === 'production'
+    ? 'https://simply-fpl.pages.dev'
+    : 'http://localhost:3000');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'SimplyFPL — Live FPL Companion',
   description: 'Live rank, mini-leagues, price changes and more for Fantasy Premier League.',
   openGraph: {
     title: 'SimplyFPL',
     description: 'Live FPL tools — rank tracker, price changes, mini-leagues',
-    url: 'https://simplyfpl.com',
+    url: SITE_URL,
     siteName: 'SimplyFPL',
   },
 };
