@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 /**
  * LivePill
@@ -26,7 +26,7 @@ const PillContainer = styled(XStack, {
   borderRadius: '$7',
 });
 
-const PillDot = styled(Stack, {
+const PillDot = styled(YStack, {
   width: 5,
   height: 5,
   borderRadius: 999,
@@ -55,7 +55,7 @@ interface LivePillProps {
 export function LivePill({ label, pulse = true }: LivePillProps) {
   return (
     <PillContainer>
-      {pulse ? <PillDot animation="medium" /> : <PillDot opacity={1} />}
+      {pulse ? <PillDot transition="medium" /> : <PillDot opacity={1} />}
       <PillText>{label}</PillText>
     </PillContainer>
   );

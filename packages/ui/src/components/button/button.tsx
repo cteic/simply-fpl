@@ -16,7 +16,7 @@ const ButtonBase = styled(Text, {
   cursor: 'pointer',
   borderWidth: 1,
   whiteSpace: 'nowrap',
-  animation: 'fast',
+  transition: 'fast',
   pressStyle: { opacity: 0.85 },
   variants: {
     tone: {
@@ -54,7 +54,7 @@ interface ButtonProps {
 
 export function Button({ children, tone = 'primary', size = 'md', onPress }: ButtonProps) {
   return (
-    <ButtonBase tag="button" tone={tone} size={size} onPress={onPress} role="button">
+    <ButtonBase render="button" tone={tone} size={size} onPress={onPress} role="button">
       {children}
     </ButtonBase>
   );

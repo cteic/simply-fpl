@@ -1,0 +1,26 @@
+diff --git a/dist/cjs/withTamagui.cjs b/dist/cjs/withTamagui.cjs
+index 6085d8725a1bdedc5c65a1a0a4e87951f25ebc67..cf65b04bf455b73b564c026e34cf7ea170a35a5b 100644
+--- a/dist/cjs/withTamagui.cjs
++++ b/dist/cjs/withTamagui.cjs
+@@ -126,7 +126,7 @@ const withTamagui = tamaguiOptionsIn => {
+             use: cssLoader
+           });
+         }
+-        webpackConfig.plugins.push(new import_webpack.default.DefinePlugin(defines));
++        webpackConfig.plugins.push(new options.webpack.DefinePlugin(defines));
+         if (process.env.IGNORE_TS_CONFIG_PATHS) {
+           if (process.env.DEBUG) console.info(prefix, "ignoring tsconfig paths");
+           if (webpackConfig.resolve.plugins[0]) delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"];
+diff --git a/dist/esm/withTamagui.mjs b/dist/esm/withTamagui.mjs
+index 79227b4c04ce9c6d0016437fb05f803b543d1913..aaa27fce3814b1b5debc6e446d3d5053ec3dde70 100644
+--- a/dist/esm/withTamagui.mjs
++++ b/dist/esm/withTamagui.mjs
+@@ -88,7 +88,7 @@ const withTamagui = tamaguiOptionsIn => {
+             use: cssLoader
+           });
+         }
+-        webpackConfig.plugins.push(new webpack.DefinePlugin(defines));
++        webpackConfig.plugins.push(new options.webpack.DefinePlugin(defines));
+         if (process.env.IGNORE_TS_CONFIG_PATHS) {
+           if (process.env.DEBUG) console.info(prefix, "ignoring tsconfig paths");
+           if (webpackConfig.resolve.plugins[0]) delete webpackConfig.resolve.plugins[0].paths["@tamagui/*"];

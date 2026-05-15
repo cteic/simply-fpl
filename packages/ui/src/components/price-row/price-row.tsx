@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 const Row = styled(XStack, {
   alignItems: 'center',
@@ -10,7 +10,7 @@ const Row = styled(XStack, {
   borderBottomWidth: 1,
   borderBottomColor: '$border',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   hoverStyle: { backgroundColor: '$background' },
   variants: {
     last: {
@@ -47,22 +47,22 @@ const Club = styled(Text, {
   marginTop: 1,
 });
 
-const Bar = styled(Stack, {
+const Bar = styled(YStack, {
   flex: 1,
   minWidth: 40,
 });
 
-const Track = styled(Stack, {
+const Track = styled(YStack, {
   height: 3,
   backgroundColor: '$border',
   borderRadius: 2,
   overflow: 'hidden',
 });
 
-const Fill = styled(Stack, {
+const Fill = styled(YStack, {
   height: '100%',
   borderRadius: 2,
-  animation: 'bar',
+  transition: 'bar',
   variants: {
     flow: {
       rise: { backgroundColor: '$positive' },
