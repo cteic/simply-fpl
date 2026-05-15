@@ -22,7 +22,7 @@ export const colors = {
   t3: '#A8A8A0',
 
   // Positive (rank up, price rise, "live", FDR1-2)
-  green: '#16A34A',
+  green: '#15803D',
   gbg: '#F0FDF4',
   gmid: '#DCFCE7',
 

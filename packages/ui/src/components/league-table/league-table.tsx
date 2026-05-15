@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 const TableRoot = styled(YStack, {
   width: '100%',
@@ -29,7 +29,7 @@ const Row = styled(XStack, {
   borderBottomWidth: 1,
   borderBottomColor: '$border',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   hoverStyle: { backgroundColor: '$background' },
   variants: {
     you: {
@@ -114,18 +114,18 @@ export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
   return (
     <TableRoot>
       <HeaderRow>
-        <Stack width={28}>
+        <YStack width={28}>
           <HeaderCell>#</HeaderCell>
-        </Stack>
-        <Stack flex={1}>
+        </YStack>
+        <YStack flex={1}>
           <HeaderCell>Manager</HeaderCell>
-        </Stack>
-        <Stack width={50} alignItems="flex-end">
+        </YStack>
+        <YStack width={50} alignItems="flex-end">
           <HeaderCell>GW</HeaderCell>
-        </Stack>
-        <Stack width={70} alignItems="flex-end">
+        </YStack>
+        <YStack width={70} alignItems="flex-end">
           <HeaderCell>Pts</HeaderCell>
-        </Stack>
+        </YStack>
       </HeaderRow>
       {rows.map((row, idx) => {
         const isLast = idx === rows.length - 1;
@@ -143,22 +143,22 @@ export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
                 : undefined
             }
           >
-            <Stack width={28}>
+            <YStack width={28}>
               <Position>{row.position}</Position>
-            </Stack>
-            <Stack flex={1}>
+            </YStack>
+            <YStack flex={1}>
               <XStack alignItems="center">
                 <Manager>{row.managerName}</Manager>
                 {row.isYou ? <YouTag>You</YouTag> : null}
               </XStack>
               {row.teamName ? <TeamName>{row.teamName}</TeamName> : null}
-            </Stack>
-            <Stack width={50} alignItems="flex-end">
+            </YStack>
+            <YStack width={50} alignItems="flex-end">
               <MonoCell look="muted">{row.gwScore}</MonoCell>
-            </Stack>
-            <Stack width={70} alignItems="flex-end">
+            </YStack>
+            <YStack width={70} alignItems="flex-end">
               <MonoCell look="strong">{row.totalPoints}</MonoCell>
-            </Stack>
+            </YStack>
           </Row>
         );
       })}
