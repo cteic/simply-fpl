@@ -1,14 +1,6 @@
 export * from './theme';
 
-export {
-  Stack,
-  XStack,
-  YStack,
-  Text,
-  ScrollView,
-  TamaguiButton,
-  styled,
-} from './tamagui-primitives';
+export { XStack, YStack, Text, ScrollView, TamaguiButton, styled } from './tamagui-primitives';
 
 export * from './components/bench-divider';
 export * from './components/button';
