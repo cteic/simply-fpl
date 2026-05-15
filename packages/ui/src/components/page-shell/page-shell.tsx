@@ -19,5 +19,5 @@ interface PageShellProps {
 }
 
 export function PageShell({ children }: PageShellProps) {
-  return <Shell tag="main">{children}</Shell>;
+  return <Shell render="main">{children}</Shell>;
 }

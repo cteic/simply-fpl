@@ -221,10 +221,12 @@ const light = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const config = createTamagui({
-  defaultFont: 'body',
+  settings: {
+    defaultFont: 'body',
+    shouldAddPrefersColorThemes: false,
+    addThemeClassName: false,
+  },
   animations,
-  shouldAddPrefersColorThemes: false,
-  themeClassNameOnRoot: false,
   fonts: {
     body: dmSans,
     mono: dmMono,
