@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 
+import { useParams } from 'next/navigation';
+
 import { calculateLivePoints, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
@@ -33,8 +35,12 @@ import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
 import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
 
-interface Props {
-  entryId: number;
+function parseEntryIdParam(raw: string | string[] | undefined): number | null {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof value !== 'string') return null;
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) return null;
+  return parsed;
 }
 
 const POSITION: Record<number, ShirtKind> = {
@@ -174,7 +180,30 @@ function deriveFormation(picks: FplEntryGameweekPicks, bootstrap: FplBootstrapSt
   return `${def}–${mid}–${fwd}`;
 }
 
-export function LiveRankRealView({ entryId }: Props) {
+export function LiveRankRealView() {
+  const params = useParams();
+  const entryId = parseEntryIdParam(params?.entryId);
+
+  if (entryId === null) {
+    return (
+      <PageShell>
+        <PageHeader title="Live Rank" meta="Invalid team ID in URL" />
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          The URL needs a positive integer FPL team ID, like
+          <code> /rank/123456</code>.
+        </Text>
+      </PageShell>
+    );
+  }
+
+  return <LiveRankInner entryId={entryId} />;
+}
+
+interface InnerProps {
+  entryId: number;
+}
+
+function LiveRankInner({ entryId }: InnerProps) {
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const { data: entry, isLoading: entryLoading, isError: entryError } = useEntry(entryId);
