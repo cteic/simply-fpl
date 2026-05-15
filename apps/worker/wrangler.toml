@@ -24,3 +24,7 @@ BOOTSTRAP_TTL = "3600"
 LIVE_GW_TTL = "60"
 ENTRY_TTL = "120"
 LEAGUE_TTL = "90"
+
+# Build-time stamped at deploy via `wrangler deploy --var GIT_SHA:$(git rev-parse --short HEAD)`
+# Falls back to "unknown" on /status if not set.
+GIT_SHA = "unknown"
