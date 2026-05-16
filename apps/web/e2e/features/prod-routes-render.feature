@@ -14,7 +14,7 @@ Feature: Prod routes render guardrail
     Then no page error should have occurred
     And the rendered page matches the snapshot "home-no-team"
 
-  Scenario: Home redirects for a visitor with a saved team
+  Scenario: Home renders rank for a visitor with a saved team
     Given a team id is saved in storage
     When I visit the home page
     Then no page error should have occurred
