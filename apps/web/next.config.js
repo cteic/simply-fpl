@@ -1,7 +1,5 @@
 import { withTamagui } from '@tamagui/next-plugin';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 /** @type {import('next').NextConfig} */
 const CSP = [
   "default-src 'self'",
@@ -66,8 +64,8 @@ const tamaguiPlugin = withTamagui({
   config: './tamagui.config.ts',
   components: ['tamagui', '@simplyfpl/ui'],
   appDir: true,
-  outputCSS: isProd ? './public/tamagui.css' : null,
-  disableExtraction: !isProd,
+  outputCSS: null,
+  disableExtraction: true,
   logTimings: true,
   doesMedia: true,
 });
