@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 
 import type { Metadata } from 'next';
 
-import { HomeSearchView } from '@/components/views/home-search-view';
+import { HomeChooser } from '@/components/views/home-chooser';
 
 export const metadata: Metadata = {
   title: 'simply.fpl — Fastest live-rank companion for Fantasy Premier League',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <Suspense>
-      <HomeSearchView />
+      <HomeChooser />
     </Suspense>
   );
 }
