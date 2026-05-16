@@ -176,6 +176,13 @@ export interface FplFixture {
   team_a_difficulty: FplDifficulty;
 }
 
+export interface FplEntrySnapshot {
+  bootstrap: FplBootstrapStatic;
+  entry: FplEntry;
+  picks: FplEntryGameweekPicks | null;
+  gw: number;
+}
+
 // Computed/app types
 export interface LiveRankEntry {
   entryId: number;

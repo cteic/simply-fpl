@@ -1,10 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import { useParams } from 'next/navigation';
 
-import { calculateLivePoints, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
+import { calculateLivePoints, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -33,7 +31,7 @@ import {
 } from '@simplyfpl/ui';
 import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
-import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
+import { useEntrySnapshot, useLiveGameweek } from '@/queries/fpl';
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -204,10 +202,15 @@ interface InnerProps {
 }
 
 function LiveRankInner({ entryId }: InnerProps) {
-  const { data: bootstrap } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
-  const { data: entry, isLoading: entryLoading, isError: entryError } = useEntry(entryId);
-  const { data: picks, isLoading: picksLoading } = useEntryPicks(entryId, currentGw);
+  const {
+    data: snapshot,
+    isLoading: snapshotLoading,
+    isError: snapshotError,
+  } = useEntrySnapshot(entryId);
+  const bootstrap = snapshot?.bootstrap;
+  const entry = snapshot?.entry;
+  const picks = snapshot?.picks;
+  const currentGw = snapshot?.gw ?? null;
   const { data: liveGw, isLoading: liveLoading } = useLiveGameweek(currentGw);
 
   const ready = entry && picks && liveGw && bootstrap;
@@ -226,7 +229,7 @@ function LiveRankInner({ entryId }: InnerProps) {
     ? entry.summary_overall_points.toLocaleString()
     : '—';
 
-  if (entryError) {
+  if (snapshotError) {
     return (
       <PageShell>
         <PageHeader title="Live Rank" meta="Could not load this team" />
@@ -237,7 +240,7 @@ function LiveRankInner({ entryId }: InnerProps) {
     );
   }
 
-  const isLoading = entryLoading || picksLoading || liveLoading;
+  const isLoading = snapshotLoading || liveLoading;
 
   return (
     <PageShell>
