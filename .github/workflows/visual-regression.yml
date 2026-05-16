@@ -27,6 +27,8 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8787
       - run: pnpm --filter @simplyfpl/web exec playwright install chromium --with-deps
+      - name: Generate BDD specs from .feature files
+        run: pnpm --filter @simplyfpl/web exec bddgen --config playwright.config.ts
       - name: Run visual regression (prod routes render guardrail)
         run: pnpm --filter @simplyfpl/web exec playwright test --config playwright.config.ts --grep "Prod routes render guardrail"
         env:
