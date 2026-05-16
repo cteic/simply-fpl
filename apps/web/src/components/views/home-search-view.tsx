@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-
 import {
   Button,
   Card,
@@ -33,27 +31,19 @@ function parseEntryId(input: string): number | null {
   return null;
 }
 
-export function HomeSearchView() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const forceForm = searchParams?.get('change') === '1';
+interface HomeSearchViewProps {
+  onSave?: (entryId: number) => void;
+}
+
+export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
     const id = saved ? Number(saved) : NaN;
-    const hasSavedId = Number.isInteger(id) && id > 0;
-
-    if (hasSavedId && !forceForm) {
-      router.replace(`/rank/${id}`);
-      return;
-    }
-
-    if (hasSavedId) setInput(String(id));
-    setChecking(false);
-  }, [router, forceForm]);
+    if (Number.isInteger(id) && id > 0) setInput(String(id));
+  }, []);
 
   function handleSubmit() {
     setError(null);
@@ -63,15 +53,11 @@ export function HomeSearchView() {
       return;
     }
     window.localStorage.setItem(STORAGE_KEY, String(id));
-    router.push(`/rank/${id}`);
-  }
-
-  if (checking) {
-    return (
-      <PageShell>
-        <PageHeader title={<Logo size="lg" />} meta="Loading…" />
-      </PageShell>
-    );
+    if (onSave) {
+      onSave(id);
+    } else {
+      window.location.href = `/rank/${id}`;
+    }
   }
 
   return (
