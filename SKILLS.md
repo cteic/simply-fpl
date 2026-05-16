@@ -79,6 +79,7 @@ Use Tamagui's animation system (`animation`, `enterStyle`, `exitStyle`, `useAnim
 - `medium` — 250ms timing — for state changes (expand/collapse, tab switch)
 - `slow` — 350ms timing — for entrance of a new surface
 - `bar` — 1200ms timing — for progress bars and the rank counter
+- `pulse` — 1500ms timing — per-leg fade for ambient loop indicators (live freshness "•"); cycle via opacity state toggle
 
 These primitives are timing-only (`type: 'timing'`, no built-in easing). The Easing rules above are applied separately via the transition / CSS layer.
 
