@@ -1,0 +1,56 @@
+name: Tag release on main
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v0.4.0). Leave empty to auto-bump minor from latest tag.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Compute version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            v="${{ inputs.version }}"
+          else
+            last=$(git tag -l 'v*' --sort=-v:refname | head -1)
+            if [ -z "$last" ]; then
+              v="v0.1.0"
+            else
+              maj=$(echo "$last" | sed -E 's/^v([0-9]+)\.([0-9]+)\.([0-9]+).*$/\1/')
+              min=$(echo "$last" | sed -E 's/^v([0-9]+)\.([0-9]+)\.([0-9]+).*$/\2/')
+              v="v${maj}.$((min + 1)).0"
+            fi
+          fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse if tag exists
+        run: |
+          if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "::error::Tag ${{ steps.version.outputs.version }} already exists — supply a different version input."
+            exit 1
+          fi
+
+      - name: Create + push tag, publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          v="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$v"
+          git push origin "$v"
+          gh release create "$v" --generate-notes --latest --target main
