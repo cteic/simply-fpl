@@ -23,6 +23,15 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
+  snapshotPathTemplate:
+    '{testDir}/../e2e/__screenshots__/{testFilePath}/{arg}{-projectName}{-platform}{ext}',
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05,
+      animations: 'disabled',
+      caret: 'hide',
+    },
+  },
   projects: [
     {
       name: 'chromium',
