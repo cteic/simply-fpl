@@ -161,7 +161,7 @@ pnpm dev:mobile     # Expo dev server
 - Feature/fix/docs branches (`feat/*`, `fix/*`, `docs/*`, `chore/*`) branch from `dev` and PR back to `dev`.
 - Releases are PRs from `dev` → `main`. Merge with a merge commit (preserves the per-feature history). Tag the merge commit on main `v0.X.0`.
 - After a release lands on main, the next PR to dev should include a `chore: sync main into dev` merge so dev stays at-or-ahead of main.
-- Hotfix exception: a true production hotfix can branch off `main` and PR to `main`, then cherry-pick back to `dev`. Use sparingly.
+- Hotfix exception: a true production hotfix can branch off `main` and PR to `main`, then cherry-pick back to `dev`. Use sparingly. Run `/hotfix` (see `.claude/commands/hotfix.md`) to automate the flow.
 
 Branch protection is **not enforced via GitHub** (the repo is private on Free tier — branch protection rules cost Pro). Discipline replaces enforcement: don't direct-push to `main`, don't force-push either branch, don't delete `main` or `dev`.
 
@@ -218,21 +218,21 @@ pnpm --filter @simplyfpl/{package} typecheck
 pnpm --filter @simplyfpl/{package} lint
 ```
 
-### Pre-commit hook
+### Git hooks (pre-commit + pre-push)
 
-`.husky/pre-commit` always runs `pnpm format` and re-stages modified files via `git add -u` before the commit object is created — regardless of whether `.env` exists. So commits land prettier-clean by default, including from scheduled agents and fresh checkouts.
+- **`.husky/pre-commit`** runs `lint-staged` — prettier --write on staged files only (~1s). lint-staged re-stages the formatted versions automatically. Unstaged files in the working tree are never touched, so `git add -p` partial-staging works as expected.
+- **`.husky/pre-push`** runs `pnpm format:check` (read-only) on the whole repo. This is the safety net for anything that slipped past the pre-commit hook (e.g. cherry-picked commits, partial-staging hunks, scheduled agents). If it fails: run `pnpm format`, commit the fix, and re-push.
 
-If you want extra checks (typecheck, lint, etc) to run on commit, add them to `.env`:
+Optional extra checks per hook via `.env`:
 
 ```
 PRE_COMMIT=typecheck,lint
+PRE_PUSH=typecheck,lint,test:unit
 ```
 
-`.env` is gitignored. The format-and-restage step is unconditional and not configurable — that's the whole point: CI runs `format:check`, so any unformatted file in a commit fails the `checks` job.
+`.env` is gitignored.
 
-**Caveat for interactive `git add -p` users**: `git add -u` re-stages all modifications to tracked files, which can pull in partial-staging edits you meant to leave unstaged. Stage what you want with `git add`, then run `pnpm format && git add -u` manually before committing if you need precise control.
-
-**Bypassing**: `--no-verify` skips the hook entirely. Reserve for the rare case where the hook itself is the bug being fixed — never as a routine workflow.
+**Bypassing**: `--no-verify` skips the hook entirely. Reserve for genuine emergencies (e.g. prod-down hotfix with local tooling hung). Never as a routine workflow.
 
 ## Testing
 
