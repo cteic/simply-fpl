@@ -4,51 +4,50 @@ Passive 60-minute synthetic probe of SimplyFPL infra and livefpl.net during peak
 
 ## Run window
 
-|                              |                                  |
-| ---------------------------- | -------------------------------- |
-| Start                        | `2026-05-16T14:00:52Z`           |
-| End (designed)               | `2026-05-16T15:00:52Z`           |
-| Probes captured for analysis | 27 per target (13-minute window) |
-| Probe interval               | 30 seconds                       |
-| Timeout per request          | 10 seconds                       |
-
-Note: the background script ran the full 60-minute window. Data was analysed after 27 cycles (13 min) because the pattern was 100% deterministic from probe 1 — additional probes did not change the finding.
+| Field               | Value                  |
+| ------------------- | ---------------------- |
+| Start               | `2026-05-16T14:00:52Z` |
+| End                 | `2026-05-16T15:00:25Z` |
+| Probes per target   | 120                    |
+| Total probes        | 360                    |
+| Probe interval      | 30 seconds             |
+| Timeout per request | 10 seconds             |
 
 ## Uptime table
 
-| Target                          | Total probes | 2xx | Non-2xx  | Errors / timeouts | 2xx % |
-| ------------------------------- | ------------ | --- | -------- | ----------------- | ----- |
-| `simply-fpl.pages.dev`          | 27           | 0   | 27 × 403 | 0                 | 0%    |
-| `worker.simply-fpl.workers.dev` | 27           | 0   | 0        | 27                | 0%    |
-| `livefpl.net`                   | 27           | 0   | 27 × 403 | 0                 | 0%    |
+| Target                          | Total probes | 2xx | Non-2xx   | Errors / timeouts | 2xx % |
+| ------------------------------- | ------------ | --- | --------- | ----------------- | ----- |
+| `simply-fpl.pages.dev`          | 120          | 0   | 120 × 403 | 0                 | 0%    |
+| `worker.simply-fpl.workers.dev` | 120          | 0   | 0         | 120               | 0%    |
+| `livefpl.net`                   | 120          | 0   | 120 × 403 | 0                 | 0%    |
 
 ## Response time table
 
-| Target                          | Median | p95    | Min   | Max    |
-| ------------------------------- | ------ | ------ | ----- | ------ |
-| `simply-fpl.pages.dev`          | 50 ms  | 446 ms | 12 ms | 606 ms |
-| `worker.simply-fpl.workers.dev` | 5 ms   | 21 ms  | 4 ms  | 23 ms  |
-| `livefpl.net`                   | 58 ms  | 567 ms | 11 ms | 779 ms |
+| Target                          | Median | p95    | Min   | Max     |
+| ------------------------------- | ------ | ------ | ----- | ------- |
+| `simply-fpl.pages.dev`          | 38 ms  | 437 ms | 10 ms | 939 ms  |
+| `worker.simply-fpl.workers.dev` | 4 ms   | 20 ms  | 3 ms  | 688 ms  |
+| `livefpl.net`                   | 23 ms  | 543 ms | 11 ms | 1134 ms |
 
 The worker's sub-25 ms "response" times are connection failures, not real latency.
 
 ## Incidents
 
-### `simply-fpl.pages.dev` — 27 × 403
+### `simply-fpl.pages.dev` — 120 × 403
 
 Every probe returned `403 "Host not in allowlist"`. This is a Cloudflare WAF rule blocking the sandbox egress IP. The server was up and responding; it rejected the probe source.
 
-| ts                        | status | body excerpt            |
-| ------------------------- | ------ | ----------------------- |
-| `2026-05-16T14:00:52Z`    | 403    | `Host not in allowlist` |
-| `2026-05-16T14:01:22Z`    | 403    | `Host not in allowlist` |
-| … all 27 probes identical | 403    | `Host not in allowlist` |
+| ts                         | status | body excerpt            |
+| -------------------------- | ------ | ----------------------- |
+| `2026-05-16T14:00:52Z`     | 403    | `Host not in allowlist` |
+| `2026-05-16T14:01:22Z`     | 403    | `Host not in allowlist` |
+| … all 120 probes identical | 403    | `Host not in allowlist` |
 
-### `worker.simply-fpl.workers.dev` — 27 × fetch failed
+### `worker.simply-fpl.workers.dev` — 120 × fetch failed
 
 DNS or egress blocked at the network layer inside this sandbox. The Worker URL does not resolve or is unreachable from the container.
 
-### `livefpl.net` — 27 × 403
+### `livefpl.net` — 120 × 403
 
 Identical Cloudflare WAF block: `403 "Host not in allowlist"`. livefpl.net is also behind Cloudflare with the same bot-mitigation response. The site was responsive; it rejected the probe source.
 
