@@ -22,3 +22,6 @@ apps/web/public/tamagui.css
 apps/web/.features-gen
 apps/web/test-results
 apps/web/playwright-report
+
+# Claude Code per-machine settings (commands/ is tracked, settings.local.json is not)
+.claude/settings.local.json
