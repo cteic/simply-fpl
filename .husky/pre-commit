@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# Always format staged files and re-stage them, regardless of local .env.
-# This is what scheduled agents and fresh checkouts need; without it the
-# commit lands with pre-format content and CI's `format:check` fails.
-#
-# `git add -u` re-stages modifications to tracked files only; it doesn't
-# add untracked files into the commit.
-if pnpm run format > /dev/null 2>&1; then
-  git add -u
-fi
+# Format ONLY staged files via lint-staged (~1s). lint-staged re-stages
+# files it modifies, so the commit lands prettier-clean without touching
+# unrelated files in the working tree.
+pnpm exec lint-staged
 
-# Optional extra checks listed in PRE_COMMIT env var in .env, e.g.
+# Optional opt-in commit-time checks via PRE_COMMIT env var in .env, e.g.
 # PRE_COMMIT=typecheck,lint
 [ -f .env ] && . ./.env
 
