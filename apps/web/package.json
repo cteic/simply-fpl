@@ -11,6 +11,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
+    "budget:check": "node ../../scripts/check-bundle-budget.mjs",
     "e2e": "bddgen --config playwright.config.ts && playwright test --config playwright.config.ts"
   },
   "dependencies": {
