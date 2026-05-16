@@ -1,0 +1,16 @@
+{
+  "id": 2,
+  "player_first_name": "FPL",
+  "player_last_name": "Rival",
+  "name": "FPL Rival FC",
+  "summary_overall_rank": 89421,
+  "summary_overall_points": 2188,
+  "summary_event_rank": null,
+  "summary_event_points": 0,
+  "leagues": {
+    "classic": [
+      { "id": 314, "name": "Overall", "short_name": "ov", "league_type": "s", "entry_rank": 89421 }
+    ],
+    "h2h": []
+  }
+}
