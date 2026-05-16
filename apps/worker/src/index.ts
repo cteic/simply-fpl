@@ -1,4 +1,5 @@
 import { runScheduled } from './cohort/cohort';
+import { handleEntrySnapshot } from './snapshot';
 
 export { LiveGwDO } from './live-gw-do';
 
@@ -264,6 +265,16 @@ export default {
     // Route: /kits/* → FPL kit image proxy
     if (url.pathname.startsWith('/kits/')) {
       return handleKit(ctx, url.pathname);
+    }
+
+    const snapshotMatch = url.pathname.match(/^\/snapshot\/entry\/(\d+)\/?$/);
+    if (snapshotMatch && snapshotMatch[1]) {
+      const entryId = Number(snapshotMatch[1]);
+      const result = await handleEntrySnapshot(env, ctx, entryId);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: /fpl/* → proxy to FPL API
