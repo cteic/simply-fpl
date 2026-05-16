@@ -1,0 +1,61 @@
+{
+  "league": {
+    "id": 200001,
+    "name": "The Office Bantz",
+    "created": "2025-07-01T00:00:00Z",
+    "admin_entry": 1,
+    "start_event": 1,
+    "league_type": "x"
+  },
+  "standings": {
+    "has_next": false,
+    "page": 1,
+    "results": [
+      {
+        "id": 3001,
+        "entry": 300,
+        "entry_name": "Karen's XI",
+        "player_name": "Karen K.",
+        "rank": 1,
+        "last_rank": 1,
+        "rank_sort": 1,
+        "total": 2240,
+        "event_total": 0
+      },
+      {
+        "id": 3002,
+        "entry": 301,
+        "entry_name": "Steve's Squad",
+        "player_name": "Steve B.",
+        "rank": 2,
+        "last_rank": 2,
+        "rank_sort": 2,
+        "total": 2210,
+        "event_total": 0
+      },
+      {
+        "id": 3003,
+        "entry": 302,
+        "entry_name": "Mike United",
+        "player_name": "Mike L.",
+        "rank": 3,
+        "last_rank": 3,
+        "rank_sort": 3,
+        "total": 2180,
+        "event_total": 0
+      },
+      {
+        "id": 3004,
+        "entry": 1,
+        "entry_name": "FPL Test FC",
+        "player_name": "FPL Test",
+        "rank": 4,
+        "last_rank": 5,
+        "rank_sort": 4,
+        "total": 2154,
+        "event_total": 0
+      }
+    ]
+  },
+  "new_entries": { "has_next": false, "page": 1, "results": [] }
+}
