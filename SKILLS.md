@@ -24,11 +24,11 @@ The bar isn't "does it work" — it's "does it feel right." A motion that's func
 
 ### Duration
 
-- 150ms–1200ms range. Anything outside that range needs justification in the PR.
-- Micro-feedback (hover, focus, press): ~150ms
-- State changes: ~300ms
-- New surface entrances: ~600ms
-- Ambient/loop (live indicator pulse): ~1200ms
+- 120ms–1200ms range. Anything outside that range needs justification in the PR.
+- Micro-feedback (hover, focus, press): ~120ms — `fast`
+- State changes (expand/collapse, tab switch): ~250ms — `medium`
+- New surface entrances: ~350ms — `slow`
+- Progress bars / rank counter: 1200ms — `bar`
 
 ### Properties
 
@@ -75,10 +75,13 @@ The bar isn't "does it work" — it's "does it feel right." A motion that's func
 
 Use Tamagui's animation system (`animation`, `enterStyle`, `exitStyle`, `useAnimatedNumber`). Drivers are configured in `packages/ui/tamagui.config.ts`. Standard named animations:
 
-- `quick` — ~150ms, ease-out — for hover/focus/press feedback
-- `medium` — ~300ms, ease-in-out — for state changes (expand/collapse, tab switch)
-- `slow` — ~600ms, ease-out — for entrance of a new surface
-- `pulse` — ~1200ms loop — for the live freshness indicator only
+- `fast` — 120ms timing — for hover/focus/press feedback
+- `medium` — 250ms timing — for state changes (expand/collapse, tab switch)
+- `slow` — 350ms timing — for entrance of a new surface
+- `bar` — 1200ms timing — for progress bars and the rank counter
+- `pulse` — 1500ms timing — per-leg fade for ambient loop indicators (live freshness "•"); cycle via opacity state toggle
+
+These primitives are timing-only (`type: 'timing'`, no built-in easing). The Easing rules above are applied separately via the transition / CSS layer.
 
 Add a new named animation only when an existing one doesn't fit. Don't define inline timing values across the codebase.
 
