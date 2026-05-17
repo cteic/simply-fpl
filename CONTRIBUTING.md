@@ -31,7 +31,7 @@ A typical issue might carry `web + speed-comparison + size-m`. Filter `is:open l
 
 ### Incidents become issues
 
-When prod breaks, the fix PR creates an incident issue *first* (`gh issue create --label incident`), then `Closes #N`. That leaves a permanent record outside the PR description.
+When prod breaks, the fix PR creates an incident issue _first_ (`gh issue create --label incident`), then `Closes #N`. That leaves a permanent record outside the PR description.
 
 ## Branching (simplified GitFlow)
 
