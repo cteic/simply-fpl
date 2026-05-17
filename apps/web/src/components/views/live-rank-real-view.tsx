@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { useParams } from 'next/navigation';
 
+import { liveRank } from '@simplyfpl/features';
 import { calculateLivePoints, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
@@ -20,12 +21,8 @@ import {
   Pitch,
   PitchRow,
   Player,
-  ProgressBar,
   PtsChip,
   SectionHeader,
-  StatCard,
-  StatRow,
-  StatSubText,
   TeamPill,
   Text,
   XStack,
@@ -33,7 +30,9 @@ import {
 } from '@simplyfpl/ui';
 import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
-import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
+import { useBootstrap, useEntry, useEntryPicks } from '@/queries/fpl';
+
+const { useLiveSnapshot } = liveRank;
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -180,11 +179,15 @@ function deriveFormation(picks: FplEntryGameweekPicks, bootstrap: FplBootstrapSt
   return `${def}–${mid}–${fwd}`;
 }
 
-export function LiveRankRealView() {
-  const params = useParams();
-  const entryId = parseEntryIdParam(params?.entryId);
+interface LiveRankRealViewProps {
+  entryId?: number;
+}
 
-  if (entryId === null) {
+export function LiveRankRealView({ entryId: entryIdProp }: LiveRankRealViewProps = {}) {
+  const params = useParams();
+  const entryId = entryIdProp ?? parseEntryIdParam(params?.entryId);
+
+  if (entryId === null || entryId === undefined) {
     return (
       <PageShell>
         <PageHeader title="Live Rank" meta="Invalid team ID in URL" />
@@ -208,7 +211,8 @@ function LiveRankInner({ entryId }: InnerProps) {
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const { data: entry, isLoading: entryLoading, isError: entryError } = useEntry(entryId);
   const { data: picks, isLoading: picksLoading } = useEntryPicks(entryId, currentGw);
-  const { data: liveGw, isLoading: liveLoading } = useLiveGameweek(currentGw);
+  const { data: liveGw } = useLiveSnapshot(currentGw);
+  const liveLoading = liveGw === undefined;
 
   const ready = entry && picks && liveGw && bootstrap;
   const livePoints = ready ? calculateLivePoints(picks, liveGw, bootstrap) : 0;
@@ -247,37 +251,37 @@ function LiveRankInner({ entryId }: InnerProps) {
         right={<TeamPill teamId={entryId} />}
       />
 
-      <StatRow>
-        <StatCard
-          label="Overall Rank"
-          value={overallRankLabel}
-          sub={
-            <>
-              <DeltaChip tone="neutral">live</DeltaChip>
-              <StatSubText>since GW start</StatSubText>
-            </>
-          }
-          extra={<ProgressBar percent={50} labels={['Top 10k', 'Top 100k', 'Top 500k']} />}
-        />
-        <StatCard
-          label="GW Points"
-          value={ready ? livePoints : '—'}
-          extra={
-            <YStack gap={8} marginTop={8}>
-              <XStack gap={12} flexWrap="wrap">
-                <PtsChip label="XI" value={String(xiPoints)} />
-                {transferHit > 0 ? <PtsChip label="Hit" value={`-${transferHit}`} /> : null}
-                <PtsChip label="Chip" value={picks?.active_chip ?? 'None'} />
-              </XStack>
-            </YStack>
-          }
-        />
-        <StatCard
-          label="Total Points"
-          value={totalPointsLabel}
-          sub={<StatSubText>Season to date</StatSubText>}
-        />
-      </StatRow>
+      <YStack
+        backgroundColor="$surface"
+        paddingHorizontal={20}
+        paddingVertical={12}
+        marginBottom={16}
+        gap={6}
+      >
+        <XStack alignItems="baseline" gap={10} flexWrap="wrap">
+          <Text fontFamily="$mono" fontSize={26} fontWeight="500" color="$color">
+            {overallRankLabel}
+          </Text>
+          <Text
+            fontFamily="$body"
+            fontSize={10}
+            fontWeight="600"
+            color="$colorSubtle"
+            textTransform="uppercase"
+            letterSpacing={1.2}
+          >
+            Overall Rank
+          </Text>
+          <DeltaChip tone="neutral">live</DeltaChip>
+        </XStack>
+        <XStack gap={16} flexWrap="wrap" alignItems="center">
+          <PtsChip label="GW" value={String(ready ? livePoints : '—')} />
+          <PtsChip label="XI" value={String(xiPoints)} />
+          {transferHit > 0 ? <PtsChip label="Hit" value={`-${transferHit}`} /> : null}
+          <PtsChip label="Chip" value={picks?.active_chip ?? 'None'} />
+          <PtsChip label="Total" value={totalPointsLabel} />
+        </XStack>
+      </YStack>
 
       <YStack marginBottom={20}>
         <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />

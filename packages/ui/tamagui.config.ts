@@ -38,6 +38,11 @@ const animations = createAnimations({
     type: 'timing',
     duration: 1200,
   },
+  // Ambient loop indicators (live freshness "•") — per-leg fade; cycle via opacity state toggle
+  pulse: {
+    type: 'timing',
+    duration: 1500,
+  },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
