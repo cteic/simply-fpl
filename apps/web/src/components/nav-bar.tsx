@@ -4,13 +4,15 @@ import { useEffect, useState } from 'react';
 
 import { usePathname } from 'next/navigation';
 
-import { auth } from '@simplyfpl/features';
+import { auth, liveRank } from '@simplyfpl/features';
+import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import { LiveRankPill, Nav } from '@simplyfpl/ui';
 
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
-import { useEntry } from '@/queries/fpl';
+import { useBootstrap, useEntry } from '@/queries/fpl';
 
 const { useAuth } = auth;
+const { useLiveAgoMs, useLiveSnapshot } = liveRank;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -20,10 +22,7 @@ interface NavLinkItem {
 }
 
 function buildBaseLinks(): NavLinkItem[] {
-  const links: NavLinkItem[] = [
-    { label: 'Live Rank', href: '/' },
-    { label: 'Leagues', href: '/leagues' },
-  ];
+  const links: NavLinkItem[] = [{ label: 'Leagues', href: '/leagues' }];
   if (FEATURE_PRICES) links.push({ label: 'Prices', href: '/prices' });
   if (FEATURE_PLANNER) links.push({ label: 'Planner', href: '/planner' });
   return links;
@@ -43,6 +42,11 @@ export function NavBar() {
   }, []);
 
   const { data: entry } = useEntry(entryId);
+  const { data: bootstrap } = useBootstrap();
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
+  useLiveSnapshot(currentGw);
+  const agoMs = useLiveAgoMs();
+  const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
   const baseLinks = buildBaseLinks();
   const allLinks =
@@ -50,9 +54,7 @@ export function NavBar() {
 
   const links = allLinks.map((link) => {
     const active =
-      link.href === '/'
-        ? pathname === '/' || pathname.startsWith('/rank')
-        : pathname === link.href || pathname.startsWith(`${link.href}/`);
+      pathname === link.href || pathname.startsWith(`${link.href}/`);
     return { ...link, active };
   });
 
@@ -73,7 +75,8 @@ export function NavBar() {
   return (
     <Nav
       links={links}
-      liveLabel="GW30 Live"
+      liveLabel={liveLabel}
+      liveAgoMs={agoMs}
       {...(liveRankPill !== undefined ? { liveRankPill } : {})}
       signInHref="/login"
       showAuthButton={FEATURE_AUTH}
