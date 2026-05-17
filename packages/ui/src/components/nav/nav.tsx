@@ -72,6 +72,7 @@ interface NavLinkItem {
 interface NavProps {
   links: NavLinkItem[];
   liveLabel?: string;
+  liveAgoMs?: number | null;
   liveRankPill?: ReactNode;
   signInHref?: string;
   onSignOut?: () => void;
@@ -82,6 +83,7 @@ interface NavProps {
 export function Nav({
   links,
   liveLabel = 'GW30 Live',
+  liveAgoMs,
   liveRankPill,
   signInHref = '/login',
   onSignOut,
@@ -107,7 +109,7 @@ export function Nav({
         </NavLinks>
       </Left>
       <Right>
-        <LivePill label={liveLabel} />
+        <LivePill label={liveLabel} agoMs={liveAgoMs ?? null} />
         {liveRankPill}
         {showAuthButton ? (
           <HideOnMobile>
