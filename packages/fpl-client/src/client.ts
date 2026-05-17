@@ -2,6 +2,7 @@ import type {
   FplBootstrapStatic,
   FplEntry,
   FplEntryGameweekPicks,
+  FplEntrySnapshot,
   FplFixture,
   FplLeague,
   FplLiveGameweek,
@@ -44,6 +45,10 @@ export function createFplClient(config: FplClientConfig = {}) {
 
     getEntryPicks(entryId: number, eventId: number): Promise<FplEntryGameweekPicks> {
       return get<FplEntryGameweekPicks>(`/fpl/entry/${entryId}/event/${eventId}/picks/`);
+    },
+
+    getEntrySnapshot(entryId: number): Promise<FplEntrySnapshot> {
+      return get<FplEntrySnapshot>(`/snapshot/entry/${entryId}`);
     },
 
     getClassicLeague(leagueId: number, page = 1): Promise<FplLeague> {
