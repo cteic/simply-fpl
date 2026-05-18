@@ -56,7 +56,7 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
     if (onSave) {
       onSave(id);
     } else {
-      window.location.href = `/rank/${id}`;
+      window.location.href = '/';
     }
   }
 

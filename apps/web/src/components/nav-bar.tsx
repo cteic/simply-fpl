@@ -69,7 +69,7 @@ export function NavBar() {
 
   const liveRankPill =
     entryId !== null && entry ? (
-      <LiveRankPill rank={entry.summary_overall_rank} href={`/rank/${entryId}`} />
+      <LiveRankPill rank={entry.summary_overall_rank} href="/" />
     ) : undefined;
 
   return (
