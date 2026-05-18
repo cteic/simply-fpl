@@ -13,6 +13,7 @@
     "test:unit": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@cloudflare/puppeteer": "^1.1.0",
     "@simplyfpl/types": "workspace:*"
   },
   "devDependencies": {
