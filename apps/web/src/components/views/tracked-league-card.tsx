@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Button, Card, LeagueCard, Text, YStack } from '@simplyfpl/ui';
+import { Button, Card, LeagueCard, Text, XStack, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
 
 import { useClassicLeague } from '@/queries/fpl';
@@ -70,11 +70,22 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
         rows={rows}
         {...(onRowClick !== undefined ? { onRowClick } : {})}
       />
-      {totalRows > 10 ? (
-        <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
-          {expanded ? 'Show top 10' : `Show all ${totalRows}`}
+      <XStack gap={8}>
+        <Button
+          tone="primary"
+          size="sm"
+          onPress={() => {
+            window.location.href = `/rivals/${leagueId}`;
+          }}
+        >
+          Rivals
         </Button>
-      ) : null}
+        {totalRows > 10 ? (
+          <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
+            {expanded ? 'Show top 10' : `Show all ${totalRows}`}
+          </Button>
+        ) : null}
+      </XStack>
     </YStack>
   );
 }
