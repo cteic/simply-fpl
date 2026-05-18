@@ -7,15 +7,35 @@ import type {
   FplEntrySnapshot,
 } from '@simplyfpl/types';
 
-import { currentGwFromBootstrap, handleEntrySnapshot, type SnapshotEnv } from './snapshot';
+import { type SnapshotEnv, currentGwFromBootstrap, handleEntrySnapshot } from './snapshot';
 
 function makeBootstrap(currentGwId = 30): FplBootstrapStatic {
   return {
     elements: [],
     teams: [],
     events: [
-      { id: currentGwId, name: `Gameweek ${currentGwId}`, deadline_time: '', is_current: true, is_next: false, is_previous: false, average_entry_score: 0, highest_score: null, finished: false },
-      { id: currentGwId + 1, name: `Gameweek ${currentGwId + 1}`, deadline_time: '', is_current: false, is_next: true, is_previous: false, average_entry_score: 0, highest_score: null, finished: false },
+      {
+        id: currentGwId,
+        name: `Gameweek ${currentGwId}`,
+        deadline_time: '',
+        is_current: true,
+        is_next: false,
+        is_previous: false,
+        average_entry_score: 0,
+        highest_score: null,
+        finished: false,
+      },
+      {
+        id: currentGwId + 1,
+        name: `Gameweek ${currentGwId + 1}`,
+        deadline_time: '',
+        is_current: false,
+        is_next: true,
+        is_previous: false,
+        average_entry_score: 0,
+        highest_score: null,
+        finished: false,
+      },
     ],
     element_types: [],
   };
@@ -68,7 +88,10 @@ function makeKv(initial: Record<string, string> = {}): KVNamespace {
 }
 
 function makeCtx(): ExecutionContext {
-  return { waitUntil: (_p: Promise<unknown>) => undefined, passThroughOnException: () => undefined } as unknown as ExecutionContext;
+  return {
+    waitUntil: (_p: Promise<unknown>) => undefined,
+    passThroughOnException: () => undefined,
+  } as unknown as ExecutionContext;
 }
 
 const fetchMock = vi.fn();

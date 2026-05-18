@@ -42,9 +42,7 @@ async function getCachedJson<T>(
     throw new UpstreamError(upstream.status, upstreamUrl);
   }
   const text = await upstream.text();
-  ctx.waitUntil(
-    env.FPL_CACHE.put(cacheKey, text, { expirationTtl: ttl }).catch(() => undefined)
-  );
+  ctx.waitUntil(env.FPL_CACHE.put(cacheKey, text, { expirationTtl: ttl }).catch(() => undefined));
   return JSON.parse(text) as T;
 }
 

@@ -9,7 +9,9 @@ test(`/rank/${ENTRY_ID} redirects to / without browser errors`, async ({ page })
 
   const response = await page.goto(`/rank/${ENTRY_ID}`);
 
-  expect(response?.status(), `GET /rank/${ENTRY_ID} should resolve to 200 after redirect`).toBe(200);
+  expect(response?.status(), `GET /rank/${ENTRY_ID} should resolve to 200 after redirect`).toBe(
+    200
+  );
   expect(new URL(page.url()).pathname, 'should end on the home page').toBe('/');
 
   expect(

@@ -226,13 +226,14 @@ function LiveRankInner({ entryId }: InnerProps) {
   const teamName = entry?.name ?? '—';
   const playerName = entry ? `${entry.player_first_name} ${entry.player_last_name}`.trim() : '';
   const preGwRank = entry?.summary_overall_rank ?? 0;
-  const avgEntryScore =
-    bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
   const estimate =
-    ready && preGwRank > 0
-      ? estimateLiveRank(preGwRank, livePoints, avgEntryScore)
-      : null;
-  const liveRankLabel = estimate ? estimate.liveRank.toLocaleString() : preGwRank > 0 ? preGwRank.toLocaleString() : '—';
+    ready && preGwRank > 0 ? estimateLiveRank(preGwRank, livePoints, avgEntryScore) : null;
+  const liveRankLabel = estimate
+    ? estimate.liveRank.toLocaleString()
+    : preGwRank > 0
+      ? preGwRank.toLocaleString()
+      : '—';
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
