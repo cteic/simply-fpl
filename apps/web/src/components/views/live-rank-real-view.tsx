@@ -1,10 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import { useParams } from 'next/navigation';
 
-import { calculateLivePoints, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
+import { liveRank } from '@simplyfpl/features';
+import { calculateLivePoints, estimateLiveRank, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -20,12 +19,8 @@ import {
   Pitch,
   PitchRow,
   Player,
-  ProgressBar,
   PtsChip,
   SectionHeader,
-  StatCard,
-  StatRow,
-  StatSubText,
   TeamPill,
   Text,
   XStack,
@@ -33,7 +28,9 @@ import {
 } from '@simplyfpl/ui';
 import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
-import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
+import { useEntrySnapshot } from '@/queries/fpl';
+
+const { useLiveSnapshot } = liveRank;
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -180,17 +177,20 @@ function deriveFormation(picks: FplEntryGameweekPicks, bootstrap: FplBootstrapSt
   return `${def}–${mid}–${fwd}`;
 }
 
-export function LiveRankRealView() {
-  const params = useParams();
-  const entryId = parseEntryIdParam(params?.entryId);
+interface LiveRankRealViewProps {
+  entryId?: number;
+}
 
-  if (entryId === null) {
+export function LiveRankRealView({ entryId: entryIdProp }: LiveRankRealViewProps = {}) {
+  const params = useParams();
+  const entryId = entryIdProp ?? parseEntryIdParam(params?.entryId);
+
+  if (entryId === null || entryId === undefined) {
     return (
       <PageShell>
-        <PageHeader title="Live Rank" meta="Invalid team ID in URL" />
+        <PageHeader title="Live Rank" meta="No team selected" />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          The URL needs a positive integer FPL team ID, like
-          <code> /rank/123456</code>.
+          Enter your FPL team ID on the home page to see your live rank.
         </Text>
       </PageShell>
     );
@@ -204,11 +204,17 @@ interface InnerProps {
 }
 
 function LiveRankInner({ entryId }: InnerProps) {
-  const { data: bootstrap } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
-  const { data: entry, isLoading: entryLoading, isError: entryError } = useEntry(entryId);
-  const { data: picks, isLoading: picksLoading } = useEntryPicks(entryId, currentGw);
-  const { data: liveGw, isLoading: liveLoading } = useLiveGameweek(currentGw);
+  const {
+    data: snapshot,
+    isLoading: snapshotLoading,
+    isError: snapshotError,
+  } = useEntrySnapshot(entryId);
+  const bootstrap = snapshot?.bootstrap;
+  const entry = snapshot?.entry;
+  const picks = snapshot?.picks;
+  const currentGw = snapshot?.gw ?? null;
+  const { data: liveGw } = useLiveSnapshot(currentGw);
+  const liveLoading = liveGw === undefined;
 
   const ready = entry && picks && liveGw && bootstrap;
   const livePoints = ready ? calculateLivePoints(picks, liveGw, bootstrap) : 0;
@@ -219,14 +225,25 @@ function LiveRankInner({ entryId }: InnerProps) {
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
   const playerName = entry ? `${entry.player_first_name} ${entry.player_last_name}`.trim() : '';
-  const overallRankLabel = entry?.summary_overall_rank
-    ? entry.summary_overall_rank.toLocaleString()
-    : '—';
+  const preGwRank = entry?.summary_overall_rank ?? 0;
+  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const estimate =
+    ready && preGwRank > 0 ? estimateLiveRank(preGwRank, livePoints, avgEntryScore) : null;
+  let liveRankLabel = '—';
+  if (estimate) {
+    liveRankLabel = estimate.liveRank.toLocaleString();
+  } else if (preGwRank > 0) {
+    liveRankLabel = preGwRank.toLocaleString();
+  }
+  const movementLabel =
+    estimate && estimate.movement !== 0
+      ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
+      : null;
   const totalPointsLabel = entry?.summary_overall_points
     ? entry.summary_overall_points.toLocaleString()
     : '—';
 
-  if (entryError) {
+  if (snapshotError) {
     return (
       <PageShell>
         <PageHeader title="Live Rank" meta="Could not load this team" />
@@ -237,7 +254,7 @@ function LiveRankInner({ entryId }: InnerProps) {
     );
   }
 
-  const isLoading = entryLoading || picksLoading || liveLoading;
+  const isLoading = snapshotLoading || liveLoading;
 
   return (
     <PageShell>
@@ -247,37 +264,43 @@ function LiveRankInner({ entryId }: InnerProps) {
         right={<TeamPill teamId={entryId} />}
       />
 
-      <StatRow>
-        <StatCard
-          label="Overall Rank"
-          value={overallRankLabel}
-          sub={
-            <>
-              <DeltaChip tone="neutral">live</DeltaChip>
-              <StatSubText>since GW start</StatSubText>
-            </>
-          }
-          extra={<ProgressBar percent={50} labels={['Top 10k', 'Top 100k', 'Top 500k']} />}
-        />
-        <StatCard
-          label="GW Points"
-          value={ready ? livePoints : '—'}
-          extra={
-            <YStack gap={8} marginTop={8}>
-              <XStack gap={12} flexWrap="wrap">
-                <PtsChip label="XI" value={String(xiPoints)} />
-                {transferHit > 0 ? <PtsChip label="Hit" value={`-${transferHit}`} /> : null}
-                <PtsChip label="Chip" value={picks?.active_chip ?? 'None'} />
-              </XStack>
-            </YStack>
-          }
-        />
-        <StatCard
-          label="Total Points"
-          value={totalPointsLabel}
-          sub={<StatSubText>Season to date</StatSubText>}
-        />
-      </StatRow>
+      <YStack
+        backgroundColor="$surface"
+        paddingHorizontal={20}
+        paddingVertical={12}
+        marginBottom={16}
+        gap={6}
+      >
+        <XStack alignItems="baseline" gap={10} flexWrap="wrap">
+          <Text fontFamily="$mono" fontSize={26} fontWeight="500" color="$color">
+            {liveRankLabel}
+          </Text>
+          <Text
+            fontFamily="$body"
+            fontSize={10}
+            fontWeight="600"
+            color="$colorSubtle"
+            textTransform="uppercase"
+            letterSpacing={1.2}
+          >
+            est. live rank
+          </Text>
+          {movementLabel ? (
+            <DeltaChip tone={estimate?.direction === 'up' ? 'up' : 'down'}>
+              {movementLabel}
+            </DeltaChip>
+          ) : (
+            <DeltaChip tone="neutral">live</DeltaChip>
+          )}
+        </XStack>
+        <XStack gap={16} flexWrap="wrap" alignItems="center">
+          <PtsChip label="GW" value={String(ready ? livePoints : '—')} />
+          <PtsChip label="XI" value={String(xiPoints)} />
+          {transferHit > 0 ? <PtsChip label="Hit" value={`-${transferHit}`} /> : null}
+          <PtsChip label="Chip" value={picks?.active_chip ?? 'None'} />
+          <PtsChip label="Total" value={totalPointsLabel} />
+        </XStack>
+      </YStack>
 
       <YStack marginBottom={20}>
         <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />
