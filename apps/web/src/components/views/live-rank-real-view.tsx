@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 
 import { liveRank } from '@simplyfpl/features';
-import { calculateLivePoints, getKitUrl } from '@simplyfpl/fpl-client';
+import { calculateLivePoints, estimateLiveRank, getKitUrl } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -188,10 +188,9 @@ export function LiveRankRealView({ entryId: entryIdProp }: LiveRankRealViewProps
   if (entryId === null || entryId === undefined) {
     return (
       <PageShell>
-        <PageHeader title="Live Rank" meta="Invalid team ID in URL" />
+        <PageHeader title="Live Rank" meta="No team selected" />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          The URL needs a positive integer FPL team ID, like
-          <code> /rank/123456</code>.
+          Enter your FPL team ID on the home page to see your live rank.
         </Text>
       </PageShell>
     );
@@ -226,9 +225,18 @@ function LiveRankInner({ entryId }: InnerProps) {
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
   const playerName = entry ? `${entry.player_first_name} ${entry.player_last_name}`.trim() : '';
-  const overallRankLabel = entry?.summary_overall_rank
-    ? entry.summary_overall_rank.toLocaleString()
-    : '—';
+  const preGwRank = entry?.summary_overall_rank ?? 0;
+  const avgEntryScore =
+    bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const estimate =
+    ready && preGwRank > 0
+      ? estimateLiveRank(preGwRank, livePoints, avgEntryScore)
+      : null;
+  const liveRankLabel = estimate ? estimate.liveRank.toLocaleString() : preGwRank > 0 ? preGwRank.toLocaleString() : '—';
+  const movementLabel =
+    estimate && estimate.movement !== 0
+      ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
+      : null;
   const totalPointsLabel = entry?.summary_overall_points
     ? entry.summary_overall_points.toLocaleString()
     : '—';
@@ -263,7 +271,7 @@ function LiveRankInner({ entryId }: InnerProps) {
       >
         <XStack alignItems="baseline" gap={10} flexWrap="wrap">
           <Text fontFamily="$mono" fontSize={26} fontWeight="500" color="$color">
-            {overallRankLabel}
+            {liveRankLabel}
           </Text>
           <Text
             fontFamily="$body"
@@ -273,9 +281,15 @@ function LiveRankInner({ entryId }: InnerProps) {
             textTransform="uppercase"
             letterSpacing={1.2}
           >
-            Overall Rank
+            est. live rank
           </Text>
-          <DeltaChip tone="neutral">live</DeltaChip>
+          {movementLabel ? (
+            <DeltaChip tone={estimate?.direction === 'up' ? 'up' : 'down'}>
+              {movementLabel}
+            </DeltaChip>
+          ) : (
+            <DeltaChip tone="neutral">live</DeltaChip>
+          )}
         </XStack>
         <XStack gap={16} flexWrap="wrap" alignItems="center">
           <PtsChip label="GW" value={String(ready ? livePoints : '—')} />
