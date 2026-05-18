@@ -53,8 +53,7 @@ export function NavBar() {
     FEATURE_AUTH && session ? [...baseLinks, { label: 'Settings', href: '/settings' }] : baseLinks;
 
   const links = allLinks.map((link) => {
-    const active =
-      pathname === link.href || pathname.startsWith(`${link.href}/`);
+    const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
     return { ...link, active };
   });
 

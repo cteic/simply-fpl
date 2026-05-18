@@ -309,57 +309,51 @@ describeFeature(feature, ({ Scenario }) => {
     });
   });
 
-  Scenario(
-    'Live rank estimate moves up when scoring above average',
-    ({ Given, When, Then }) => {
-      let estimate: ReturnType<typeof estimateLiveRank>;
-      let preGwRank = 0;
-      let avgScore = 0;
-      let livePoints = 0;
+  Scenario('Live rank estimate moves up when scoring above average', ({ Given, When, Then }) => {
+    let estimate: ReturnType<typeof estimateLiveRank>;
+    let preGwRank = 0;
+    let avgScore = 0;
+    let livePoints = 0;
 
-      Given('my pre-gameweek rank is 100000 and the average score is 30', () => {
-        preGwRank = 100000;
-        avgScore = 30;
-      });
+    Given('my pre-gameweek rank is 100000 and the average score is 30', () => {
+      preGwRank = 100000;
+      avgScore = 30;
+    });
 
-      When('I score 50 live points', () => {
-        livePoints = 50;
-        estimate = estimateLiveRank(preGwRank, livePoints, avgScore);
-      });
+    When('I score 50 live points', () => {
+      livePoints = 50;
+      estimate = estimateLiveRank(preGwRank, livePoints, avgScore);
+    });
 
-      Then('the live rank estimate is 86000 with movement up 14000', () => {
-        expect(estimate.liveRank).toBe(86000);
-        expect(estimate.movement).toBe(14000);
-        expect(estimate.direction).toBe('up');
-      });
-    }
-  );
+    Then('the live rank estimate is 86000 with movement up 14000', () => {
+      expect(estimate.liveRank).toBe(86000);
+      expect(estimate.movement).toBe(14000);
+      expect(estimate.direction).toBe('up');
+    });
+  });
 
-  Scenario(
-    'Live rank estimate moves down when scoring below average',
-    ({ Given, When, Then }) => {
-      let estimate: ReturnType<typeof estimateLiveRank>;
-      let preGwRank = 0;
-      let avgScore = 0;
-      let livePoints = 0;
+  Scenario('Live rank estimate moves down when scoring below average', ({ Given, When, Then }) => {
+    let estimate: ReturnType<typeof estimateLiveRank>;
+    let preGwRank = 0;
+    let avgScore = 0;
+    let livePoints = 0;
 
-      Given('my pre-gameweek rank is 100000 and the average score is 50', () => {
-        preGwRank = 100000;
-        avgScore = 50;
-      });
+    Given('my pre-gameweek rank is 100000 and the average score is 50', () => {
+      preGwRank = 100000;
+      avgScore = 50;
+    });
 
-      When('I score 30 live points', () => {
-        livePoints = 30;
-        estimate = estimateLiveRank(preGwRank, livePoints, avgScore);
-      });
+    When('I score 30 live points', () => {
+      livePoints = 30;
+      estimate = estimateLiveRank(preGwRank, livePoints, avgScore);
+    });
 
-      Then('the live rank estimate is 114000 with movement down 14000', () => {
-        expect(estimate.liveRank).toBe(114000);
-        expect(estimate.movement).toBe(-14000);
-        expect(estimate.direction).toBe('down');
-      });
-    }
-  );
+    Then('the live rank estimate is 114000 with movement down 14000', () => {
+      expect(estimate.liveRank).toBe(114000);
+      expect(estimate.movement).toBe(-14000);
+      expect(estimate.direction).toBe('down');
+    });
+  });
 
   Scenario('Live rank estimate clamps to 1 at the top', ({ Given, When, Then }) => {
     let estimate: ReturnType<typeof estimateLiveRank>;
