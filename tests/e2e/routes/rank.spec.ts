@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 import { collectPageErrors } from '../_helpers/page-errors';
+import { installWorkerMocks } from '../_helpers/worker-mocks';
 
 const ENTRY_ID = 219895;
 
 test(`/rank/${ENTRY_ID} redirects to / without browser errors`, async ({ page }) => {
+  await installWorkerMocks(page);
   const collector = collectPageErrors(page);
 
   const response = await page.goto(`/rank/${ENTRY_ID}`);

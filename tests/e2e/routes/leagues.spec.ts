@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test';
 
 import { collectPageErrors } from '../_helpers/page-errors';
+import { installWorkerMocks } from '../_helpers/worker-mocks';
 
 test('/leagues renders the no-team prompt for an unlinked browser', async ({ page }) => {
+  await installWorkerMocks(page);
   const collector = collectPageErrors(page);
 
   const response = await page.goto('/leagues');
