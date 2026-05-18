@@ -218,6 +218,19 @@ pnpm --filter @simplyfpl/{package} typecheck
 pnpm --filter @simplyfpl/{package} lint
 ```
 
+### Diff-grep before every code-touching push
+
+Local `pnpm lint` is unreliable on Pete's machine (issue #157 — OOM/hang on prettier-plugin-sort-imports), so violations have slipped past pre-commit and been caught by CI several times. Until #157 is fixed, every push that adds or modifies source code must grep its own diff for the patterns CLAUDE.md forbids:
+
+```
+git diff origin/<base>..HEAD -- 'apps/' 'packages/' 'tests/' | \
+  grep -nE '\!\.[A-Za-z_$]|: any\b|\benum |^\+.* as [A-Z]'
+```
+
+If anything matches, fix locally before pushing. Nested ternaries don't grep cleanly — scan the diff visually for `? ... ? ... :` shapes. This is on top of the pre-commit/pre-push hooks, not a replacement.
+
+This applies equally to interactive sessions, scheduled remote agents, and human dev work.
+
 ### Git hooks (pre-commit + pre-push)
 
 - **`.husky/pre-commit`** runs `lint-staged` — prettier --write on staged files only (~1s). lint-staged re-stages the formatted versions automatically. Unstaged files in the working tree are never touched, so `git add -p` partial-staging works as expected.
