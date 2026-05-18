@@ -34,3 +34,18 @@ Feature: Live points calculation
     Given bootstrap data with gameweek 2 marked as next
     When I get the next gameweek
     Then it should return 2
+
+  Scenario: Live rank estimate moves up when scoring above average
+    Given my pre-gameweek rank is 100000 and the average score is 30
+    When I score 50 live points
+    Then the live rank estimate is 86000 with movement up 14000
+
+  Scenario: Live rank estimate moves down when scoring below average
+    Given my pre-gameweek rank is 100000 and the average score is 50
+    When I score 30 live points
+    Then the live rank estimate is 114000 with movement down 14000
+
+  Scenario: Live rank estimate clamps to 1 at the top
+    Given my pre-gameweek rank is 500 and the average score is 30
+    When I score 100 live points
+    Then the live rank estimate is 1 with movement up 49000
