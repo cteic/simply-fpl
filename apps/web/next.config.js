@@ -22,6 +22,8 @@ const nextConfig = {
     'react-native',
     'react-native-web',
     'tamagui',
+    '@tamagui/core',
+    '@tamagui/web',
     '@tamagui/animations-react-native',
     '@tamagui/shorthands',
     '@tamagui/themes',
