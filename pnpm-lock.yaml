@@ -163,9 +163,15 @@ importers:
       '@simplyfpl/tsconfig-config':
         specifier: workspace:*
         version: link:../../packages/tsconfig-config
+      '@tamagui/core':
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.0)(next@15.4.11(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.106.2(esbuild@0.27.3))
+      '@tamagui/web':
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
