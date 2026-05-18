@@ -112,7 +112,8 @@ describe('currentGwFromBootstrap', () => {
 
   it('falls back to is_next when no current', () => {
     const b = makeBootstrap(30);
-    b.events[0]!.is_current = false;
+    const first = b.events[0];
+    if (first) first.is_current = false;
     expect(currentGwFromBootstrap(b)).toBe(31);
   });
 });
@@ -135,7 +136,7 @@ describe('handleEntrySnapshot', () => {
     expect(fetchMock).not.toHaveBeenCalled();
     const body = result.body as FplEntrySnapshot;
     expect(body.gw).toBe(30);
-    expect(body.bootstrap.events[0]!.id).toBe(30);
+    expect(body.bootstrap.events[0]?.id).toBe(30);
     expect(body.entry.id).toBe(1);
     expect(body.picks).not.toBeNull();
   });
