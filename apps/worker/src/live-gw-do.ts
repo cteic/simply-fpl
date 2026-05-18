@@ -7,11 +7,28 @@ import type {
 } from '@simplyfpl/types';
 
 import { isGameweekFinishedAndBonusLocked, pickCadenceMs } from './cadence';
+import {
+  type ReplayRow,
+  computeNextEmitDelayMs,
+  isValidRecordingId,
+  loadRecordingText,
+  parseRecording,
+  parseSpeed,
+} from './replay';
 import { diffLiveSnapshots } from './snapshot-diff';
 
 interface LiveGwEnv {
   FPL_BASE_URL: string;
   FPL_CACHE: KVNamespace;
+  RECORDINGS_R2?: R2Bucket;
+}
+
+interface ReplayState {
+  recordingId: string;
+  speed: number;
+  rowIndex: number;
+  firstRowTsMs: number;
+  replayStartMs: number;
 }
 
 interface DeltaMessage {
@@ -30,6 +47,8 @@ const STORAGE_KEY_SNAPSHOT = 'snapshot';
 const STORAGE_KEY_GW = 'gw';
 const STORAGE_KEY_BACKOFF = 'backoffMs';
 const STORAGE_KEY_FINISHED = 'finished';
+const STORAGE_KEY_REPLAY = 'replay';
+const STORAGE_KEY_REPLAY_ROWS = 'replayRows';
 
 const BACKOFF_INITIAL_MS = 1_000;
 const BACKOFF_MAX_MS = 8_000;
@@ -120,6 +139,12 @@ export class LiveGwDO {
     const connected = this.state.getWebSockets().length;
     console.warn(`LiveGwDO[gw:${gw}]: ws accepted (connected=${connected})`);
 
+    const replayId = url.searchParams.get('replay');
+    if (replayId !== null) {
+      await this.handleReplayConnect(server, gw, replayId, url.searchParams.get('speed'));
+      return new Response(null, { status: 101, webSocket: client });
+    }
+
     const gwNumber = Number(gw);
     if (Number.isFinite(gwNumber)) {
       await this.state.storage.put(STORAGE_KEY_GW, gwNumber);
@@ -147,6 +172,118 @@ export class LiveGwDO {
     return new Response(null, { status: 101, webSocket: client });
   }
 
+  private async handleReplayConnect(
+    server: WebSocket,
+    gw: string,
+    rawRecordingId: string,
+    rawSpeed: string | null
+  ): Promise<void> {
+    if (!isValidRecordingId(rawRecordingId)) {
+      console.warn(`LiveGwDO[replay]: invalid recording id "${rawRecordingId}"`);
+      try {
+        server.send(JSON.stringify({ type: 'error', message: 'invalid recording id' }));
+        server.close(1008, 'invalid recording id');
+      } catch (err) {
+        console.warn(`LiveGwDO[replay]: failed to close on bad id: ${String(err)}`);
+      }
+      return;
+    }
+
+    const speed = parseSpeed(rawSpeed);
+
+    const existingState = await this.state.storage.get<ReplayState>(STORAGE_KEY_REPLAY);
+    let rows = await this.state.storage.get<ReplayRow[]>(STORAGE_KEY_REPLAY_ROWS);
+
+    if (
+      !existingState ||
+      existingState.recordingId !== rawRecordingId ||
+      existingState.speed !== speed ||
+      !rows
+    ) {
+      const text = await loadRecordingText(this.env, rawRecordingId);
+      if (!text) {
+        console.warn(`LiveGwDO[replay]: recording "${rawRecordingId}" not found`);
+        try {
+          server.send(JSON.stringify({ type: 'error', message: 'recording not found' }));
+          server.close(1011, 'recording not found');
+        } catch (err) {
+          console.warn(`LiveGwDO[replay]: failed to close on missing recording: ${String(err)}`);
+        }
+        return;
+      }
+      const parsed = parseRecording(text);
+      if (parsed.length === 0) {
+        console.warn(`LiveGwDO[replay]: recording "${rawRecordingId}" had no usable rows`);
+        try {
+          server.send(JSON.stringify({ type: 'error', message: 'recording empty' }));
+          server.close(1011, 'recording empty');
+        } catch (err) {
+          console.warn(`LiveGwDO[replay]: failed to close on empty: ${String(err)}`);
+        }
+        return;
+      }
+      rows = parsed;
+      const firstRow = parsed[0];
+      if (!firstRow) return;
+      const state: ReplayState = {
+        recordingId: rawRecordingId,
+        speed,
+        rowIndex: 0,
+        firstRowTsMs: Date.parse(firstRow.ts),
+        replayStartMs: Date.now(),
+      };
+      await this.state.storage.put(STORAGE_KEY_REPLAY, state);
+      await this.state.storage.put(STORAGE_KEY_REPLAY_ROWS, rows);
+      await this.state.storage.put(STORAGE_KEY_SNAPSHOT, firstRow.data);
+      await this.state.storage.put(STORAGE_KEY_GW, firstRow.gw);
+
+      const snapshotMsg: SnapshotMessage = {
+        type: 'snapshot',
+        data: firstRow.data,
+        ts: Date.now(),
+      };
+      try {
+        server.send(JSON.stringify(snapshotMsg));
+      } catch (err) {
+        console.warn(
+          `LiveGwDO[replay:${rawRecordingId}]: failed to send initial snapshot: ${String(err)}`
+        );
+      }
+
+      const nextDelay = computeNextEmitDelayMs({
+        rows,
+        rowIndex: 1,
+        firstRowTsMs: state.firstRowTsMs,
+        replayStartMs: state.replayStartMs,
+        speed,
+        nowMs: Date.now(),
+      });
+      if (nextDelay !== null) {
+        await this.state.storage.setAlarm(Date.now() + nextDelay);
+      }
+      console.warn(
+        `LiveGwDO[replay:${rawRecordingId}] gw:${gw}: started ${rows.length} rows @ ${speed}x`
+      );
+      return;
+    }
+
+    const snapshot = await this.state.storage.get<FplLiveGameweek>(STORAGE_KEY_SNAPSHOT);
+    if (snapshot) {
+      const snapshotMsg: SnapshotMessage = {
+        type: 'snapshot',
+        data: snapshot,
+        ts: Date.now(),
+      };
+      try {
+        server.send(JSON.stringify(snapshotMsg));
+      } catch (err) {
+        console.warn(
+          `LiveGwDO[replay:${rawRecordingId}]: failed to send catch-up snapshot: ${String(err)}`
+        );
+      }
+    }
+  }
+
   async webSocketMessage(_ws: WebSocket, message: string | ArrayBuffer): Promise<void> {
     const size = typeof message === 'string' ? message.length : message.byteLength;
     console.warn(`LiveGwDO: ws message (${size} bytes)`);
@@ -165,6 +302,12 @@ export class LiveGwDO {
   }
 
   async alarm(): Promise<void> {
+    const replay = await this.state.storage.get<ReplayState>(STORAGE_KEY_REPLAY);
+    if (replay) {
+      await this.replayAlarm(replay);
+      return;
+    }
+
     const gw = await this.state.storage.get<number>(STORAGE_KEY_GW);
     if (typeof gw !== 'number' || !Number.isFinite(gw)) {
       console.warn('LiveGwDO: alarm fired without stored gw — skipping');
@@ -266,6 +409,59 @@ export class LiveGwDO {
     }
 
     await this.state.storage.setAlarm(Date.now() + cadence);
+  }
+
+  private async replayAlarm(replay: ReplayState): Promise<void> {
+    const rows = await this.state.storage.get<ReplayRow[]>(STORAGE_KEY_REPLAY_ROWS);
+    if (!rows || rows.length === 0) {
+      console.warn(`LiveGwDO[replay:${replay.recordingId}]: rows missing — stopping`);
+      return;
+    }
+
+    if (replay.rowIndex >= rows.length) {
+      console.warn(`LiveGwDO[replay:${replay.recordingId}]: exhausted ${rows.length} rows`);
+      return;
+    }
+
+    const row = rows[replay.rowIndex];
+    if (!row) return;
+
+    const prev = await this.state.storage.get<FplLiveGameweek>(STORAGE_KEY_SNAPSHOT);
+    const changed = diffLiveSnapshots(prev ?? null, row.data);
+
+    if (changed.length > 0) {
+      await this.state.storage.put(STORAGE_KEY_SNAPSHOT, row.data);
+      const message: DeltaMessage = {
+        type: 'delta',
+        elements: changed,
+        ts: Date.now(),
+      };
+      const encoded = JSON.stringify(message);
+      const sockets = this.state.getWebSockets();
+      for (const ws of sockets) {
+        try {
+          ws.send(encoded);
+        } catch (err) {
+          console.warn(`LiveGwDO[replay:${replay.recordingId}]: ws.send failed: ${String(err)}`);
+        }
+      }
+    }
+
+    const nextIndex = replay.rowIndex + 1;
+    const updated: ReplayState = { ...replay, rowIndex: nextIndex };
+    await this.state.storage.put(STORAGE_KEY_REPLAY, updated);
+
+    const nextDelay = computeNextEmitDelayMs({
+      rows,
+      rowIndex: nextIndex,
+      firstRowTsMs: replay.firstRowTsMs,
+      replayStartMs: replay.replayStartMs,
+      speed: replay.speed,
+      nowMs: Date.now(),
+    });
+    if (nextDelay !== null) {
+      await this.state.storage.setAlarm(Date.now() + nextDelay);
+    }
   }
 
   private async scheduleBackoff(retryAfterMs: number | null): Promise<void> {

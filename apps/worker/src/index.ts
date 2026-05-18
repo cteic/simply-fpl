@@ -249,6 +249,7 @@ export default {
     }
 
     // Route: /live/ws?gw=N → LiveGwDO WebSocket
+    // ?replay=<id>&speed=<n> reuses the same route but isolates state in a separate DO.
     if (url.pathname === '/live/ws' || url.pathname === '/live/ws/') {
       const gw = url.searchParams.get('gw');
       if (!gw || !/^\d+$/.test(gw)) {
@@ -257,7 +258,10 @@ export default {
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         });
       }
-      const id = env.LIVE_GW.idFromName(`gw:${gw}`);
+      const replay = url.searchParams.get('replay');
+      const speed = url.searchParams.get('speed') ?? '1';
+      const doName = replay ? `replay:${replay}:${gw}:${speed}` : `gw:${gw}`;
+      const id = env.LIVE_GW.idFromName(doName);
       const stub = env.LIVE_GW.get(id);
       return stub.fetch(request);
     }
