@@ -229,11 +229,12 @@ function LiveRankInner({ entryId }: InnerProps) {
   const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
   const estimate =
     ready && preGwRank > 0 ? estimateLiveRank(preGwRank, livePoints, avgEntryScore) : null;
-  const liveRankLabel = estimate
-    ? estimate.liveRank.toLocaleString()
-    : preGwRank > 0
-      ? preGwRank.toLocaleString()
-      : '—';
+  let liveRankLabel = '—';
+  if (estimate) {
+    liveRankLabel = estimate.liveRank.toLocaleString();
+  } else if (preGwRank > 0) {
+    liveRankLabel = preGwRank.toLocaleString();
+  }
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
