@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const WORKER_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
+const WORKER_WS_URL = WORKER_URL.replace(/^http/, 'ws');
 
 const FIXTURES_DIR = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -40,6 +41,17 @@ export async function installWorkerMocks(page: Page): Promise<void> {
     entry: JSON.parse(entry1),
     picks: JSON.parse(entry1Picks),
     gw: 37,
+  });
+
+  await page.routeWebSocket(`${WORKER_WS_URL}/live/ws*`, (ws) => {
+    ws.send(
+      JSON.stringify({
+        type: 'snapshot',
+        ts: Date.now(),
+        elements: [],
+        gw: 37,
+      })
+    );
   });
 
   await page.route(`${WORKER_URL}/**`, (route: Route) => {
