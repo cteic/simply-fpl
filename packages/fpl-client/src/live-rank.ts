@@ -93,3 +93,25 @@ export function getNextGameweek(bootstrap: FplBootstrapStatic): number | null {
   const next = bootstrap.events.find((e) => e.is_next);
   return next?.id ?? null;
 }
+
+export interface LiveRankEstimate {
+  liveRank: number;
+  movement: number;
+  direction: 'up' | 'down' | 'flat';
+}
+
+const PLACES_PER_POINT = 700;
+
+export function estimateLiveRank(
+  preGwRank: number,
+  livePoints: number,
+  avgEntryScore: number
+): LiveRankEstimate {
+  const delta = livePoints - avgEntryScore;
+  const movement = Math.round(delta * PLACES_PER_POINT);
+  const liveRank = Math.max(1, preGwRank - movement);
+  let direction: LiveRankEstimate['direction'] = 'flat';
+  if (movement > 0) direction = 'up';
+  else if (movement < 0) direction = 'down';
+  return { liveRank, movement, direction };
+}
