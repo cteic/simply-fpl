@@ -7,7 +7,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://fantasy.premierleague.com https://*.workers.dev",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' https://*.workers.dev https://*.supabase.co https://cloudflareinsights.com http://localhost:*",
+  "connect-src 'self' https://*.workers.dev https://*.supabase.co https://cloudflareinsights.com http://localhost:* ws://localhost:*",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
