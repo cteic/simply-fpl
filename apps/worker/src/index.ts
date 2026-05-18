@@ -1,11 +1,17 @@
+import type { BrowserWorker } from '@cloudflare/puppeteer';
+
 import { runScheduled } from './cohort/cohort';
 import { handleEntrySnapshot } from './snapshot';
+import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
+import { runComparison } from './vs/scheduled';
 
 export { LiveGwDO } from './live-gw-do';
 
 export interface Env {
   FPL_CACHE: KVNamespace;
   LIVE_GW: DurableObjectNamespace;
+  VS_BUCKET: R2Bucket;
+  BROWSER: BrowserWorker;
   FPL_BASE_URL: string;
   BOOTSTRAP_TTL: string;
   LIVE_GW_TTL: string;
@@ -14,7 +20,11 @@ export interface Env {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE?: string;
   GIT_SHA?: string;
+  ENVIRONMENT?: string;
+  VS_DEBUG_TOKEN?: string;
 }
+
+const VS_COMPARISON_CRON = '0 6 * * 1';
 
 const FPL_HOST = 'https://fantasy.premierleague.com';
 const FPL_ORIGIN = `${FPL_HOST}/api`;
@@ -271,6 +281,21 @@ export default {
       return handleKit(ctx, url.pathname);
     }
 
+    if (url.pathname === '/vs/data' || url.pathname === '/vs/data/') {
+      return handleVsData(env);
+    }
+
+    const screenshotMatch = url.pathname.match(
+      /^\/vs\/screenshot\/([^/]+)\/([^/]+?)(?:\.jpg)?\/?$/
+    );
+    if (screenshotMatch && screenshotMatch[1] && screenshotMatch[2]) {
+      return handleVsScreenshot(env, screenshotMatch[1], screenshotMatch[2]);
+    }
+
+    if (url.pathname === '/vs/debug-measure' || url.pathname === '/vs/debug-measure/') {
+      return handleVsDebugMeasure(env, request);
+    }
+
     const snapshotMatch = url.pathname.match(/^\/snapshot\/entry\/(\d+)\/?$/);
     if (snapshotMatch && snapshotMatch[1]) {
       const entryId = Number(snapshotMatch[1]);
@@ -299,6 +324,10 @@ export default {
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    if (event.cron === VS_COMPARISON_CRON) {
+      await runComparison(env, { now: new Date(event.scheduledTime) });
+      return;
+    }
     await runScheduled(event.scheduledTime, env, ctx);
   },
 };
