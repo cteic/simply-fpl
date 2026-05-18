@@ -2,6 +2,9 @@ import Link from 'next/link';
 
 import { Button, FNote, PageHeader, PageShell, Text, XStack, YStack } from '@simplyfpl/ui';
 
+export const runtime = 'edge';
+export const dynamic = 'force-static';
+
 export default function NotFound() {
   return (
     <PageShell>
