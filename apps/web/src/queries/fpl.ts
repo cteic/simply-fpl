@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fplClient } from '@simplyfpl/fpl-client';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
@@ -65,5 +65,25 @@ export function useFixtures(eventId: number | null) {
     queryKey: ['fixtures', eventId],
     queryFn: () => fplClient.getFixtures(eventId ?? undefined),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useEntrySnapshot(entryId: number | null) {
+  const queryClient = useQueryClient();
+  return useQuery({
+    queryKey: ['entry-snapshot', entryId],
+    queryFn: async () => {
+      if (entryId === null) throw new Error('entryId required');
+      const snapshot = await fplClient.getEntrySnapshot(entryId);
+      queryClient.setQueryData(['bootstrap'], snapshot.bootstrap);
+      queryClient.setQueryData(['entry', entryId], snapshot.entry);
+      if (snapshot.picks) {
+        queryClient.setQueryData(['entry-picks', entryId, snapshot.gw], snapshot.picks);
+      }
+      return snapshot;
+    },
+    enabled: entryId !== null,
+    staleTime: 60 * 1000,
+    refetchInterval: 60_000,
   });
 }

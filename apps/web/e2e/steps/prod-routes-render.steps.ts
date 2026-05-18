@@ -71,9 +71,32 @@ async function installWorkerRoutes(page: Page): Promise<void> {
     timestamp: '2026-05-15T23:00:00.000Z',
   });
 
+  const snapshotByEntry: Record<string, string> = {
+    '1': JSON.stringify({
+      bootstrap: JSON.parse(bootstrap),
+      entry: JSON.parse(entry1),
+      picks: JSON.parse(entry1Picks),
+      gw: 37,
+    }),
+    '2': JSON.stringify({
+      bootstrap: JSON.parse(bootstrap),
+      entry: JSON.parse(entry2),
+      picks: JSON.parse(entry2Picks),
+      gw: 37,
+    }),
+  };
+
   await page.route(`${WORKER_URL}/**`, (route: Route) => {
     const url = new URL(route.request().url());
     const pathname = url.pathname;
+
+    const snapshotMatch = pathname.match(/^\/snapshot\/entry\/(\d+)\/?$/);
+    if (snapshotMatch && snapshotMatch[1]) {
+      const id = snapshotMatch[1];
+      const payload = snapshotByEntry[id];
+      if (payload) return route.fulfill(jsonResponse(payload));
+      return route.fulfill(notFoundResponse());
+    }
 
     if (pathname === '/status') return route.fulfill(jsonResponse(statusPayload));
     if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));

@@ -5,6 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { fplClient } from '@simplyfpl/fpl-client';
 import type { FplLiveElement, FplLiveGameweek } from '@simplyfpl/types';
 
+import { setLiveLastUpdate } from './live-activity';
+
 const DEFAULT_API_URL = 'http://localhost:8787';
 const MAX_FAILURES_BEFORE_FALLBACK = 3;
 const RECONNECT_BACKOFFS_MS = [1_000, 2_000, 4_000];
@@ -113,10 +115,12 @@ export function useLiveSnapshot(
         }
         if (parsed.type === 'snapshot' && isLiveGameweek(parsed.data)) {
           setData(parsed.data);
+          setLiveLastUpdate(typeof parsed.ts === 'number' ? parsed.ts : Date.now());
         } else if (parsed.type === 'delta' && Array.isArray(parsed.elements)) {
           const changed = parsed.elements.filter(isLiveElement);
           if (changed.length === 0) return;
           setData((current) => applyDelta(current, changed));
+          setLiveLastUpdate(typeof parsed.ts === 'number' ? parsed.ts : Date.now());
         }
       };
 
@@ -169,9 +173,11 @@ export function useLiveSnapshot(
 
   const polling = useQuery({
     queryKey: ['live-snapshot-fallback', gw],
-    queryFn: () => {
+    queryFn: async () => {
       if (gw === null) throw new Error('gw required');
-      return fplClient.getLiveGameweek(gw);
+      const result = await fplClient.getLiveGameweek(gw);
+      setLiveLastUpdate(Date.now());
+      return result;
     },
     enabled: gw !== null && shouldFallback,
     refetchInterval: POLL_INTERVAL_MS,

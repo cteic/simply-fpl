@@ -1,0 +1,50 @@
+name: Regenerate visual regression snapshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:packages
+      - run: pnpm build:web
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8787
+
+      - run: pnpm --filter @simplyfpl/web exec playwright install chromium --with-deps
+      - run: pnpm --filter @simplyfpl/web exec bddgen --config playwright.config.ts
+
+      - name: Regenerate snapshots
+        run: pnpm --filter @simplyfpl/web exec playwright test --config playwright.config.ts --grep "Prod routes render guardrail" --update-snapshots
+        env:
+          CI: true
+          NEXT_PUBLIC_API_URL: http://localhost:8787
+
+      - name: Commit + push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet apps/web/e2e/__screenshots__; then
+            echo "No snapshot changes — nothing to commit."
+            exit 0
+          fi
+          git add apps/web/e2e/__screenshots__
+          git commit -m "chore(test): regenerate visual regression snapshots [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
