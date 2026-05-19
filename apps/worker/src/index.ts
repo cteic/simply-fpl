@@ -1,4 +1,5 @@
 import { runScheduled } from './cohort/cohort';
+import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
 
 export { LiveGwDO } from './live-gw-do';
@@ -281,6 +282,20 @@ export default {
       });
     }
 
+    // Route: /fpl/prices → slim, server-side-computed price-change predictions.
+    // Returns ~5KB instead of shipping the full 200KB bootstrap to the client.
+    if (url.pathname === '/fpl/prices' || url.pathname === '/fpl/prices/') {
+      const result = await handlePrices(env, ctx);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
     // Route: /fpl/* → proxy to FPL API
     const fplMatch = url.pathname.match(/^\/fpl(\/.+)$/);
     if (!fplMatch || !fplMatch[1]) {
@@ -299,6 +314,7 @@ export default {
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    await warmPricesCache(env, ctx).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
   },
 };
