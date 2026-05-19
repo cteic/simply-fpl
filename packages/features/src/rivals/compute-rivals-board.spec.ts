@@ -209,6 +209,40 @@ describe('computeRivalsBoard', () => {
     expect(row?.benchPointsWasted).toBe(12);
   });
 
+  it('records free hit chip without altering captain or bench scoring', () => {
+    const liveData = makeLive({
+      1: 5,
+      2: 3,
+      3: 3,
+      4: 3,
+      5: 3,
+      6: 3,
+      7: 3,
+      8: 3,
+      9: 3,
+      10: 3,
+      11: 3,
+      12: 4,
+      13: 4,
+      14: 4,
+      15: 4,
+    });
+    const picks = makePicks('freehit', 0, [
+      makePick(1, 1, { captain: true }),
+      ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((e) => makePick(e, e)),
+      makePick(12, 12),
+      makePick(13, 13),
+      makePick(14, 14),
+      makePick(15, 15),
+    ]);
+    const result = computeRivalsBoard(0, NO_STANDINGS, [makeRival(1, picks)], liveData, BOOTSTRAP);
+    const [row] = result;
+    expect(row?.livePoints).toBe(40);
+    expect(row?.activeChip).toBe('freehit');
+    expect(row?.captainMultiplier).toBe(2);
+    expect(row?.benchPointsWasted).toBe(16);
+  });
+
   it('sorts four rivals descending with stable ordering for tied scores', () => {
     // Each rival has a unique scorer element; captain scores 0 so 2× doesn't interfere
     // Alpha=60, Beta=45, Gamma=45 (tied with Beta — Beta must stay before Gamma), Delta=30
