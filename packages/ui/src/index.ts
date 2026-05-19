@@ -5,6 +5,7 @@ export { XStack, YStack, Text, ScrollView, TamaguiButton, styled } from './tamag
 export * from './components/bench-divider';
 export * from './components/button';
 export * from './components/card';
+export * from './components/cohort-table';
 export * from './components/delta-chip';
 export * from './components/demo-banner';
 export * from './components/fdr-badge';
