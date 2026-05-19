@@ -1,6 +1,8 @@
 # Upstream issue draft — file on https://github.com/tamagui/tamagui
 
-> Internal note: this file is the draft body for an issue Pete will open on the Tamagui repo. Do **not** file it from this repo.
+> Internal note: this file is the draft body for an issue Pete will open on the Tamagui
+> repo, alongside the companion PR body at [PR.md](./PR.md). Do **not** open either
+> from this repo.
 
 ---
 
@@ -153,6 +155,6 @@ External reference patterns for the same `Hook` identity class of bugs:
 
 Hard build failure. No partial output, no degraded mode — every Next 15 app that pulls in `@tamagui/next-plugin@2.0.0-rc.42` (or `1.144.x`) and runs `next build` hits this. The plugin is unusable on Next 15 without a patch.
 
-## Happy to PR
+## Companion PR
 
-The diff is trivial and we've been running it in production for a few weeks. Happy to open a PR against `tamagui/tamagui` if it'd be useful.
+Filed alongside this issue: **`{REPLACE WITH PR URL AFTER OPENING}`** — applies the one-line `options.webpack.*` swap to `code/compiler/next-plugin/src/withTamagui.tsx`. PR body, diff, and test plan are in [PR.md](./PR.md). The diff has been running in production for several weeks as a `pnpm patch`; the PR just lifts it upstream.
