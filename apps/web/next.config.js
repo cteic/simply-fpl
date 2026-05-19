@@ -5,7 +5,7 @@ const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://fantasy.premierleague.com https://*.workers.dev",
+  "img-src 'self' data: blob: https://fantasy.premierleague.com https://*.workers.dev http://localhost:*",
   "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self' https://*.workers.dev wss://*.workers.dev https://*.supabase.co wss://*.supabase.co https://cloudflareinsights.com http://localhost:* ws://localhost:*",
   "frame-ancestors 'none'",
