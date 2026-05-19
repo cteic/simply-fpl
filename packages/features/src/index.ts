@@ -20,3 +20,5 @@ export * as h2h from './h2h';
 export * as rivals from './rivals';
 export * as subscriptions from './subscriptions';
 export * as cohorts from './cohorts';
+export * as threats from './threats';
+export * as effectiveOwnership from './effective-ownership';

@@ -11,6 +11,21 @@ import type {
 
 import { type Differentials, computeDifferentials } from './compute-differentials';
 import { type RivalRow, computeRivalsBoard } from './compute-rivals-board';
+import { type SelectRivalsResult, selectRivalEntryIds } from './select-rivals';
+
+function makeStanding(entry: number, rank: number): FplLeagueStanding {
+  return {
+    id: entry,
+    entry,
+    entry_name: `Team ${entry}`,
+    player_name: `Player ${entry}`,
+    rank,
+    last_rank: rank,
+    rank_sort: rank,
+    total: 1000 - rank,
+    event_total: 60 - rank,
+  };
+}
 
 const feature = await loadFeature('./rivals.feature');
 
@@ -170,4 +185,43 @@ describeFeature(feature, ({ Scenario }) => {
       });
     }
   );
+
+  Scenario('Small league renders every other manager as a rival', ({ Given, When, Then, And }) => {
+    let standings: FplLeagueStanding[] = [];
+    let result: SelectRivalsResult;
+
+    Given('a league with 6 entries and I sit at rank 3', () => {
+      standings = [1, 2, 3, 4, 5, 6].map((entry) => makeStanding(entry, entry));
+    });
+
+    When('I select rivals', () => {
+      result = selectRivalEntryIds(standings, 3);
+    });
+
+    Then('every other entry should be a rival', () => {
+      expect(result.rivalEntryIds.sort((a, b) => a - b)).toEqual([1, 2, 4, 5, 6]);
+    });
+
+    And('the whole-league flag should be true', () => {
+      expect(result.isWholeLeague).toBe(true);
+    });
+  });
+
+  Scenario('Standard league shows two managers above and two below', ({ Given, When, Then }) => {
+    let standings: FplLeagueStanding[] = [];
+    let result: SelectRivalsResult;
+
+    Given('a league with 20 entries and I sit at rank 10', () => {
+      standings = Array.from({ length: 20 }, (_, i) => makeStanding(100 + i, i + 1));
+    });
+
+    When('I select rivals', () => {
+      result = selectRivalEntryIds(standings, 109);
+    });
+
+    Then('I should see the four managers in ranks 8, 9, 11 and 12', () => {
+      expect(result.rivalEntryIds).toEqual([107, 108, 110, 111]);
+      expect(result.isWholeLeague).toBe(false);
+    });
+  });
 });

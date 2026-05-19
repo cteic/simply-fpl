@@ -5,14 +5,20 @@ import type {
   LiveRankEntry,
 } from '@simplyfpl/types';
 
+import type { BonusPrediction } from './bonus-points';
+
 /**
  * Calculate live points for a set of picks against live gameweek data.
  * Accounts for captain multiplier and active chip (TC, BB, FH).
+ * Optionally folds in predicted bonus from `predictBonusPoints` — provisional
+ * bonus is added on top of `total_points`; non-provisional bonus is assumed to
+ * already be reflected in FPL's `total_points`.
  */
 export function calculateLivePoints(
   picks: FplEntryGameweekPicks,
   liveData: FplLiveGameweek,
-  _bootstrap: FplBootstrapStatic
+  _bootstrap: FplBootstrapStatic,
+  bonusMap?: Map<number, BonusPrediction>
 ): number {
   const liveMap = new Map(liveData.elements.map((e) => [e.id, e]));
   const isBenchBoost = picks.active_chip === 'bboost';
@@ -28,6 +34,10 @@ export function calculateLivePoints(
     if (!live) continue;
 
     let points = live.stats.total_points;
+    const bonusInfo = bonusMap?.get(pick.element);
+    if (bonusInfo && bonusInfo.provisional) {
+      points += bonusInfo.bonus;
+    }
 
     // Apply multiplier (captain = 2x, TC chip = 3x)
     if (pick.is_captain) {

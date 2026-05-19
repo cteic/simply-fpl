@@ -13,9 +13,12 @@
     "test:unit": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@cloudflare/puppeteer": "^1.1.0",
+    "@simplyfpl/fpl-client": "workspace:*",
     "@simplyfpl/types": "workspace:*"
   },
   "devDependencies": {
+    "@amiceli/vitest-cucumber": "4.7.0",
     "@cloudflare/workers-types": "^4.0.0",
     "@simplyfpl/tsconfig-config": "workspace:*",
     "typescript": "^5.7.0",

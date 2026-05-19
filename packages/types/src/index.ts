@@ -167,6 +167,7 @@ export interface FplFixture {
   id: number;
   event: number | null;
   finished: boolean;
+  finished_provisional?: boolean;
   kickoff_time: string | null;
   team_h: number;
   team_a: number;
@@ -181,6 +182,24 @@ export interface FplEntrySnapshot {
   entry: FplEntry;
   picks: FplEntryGameweekPicks | null;
   gw: number;
+}
+
+export type BootstrapLitePlayer = Pick<
+  FplPlayer,
+  'id' | 'web_name' | 'team' | 'element_type' | 'selected_by_percent' | 'now_cost'
+>;
+
+export type BootstrapLiteTeam = Pick<FplTeam, 'id' | 'short_name' | 'code'>;
+
+export type BootstrapLiteEvent = Pick<
+  FplEvent,
+  'id' | 'average_entry_score' | 'is_current' | 'is_next'
+>;
+
+export interface BootstrapLite {
+  elements: BootstrapLitePlayer[];
+  teams: BootstrapLiteTeam[];
+  events: BootstrapLiteEvent[];
 }
 
 // Computed/app types

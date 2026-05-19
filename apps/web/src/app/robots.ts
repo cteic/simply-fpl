@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next';
 
+import { SITE_URL } from '@/lib/site-url';
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
@@ -9,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/auth/', '/api/'],
       },
     ],
-    sitemap: 'https://simplyfpl.com/sitemap.xml',
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }
