@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
-import { formatPrice, predictPriceChanges } from '@simplyfpl/fpl-client';
+import { formatPrice } from '@simplyfpl/fpl-client';
 import {
   Card,
   FNote,
@@ -16,7 +16,7 @@ import {
 } from '@simplyfpl/ui';
 
 import { DEMO_BIG_PRICE_ROWS } from '@/components/demo-data';
-import { useBootstrap } from '@/queries/fpl';
+import { usePrices } from '@/queries/fpl';
 
 const FILTERS = ['All', 'Risers', 'Fallers', 'GK', 'DEF', 'MID', 'FWD'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -29,25 +29,24 @@ const POSITION_BY_ELEMENT_TYPE: Record<number, Filter | undefined> = {
 };
 
 export function PricesView() {
-  const { data: bootstrap, isLoading, isError } = useBootstrap();
+  const { data: prices, isLoading, isError } = usePrices();
   const [filter, setFilter] = useState<Filter>('All');
 
   const rows = useMemo(() => {
-    if (!bootstrap) return [];
-    const changes = predictPriceChanges(bootstrap);
-    return changes.map((change) => {
-      const positionLabel = POSITION_BY_ELEMENT_TYPE[change.player.element_type] ?? 'MID';
+    if (!prices) return [];
+    return prices.changes.map((change) => {
+      const positionLabel = POSITION_BY_ELEMENT_TYPE[change.element_type] ?? 'MID';
       return {
-        id: change.player.id,
-        name: change.player.web_name,
-        club: `${positionLabel} · ${change.team.name} · ${formatPrice(change.player.now_cost)}`,
-        flow: (change.direction === 'rise' ? 'rise' : 'fall') as 'rise' | 'fall',
+        id: change.id,
+        name: change.web_name,
+        club: `${positionLabel} · ${change.team_name} · ${formatPrice(change.now_cost)}`,
+        flow: change.direction,
         value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
         probability: Math.round(change.probability * 100),
         position: positionLabel,
       };
     });
-  }, [bootstrap]);
+  }, [prices]);
 
   const visibleRows = useMemo(() => {
     return rows.filter((r) => {
@@ -58,7 +57,7 @@ export function PricesView() {
     });
   }, [rows, filter]);
 
-  const showFallback = isError || !bootstrap;
+  const showFallback = isError || !prices;
   const fallbackRows = isLoading || showFallback ? DEMO_BIG_PRICE_ROWS : null;
 
   return (
