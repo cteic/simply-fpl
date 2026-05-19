@@ -75,7 +75,6 @@ export function useEntrySnapshot(entryId: number | null) {
     queryFn: async () => {
       if (entryId === null) throw new Error('entryId required');
       const snapshot = await fplClient.getEntrySnapshot(entryId);
-      queryClient.setQueryData(['bootstrap'], snapshot.bootstrap);
       queryClient.setQueryData(['entry', entryId], snapshot.entry);
       if (snapshot.picks) {
         queryClient.setQueryData(['entry-picks', entryId, snapshot.gw], snapshot.picks);
