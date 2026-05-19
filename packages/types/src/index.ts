@@ -167,6 +167,7 @@ export interface FplFixture {
   id: number;
   event: number | null;
   finished: boolean;
+  finished_provisional?: boolean;
   kickoff_time: string | null;
   team_h: number;
   team_a: number;
