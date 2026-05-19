@@ -3,6 +3,41 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fplClient } from '@simplyfpl/fpl-client';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 
+export interface SlimPriceChange {
+  id: number;
+  web_name: string;
+  element_type: number;
+  team_name: string;
+  now_cost: number;
+  ownership: number;
+  direction: 'rise' | 'fall';
+  probability: number;
+}
+
+export interface SlimPricesResponse {
+  generated_at: string;
+  changes: SlimPriceChange[];
+}
+
+const API_BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
+
+async function fetchSlimPrices(): Promise<SlimPricesResponse> {
+  const res = await fetch(`${API_BASE_URL}/fpl/prices`);
+  if (!res.ok) {
+    throw new Error(`/fpl/prices ${res.status} ${res.statusText}`);
+  }
+  return (await res.json()) as SlimPricesResponse;
+}
+
+export function usePrices() {
+  return useQuery({
+    queryKey: ['prices-slim'],
+    queryFn: fetchSlimPrices,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+  });
+}
+
 export function useBootstrap() {
   return useQuery({
     queryKey: ['bootstrap'],
