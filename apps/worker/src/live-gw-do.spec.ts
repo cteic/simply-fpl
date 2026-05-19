@@ -170,6 +170,7 @@ describe('LiveGwDO.alarm', () => {
       FPL_CACHE: kv as unknown as KVNamespace,
     };
     const doInstance = new LiveGwDO(fakeState, env);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     await doInstance.alarm();
 
@@ -186,6 +187,52 @@ describe('LiveGwDO.alarm', () => {
     expect(mirror?.ttl).toBe(60);
 
     expect(storage.alarm).not.toBeNull();
+
+    const summaryLines = warnSpy.mock.calls
+      .map((args) => String(args[0]))
+      .filter((line) => line.includes('event=alarm'));
+    expect(summaryLines).toHaveLength(1);
+    const summary = summaryLines[0] ?? '';
+    expect(summary).toContain('gw=39');
+    expect(summary).toContain('connected=2');
+    expect(summary).toContain('broadcasted=2');
+    expect(summary).toContain('kv_mirror=ok');
+    expect(summary).toMatch(/next_alarm_ms=\d+/);
+  });
+
+  it('emits one alarm-summary log per alarm with broadcasted=0 when nothing changed', async () => {
+    const storage = createFakeStorage();
+    await storage.put('gw', 39);
+    await storage.put('snapshot', makeSnapshot(5));
+
+    const socket = createFakeSocket();
+    const kv = createFakeKv();
+
+    const fakeState = {
+      storage,
+      getWebSockets: () => [socket] as unknown as WebSocket[],
+      acceptWebSocket: () => {},
+    } as unknown as DurableObjectState;
+
+    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify(makeSnapshot(5)), { status: 200 })
+    );
+
+    const doInstance = new LiveGwDO(fakeState, {
+      FPL_BASE_URL: 'https://fpl.example/api',
+      FPL_CACHE: kv as unknown as KVNamespace,
+    });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    await doInstance.alarm();
+
+    const summaryLines = warnSpy.mock.calls
+      .map((args) => String(args[0]))
+      .filter((line) => line.includes('event=alarm'));
+    expect(summaryLines).toHaveLength(1);
+    expect(summaryLines[0]).toContain('broadcasted=0');
+    expect(summaryLines[0]).toContain('connected=1');
+    expect(summaryLines[0]).toContain('kv_mirror=ok');
   });
 
   it('does not broadcast when stats are unchanged', async () => {

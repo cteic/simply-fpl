@@ -5,8 +5,14 @@ import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
 import { liveRank } from '@simplyfpl/features';
-import { calculateLivePoints, estimateLiveRank, getKitUrl } from '@simplyfpl/fpl-client';
-import type { LiveRankEstimate } from '@simplyfpl/fpl-client';
+import {
+  applyAutosubs,
+  calculateLivePoints,
+  estimateLiveRank,
+  getKitUrl,
+  predictBonusPoints,
+} from '@simplyfpl/fpl-client';
+import type { BonusPrediction, LiveRankEstimate } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -15,6 +21,7 @@ import type {
 } from '@simplyfpl/types';
 import {
   BenchDivider,
+  CohortTable,
   DeltaChip,
   FNote,
   PageHeader,
@@ -31,7 +38,7 @@ import {
 } from '@simplyfpl/ui';
 import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
-import { useEntrySnapshot } from '@/queries/fpl';
+import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
 const { setLiveRankEstimate, useLiveSnapshot } = liveRank;
 
@@ -53,7 +60,8 @@ const POSITION: Record<number, ShirtKind> = {
 function rowsForFormation(
   picks: FplEntryGameweekPicks,
   bootstrap: FplBootstrapStatic,
-  liveGw: FplLiveGameweek
+  liveGw: FplLiveGameweek,
+  bonusMap: Map<number, BonusPrediction>
 ) {
   const elementsById = new Map<number, FplPlayer>();
   for (const e of bootstrap.elements) {
@@ -89,7 +97,10 @@ function rowsForFormation(
       const teamShort = player ? (teamShortById.get(player.team) ?? '') : '';
       const teamCode = player ? teamCodeById.get(player.team) : undefined;
       const isGoalkeeper = player?.element_type === 1;
-      const points = (live?.stats.total_points ?? 0) * pick.multiplier;
+      const basePoints = live?.stats.total_points ?? 0;
+      const bonusInfo = bonusMap.get(pick.element);
+      const additionalBonus = bonusInfo && bonusInfo.provisional ? bonusInfo.bonus : 0;
+      const points = (basePoints + additionalBonus) * pick.multiplier;
       const isCaptain = pick.is_captain;
       const tbp = (live?.stats.minutes ?? 0) === 0;
       let tone: BadgeTone = 'default';
@@ -97,7 +108,9 @@ function rowsForFormation(
       else if (isCaptain) tone = 'captain';
       else if (points >= 10) tone = 'hot';
       const name = `${player?.web_name ?? '?'}${isCaptain ? ' (C)' : ''}`;
-      const detail = tbp ? `${teamShort} · TBP` : teamShort;
+      const provisionalBonusLabel =
+        bonusInfo && bonusInfo.provisional && bonusInfo.bonus > 0 ? ` · +${bonusInfo.bonus}b?` : '';
+      const detail = tbp ? `${teamShort} · TBP` : `${teamShort}${provisionalBonusLabel}`;
       const ownershipPercent = player ? Number.parseFloat(player.selected_by_percent) : undefined;
       return {
         key: pick.element,
@@ -227,14 +240,24 @@ function LiveRankInner({ entryId }: InnerProps) {
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
   const { data: liveGw } = useLiveSnapshot(currentGw);
+  const { data: fixtures } = useFixtures(currentGw);
   const liveLoading = liveGw === undefined;
 
   const ready = entry && picks && liveGw && bootstrap;
-  const livePoints = ready ? calculateLivePoints(picks, liveGw, bootstrap) : 0;
-  const xiPoints = livePoints; // placeholder until bonus + autosub split is implemented
+  const bonusMap =
+    ready && fixtures
+      ? predictBonusPoints(liveGw, fixtures, bootstrap)
+      : new Map<number, BonusPrediction>();
+  const livePoints = ready ? calculateLivePoints(picks, liveGw, bootstrap, bonusMap) : 0;
+  const postSubsPicks = ready ? applyAutosubs(picks, liveGw, bootstrap) : null;
+  const postSubsPoints =
+    ready && postSubsPicks
+      ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
+      : livePoints;
+  const xiPoints = livePoints;
   const transferHit = ready ? picks.entry_history.event_transfers_cost : 0;
   const formation = ready ? deriveFormation(picks, bootstrap) : '4–4–2';
-  const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw) : [];
+  const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
   const playerName = entry ? `${entry.player_first_name} ${entry.player_last_name}`.trim() : '';
@@ -312,10 +335,44 @@ function LiveRankInner({ entryId }: InnerProps) {
         <XStack gap={16} flexWrap="wrap" alignItems="center">
           <PtsChip label="GW" value={String(ready ? livePoints : '—')} />
           <PtsChip label="XI" value={String(xiPoints)} />
+          {ready && postSubsPoints !== livePoints ? (
+            <PtsChip label="Post-subs" value={String(postSubsPoints)} />
+          ) : null}
           {transferHit > 0 ? <PtsChip label="Hit" value={`-${transferHit}`} /> : null}
           <PtsChip label="Chip" value={picks?.active_chip ?? 'None'} />
           <PtsChip label="Total" value={totalPointsLabel} />
         </XStack>
+      </YStack>
+
+      <YStack
+        backgroundColor="$surface"
+        paddingHorizontal={20}
+        paddingVertical={12}
+        marginBottom={16}
+        gap={6}
+      >
+        <SectionHeader title="Cohort comparison" />
+        <CohortTable
+          rows={[
+            {
+              label: 'Score',
+              you: ready ? livePoints : '—',
+              top10k: 80,
+              overall: 65,
+              legendary: 77,
+            },
+            { label: 'Players played', you: '—', top10k: 9, overall: 8, legendary: 10 },
+            {
+              label: 'Budget played',
+              you: '—',
+              top10k: '£82m',
+              overall: '£78m',
+              legendary: '£89m',
+            },
+            { label: 'Captain pts', you: '—', top10k: 14, overall: 10, legendary: 18 },
+          ]}
+          footer="Placeholder data — real cohort numbers landing this week"
+        />
       </YStack>
 
       <YStack marginBottom={20}>
