@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { HeadToHeadView } from '@/components/views/head-to-head-view';
 
 // Static shell + dynamic params. Pre-renders at build time, no per-request
@@ -9,10 +11,19 @@ export const runtime = 'edge';
 export const dynamic = 'force-static';
 export const dynamicParams = true;
 
+const TITLE = 'Head to Head';
+const DESCRIPTION =
+  'Compare two FPL managers side-by-side — captain choice, differential picks, live points and projected score.';
+
 export default function HeadToHeadPage() {
   return <HeadToHeadView />;
 }
 
-export function generateMetadata() {
-  return { title: 'Head to Head — SimplyFPL' };
+export function generateMetadata(): Metadata {
+  return {
+    title: TITLE,
+    description: DESCRIPTION,
+    openGraph: { type: 'website', title: TITLE, description: DESCRIPTION },
+    twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
+  };
 }
