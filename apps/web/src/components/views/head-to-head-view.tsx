@@ -1,8 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
-
-import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 import { h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hPosition, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
@@ -28,20 +26,47 @@ import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/querie
 
 const { computeH2h } = h2h;
 
-function parseId(raw: string | string[] | undefined): number | null {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  if (typeof value !== 'string') return null;
+function parseId(value: string): number | null {
   const parsed = parseInt(value, 10);
   if (Number.isNaN(parsed) || parsed <= 0) return null;
   return parsed;
 }
 
-export function HeadToHeadView() {
-  const params = useParams();
-  const yourEntryId = parseId(params?.a);
-  const theirEntryId = parseId(params?.b);
+interface H2hIds {
+  yourEntryId: number;
+  theirEntryId: number;
+}
 
-  if (yourEntryId === null || theirEntryId === null || yourEntryId === theirEntryId) {
+const H2H_PATH = /^\/h2h\/([^/]+)\/([^/]+)\/?$/;
+
+function readIdsFromLocation(): H2hIds | null {
+  if (typeof window === 'undefined') return null;
+  const match = H2H_PATH.exec(window.location.pathname);
+  if (!match) return null;
+  const a = parseId(match[1] ?? '');
+  const b = parseId(match[2] ?? '');
+  if (a === null || b === null || a === b) return null;
+  return { yourEntryId: a, theirEntryId: b };
+}
+
+export function HeadToHeadView() {
+  const [ids, setIds] = useState<H2hIds | null>(null);
+  const [resolved, setResolved] = useState(false);
+
+  useEffect(() => {
+    setIds(readIdsFromLocation());
+    setResolved(true);
+  }, []);
+
+  if (!resolved) {
+    return (
+      <PageShell>
+        <PageHeader title="Head to Head" meta="Loading…" />
+      </PageShell>
+    );
+  }
+
+  if (ids === null) {
     return (
       <PageShell>
         <PageHeader title="Head to Head" meta="Invalid team IDs in URL" />
@@ -53,7 +78,7 @@ export function HeadToHeadView() {
     );
   }
 
-  return <HeadToHeadInner yourEntryId={yourEntryId} theirEntryId={theirEntryId} />;
+  return <HeadToHeadInner yourEntryId={ids.yourEntryId} theirEntryId={ids.theirEntryId} />;
 }
 
 interface InnerProps {
