@@ -293,11 +293,14 @@ export class LiveGwDO {
     _ws: WebSocket,
     code: number,
     reason: string,
-    wasClean: boolean
+    _wasClean: boolean
   ): Promise<void> {
-    const remaining = this.state.getWebSockets().length;
+    const gw = await this.state.storage.get<number>(STORAGE_KEY_GW);
+    const sockets = this.state.getWebSockets();
+    const connected = Math.max(0, sockets.length - 1);
+    const gwLabel = typeof gw === 'number' ? gw : 'unknown';
     console.warn(
-      `LiveGwDO: ws close code=${code} clean=${wasClean} reason="${reason}" remaining=${remaining}`
+      `LiveGwDO: event=ws_close gw=${gwLabel} connected=${connected} code=${code} reason=${reason}`
     );
   }
 
@@ -367,6 +370,9 @@ export class LiveGwDO {
     const prev = await this.state.storage.get<FplLiveGameweek>(STORAGE_KEY_SNAPSHOT);
     const changed = diffLiveSnapshots(prev ?? null, payload);
 
+    let broadcasted = 0;
+    let kvMirror: 'ok' | 'fail' = 'ok';
+
     if (changed.length > 0) {
       await this.state.storage.put(STORAGE_KEY_SNAPSHOT, payload);
 
@@ -380,6 +386,7 @@ export class LiveGwDO {
       for (const ws of sockets) {
         try {
           ws.send(encoded);
+          broadcasted += 1;
         } catch (err) {
           console.warn(`LiveGwDO[gw:${gw}]: ws.send failed: ${String(err)}`);
         }
@@ -390,25 +397,32 @@ export class LiveGwDO {
           expirationTtl: KV_MIRROR_TTL_S,
         });
       } catch (err) {
+        kvMirror = 'fail';
         console.warn(`LiveGwDO[gw:${gw}]: KV mirror failed: ${String(err)}`);
       }
     }
 
     const { events, fixtures } = await this.readBootstrapAndFixtures();
 
+    let nextAlarmMs: number | 'sleep' = 'sleep';
+
     if (isGameweekFinishedAndBonusLocked(events, fixtures)) {
       await this.state.storage.put(STORAGE_KEY_FINISHED, true);
       console.warn(`LiveGwDO[gw:${gw}]: gameweek finished + bonus locked — sleeping`);
-      return;
+    } else {
+      const cadence = pickCadenceMs(new Date(), events, fixtures);
+      if (cadence === null) {
+        await this.state.storage.put(STORAGE_KEY_FINISHED, true);
+      } else {
+        nextAlarmMs = cadence;
+        await this.state.storage.setAlarm(Date.now() + cadence);
+      }
     }
 
-    const cadence = pickCadenceMs(new Date(), events, fixtures);
-    if (cadence === null) {
-      await this.state.storage.put(STORAGE_KEY_FINISHED, true);
-      return;
-    }
-
-    await this.state.storage.setAlarm(Date.now() + cadence);
+    const connected = this.state.getWebSockets().length;
+    console.warn(
+      `LiveGwDO: event=alarm gw=${gw} connected=${connected} broadcasted=${broadcasted} kv_mirror=${kvMirror} next_alarm_ms=${nextAlarmMs}`
+    );
   }
 
   private async replayAlarm(replay: ReplayState): Promise<void> {
