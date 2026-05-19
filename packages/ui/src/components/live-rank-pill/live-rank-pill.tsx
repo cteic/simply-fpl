@@ -35,7 +35,7 @@ const Value = styled(Text, {
 });
 
 interface LiveRankPillProps {
-  rank: number;
+  rank: number | null;
   href?: string;
 }
 
@@ -43,7 +43,7 @@ export function LiveRankPill({ rank, href }: LiveRankPillProps) {
   const content = (
     <>
       <Label>Rank</Label>
-      <Value>{rank.toLocaleString()}</Value>
+      <Value>{rank === null ? '—' : rank.toLocaleString()}</Value>
     </>
   );
 

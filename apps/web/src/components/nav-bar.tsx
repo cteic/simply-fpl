@@ -9,10 +9,10 @@ import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import { LiveRankPill, Nav } from '@simplyfpl/ui';
 
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
-import { useBootstrap, useEntry } from '@/queries/fpl';
+import { useBootstrap } from '@/queries/fpl';
 
 const { useAuth } = auth;
-const { useLiveAgoMs, useLiveSnapshot } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -41,11 +41,11 @@ export function NavBar() {
     }
   }, []);
 
-  const { data: entry } = useEntry(entryId);
   const { data: bootstrap } = useBootstrap();
   const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   useLiveSnapshot(currentGw);
   const agoMs = useLiveAgoMs();
+  const { liveRank: liveRankValue } = useLiveRankEstimate();
   const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
   const baseLinks = buildBaseLinks();
@@ -67,9 +67,7 @@ export function NavBar() {
       : {};
 
   const liveRankPill =
-    entryId !== null && entry ? (
-      <LiveRankPill rank={entry.summary_overall_rank} href="/" />
-    ) : undefined;
+    entryId !== null ? <LiveRankPill rank={liveRankValue} href="/" /> : undefined;
 
   return (
     <Nav
