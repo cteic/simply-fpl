@@ -15,30 +15,22 @@ Then('the page should load successfully', async ({ page }) => {
 });
 
 Given('the Worker returns bootstrap static data with player prices', async ({ page }) => {
-  await page.route(`${WORKER_URL}/fpl/bootstrap-static/`, (route) => {
+  await page.route(`${WORKER_URL}/fpl/prices`, (route) => {
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        events: [],
-        element_types: [],
-        teams: [{ id: 1, name: 'Arsenal', short_name: 'ARS', code: 3 }],
-        elements: [
+        generated_at: '2026-05-19T00:00:00.000Z',
+        changes: [
           {
             id: 1,
             web_name: 'Salah',
-            first_name: 'Mohamed',
-            second_name: 'Salah',
-            team: 1,
             element_type: 3,
+            team_name: 'Liverpool',
             now_cost: 135,
-            total_points: 180,
-            event_points: 12,
-            selected_by_percent: '45.0',
-            transfers_in_event: 500000,
-            transfers_out_event: 50000,
-            chance_of_playing_next_round: null,
-            news: '',
+            ownership: 45.0,
+            direction: 'rise',
+            probability: 0.85,
           },
         ],
       }),
