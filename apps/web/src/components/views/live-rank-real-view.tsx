@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useParams } from 'next/navigation';
 
 import { liveRank } from '@simplyfpl/features';
@@ -10,7 +12,7 @@ import {
   getKitUrl,
   predictBonusPoints,
 } from '@simplyfpl/fpl-client';
-import type { BonusPrediction } from '@simplyfpl/fpl-client';
+import type { BonusPrediction, LiveRankEstimate } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -38,7 +40,7 @@ import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
 
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
-const { useLiveSnapshot } = liveRank;
+const { setLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -191,6 +193,16 @@ function deriveFormation(picks: FplEntryGameweekPicks, bootstrap: FplBootstrapSt
   return `${def}–${mid}–${fwd}`;
 }
 
+function renderMovementChip(estimate: LiveRankEstimate | null, movementLabel: string | null) {
+  if (!estimate) return null;
+  if (movementLabel) {
+    return (
+      <DeltaChip tone={estimate.direction === 'up' ? 'up' : 'down'}>{movementLabel}</DeltaChip>
+    );
+  }
+  return <DeltaChip tone="neutral">live</DeltaChip>;
+}
+
 interface LiveRankRealViewProps {
   entryId?: number;
 }
@@ -253,11 +265,20 @@ function LiveRankInner({ entryId }: InnerProps) {
   const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
   const estimate =
     ready && preGwRank > 0 ? estimateLiveRank(preGwRank, livePoints, avgEntryScore) : null;
+  const estimateLiveRankValue = estimate?.liveRank ?? null;
+  const estimateMovement = estimate?.movement ?? null;
+  const estimateDirection = estimate?.direction ?? null;
+  useEffect(() => {
+    if (estimateLiveRankValue === null) return;
+    setLiveRankEstimate({
+      liveRank: estimateLiveRankValue,
+      movement: estimateMovement,
+      direction: estimateDirection,
+    });
+  }, [estimateLiveRankValue, estimateMovement, estimateDirection]);
   let liveRankLabel = '—';
   if (estimate) {
     liveRankLabel = estimate.liveRank.toLocaleString();
-  } else if (preGwRank > 0) {
-    liveRankLabel = preGwRank.toLocaleString();
   }
   const movementLabel =
     estimate && estimate.movement !== 0
@@ -309,13 +330,7 @@ function LiveRankInner({ entryId }: InnerProps) {
           >
             est. live rank
           </Text>
-          {movementLabel ? (
-            <DeltaChip tone={estimate?.direction === 'up' ? 'up' : 'down'}>
-              {movementLabel}
-            </DeltaChip>
-          ) : (
-            <DeltaChip tone="neutral">live</DeltaChip>
-          )}
+          {renderMovementChip(estimate, movementLabel)}
         </XStack>
         <XStack gap={16} flexWrap="wrap" alignItems="center">
           <PtsChip label="GW" value={String(ready ? livePoints : '—')} />
