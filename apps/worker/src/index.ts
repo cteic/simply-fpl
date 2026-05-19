@@ -1,6 +1,7 @@
 import type { BrowserWorker } from '@cloudflare/puppeteer';
 
 import { runScheduled } from './cohort/cohort';
+import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
 import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
 import { runComparison } from './vs/scheduled';
@@ -306,6 +307,20 @@ export default {
       });
     }
 
+    // Route: /fpl/prices → slim, server-side-computed price-change predictions.
+    // Returns ~5KB instead of shipping the full 200KB bootstrap to the client.
+    if (url.pathname === '/fpl/prices' || url.pathname === '/fpl/prices/') {
+      const result = await handlePrices(env, ctx);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
     // Route: /fpl/* → proxy to FPL API
     const fplMatch = url.pathname.match(/^\/fpl(\/.+)$/);
     if (!fplMatch || !fplMatch[1]) {
@@ -328,6 +343,7 @@ export default {
       await runComparison(env, { now: new Date(event.scheduledTime) });
       return;
     }
+    await warmPricesCache(env, ctx).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
   },
 };
