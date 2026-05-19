@@ -1,0 +1,22 @@
+{
+  "id": 1001,
+  "player_first_name": "Seán",
+  "player_last_name": "O'Hara",
+  "name": "O'Hara's XI",
+  "summary_overall_rank": 124356,
+  "summary_overall_points": 2154,
+  "summary_event_rank": null,
+  "summary_event_points": 0,
+  "leagues": {
+    "classic": [
+      {
+        "id": 314,
+        "name": "Overall",
+        "short_name": "ov",
+        "league_type": "s",
+        "entry_rank": 124356
+      }
+    ],
+    "h2h": []
+  }
+}
