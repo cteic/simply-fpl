@@ -184,6 +184,24 @@ export interface FplEntrySnapshot {
   gw: number;
 }
 
+export type BootstrapLitePlayer = Pick<
+  FplPlayer,
+  'id' | 'web_name' | 'team' | 'element_type' | 'selected_by_percent' | 'now_cost'
+>;
+
+export type BootstrapLiteTeam = Pick<FplTeam, 'id' | 'short_name' | 'code'>;
+
+export type BootstrapLiteEvent = Pick<
+  FplEvent,
+  'id' | 'average_entry_score' | 'is_current' | 'is_next'
+>;
+
+export interface BootstrapLite {
+  elements: BootstrapLitePlayer[];
+  teams: BootstrapLiteTeam[];
+  events: BootstrapLiteEvent[];
+}
+
 // Computed/app types
 export interface LiveRankEntry {
   entryId: number;
