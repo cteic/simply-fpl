@@ -36,5 +36,6 @@ GIT_SHA = "unknown"
 [triggers]
 crons = [
   "*/10 * * * *",  # live-GW cadence
-  "0 */6 * * *"    # idle cadence
+  "0 */6 * * *",   # idle cadence
+  "*/15 * * * *"   # /fpl/prices KV warm — keep bootstrap + slim prices hot
 ]
