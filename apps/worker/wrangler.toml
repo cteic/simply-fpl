@@ -8,6 +8,18 @@ binding = "FPL_CACHE"
 id = "478c306b8b974f85bc2a9b83a51d87d1"
 preview_id = "51fbb5bf51fb4ff7a2a6ff28bffaac0a"
 
+# Speed-comparison artefact store — see docs/rfcs/003-speed-comparison.md.
+# Pete must create the bucket (`wrangler r2 bucket create simplyfpl-vs`) before deploy.
+[[r2_buckets]]
+binding = "VS_BUCKET"
+bucket_name = "simplyfpl-vs"
+preview_bucket_name = "simplyfpl-vs-preview"
+
+# Browser Rendering — used by the weekly speed-comparison cron.
+# Requires the Browser Rendering product to be enabled on the Cloudflare account.
+[browser]
+binding = "BROWSER"
+
 [[durable_objects.bindings]]
 name = "LIVE_GW"
 class_name = "LiveGwDO"
@@ -36,5 +48,6 @@ GIT_SHA = "unknown"
 [triggers]
 crons = [
   "*/10 * * * *",  # live-GW cadence
-  "0 */6 * * *"    # idle cadence
+  "0 */6 * * *",   # idle cadence
+  "0 6 * * 1"      # weekly speed-comparison (Mon 06:00 UTC)
 ]
