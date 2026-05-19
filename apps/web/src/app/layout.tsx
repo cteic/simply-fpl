@@ -1,12 +1,14 @@
-import type { Metadata } from 'next';
 import { DM_Mono, DM_Sans } from 'next/font/google';
 
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
+import { rootMetadata } from '@/lib/metadata';
 
 import '../../public/tamagui.css';
 import './globals.css';
+
+export const metadata = rootMetadata;
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -21,24 +23,6 @@ const dmMono = DM_Mono({
   weight: ['400', '500'],
   display: 'optional',
 });
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.NODE_ENV === 'production'
-    ? 'https://simply-fpl.pages.dev'
-    : 'http://localhost:3000');
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: 'SimplyFPL — Live FPL Companion',
-  description: 'Live rank, mini-leagues, price changes and more for Fantasy Premier League.',
-  openGraph: {
-    title: 'SimplyFPL',
-    description: 'Live FPL tools — rank tracker, price changes, mini-leagues',
-    url: SITE_URL,
-    siteName: 'SimplyFPL',
-  },
-};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const cfBeaconToken = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;
