@@ -89,6 +89,7 @@ export async function installWorkerMocks(page: Page): Promise<void> {
     }
     if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/kits/')) return route.fulfill(kitPlaceholderResponse());
+    if (pathname.startsWith('/cohorts/')) return route.fulfill({ status: 404, body: 'not found' });
 
     return route.continue();
   });
