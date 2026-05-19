@@ -38,3 +38,42 @@ export function useLiveAgoMs(): number | null {
   if (last === null) return null;
   return Math.max(0, now - last);
 }
+
+export interface LiveRankState {
+  liveRank: number | null;
+  movement: number | null;
+  direction: 'up' | 'down' | 'flat' | null;
+}
+
+const EMPTY_LIVE_RANK_STATE: LiveRankState = {
+  liveRank: null,
+  movement: null,
+  direction: null,
+};
+
+let liveRankState: LiveRankState = EMPTY_LIVE_RANK_STATE;
+const liveRankListeners = new Set<() => void>();
+
+export function setLiveRankEstimate(state: LiveRankState): void {
+  liveRankState = state;
+  for (const listener of liveRankListeners) listener();
+}
+
+export function getLiveRankEstimate(): LiveRankState {
+  return liveRankState;
+}
+
+function subscribeLiveRank(listener: () => void): () => void {
+  liveRankListeners.add(listener);
+  return () => {
+    liveRankListeners.delete(listener);
+  };
+}
+
+export function useLiveRankEstimate(): LiveRankState {
+  return useSyncExternalStore(
+    subscribeLiveRank,
+    () => liveRankState,
+    () => EMPTY_LIVE_RANK_STATE
+  );
+}
