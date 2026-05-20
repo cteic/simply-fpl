@@ -111,7 +111,7 @@ interface RivalsInnerProps {
   userEntryId: number;
 }
 
-function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
+export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
   const { data: league, isLoading: leagueLoading, error: leagueError } = useClassicLeague(leagueId);
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
