@@ -19,6 +19,7 @@ export interface H2hPlayer {
   id: number;
   name: string;
   teamShort: string;
+  teamCode: number;
   position: H2hPosition;
   rawPoints: number;
   effectivePoints: number;
@@ -71,7 +72,11 @@ export function computeH2h({
   for (const player of bootstrap.elements) playersById.set(player.id, player);
 
   const teamShortById = new Map<number, string>();
-  for (const team of bootstrap.teams) teamShortById.set(team.id, team.short_name);
+  const teamCodeById = new Map<number, number>();
+  for (const team of bootstrap.teams) {
+    teamShortById.set(team.id, team.short_name);
+    teamCodeById.set(team.id, team.code);
+  }
 
   const liveById = new Map(liveGw.elements.map((e) => [e.id, e]));
 
@@ -92,6 +97,7 @@ export function computeH2h({
         id: player.id,
         name: player.web_name,
         teamShort: teamShortById.get(player.team) ?? '',
+        teamCode: teamCodeById.get(player.team) ?? 0,
         position: POSITION_FROM_ELEMENT_TYPE[player.element_type] ?? 'mid',
         rawPoints: raw,
         effectivePoints: effective,
