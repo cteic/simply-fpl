@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { effectiveOwnership as eoNs } from '@simplyfpl/features';
+import { cohorts as cohortsNs, effectiveOwnership as eoNs } from '@simplyfpl/features';
 import type { EoRow } from '@simplyfpl/features/effective-ownership';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import {
@@ -17,10 +17,11 @@ import {
   styled,
 } from '@simplyfpl/ui';
 
-import { useCohortAggregatesAvailable } from '@/queries/cohort-aggregates';
+import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useBootstrap } from '@/queries/fpl';
 
 const { computeEffectiveOwnership } = eoNs;
+const { aggregatesToOwnershipByTier } = cohortsNs;
 
 const PLACEHOLDER_EO: EoRow[] = [
   {
@@ -150,17 +151,15 @@ const TOP_N = 30;
 export function EffectiveOwnershipView() {
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
-  const cohortAggregatesAvailable = useCohortAggregatesAvailable(currentGw);
+  const aggregates = useCohortAggregates(currentGw);
 
   const rows = useMemo<EoRow[]>(() => {
-    if (cohortAggregatesAvailable && bootstrap) {
-      return computeEffectiveOwnership({
-        byTier: { top_1k: {}, top_10k: {}, top_100k: {}, overall: {} },
-        bootstrap,
-      });
+    if (aggregates && bootstrap) {
+      const byTier = aggregatesToOwnershipByTier(aggregates.tiers);
+      return computeEffectiveOwnership({ byTier, bootstrap });
     }
     return PLACEHOLDER_EO;
-  }, [cohortAggregatesAvailable, bootstrap]);
+  }, [aggregates, bootstrap]);
 
   const visible = rows.slice(0, TOP_N);
 
@@ -190,7 +189,7 @@ export function EffectiveOwnershipView() {
       </Card>
 
       <FNote>
-        {cohortAggregatesAvailable
+        {aggregates
           ? 'Live cohort data refreshes every 60s while gameweeks are active.'
           : 'Placeholder data — real EO splits landing once cohort aggregates are available.'}
       </FNote>
