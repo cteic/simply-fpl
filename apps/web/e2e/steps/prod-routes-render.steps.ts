@@ -167,10 +167,6 @@ When('I visit the live rank page for entry 1', async ({ page }) => {
   await visitAndSettle(page, '/rank/1');
 });
 
-When('I visit the leagues page', async ({ page }) => {
-  await visitAndSettle(page, '/leagues');
-});
-
 When('I visit the head-to-head page for entries 1 and 2', async ({ page }) => {
   await visitAndSettle(page, '/h2h/1/2');
 });
