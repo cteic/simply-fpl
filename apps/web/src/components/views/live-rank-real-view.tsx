@@ -36,8 +36,9 @@ import {
   XStack,
   YStack,
 } from '@simplyfpl/ui';
-import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
+import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 
+import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
 const { setLiveRankEstimate, useLiveSnapshot } = liveRank;
@@ -239,6 +240,7 @@ function LiveRankInner({ entryId }: InnerProps) {
   const entry = snapshot?.entry;
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
+  const aggregates = useCohortAggregates(currentGw);
   const { data: liveGw } = useLiveSnapshot(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
   const liveLoading = liveGw === undefined;
@@ -287,6 +289,32 @@ function LiveRankInner({ entryId }: InnerProps) {
   const totalPointsLabel = entry?.summary_overall_points
     ? entry.summary_overall_points.toLocaleString()
     : '—';
+
+  const top10kAvg = aggregates?.tiers.top_10k?.avg_event_points;
+  const overallAvg = aggregates?.tiers.overall?.avg_event_points;
+  const legendaryAvg = aggregates?.tiers.legendary?.avg_event_points;
+  const cohortRows: CohortTableRow[] = aggregates
+    ? [
+        {
+          label: 'Score',
+          you: ready ? livePoints : '—',
+          top10k: top10kAvg != null ? Math.round(top10kAvg) : '—',
+          overall: overallAvg != null ? Math.round(overallAvg) : '—',
+          legendary: legendaryAvg != null ? Math.round(legendaryAvg) : '—',
+        },
+        { label: 'Players played', you: '—', top10k: '—', overall: '—', legendary: '—' },
+        { label: 'Budget played', you: '—', top10k: '—', overall: '—', legendary: '—' },
+        { label: 'Captain pts', you: '—', top10k: '—', overall: '—', legendary: '—' },
+      ]
+    : [
+        { label: 'Score', you: ready ? livePoints : '—', top10k: 80, overall: 65, legendary: 77 },
+        { label: 'Players played', you: '—', top10k: 9, overall: 8, legendary: 10 },
+        { label: 'Budget played', you: '—', top10k: '£82m', overall: '£78m', legendary: '£89m' },
+        { label: 'Captain pts', you: '—', top10k: 14, overall: 10, legendary: 18 },
+      ];
+  const cohortFooter = aggregates
+    ? 'Live cohort data refreshes every 60s while gameweeks are active.'
+    : 'Placeholder data — real cohort numbers landing this week';
 
   if (snapshotError) {
     return (
@@ -352,27 +380,7 @@ function LiveRankInner({ entryId }: InnerProps) {
         gap={6}
       >
         <SectionHeader title="Cohort comparison" />
-        <CohortTable
-          rows={[
-            {
-              label: 'Score',
-              you: ready ? livePoints : '—',
-              top10k: 80,
-              overall: 65,
-              legendary: 77,
-            },
-            { label: 'Players played', you: '—', top10k: 9, overall: 8, legendary: 10 },
-            {
-              label: 'Budget played',
-              you: '—',
-              top10k: '£82m',
-              overall: '£78m',
-              legendary: '£89m',
-            },
-            { label: 'Captain pts', you: '—', top10k: 14, overall: 10, legendary: 18 },
-          ]}
-          footer="Placeholder data — real cohort numbers landing this week"
-        />
+        <CohortTable rows={cohortRows} footer={cohortFooter} />
       </YStack>
 
       <YStack marginBottom={20}>
