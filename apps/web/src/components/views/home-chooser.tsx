@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { DashboardView } from '@/components/dashboard/dashboard-view';
 import { FEATURE_HOME_UNIFIED } from '@/lib/feature-flags';
 
+import { HeroPreSaveView } from './hero-presave-view';
 import { HomeSearchView } from './home-search-view';
 import { LiveRankRealView } from './live-rank-real-view';
 
@@ -42,7 +43,10 @@ export function HomeChooser() {
   }
 
   if (choice === 'pending') return null;
-  if (choice === 'search') return <HomeSearchView onSave={handleSearchSubmit} />;
+  if (choice === 'search') {
+    if (useUnified) return <HeroPreSaveView onSave={handleSearchSubmit} />;
+    return <HomeSearchView onSave={handleSearchSubmit} />;
+  }
   if (useUnified) return <DashboardView entryId={choice.entryId} />;
   return <LiveRankRealView entryId={choice.entryId} />;
 }
