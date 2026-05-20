@@ -1,5 +1,7 @@
 DO NOT ADD, REMOVE, OR MODIFY COMMENTS IN CODE — including punctuation and formatting in existing comments. Only touch comments if explicitly asked.
 
+NEVER reference, name, or describe any OTHER project, client, or repository in this repo's artifacts — commits, PR titles/bodies/comments, issues, code, or docs. Pete may work for multiple clients on the same machine, so leaking one project into another's history is a confidentiality breach. If you observe cross-environment interference (e.g. a port already in use, a stray process, a conflicting global tool), describe it generically — "another local process is using port 3000" — never by name or purpose. This applies in every execution context: interactive sessions, scheduled agents, and subagents.
+
 After ANY code changes, you MUST run verification (see Verification section). Do not report a task as complete until all checks pass.
 
 ## Personal preferences
