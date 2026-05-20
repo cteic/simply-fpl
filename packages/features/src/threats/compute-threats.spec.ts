@@ -8,9 +8,38 @@ import type {
   FplLiveGameweek,
 } from '@simplyfpl/types';
 
+import type { CohortSnapshotPayload } from '../cohorts/types';
 import { type Threat, computeThreats } from './compute-threats';
 
 const feature = await loadFeature('./compute-threats.feature');
+
+function picksToAggregate(cohortPicks: FplEntryGameweekPicks[]): CohortSnapshotPayload {
+  const startingCounts = new Map<number, number>();
+  const captainCounts = new Map<number, number>();
+  for (const picks of cohortPicks) {
+    for (const pick of picks.picks) {
+      if (pick.position <= 11) {
+        startingCounts.set(pick.element, (startingCounts.get(pick.element) ?? 0) + 1);
+      }
+      if (pick.is_captain) {
+        captainCounts.set(pick.element, (captainCounts.get(pick.element) ?? 0) + 1);
+      }
+    }
+  }
+  return {
+    captains: [...captainCounts].map(([player_id, count]) => ({ player_id, count })),
+    ownership: [...startingCounts].map(([player_id, starting_count]) => ({
+      player_id,
+      starting_count,
+      bench_count: 0,
+    })),
+    transfers_in: [],
+    transfers_out: [],
+    chips: {},
+    entries_sampled: cohortPicks.length,
+    avg_event_points: 0,
+  };
+}
 
 function makePick(
   element: number,
@@ -114,7 +143,7 @@ describeFeature(feature, ({ Scenario }) => {
       for (const id of allIds) scores[id] = 5;
       threats = computeThreats({
         yourPicks,
-        cohortPicks,
+        cohort: picksToAggregate(cohortPicks),
         bootstrap: makeBootstrap(allIds),
         liveGw: makeLive(scores),
       });
@@ -153,7 +182,7 @@ describeFeature(feature, ({ Scenario }) => {
 
       threats = computeThreats({
         yourPicks,
-        cohortPicks: cohort,
+        cohort: picksToAggregate(cohort),
         bootstrap: makeBootstrap(allIds),
         liveGw: makeLive(scores),
       });
@@ -181,7 +210,7 @@ describeFeature(feature, ({ Scenario }) => {
       for (const id of allIds) scores[id] = 5;
       threats = computeThreats({
         yourPicks,
-        cohortPicks: [],
+        cohort: picksToAggregate([]),
         bootstrap: makeBootstrap(allIds),
         liveGw: makeLive(scores),
       });
