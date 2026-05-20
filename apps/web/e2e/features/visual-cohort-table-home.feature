@@ -11,7 +11,6 @@ Feature: Home cohort comparison table visual regression
   Background:
     Given the Worker returns deterministic FPL fixtures
 
-  @fixme
   Scenario: Home cohort table renders with real cohort aggregate data
     Given a team id is saved in storage
     And the Worker returns deterministic cohort aggregates for gameweek 37

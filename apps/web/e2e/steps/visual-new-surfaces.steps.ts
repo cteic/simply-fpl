@@ -114,8 +114,41 @@ Given('the Worker returns deterministic cohort aggregates for gameweek 37', asyn
       contentType: 'application/json',
       body: JSON.stringify({
         gw: 37,
-        generated_at: '2026-05-15T23:00:00.000Z',
-        byTier: { top_1k: {}, top_10k: {}, top_100k: {}, overall: {} },
+        tiers: {
+          top_10k: {
+            captains: [{ player_id: 351, count: 820 }],
+            ownership: [
+              { player_id: 351, starting_count: 780, bench_count: 20 },
+              { player_id: 328, starting_count: 720, bench_count: 0 },
+            ],
+            transfers_in: [],
+            transfers_out: [],
+            chips: {},
+            entries_sampled: 1000,
+            avg_event_points: 58,
+          },
+          overall: {
+            captains: [{ player_id: 351, count: 1200 }],
+            ownership: [
+              { player_id: 351, starting_count: 1500, bench_count: 100 },
+              { player_id: 328, starting_count: 900, bench_count: 0 },
+            ],
+            transfers_in: [],
+            transfers_out: [],
+            chips: {},
+            entries_sampled: 2000,
+            avg_event_points: 52,
+          },
+          legendary: {
+            captains: [{ player_id: 351, count: 80 }],
+            ownership: [{ player_id: 351, starting_count: 85, bench_count: 0 }],
+            transfers_in: [],
+            transfers_out: [],
+            chips: {},
+            entries_sampled: 100,
+            avg_event_points: 65,
+          },
+        },
       }),
     })
   );
