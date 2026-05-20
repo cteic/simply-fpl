@@ -22,7 +22,7 @@ interface NavLinkItem {
 }
 
 function buildBaseLinks(): NavLinkItem[] {
-  const links: NavLinkItem[] = [{ label: 'Leagues', href: '/leagues' }];
+  const links: NavLinkItem[] = [{ label: 'Leagues', href: '/#leagues' }];
   if (FEATURE_PRICES) links.push({ label: 'Prices', href: '/prices' });
   if (FEATURE_PLANNER) links.push({ label: 'Planner', href: '/planner' });
   return links;
