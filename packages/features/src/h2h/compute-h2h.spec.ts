@@ -255,4 +255,43 @@ describeFeature(feature, ({ Scenario }) => {
       expect(result.you.netGwPoints).toBe(46);
     });
   });
+
+  Scenario('Players carry their real team code for kit rendering', ({ Given, When, Then }) => {
+    let result: H2hResult;
+
+    Given('two managers whose squads are all Arsenal players', () => {});
+
+    When('I compute the H2H result', () => {
+      const myPicks = makeStandardXi(1);
+      const theirPicks = makeStandardXi(100);
+      const allIds = [...Array(11)]
+        .map((_, i) => 1 + i)
+        .concat([...Array(11)].map((_, i) => 100 + i));
+      const scores: Record<number, number> = {};
+      allIds.forEach((id) => {
+        scores[id] = 4;
+      });
+      result = computeH2h({
+        yourEntry: makeEntry(1),
+        theirEntry: makeEntry(2),
+        yourPicks: makePicks(myPicks),
+        theirPicks: makePicks(theirPicks),
+        bootstrap: makeBootstrap(allIds),
+        liveGw: makeLive(scores),
+      });
+    });
+
+    Then("every player on both sides should carry Arsenal's team code", () => {
+      const allPlayers = [
+        ...result.you.xi,
+        ...result.you.bench,
+        ...result.them.xi,
+        ...result.them.bench,
+      ];
+      expect(allPlayers.length).toBeGreaterThan(0);
+      for (const player of allPlayers) {
+        expect(player.teamCode).toBe(3);
+      }
+    });
+  });
 });
