@@ -55,7 +55,7 @@ export function DashboardView({ entryId }: DashboardViewProps) {
         </DashboardSection>
         <DashboardSection id="rivals">
           <Suspense fallback={<SectionFallback label="rivals" />}>
-            <RivalsSection />
+            <RivalsSection entryId={entryId} />
           </Suspense>
         </DashboardSection>
         <DashboardSection id="leagues">

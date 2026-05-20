@@ -7,7 +7,11 @@ Then('the dashboard container applies proximity snap-scroll', async ({ page }) =
   const container = page.getByTestId('home-unified-dashboard-scroll');
   await expect(container).toBeVisible();
   const snapType = await container.evaluate((el) => window.getComputedStyle(el).scrollSnapType);
-  expect(snapType, `expected proximity y snap-type, got "${snapType}"`).toContain('proximity');
+  expect(snapType.startsWith('y'), `expected y-axis snap, got "${snapType}"`).toBe(true);
+  expect(
+    snapType.includes('mandatory'),
+    `expected proximity (not mandatory), got "${snapType}"`
+  ).toBe(false);
 });
 
 Then('each dashboard section opts into start-aligned snap', async ({ page }) => {
