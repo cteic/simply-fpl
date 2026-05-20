@@ -13,6 +13,7 @@
     "lint": "eslint src",
     "test:unit": "vitest run --passWithNoTests",
     "budget:check": "node ../../scripts/check-bundle-budget.mjs",
+    "capture:hero": "node scripts/capture-hero-screenshot.mjs",
     "e2e": "bddgen --config playwright.config.ts && playwright test --config playwright.config.ts"
   },
   "dependencies": {
