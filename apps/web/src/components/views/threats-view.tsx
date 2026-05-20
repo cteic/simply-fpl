@@ -19,7 +19,7 @@ import {
 } from '@simplyfpl/ui';
 import type { ShirtKind } from '@simplyfpl/ui';
 
-import { useCohortAggregatesAvailable } from '@/queries/cohort-aggregates';
+import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useBootstrap, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
 
 const { computeThreats } = threatsNs;
@@ -118,21 +118,22 @@ export function ThreatsView() {
 
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
-  const cohortAggregatesAvailable = useCohortAggregatesAvailable(currentGw);
+  const aggregates = useCohortAggregates(currentGw);
+  const cohort = aggregates?.tiers.top_10k;
   const { data: yourPicks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
   const { data: liveGw } = useLiveGameweek(currentGw);
 
   const rows = useMemo<Threat[]>(() => {
-    if (cohortAggregatesAvailable && bootstrap && liveGw && yourPicks) {
+    if (cohort && bootstrap && liveGw && yourPicks) {
       return computeThreats({
         yourPicks,
-        cohortPicks: [],
+        cohort,
         bootstrap,
         liveGw,
       });
     }
     return PLACEHOLDER_THREATS;
-  }, [cohortAggregatesAvailable, bootstrap, liveGw, yourPicks]);
+  }, [cohort, bootstrap, liveGw, yourPicks]);
 
   const headline = entryId === null ? 'Save a team on Home to personalise' : `For team ${entryId}`;
 
@@ -155,7 +156,7 @@ export function ThreatsView() {
       </Card>
 
       <FNote>
-        {cohortAggregatesAvailable
+        {cohort
           ? 'Live cohort data refreshes every 60s while gameweeks are active.'
           : 'Placeholder data — real threats landing once cohort aggregates are available.'}
       </FNote>
