@@ -5,6 +5,8 @@ import type {
   FplPlayer,
 } from '@simplyfpl/types';
 
+import type { CohortSnapshotPayload } from '../cohorts/types';
+
 export type ThreatPosition = 'gk' | 'def' | 'mid' | 'fwd';
 
 const POSITION_FROM_ELEMENT_TYPE: Record<number, ThreatPosition> = {
@@ -30,7 +32,7 @@ export interface Threat {
 
 interface ComputeArgs {
   yourPicks: FplEntryGameweekPicks;
-  cohortPicks: FplEntryGameweekPicks[];
+  cohort: CohortSnapshotPayload;
   bootstrap: FplBootstrapStatic;
   liveGw: FplLiveGameweek;
   haulPoints?: number;
@@ -40,7 +42,7 @@ const DEFAULT_HAUL_POINTS = 8;
 
 export function computeThreats({
   yourPicks,
-  cohortPicks,
+  cohort,
   bootstrap,
   liveGw,
   haulPoints = DEFAULT_HAUL_POINTS,
@@ -57,21 +59,16 @@ export function computeThreats({
 
   const liveById = new Map(liveGw.elements.map((e) => [e.id, e]));
 
-  const cohortSize = cohortPicks.length;
-  if (cohortSize === 0) return [];
+  const cohortSize = cohort.entries_sampled;
+  if (cohortSize <= 0) return [];
 
   const startingCounts = new Map<number, number>();
+  for (const own of cohort.ownership) {
+    startingCounts.set(own.player_id, own.starting_count);
+  }
   const captainCounts = new Map<number, number>();
-
-  for (const picks of cohortPicks) {
-    for (const pick of picks.picks) {
-      if (pick.position <= 11) {
-        startingCounts.set(pick.element, (startingCounts.get(pick.element) ?? 0) + 1);
-      }
-      if (pick.is_captain) {
-        captainCounts.set(pick.element, (captainCounts.get(pick.element) ?? 0) + 1);
-      }
-    }
+  for (const cap of cohort.captains) {
+    captainCounts.set(cap.player_id, cap.count);
   }
 
   const threats: Threat[] = [];
