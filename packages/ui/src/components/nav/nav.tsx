@@ -95,7 +95,7 @@ export function Nav({
   return (
     <Bar render="nav" style={STICKY_STYLE}>
       <Left>
-        <Logo />
+        <Logo href="/" />
         <NavLinks>
           {links.map((link) => (
             <NavLinkBase
