@@ -1,6 +1,7 @@
 import type { BrowserWorker } from '@cloudflare/puppeteer';
 
 import { runScheduled } from './cohort/cohort';
+import { handleCohortAggregates } from './cohort/serve';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
 import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
@@ -248,6 +249,11 @@ export default {
     // CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
+    }
+
+    const cohortMatch = url.pathname.match(/^\/cohorts\/gw(\d+)\/aggregates\.json$/);
+    if (cohortMatch && cohortMatch[1] && (request.method === 'GET' || request.method === 'HEAD')) {
+      return handleCohortAggregates(env, Number(cohortMatch[1]), request.method);
     }
 
     if (request.method !== 'GET') {
