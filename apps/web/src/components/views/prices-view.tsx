@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
-import { formatPrice } from '@simplyfpl/fpl-client';
+import { formatPrice, getClubColor } from '@simplyfpl/fpl-client';
 import {
   Card,
   FNote,
@@ -40,6 +40,7 @@ export function PricesView() {
         id: change.id,
         name: change.web_name,
         club: `${positionLabel} · ${change.team_name} · ${formatPrice(change.now_cost)}`,
+        accentColor: getClubColor(change.team_name),
         flow: change.direction,
         value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
         probability: Math.round(change.probability * 100),
@@ -63,6 +64,7 @@ export function PricesView() {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Price Changes"
         meta="Predictions update daily at midnight · Based on net transfers"
       />
@@ -86,6 +88,7 @@ export function PricesView() {
               flow={row.flow}
               value={row.value}
               probability={row.probability}
+              accentColor={getClubColor(row.club.split(' · ')[1])}
               last={i === fallbackRows.length - 1}
             />
           ))}
@@ -108,6 +111,7 @@ export function PricesView() {
                 flow={row.flow}
                 value={row.value}
                 probability={row.probability}
+                accentColor={row.accentColor}
                 last={i === visibleRows.length - 1}
               />
             ))

@@ -4,7 +4,7 @@ import { createBdd } from 'playwright-bdd';
 const { When, Then } = createBdd();
 
 When('I visit the home page with the unified flag override', async ({ page }) => {
-  await page.goto('/?unified=1', { waitUntil: 'domcontentloaded' });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
 });
 

@@ -20,23 +20,17 @@ Feature: Prod routes render guardrail
     Then no page error should have occurred
     And the rendered page matches the snapshot "home-with-team"
 
+  Scenario: Home shows the consolidated live-rank hero and stat tiles
+    Given a team id is saved in storage
+    When I visit the home page
+    Then no page error should have occurred
+    And the live rank hero and stat tiles are visible
+
   Scenario: /rank/<id> redirects to home
     Given a team id is saved in storage
     When I visit the live rank page for entry 1
     Then no page error should have occurred
     And the rendered page matches the snapshot "home-with-team"
-
-  Scenario: Leagues page renders for a visitor with no saved team
-    Given no team is saved in storage
-    When I visit the leagues page
-    Then no page error should have occurred
-    And the rendered page matches the snapshot "leagues-no-team"
-
-  Scenario: Leagues page renders for a visitor with a saved team
-    Given a team id is saved in storage
-    When I visit the leagues page
-    Then no page error should have occurred
-    And the rendered page matches the snapshot "leagues-with-team"
 
   Scenario: Head-to-head page renders for a visitor with no saved team
     Given no team is saved in storage
