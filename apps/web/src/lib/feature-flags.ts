@@ -18,4 +18,3 @@
 export const FEATURE_AUTH = process.env.NEXT_PUBLIC_FEATURE_AUTH === 'true';
 export const FEATURE_PRICES = process.env.NEXT_PUBLIC_FEATURE_PRICES === 'true';
 export const FEATURE_PLANNER = process.env.NEXT_PUBLIC_FEATURE_PLANNER === 'true';
-export const FEATURE_HOME_UNIFIED = process.env.NEXT_PUBLIC_FEATURE_HOME_UNIFIED === 'true';
