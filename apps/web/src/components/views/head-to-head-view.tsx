@@ -129,6 +129,7 @@ function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Head to Head"
         meta={`${you.managerName || you.teamName} vs ${them.managerName || them.teamName} · GW${currentGw ?? '—'}`}
       />

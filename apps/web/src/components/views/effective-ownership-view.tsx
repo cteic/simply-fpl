@@ -166,6 +166,7 @@ export function EffectiveOwnershipView() {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Effective Ownership"
         meta={`GW${currentGw ?? '—'} · Ownership × captaincy by rank tier`}
       />
