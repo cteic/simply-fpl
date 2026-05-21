@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SimplyFPL — Redesign demos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#F7F7F5;color:#1A1A18;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.wrap{max-width:880px;width:100%}
+.kick{font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#8A8A82;margin-bottom:12px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;letter-spacing:-.035em;line-height:1.05}
+.sub{font-size:1rem;color:#605F57;margin-top:12px;max-width:54ch;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:34px}
+.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #DDDCD6;border-radius:12px;padding:22px;transition:.16s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card:hover{border-color:#8A8A82;transform:translateY(-3px);box-shadow:0 12px 28px -16px rgba(0,0,0,.3)}
+.swatch{height:64px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.8rem;letter-spacing:.04em}
+.sa{background:#0E0E0C;color:#5EEAD4}
+.sb{background:#F7F7F5;border:1px solid #DDDCD6;color:#1A1A18}
+.sc{background:radial-gradient(120% 130% at 80% -20%,#1A8A6E,#0F766E 50%,#0B4F49);color:#34D399}
+.tag{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A8A82}
+.card h3{font-size:1.05rem;font-weight:600;letter-spacing:-.02em;margin:4px 0 6px}
+.card p{font-size:.8rem;color:#605F57;line-height:1.5}
+.foot{margin-top:30px;font-size:.78rem;color:#8A8A82;line-height:1.6}
+.foot b{color:#1A1A18;font-weight:600}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kick">SimplyFPL · redesign exploration</div>
+  <h1>Three directions. One job: make the live rank unmissable.</h1>
+  <p class="sub">Each demo shows both states — the pre-team landing and the consolidated, above-the-fold dashboard. Use the toggle at the top of each page to switch, and resize your window to see the mobile layout.</p>
+  <div class="grid">
+    <a class="card" href="./demo-a-two-state-bold.html">
+      <div class="swatch sa">A · BOLD</div>
+      <div class="tag">Direction A</div>
+      <h3>Two-State Bold</h3>
+      <p>Dark, broadcast-grade landing that flips to a calm, dense light dashboard once you add a team. The most distinctive marketing page.</p>
+    </a>
+    <a class="card" href="./demo-b-elevated-quiet.html">
+      <div class="swatch sb">B · QUIET</div>
+      <div class="tag">Direction B</div>
+      <h3>Elevated Quiet</h3>
+      <p>Light everywhere, Swiss-editorial restraint. Hierarchy from scale and hairline rules, not colour. Lowest-risk evolution of today.</p>
+    </a>
+    <a class="card" href="./demo-c-vibrant-stadium.html">
+      <div class="swatch sc">C · STADIUM</div>
+      <div class="tag">Direction C</div>
+      <h3>Vibrant Stadium</h3>
+      <p>Floodlit pitch-green energy, club-coloured kits and stat tiles, vivid deltas. Boldest and most emotional; least "quiet".</p>
+    </a>
+  </div>
+  <div class="foot">All three fix the audit findings: <b>WCAG-AA contrast</b> (darker greys, amber, visible borders), a <b>hero rank number</b> with live count-up + 60s refresh bar, and a <b>consolidated above-the-fold</b> layout.<br>Standalone HTML mockups — the chosen direction gets built for real in Tamagui.</div>
+</div>
+</body>
+</html>
