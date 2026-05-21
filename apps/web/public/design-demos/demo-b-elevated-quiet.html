@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SimplyFPL — Direction B · Elevated Quiet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F7F5;--surface:#FFFFFF;--border:#DDDCD6;--border2:#C9C8C1;
+  --t1:#1A1A18;--t2:#605F57;--t3:#8A8A82;
+  --green:#15803D;--gbg:#EAF7EE;--gmid:#C9EDD3;
+  --red:#C2333B;--rbg:#FBEDED;
+  --amber:#B45309;--blue:#2563EB;
+  --brand:#0F766E;
+  --r:10px;--rs:6px;
+  --sh:0 1px 2px rgba(20,20,16,.035);
+}
+html{font-size:15px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:'DM Mono',monospace;font-feature-settings:"tnum" 1}
+
+.switch{position:fixed;z-index:999;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:99px;border:1px solid var(--border2);box-shadow:0 6px 22px -10px rgba(0,0,0,.2)}
+.switch button{font-family:'DM Sans',sans-serif;font-size:.74rem;font-weight:600;letter-spacing:-.01em;color:var(--t2);background:none;border:none;padding:7px 16px;border-radius:99px;cursor:pointer;transition:.18s}
+.switch button.on{color:#fff;background:var(--t1)}
+.switch button:not(.on):hover{color:var(--t1)}
+
+.state{display:none}.state.on{display:block;animation:fade .5s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(.6)}}
+@keyframes sweep{from{width:0}to{width:100%}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* ─── LANDING — calm, editorial, generous air ─── */
+.land{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.land .wm{position:absolute;right:-3vw;top:8vh;font-family:'DM Mono',monospace;font-weight:300;font-size:30vw;line-height:.8;color:rgba(26,26,24,.028);letter-spacing:-.05em;pointer-events:none;user-select:none}
+.ltop{display:flex;align-items:center;justify-content:space-between;padding:24px clamp(20px,6vw,72px);position:relative;z-index:2}
+.lwm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;letter-spacing:-.03em}
+.lwm .dot{color:var(--brand)}
+.nmark{width:24px;height:24px;border-radius:6px;background:var(--t1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.74rem}
+.lpill{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:4px 10px;border-radius:99px}
+.lpill .d{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulseDot 1.6s ease-in-out infinite}
+
+.lbody{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(30px,6vh,70px) clamp(20px,6vw,72px);max-width:1080px;position:relative;z-index:2}
+.lkick{font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:22px;animation:fadeUp .6s ease both}
+.lh{font-weight:600;font-size:clamp(2.1rem,5.4vw,3.7rem);line-height:1.04;letter-spacing:-.035em;max-width:18ch;animation:fadeUp .6s .06s ease both}
+.lh .ac{color:var(--brand)}
+.lsub{font-size:clamp(.98rem,1.5vw,1.16rem);line-height:1.6;color:var(--t2);max-width:46ch;margin-top:22px;letter-spacing:-.01em;animation:fadeUp .6s .14s ease both}
+.lform{display:flex;gap:8px;margin-top:32px;max-width:520px;flex-wrap:wrap;animation:fadeUp .6s .22s ease both}
+.lform input{flex:1;min-width:220px;font-family:'DM Mono',monospace;font-size:.95rem;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 16px;color:var(--t1);transition:.16s}
+.lform input::placeholder{color:var(--t3)}
+.lform input:focus{outline:none;border-color:var(--t1)}
+.lgo{font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:#fff;background:var(--t1);border:none;border-radius:var(--rs);padding:0 24px;cursor:pointer;transition:.16s;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.lgo:hover{background:#2d2d2a}
+.lnote{font-size:.8rem;color:var(--t3);margin-top:13px;animation:fadeUp .6s .3s ease both}
+.lrow{display:flex;gap:34px;margin-top:clamp(34px,7vh,64px);flex-wrap:wrap;animation:fadeUp .6s .38s ease both}
+.lfeat{max-width:200px}
+.lfeat h4{font-size:.84rem;font-weight:600;letter-spacing:-.015em;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+.lfeat h4 svg{color:var(--brand)}
+.lfeat p{font-size:.78rem;line-height:1.5;color:var(--t2)}
+
+/* ─── NAV ─── */
+nav{position:sticky;top:0;z-index:50;background:rgba(247,247,245,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,32px);height:54px}
+.nl{display:flex;align-items:center;gap:24px}
+.nwm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;letter-spacing:-.03em}
+.nwm .dot{color:var(--brand)}
+.nlinks{display:flex;gap:2px}
+.nlinks a{font-size:.8rem;font-weight:500;color:var(--t2);text-decoration:none;padding:6px 11px;border-radius:var(--rs)}
+.nlinks a.on,.nlinks a:hover{color:var(--t1);background:var(--border)}
+.nr{display:flex;align-items:center;gap:10px}
+.livepill{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:4px 10px;border-radius:99px}
+.livepill .d{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulseDot 1.6s ease-in-out infinite}
+
+/* ─── DASHBOARD — quiet, dense, hairline-ruled ─── */
+.page{max-width:920px;margin:0 auto;padding:clamp(20px,3.5vh,38px) clamp(16px,4vw,32px) 60px}
+.dhead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(14px,2.4vh,24px);flex-wrap:wrap;gap:10px;animation:fadeUp .5s ease both}
+.eyebrow{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.11em;color:var(--t3);margin-bottom:8px}
+.heroNum{font-family:'DM Mono',monospace;font-weight:300;font-size:clamp(2.8rem,9vw,5rem);line-height:.9;letter-spacing:-.05em;color:var(--t1)}
+.heroSide{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-bottom:6px}
+.teampill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:500;color:var(--t2);background:var(--surface);border:1px solid var(--border2);padding:5px 12px;border-radius:99px;cursor:pointer}
+.delta{display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:.86rem;font-weight:500;padding:3px 9px;border-radius:6px}
+.delta.up{color:var(--green);background:var(--gbg)}
+.pct{font-size:.78rem;color:var(--t2)}.pct b{color:var(--t1);font-weight:600}
+
+.ruleRow{display:flex;align-items:center;gap:14px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:12px 0;margin-bottom:clamp(16px,2.6vh,26px);animation:fadeUp .5s .05s ease both}
+.ruleRow .spark{flex:1;height:34px}
+.ruleRow .spark svg{width:100%;height:100%;overflow:visible}
+.refresh{display:flex;align-items:center;gap:9px;white-space:nowrap}
+.refTrack{width:64px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.refFill{height:100%;background:var(--green);border-radius:2px;animation:sweep 60s linear infinite}
+.refLab{font-size:.68rem;color:var(--t3)}
+
+.stats{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface);box-shadow:var(--sh);margin-bottom:clamp(16px,2.6vh,26px);animation:fadeUp .5s .1s ease both}
+.tile{padding:clamp(13px,1.6vw,18px) clamp(12px,1.4vw,17px);border-right:1px solid var(--border)}
+.tile:last-child{border-right:none}
+.tlab{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:7px;white-space:nowrap}
+.tval{font-family:'DM Mono',monospace;font-size:clamp(1.3rem,2.6vw,1.7rem);font-weight:400;letter-spacing:-.03em;line-height:1;color:var(--t1)}
+.tsub{font-size:.66rem;color:var(--t2);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.shead{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:10px}
+.pcard{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface);box-shadow:var(--sh);animation:fadeUp .5s .16s ease both}
+.phead{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border)}
+.ptitle{font-size:.8rem;font-weight:600;letter-spacing:-.015em}
+.ftag{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--t2);background:var(--bg);border:1px solid var(--border2);padding:3px 9px;border-radius:5px}
+.pbody{padding:clamp(12px,1.5vw,18px) 12px}
+.prows{display:flex;flex-direction:column;gap:clamp(8px,1.3vh,14px)}
+.prow{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.player{display:flex;flex-direction:column;align-items:center;gap:4px;width:60px}
+.shirt{width:clamp(32px,3.6vw,40px);height:clamp(32px,3.6vw,40px);border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s}
+.player:hover .shirt{transform:translateY(-3px)}
+.shirt svg{width:64%;height:64%}
+.pbadge{position:absolute;top:-5px;right:-6px;font-family:'DM Mono',monospace;font-size:.56rem;font-weight:500;background:var(--t1);color:#fff;padding:1px 4px;border-radius:4px;min-width:15px;text-align:center}
+.pbadge.h{background:var(--green)}.pbadge.c{background:var(--blue)}.pbadge.t{background:var(--amber)}.pbadge.b{background:var(--border2);color:var(--t2)}
+.pname{font-size:.61rem;font-weight:500;letter-spacing:-.01em;max-width:58px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.pdet{font-size:.55rem;color:var(--t3)}
+.player.bch .shirt{opacity:.4}.player.bch .pname{color:var(--t3)}
+.bdiv{display:flex;align-items:center;gap:10px;margin:2px 4px}
+.bline{flex:1;height:1px;background:var(--border)}
+.blab{font-size:.57rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+.sgk{background:#FDEEC9}.sdef{background:#D5E5FB}.smid{background:#CFEFD8}.sfwd{background:#FBDDEC}.sbch{background:#ECECE8}
+.foot{text-align:center;font-size:.72rem;color:var(--t3);margin-top:26px;line-height:1.6}
+
+@media(max-width:720px){
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .tile:nth-child(3){border-right:none}
+  .tile:nth-child(-n+3){border-bottom:1px solid var(--border)}
+}
+@media(max-width:520px){
+  .page{padding:16px 14px 40px}
+  .heroNum{font-size:3.1rem}
+  .prow{gap:3px}.player{width:48px}
+  .lh{font-size:2.1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="switch">
+  <button id="b1" class="on" onclick="setState(1)">Landing · no team</button>
+  <button id="b2" onclick="setState(2)">Dashboard · with team</button>
+</div>
+
+<!-- ═══════════ STATE 1 — LANDING ═══════════ -->
+<section class="state on" id="s1">
+  <div class="land">
+    <div class="wm mono">2,331,084</div>
+    <div class="ltop">
+      <div class="lwm"><span class="nmark">s<span class="dot">.</span></span> simply<span class="dot">.</span>fpl</div>
+      <span class="lpill"><span class="d"></span> GW30 Live</span>
+    </div>
+    <div class="lbody">
+      <div class="lkick">Live FPL companion</div>
+      <h1 class="lh">Your live FPL rank. <span class="ac">Every 60 seconds.</span></h1>
+      <p class="lsub">A faster, cleaner way to follow your gameweek — real-time rank, mini-leagues and head-to-heads, without the clutter or the crashes.</p>
+      <form class="lform" onsubmit="setState(2);return false">
+        <input type="text" placeholder="Team ID or paste your FPL URL" />
+        <button class="lgo" type="submit">View live rank
+          <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h8M7.5 4l3.5 3.5L7.5 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <div class="lnote">No sign-up needed — just paste your team ID.</div>
+      <div class="lrow">
+        <div class="lfeat"><h4><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Live rank</h4><p>Updates every 60 seconds while the gameweek is on.</p></div>
+        <div class="lfeat"><h4><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 10V3M6.5 10V5M11 10V6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Mini-leagues</h4><p>Live standings with captain and bench points.</p></div>
+        <div class="lfeat"><h4><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M4 2.5 8 6.5l-4 4M9 2.5l-4 4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Head-to-head</h4><p>Compare your XI against any rival, player by player.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STATE 2 — DASHBOARD ═══════════ -->
+<section class="state" id="s2">
+  <nav>
+    <div class="nl">
+      <div class="nwm"><span class="nmark">s<span class="dot">.</span></span> simply<span class="dot">.</span>fpl</div>
+      <div class="nlinks"><a class="on">Live Rank</a><a>Leagues</a><a>Prices</a></div>
+    </div>
+    <div class="nr"><span class="livepill"><span class="d"></span> GW30 Live</span><span class="teampill mono">#184,203</span></div>
+  </nav>
+  <div class="page">
+    <div class="dhead">
+      <div>
+        <div class="eyebrow">Estimated live rank</div>
+        <div class="heroNum" id="rank">—</div>
+      </div>
+      <div class="heroSide">
+        <span class="teampill">Peter's United · 4821039
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2.5 3.5l2 2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </span>
+        <span class="delta up">▲ 42,310</span>
+        <span class="pct">since GW start · <b>Top 2.4%</b></span>
+      </div>
+    </div>
+
+    <div class="ruleRow">
+      <div class="spark">
+        <svg viewBox="0 0 600 34" preserveAspectRatio="none"><polyline points="0,28 80,30 160,23 240,25 320,15 400,17 480,8 600,5" fill="none" stroke="#15803D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="600" cy="5" r="2.6" fill="#15803D"/></svg>
+      </div>
+      <div class="refresh"><div class="refTrack"><div class="refFill"></div></div><span class="refLab">updated 14s ago</span></div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="shead">Your team · GW30</div>
+    <div class="pcard">
+      <div class="phead"><span class="ptitle">Peter's United</span><span class="ftag">4–4–2</span></div>
+      <div class="pbody"><div class="prows" id="pitch"></div></div>
+    </div>
+    <div class="foot">Live values refresh every 60s while gameweeks are active · Bonus is provisional until confirmed<br>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</div>
+  </div>
+</section>
+
+<script>
+const STATS=[
+  {l:'GW Points',v:'67',s:'XI 58 · Bonus +9'},
+  {l:'Total',v:'2,243',s:'overall'},
+  {l:'Bench',v:'13',s:'autosubs ready'},
+  {l:'Safety',v:'83',s:'green-arrow'},
+  {l:'Off Top 10k',v:'33',s:'points behind'},
+  {l:'Captain',v:'Salah',s:'×2 · TBP'},
+];
+const SHIRT=f=>`<svg viewBox="0 0 28 28" fill="none"><path d="M8 8h12l2 4v8H6v-8l2-4z" fill="${f}"/><path d="M11 8v12M17 8v12" stroke="#fff" stroke-width="1.3"/></svg>`;
+const SQ={
+  gk:[['Flekken','BRE','6','','sgk','#B45309']],
+  def:[['TAA','LIV','8','','sdef','#2563EB'],['Gabriel','ARS','14','h','sdef','#2563EB'],['P. Porro','TOT','6','','sdef','#2563EB'],['Mykolenko','EVE','2','b','sdef','#2563EB']],
+  mid:[['Salah','LIV','–','c','smid','#15803D'],['Palmer','CHE','12','h','smid','#15803D'],['Andreas','FUL','5','','smid','#15803D'],['Mbeumo','BRE','7','','smid','#15803D']],
+  fwd:[['Haaland','MCI','13','h','sfwd','#DB2777'],['Isak','NEW','–','t','sfwd','#DB2777']],
+  bench:[['Raya','ARS','6','b','sbch','#9CA3AF'],['Dunk','BHA','2','b','sbch','#9CA3AF'],['Wissa','BRE','3','b','sbch','#9CA3AF'],['Núñez','LIV','1','b','sbch','#9CA3AF']],
+};
+function plyr([n,c,b,cls,sh,fill],bench){return `<div class="player${bench?' bch':''}"><div class="shirt ${sh}">${SHIRT(fill)}<span class="pbadge ${cls}">${b}</span></div><div class="pname">${n}</div><div class="pdet">${c}</div></div>`}
+function renderPitch(){
+  const rows=[SQ.gk,SQ.def,SQ.mid,SQ.fwd];
+  let h=rows.map(r=>`<div class="prow">${r.map(p=>plyr(p)).join('')}</div>`).join('');
+  h+=`<div class="bdiv"><div class="bline"></div><div class="blab">Bench</div><div class="bline"></div></div>`;
+  h+=`<div class="prow">${SQ.bench.map(p=>plyr(p,true)).join('')}</div>`;
+  document.getElementById('pitch').innerHTML=h;
+}
+function renderStats(){document.getElementById('stats').innerHTML=STATS.map(s=>`<div class="tile"><div class="tlab">${s.l}</div><div class="tval">${s.v}</div><div class="tsub">${s.s}</div></div>`).join('')}
+function countUp(){
+  const el=document.getElementById('rank');if(!el)return;
+  const target=184203,start=target+42310,dur=1300,t0=performance.now();
+  function step(now){const p=Math.min((now-t0)/dur,1);const e=1-Math.pow(1-p,4);el.textContent=Math.round(start-(start-target)*e).toLocaleString();if(p<1)requestAnimationFrame(step)}
+  requestAnimationFrame(step);
+}
+function setState(n){
+  document.getElementById('s1').classList.toggle('on',n===1);
+  document.getElementById('s2').classList.toggle('on',n===2);
+  document.getElementById('b1').classList.toggle('on',n===1);
+  document.getElementById('b2').classList.toggle('on',n===2);
+  if(n===2){renderStats();renderPitch();countUp()}
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
