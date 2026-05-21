@@ -241,12 +241,10 @@ function LiveRankInner({ entryId }: InnerProps) {
     ready && postSubsPicks
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
-  const transferHit = ready ? picks.entry_history.event_transfers_cost : 0;
   const formation = ready ? deriveFormation(picks, bootstrap) : '4–4–2';
   const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
-  const playerName = entry ? `${entry.player_first_name} ${entry.player_last_name}`.trim() : '';
   const { estimate } = useLiveRankEstimate(entryId);
   let liveRankLabel = '—';
   if (estimate) {
@@ -287,12 +285,30 @@ function LiveRankInner({ entryId }: InnerProps) {
     : 'Placeholder data — real cohort numbers landing this week';
 
   const benchPoints = bench.reduce((sum, p) => sum + (Number(p.badge) || 0), 0);
-  const chipLabel = picks?.active_chip ?? '';
+
+  const captainPick = ready ? picks.picks.find((p) => p.is_captain) : undefined;
+  let captainName = '—';
+  let captainSub = 'no captain set';
+  if (ready && captainPick) {
+    const captainPlayer = bootstrap.elements.find((e) => e.id === captainPick.element);
+    const captainLive = liveGw.elements.find((e) => e.id === captainPick.element);
+    const captainTbp = (captainLive?.stats.minutes ?? 0) === 0;
+    const captainPts = (captainLive?.stats.total_points ?? 0) * captainPick.multiplier;
+    captainName = captainPlayer?.web_name ?? '—';
+    captainSub = `×${captainPick.multiplier} · ${captainTbp ? 'TBP' : `${captainPts} pts`}`;
+  }
+
+  const safetyValue = overallAvg != null ? String(Math.round(overallAvg)) : '—';
+  const offTop10kValue =
+    ready && top10kAvg != null ? String(Math.max(0, Math.round(top10kAvg) - livePoints)) : '—';
+  const gwSub =
+    ready && postSubsPoints !== livePoints ? `Post-subs ${postSubsPoints}` : 'live points';
+
   const tiles = [
     {
       label: 'GW Points',
       value: String(ready ? livePoints : '—'),
-      sub: ready && postSubsPoints !== livePoints ? `Post-subs ${postSubsPoints}` : 'live points',
+      sub: gwSub,
       accent: '$positive',
     },
     { label: 'Total Points', value: totalPointsLabel, sub: 'overall', accent: '$brand' },
@@ -302,12 +318,9 @@ function LiveRankInner({ entryId }: InnerProps) {
       sub: 'autosubs ready',
       accent: '$colorSubtle',
     },
-    {
-      label: chipLabel ? 'Active Chip' : 'Transfer Hit',
-      value: chipLabel || (transferHit > 0 ? `-${transferHit}` : 'None'),
-      sub: chipLabel ? 'this gameweek' : 'points spent',
-      accent: '$warning',
-    },
+    { label: 'Safety Score', value: safetyValue, sub: 'green-arrow line', accent: '$positive' },
+    { label: 'Off Top 10k', value: offTop10kValue, sub: 'points behind', accent: '$warning' },
+    { label: 'Captain', value: captainName, sub: captainSub, accent: '$negative' },
   ];
 
   if (snapshotError) {
@@ -325,155 +338,208 @@ function LiveRankInner({ entryId }: InnerProps) {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Live Rank"
-        meta={isLoading ? 'Loading…' : `Gameweek ${currentGw ?? '—'} · ${playerName || teamName}`}
-        right={<TeamPill teamId={entryId} />}
-      />
-
-      <YStack
-        borderRadius={14}
-        overflow="hidden"
-        marginBottom={12}
-        paddingHorizontal={22}
-        paddingVertical={22}
-        backgroundColor="$brand"
-        style={{
-          backgroundImage:
-            'radial-gradient(120% 130% at 85% -20%, #1A8A6E 0%, #0F766E 45%, #0B4F49 100%)',
-        }}
-      >
-        <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
-          <Text
-            fontFamily="$body"
-            fontSize={10}
-            fontWeight="600"
-            textTransform="uppercase"
-            letterSpacing={1.4}
-            color="#5EEAD4"
-          >
-            est. live rank
-          </Text>
-          <XStack alignItems="center" gap={6}>
-            <YStack
-              width={6}
-              height={6}
-              borderRadius={3}
-              backgroundColor="#5EEAD4"
-              style={{ animation: 'sfPulse 1.5s ease-in-out infinite' }}
-            />
-            <Text
-              fontFamily="$body"
-              fontSize={10}
-              fontWeight="600"
-              textTransform="uppercase"
-              letterSpacing={1}
-              color="#5EEAD4"
-            >
-              {currentGw !== null ? `GW${currentGw} live` : 'live'}
-            </Text>
-          </XStack>
-        </XStack>
-
-        <Text
-          fontFamily="$mono"
-          fontSize={56}
-          lineHeight={58}
-          fontWeight="400"
-          letterSpacing={-2}
-          color="#FFFFFF"
-          marginTop={6}
-        >
-          {liveRankLabel}
-        </Text>
-
-        <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
-          {estimate && movementLabel ? (
-            <XStack
-              alignItems="center"
-              backgroundColor="#5EEAD4"
-              paddingHorizontal={10}
-              paddingVertical={3}
-              borderRadius={99}
-            >
-              <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
-                {movementLabel}
-              </Text>
-            </XStack>
-          ) : (
-            <XStack
-              alignItems="center"
-              borderWidth={1}
-              borderColor="rgba(255,255,255,0.3)"
-              paddingHorizontal={10}
-              paddingVertical={3}
-              borderRadius={99}
-            >
-              <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.85)">
-                live
-              </Text>
-            </XStack>
-          )}
-          <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
-            since GW start
-          </Text>
-        </XStack>
-
-        <XStack alignItems="center" gap={10} marginTop={16}>
+      <XStack flexWrap="wrap" gap={16} alignItems="flex-start" marginBottom={16}>
+        <YStack flexGrow={1} flexBasis={340} minWidth={300} gap={16}>
           <YStack
-            flex={1}
-            height={4}
-            borderRadius={2}
-            backgroundColor="rgba(255,255,255,0.18)"
+            borderRadius={14}
             overflow="hidden"
+            paddingHorizontal={22}
+            paddingVertical={22}
+            backgroundColor="$brand"
+            style={{
+              backgroundImage:
+                'radial-gradient(120% 130% at 85% -20%, #1A8A6E 0%, #0F766E 45%, #0B4F49 100%)',
+            }}
           >
-            <YStack
-              height={4}
-              borderRadius={2}
-              backgroundColor="#5EEAD4"
-              style={{ animation: 'sfRefresh 60s linear infinite' }}
-            />
-          </YStack>
-          <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.7)">
-            {isLoading ? 'loading…' : 'refreshes every 60s'}
-          </Text>
-        </XStack>
-      </YStack>
+            <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
+              <Text
+                fontFamily="$body"
+                fontSize={10}
+                fontWeight="600"
+                textTransform="uppercase"
+                letterSpacing={1.4}
+                color="#5EEAD4"
+              >
+                est. live rank
+              </Text>
+              <TeamPill teamId={entryId} />
+            </XStack>
 
-      <XStack flexWrap="wrap" gap={10} marginBottom={16}>
-        {tiles.map((tile) => (
-          <YStack
-            key={tile.label}
-            flex={1}
-            minWidth={140}
-            backgroundColor="$surface"
-            borderWidth={1}
-            borderColor="$border"
-            borderLeftWidth={3}
-            borderLeftColor={tile.accent}
-            borderRadius={10}
-            paddingHorizontal={16}
-            paddingVertical={14}
-          >
             <Text
-              fontFamily="$body"
-              fontSize={10}
-              fontWeight="600"
-              textTransform="uppercase"
-              letterSpacing={0.7}
-              color="$colorSubtle"
-              marginBottom={8}
+              fontFamily="$mono"
+              fontSize={56}
+              lineHeight={58}
+              fontWeight="400"
+              letterSpacing={-2}
+              color="#FFFFFF"
+              marginTop={6}
+              $sm={{ fontSize: 44, lineHeight: 46 }}
             >
-              {tile.label}
+              {liveRankLabel}
             </Text>
-            <Text fontFamily="$mono" fontSize={28} lineHeight={30} fontWeight="400" color="$color">
-              {tile.value}
-            </Text>
-            <Text fontFamily="$body" fontSize={11} color="$colorMuted" marginTop={6}>
-              {tile.sub}
-            </Text>
+
+            <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
+              {estimate && movementLabel ? (
+                <XStack
+                  alignItems="center"
+                  backgroundColor="#5EEAD4"
+                  paddingHorizontal={10}
+                  paddingVertical={3}
+                  borderRadius={99}
+                >
+                  <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
+                    {movementLabel}
+                  </Text>
+                </XStack>
+              ) : (
+                <XStack
+                  alignItems="center"
+                  borderWidth={1}
+                  borderColor="rgba(255,255,255,0.3)"
+                  paddingHorizontal={10}
+                  paddingVertical={3}
+                  borderRadius={99}
+                >
+                  <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.85)">
+                    live
+                  </Text>
+                </XStack>
+              )}
+              <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
+                since GW start
+              </Text>
+            </XStack>
+
+            <YStack height={40} marginTop={14}>
+              <svg
+                viewBox="0 0 400 40"
+                preserveAspectRatio="none"
+                style={{ width: '100%', height: '100%', overflow: 'visible' }}
+              >
+                <polyline
+                  points="0,33 57,34 114,28 171,30 228,19 285,21 342,10 400,6"
+                  fill="none"
+                  stroke="#5EEAD4"
+                  strokeWidth={2.4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx={400} cy={6} r={3.4} fill="#FFFFFF" stroke="#34D399" strokeWidth={2} />
+              </svg>
+            </YStack>
+
+            <XStack alignItems="center" gap={10} marginTop={12}>
+              <YStack
+                flex={1}
+                height={4}
+                borderRadius={2}
+                backgroundColor="rgba(255,255,255,0.18)"
+                overflow="hidden"
+              >
+                <YStack
+                  height={4}
+                  borderRadius={2}
+                  backgroundColor="#5EEAD4"
+                  style={{ animation: 'sfRefresh 60s linear infinite' }}
+                />
+              </YStack>
+              <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.7)">
+                {isLoading ? 'loading…' : 'refreshes every 60s'}
+              </Text>
+            </XStack>
           </YStack>
-        ))}
+
+          <YStack>
+            <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />
+            <Pitch teamName={teamName} formation={formation}>
+              {ready
+                ? pitchRows.map((row, i) => (
+                    <PitchRow key={`row-${i}`}>
+                      {row.map((p) => (
+                        <Player
+                          key={p.key}
+                          name={p.name}
+                          detail={p.detail}
+                          position={p.position}
+                          badge={p.badge}
+                          badgeTone={p.badgeTone}
+                          kitUrl={p.kitUrl}
+                          kitUrl2x={p.kitUrl2x}
+                          ownershipPercent={p.ownershipPercent}
+                        />
+                      ))}
+                    </PitchRow>
+                  ))
+                : null}
+              {ready && bench.length > 0 ? (
+                <>
+                  <BenchDivider />
+                  <PitchRow>
+                    {bench.map((p) => (
+                      <Player
+                        key={p.key}
+                        name={p.name}
+                        detail={p.detail}
+                        position={p.position}
+                        badge={p.badge}
+                        badgeTone={p.badgeTone}
+                        kitUrl={p.kitUrl}
+                        kitUrl2x={p.kitUrl2x}
+                        ownershipPercent={p.ownershipPercent}
+                        bench
+                      />
+                    ))}
+                  </PitchRow>
+                </>
+              ) : null}
+            </Pitch>
+          </YStack>
+        </YStack>
+
+        <YStack flexGrow={1} flexBasis={260} minWidth={240}>
+          <XStack flexWrap="wrap" gap={10}>
+            {tiles.map((tile) => (
+              <YStack
+                key={tile.label}
+                flexGrow={1}
+                flexBasis={120}
+                minWidth={120}
+                backgroundColor="$surface"
+                borderWidth={1}
+                borderColor="$border"
+                borderLeftWidth={3}
+                borderLeftColor={tile.accent}
+                borderRadius={10}
+                paddingHorizontal={16}
+                paddingVertical={14}
+              >
+                <Text
+                  fontFamily="$body"
+                  fontSize={10}
+                  fontWeight="600"
+                  textTransform="uppercase"
+                  letterSpacing={0.7}
+                  color="$colorSubtle"
+                  marginBottom={8}
+                >
+                  {tile.label}
+                </Text>
+                <Text
+                  fontFamily="$mono"
+                  fontSize={26}
+                  lineHeight={28}
+                  fontWeight="400"
+                  color="$color"
+                >
+                  {tile.value}
+                </Text>
+                <Text fontFamily="$body" fontSize={11} color="$colorMuted" marginTop={6}>
+                  {tile.sub}
+                </Text>
+              </YStack>
+            ))}
+          </XStack>
+        </YStack>
       </XStack>
 
       <YStack
@@ -487,53 +553,7 @@ function LiveRankInner({ entryId }: InnerProps) {
         <CohortTable rows={cohortRows} footer={cohortFooter} />
       </YStack>
 
-      <YStack marginBottom={20}>
-        <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />
-        <Pitch teamName={teamName} formation={formation}>
-          {ready
-            ? pitchRows.map((row, i) => (
-                <PitchRow key={`row-${i}`}>
-                  {row.map((p) => (
-                    <Player
-                      key={p.key}
-                      name={p.name}
-                      detail={p.detail}
-                      position={p.position}
-                      badge={p.badge}
-                      badgeTone={p.badgeTone}
-                      kitUrl={p.kitUrl}
-                      kitUrl2x={p.kitUrl2x}
-                      ownershipPercent={p.ownershipPercent}
-                    />
-                  ))}
-                </PitchRow>
-              ))
-            : null}
-          {ready && bench.length > 0 ? (
-            <>
-              <BenchDivider />
-              <PitchRow>
-                {bench.map((p) => (
-                  <Player
-                    key={p.key}
-                    name={p.name}
-                    detail={p.detail}
-                    position={p.position}
-                    badge={p.badge}
-                    badgeTone={p.badgeTone}
-                    kitUrl={p.kitUrl}
-                    kitUrl2x={p.kitUrl2x}
-                    ownershipPercent={p.ownershipPercent}
-                    bench
-                  />
-                ))}
-              </PitchRow>
-            </>
-          ) : null}
-        </Pitch>
-      </YStack>
-
-      <XStack marginTop={12} marginBottom={8} justifyContent="center">
+      <XStack marginTop={4} marginBottom={8} justifyContent="center">
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
           Not your team?{' '}
           <Text render={<a href="/?change=1" />} color="$color" fontSize={12} fontFamily="$body">
