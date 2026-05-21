@@ -92,6 +92,7 @@ function RealPlannerView({ entryId }: { entryId: number }) {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Transfer Planner"
         meta={isLoading ? 'Loading…' : `Your XI · GW${currentGw ?? '—'}–${(currentGw ?? 0) + 4}`}
       />
