@@ -49,6 +49,7 @@ const STORAGE_KEY_BACKOFF = 'backoffMs';
 const STORAGE_KEY_FINISHED = 'finished';
 const STORAGE_KEY_REPLAY = 'replay';
 const STORAGE_KEY_REPLAY_ROWS = 'replayRows';
+const STORAGE_KEY_CAPTURE = 'captureId';
 
 const BACKOFF_INITIAL_MS = 1_000;
 const BACKOFF_MAX_MS = 8_000;
@@ -148,6 +149,11 @@ export class LiveGwDO {
     const gwNumber = Number(gw);
     if (Number.isFinite(gwNumber)) {
       await this.state.storage.put(STORAGE_KEY_GW, gwNumber);
+    }
+
+    const captureParam = url.searchParams.get('capture');
+    if (captureParam !== null && captureParam !== '0' && Number.isFinite(gwNumber)) {
+      await this.enableCapture(gwNumber);
     }
 
     const snapshot = await this.state.storage.get<FplLiveGameweek>(STORAGE_KEY_SNAPSHOT);
@@ -400,6 +406,8 @@ export class LiveGwDO {
         kvMirror = 'fail';
         console.warn(`LiveGwDO[gw:${gw}]: KV mirror failed: ${String(err)}`);
       }
+
+      await this.teeRecording(gw, payload);
     }
 
     const { events, fixtures } = await this.readBootstrapAndFixtures();
@@ -475,6 +483,36 @@ export class LiveGwDO {
     });
     if (nextDelay !== null) {
       await this.state.storage.setAlarm(Date.now() + nextDelay);
+    }
+  }
+
+  private async enableCapture(gwNumber: number): Promise<void> {
+    if (!this.env.RECORDINGS_R2) return;
+    const existing = await this.state.storage.get<string>(STORAGE_KEY_CAPTURE);
+    if (existing) return;
+    const recordingId = `gw${gwNumber}`;
+    if (!isValidRecordingId(recordingId)) return;
+    await this.state.storage.put(STORAGE_KEY_CAPTURE, recordingId);
+    try {
+      await this.env.RECORDINGS_R2.delete(`${recordingId}/recording.jsonl`);
+    } catch (err) {
+      console.warn(`LiveGwDO[capture:${recordingId}]: failed to reset recording: ${String(err)}`);
+    }
+    console.warn(`LiveGwDO[capture:${recordingId}]: capture enabled`);
+  }
+
+  private async teeRecording(gw: number, payload: FplLiveGameweek): Promise<void> {
+    const recordingId = await this.state.storage.get<string>(STORAGE_KEY_CAPTURE);
+    if (!recordingId || !this.env.RECORDINGS_R2) return;
+    const key = `${recordingId}/recording.jsonl`;
+    const row: ReplayRow = { ts: new Date().toISOString(), gw, data: payload };
+    const line = `${JSON.stringify(row)}\n`;
+    try {
+      const existing = await this.env.RECORDINGS_R2.get(key);
+      const prevText = existing ? await existing.text() : '';
+      await this.env.RECORDINGS_R2.put(key, prevText + line);
+    } catch (err) {
+      console.warn(`LiveGwDO[capture:${recordingId}]: tee to R2 failed: ${String(err)}`);
     }
   }
 
