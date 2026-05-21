@@ -64,6 +64,7 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="My Leagues"
         meta={
           entry ? `Team ${entryId} · ${entry.name}` : `Team ${entryId} · Live mini-league standings`

@@ -140,6 +140,7 @@ export function ThreatsView() {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Threats"
         meta={`${headline} · GW${currentGw ?? '—'} · Players nearby managers own that you don't`}
       />
