@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hPosition, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
-import { getCurrentGameweek } from '@simplyfpl/fpl-client';
+import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import {
   BenchDivider,
   Card,
@@ -129,6 +129,7 @@ function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Head to Head"
         meta={`${you.managerName || you.teamName} vs ${them.managerName || them.teamName} · GW${currentGw ?? '—'}`}
       />
@@ -432,6 +433,18 @@ const POSITION_TO_SHIRT: Record<H2hPosition, ShirtKind> = {
   fwd: 'fwd',
 };
 
+function kitProps(player: H2hPlayer): {
+  kitUrl: string | undefined;
+  kitUrl2x: string | undefined;
+} {
+  if (player.teamCode <= 0) return { kitUrl: undefined, kitUrl2x: undefined };
+  const isGoalkeeper = player.position === 'gk';
+  return {
+    kitUrl: getKitUrl(player.teamCode, { isGoalkeeper }),
+    kitUrl2x: getKitUrl(player.teamCode, { isGoalkeeper, size: 220 }),
+  };
+}
+
 function pickBadgeTone(player: H2hPlayer): 'default' | 'hot' | 'captain' | 'tbp' {
   if (player.minutes === 0) return 'tbp';
   if (player.isCaptain) return 'captain';
@@ -457,16 +470,22 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
       {rows.map((row, i) =>
         row.length === 0 ? null : (
           <PitchRow key={`row-${i}`}>
-            {row.map((p) => (
-              <Player
-                key={p.id}
-                name={p.isCaptain ? `${p.name} (C)` : p.name}
-                detail={p.minutes === 0 ? `${p.teamShort} · TBP` : p.teamShort}
-                position={POSITION_TO_SHIRT[p.position]}
-                badge={p.minutes === 0 ? '–' : String(p.effectivePoints)}
-                badgeTone={pickBadgeTone(p)}
-              />
-            ))}
+            {row.map((p) => {
+              const kit = kitProps(p);
+              return (
+                <Player
+                  key={p.id}
+                  name={p.isCaptain ? `${p.name} (C)` : p.name}
+                  detail={p.minutes === 0 ? `${p.teamShort} · TBP` : p.teamShort}
+                  position={POSITION_TO_SHIRT[p.position]}
+                  badge={p.minutes === 0 ? '–' : String(p.effectivePoints)}
+                  badgeTone={pickBadgeTone(p)}
+                  kitUrl={kit.kitUrl}
+                  kitUrl2x={kit.kitUrl2x}
+                  accentColor={getClubColor(p.teamShort)}
+                />
+              );
+            })}
           </PitchRow>
         )
       )}
@@ -474,17 +493,23 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
         <>
           <BenchDivider />
           <PitchRow>
-            {side.bench.map((p) => (
-              <Player
-                key={p.id}
-                name={p.name}
-                detail={p.teamShort}
-                position={POSITION_TO_SHIRT[p.position]}
-                badge={String(p.rawPoints)}
-                badgeTone="bench"
-                bench
-              />
-            ))}
+            {side.bench.map((p) => {
+              const kit = kitProps(p);
+              return (
+                <Player
+                  key={p.id}
+                  name={p.name}
+                  detail={p.teamShort}
+                  position={POSITION_TO_SHIRT[p.position]}
+                  badge={String(p.rawPoints)}
+                  badgeTone="bench"
+                  bench
+                  kitUrl={kit.kitUrl}
+                  kitUrl2x={kit.kitUrl2x}
+                  accentColor={getClubColor(p.teamShort)}
+                />
+              );
+            })}
           </PitchRow>
         </>
       ) : null}

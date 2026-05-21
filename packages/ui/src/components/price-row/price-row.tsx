@@ -12,7 +12,13 @@ const Row = styled(XStack, {
   cursor: 'pointer',
   transition: 'fast',
   hoverStyle: { backgroundColor: '$background' },
+  borderLeftWidth: 3,
+  borderLeftColor: 'transparent',
   variants: {
+    flow: {
+      rise: { borderLeftColor: '$positive' },
+      fall: { borderLeftColor: '$negative' },
+    },
     last: {
       true: { borderBottomWidth: 0 },
     },
@@ -29,6 +35,13 @@ const Pos = styled(Text, {
 const Info = styled(YStack, {
   flex: 1,
   minWidth: 0,
+});
+
+const ClubDot = styled(YStack, {
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  flexShrink: 0,
 });
 
 const Name = styled(Text, {
@@ -93,15 +106,9 @@ const Prob = styled(Text, {
   borderRadius: 4,
   marginTop: 2,
   variants: {
-    confidence: {
-      hi: { color: '$positive', backgroundColor: '$positiveBg' },
-      md: { color: '$warning', backgroundColor: '$warningBg' },
-      lo: {
-        color: '$colorSubtle',
-        backgroundColor: '$background',
-        borderWidth: 1,
-        borderColor: '$border',
-      },
+    flow: {
+      rise: { color: '#FFFFFF', backgroundColor: '$positive' },
+      fall: { color: '#FFFFFF', backgroundColor: '$negative' },
     },
   } as const,
 });
@@ -114,22 +121,28 @@ interface PriceRowProps {
   value: string;
   probability: number;
   last?: boolean;
+  accentColor?: string | undefined;
 }
 
-function confidenceTier(probability: number): 'hi' | 'md' | 'lo' {
-  if (probability >= 70) return 'hi';
-  if (probability >= 40) return 'md';
-  return 'lo';
-}
-
-export function PriceRow({ index, name, club, flow, value, probability, last }: PriceRowProps) {
+export function PriceRow({
+  index,
+  name,
+  club,
+  flow,
+  value,
+  probability,
+  last,
+  accentColor,
+}: PriceRowProps) {
   const arrow = flow === 'rise' ? '↑' : '↓';
-  const tier = confidenceTier(probability);
   return (
-    <Row last={last}>
+    <Row last={last} flow={flow}>
       <Pos>{index}</Pos>
       <Info>
-        <Name>{name}</Name>
+        <XStack alignItems="center" gap={6}>
+          {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
+          <Name>{name}</Name>
+        </XStack>
         <Club>{club}</Club>
       </Info>
       <Bar>
@@ -139,7 +152,7 @@ export function PriceRow({ index, name, club, flow, value, probability, last }: 
       </Bar>
       <Right>
         <Value>{value}</Value>
-        <Prob confidence={tier}>
+        <Prob flow={flow}>
           {arrow} {probability}%
         </Prob>
       </Right>

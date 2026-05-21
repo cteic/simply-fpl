@@ -2,31 +2,21 @@
 
 import { useState } from 'react';
 
-import {
-  Button,
-  Card,
-  FNote,
-  Input,
-  Logo,
-  PageShell,
-  SectionHeader,
-  Text,
-  XStack,
-  YStack,
-} from '@simplyfpl/ui';
+import { Input, Text, XStack, YStack } from '@simplyfpl/ui';
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
 const HERO_COPY = {
-  eyebrow: 'LIVE FPL COMPANION',
-  headline: 'Your live rank, the second it changes',
+  eyebrow: 'Live FPL companion',
+  headlineLead: 'Feel every ',
+  headlineAccent: 'green arrow.',
   subhead:
-    'Real-time rank pushed straight to your screen — no refreshing, no spinner, no crashing when everyone piles in after a goal.',
-  ctaLabel: 'View my live rank',
-  inputPlaceholder: 'FPL team ID or team URL',
+    'Your live rank, mini-leagues and head-to-heads — pushed to your screen the second a goal lands. No refreshing, no spinner, no crashing when everyone piles in.',
+  ctaLabel: 'View live rank',
+  inputPlaceholder: 'Team ID or paste your FPL URL',
   searchError: 'Enter a numeric FPL team ID or paste an FPL team URL.',
+  note: 'No sign-up needed — just paste your team ID.',
   disclaimer: 'SimplyFPL is not affiliated with the Premier League or Fantasy Premier League.',
-  screenshotAlt: 'SimplyFPL live dashboard preview',
 };
 
 interface HeroFeature {
@@ -37,15 +27,15 @@ interface HeroFeature {
 const HERO_FEATURES: HeroFeature[] = [
   {
     title: 'Real-time live rank',
-    body: 'A websocket to Cloudflare pushes your rank the instant a goal lands. Stop hitting refresh.',
+    body: 'A websocket pushes your rank the instant a goal lands. Stop hitting refresh.',
   },
   {
     title: 'Never crashes under load',
-    body: 'Served static from the edge, so it stays fast and up when everyone rushes in at once.',
+    body: 'Served from the edge — fast and up when everyone rushes in at once.',
   },
   {
     title: 'Cohort & rivals insight',
-    body: 'See where you stand against the top 10k and the managers right next to you in your leagues.',
+    body: 'See where you stand vs the top 10k and the rivals next to you in your leagues.',
   },
 ];
 
@@ -86,86 +76,143 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
   }
 
   return (
-    <PageShell>
-      <YStack data-testid="home-unified-hero" gap={28} paddingTop={12} paddingBottom={8}>
-        <YStack gap={14} alignItems="flex-start">
-          <Logo size="lg" />
-          <Text
-            fontFamily="$body"
-            fontSize={11}
-            fontWeight="600"
-            color="$colorSubtle"
-            letterSpacing={1.4}
-          >
-            {HERO_COPY.eyebrow}
-          </Text>
-          <Text fontFamily="$body" fontSize={34} fontWeight="700" color="$color" lineHeight={40}>
-            {HERO_COPY.headline}
-          </Text>
-          <Text fontFamily="$body" fontSize={15} color="$colorMuted" maxWidth={560} lineHeight={22}>
-            {HERO_COPY.subhead}
-          </Text>
-
-          <YStack gap={8} width="100%" maxWidth={560} marginTop={4}>
-            <XStack gap={10} flexWrap="wrap">
-              <Input
-                flex={1}
-                value={input}
-                onChangeText={setInput}
-                onSubmitEditing={handleSubmit}
-                placeholder={HERO_COPY.inputPlaceholder}
-                borderColor="$borderStrong"
-                backgroundColor="$background"
-              />
-              <Button tone="primary" size="md" onPress={handleSubmit}>
-                {HERO_COPY.ctaLabel}
-              </Button>
-            </XStack>
-            {error ? (
-              <Text fontFamily="$body" fontSize={12} color="$danger">
-                {error}
-              </Text>
-            ) : null}
-          </YStack>
-        </YStack>
-
-        <YStack
-          borderWidth={1}
-          borderColor="$border"
-          borderRadius={12}
-          overflow="hidden"
-          backgroundColor="$surface"
+    <YStack
+      data-testid="home-unified-hero"
+      render="main"
+      width="100%"
+      alignItems="center"
+      justifyContent="center"
+      paddingHorizontal={20}
+      paddingVertical={56}
+      backgroundColor="$brand"
+      style={{
+        minHeight: 'calc(100dvh - 54px)',
+        backgroundImage:
+          'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 64px), radial-gradient(120% 90% at 70% -10%, #1A8A6E 0%, #0F766E 32%, #0B4F49 70%, #082E2A 100%)',
+      }}
+    >
+      <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
+        <Text
+          fontFamily="$body"
+          fontSize={11}
+          fontWeight="600"
+          textTransform="uppercase"
+          letterSpacing={2.4}
+          color="#5EEAD4"
         >
-          <img
-            src="/marketing/dashboard-frozen.png"
-            alt={HERO_COPY.screenshotAlt}
-            width={1280}
-            height={880}
-            style={{ display: 'block', width: '100%', height: 'auto' }}
-          />
+          {HERO_COPY.eyebrow}
+        </Text>
+
+        <Text
+          fontFamily="$body"
+          fontWeight="700"
+          fontSize={56}
+          lineHeight={56}
+          letterSpacing={-1.8}
+          textAlign="center"
+          color="#FFFFFF"
+          $sm={{ fontSize: 36, lineHeight: 38 }}
+        >
+          {HERO_COPY.headlineLead}
+          <Text color="#5EEAD4">{HERO_COPY.headlineAccent}</Text>
+        </Text>
+
+        <Text
+          fontFamily="$body"
+          fontSize={16}
+          lineHeight={24}
+          textAlign="center"
+          color="rgba(255,255,255,0.78)"
+          maxWidth={520}
+        >
+          {HERO_COPY.subhead}
+        </Text>
+
+        <YStack width="100%" maxWidth={520} gap={8} marginTop={8}>
+          <XStack gap={10} flexWrap="wrap" justifyContent="center">
+            <Input
+              flexGrow={1}
+              flexBasis={240}
+              minWidth={200}
+              minHeight={48}
+              value={input}
+              onChangeText={setInput}
+              onSubmitEditing={handleSubmit}
+              placeholder={HERO_COPY.inputPlaceholder}
+              fontFamily="$mono"
+              fontSize={15}
+              backgroundColor="rgba(255,255,255,0.1)"
+              borderColor="rgba(255,255,255,0.28)"
+              color="#FFFFFF"
+              hoverStyle={{ borderColor: 'rgba(255,255,255,0.45)' }}
+              focusStyle={{ borderColor: '#5EEAD4' }}
+            />
+            <Text
+              render="button"
+              role="button"
+              onPress={handleSubmit}
+              fontFamily="$body"
+              fontSize={15}
+              fontWeight="700"
+              color="#0B4F49"
+              backgroundColor="#5EEAD4"
+              paddingHorizontal={24}
+              paddingVertical={14}
+              borderRadius={8}
+              cursor="pointer"
+              whiteSpace="nowrap"
+              hoverStyle={{ backgroundColor: '#34D399' }}
+              pressStyle={{ opacity: 0.85 }}
+            >
+              {HERO_COPY.ctaLabel} →
+            </Text>
+          </XStack>
+          {error ? (
+            <Text fontFamily="$body" fontSize={12} color="#FCA5A5" textAlign="center">
+              {error}
+            </Text>
+          ) : null}
         </YStack>
 
-        <XStack gap={12} flexWrap="wrap">
+        <Text fontFamily="$body" fontSize={13} color="rgba(255,255,255,0.55)" textAlign="center">
+          {HERO_COPY.note}
+        </Text>
+
+        <XStack gap={10} flexWrap="wrap" justifyContent="center" marginTop={14}>
           {HERO_FEATURES.map((feature) => (
-            <Card
+            <YStack
               key={feature.title}
-              flex={1}
-              minWidth={220}
-              paddingHorizontal={18}
-              paddingVertical={16}
+              flexGrow={1}
+              flexBasis={180}
+              maxWidth={240}
+              backgroundColor="rgba(255,255,255,0.06)"
+              borderWidth={1}
+              borderColor="rgba(255,255,255,0.12)"
+              borderRadius={12}
+              paddingHorizontal={16}
+              paddingVertical={14}
+              gap={5}
             >
-              <YStack gap={6}>
-                <SectionHeader title={feature.title} />
-                <Text fontFamily="$body" fontSize={13} color="$colorMuted" lineHeight={19}>
-                  {feature.body}
-                </Text>
-              </YStack>
-            </Card>
+              <Text fontFamily="$body" fontSize={13} fontWeight="600" color="#FFFFFF">
+                {feature.title}
+              </Text>
+              <Text fontFamily="$body" fontSize={12} lineHeight={17} color="rgba(255,255,255,0.6)">
+                {feature.body}
+              </Text>
+            </YStack>
           ))}
         </XStack>
 
-        <FNote>{HERO_COPY.disclaimer}</FNote>
+        <Text
+          fontFamily="$body"
+          fontSize={11}
+          color="rgba(255,255,255,0.4)"
+          textAlign="center"
+          marginTop={16}
+        >
+          {HERO_COPY.disclaimer}
+        </Text>
       </YStack>
-    </PageShell>
+    </YStack>
   );
 }

@@ -13,6 +13,7 @@ export interface Env {
   FPL_CACHE: KVNamespace;
   LIVE_GW: DurableObjectNamespace;
   VS_BUCKET: R2Bucket;
+  RECORDINGS_R2?: R2Bucket;
   BROWSER: BrowserWorker;
   FPL_BASE_URL: string;
   BOOTSTRAP_TTL: string;

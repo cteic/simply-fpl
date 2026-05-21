@@ -8,6 +8,7 @@ After ANY code changes, you MUST run verification (see Verification section). Do
 
 - **PRs**: title + summary bullets only. No "Generated with Claude Code" footer, no Test Plan section.
 - **Commits**: no `Co-Authored-By: Claude` trailer.
+- **Commit authorship**: every commit — interactive sessions AND remote/scheduled agents alike — must be authored as `Peter Watters <2938440+pete-watters@users.noreply.github.com>`. Remote agents MUST run `git config user.name "Peter Watters"` and `git config user.email "2938440+pete-watters@users.noreply.github.com"` at the start of the run, so no AI/tool ever appears as a commit author or co-author. No AI/tool attribution in any commit message, PR body, or issue.
 - **Branches**: short kebab-case, scoped prefix when useful (`fix/...`, `ci/...`, `feat/...`).
 - **Tone**: terse. Skip trailing "summary of what I just did" — the diff speaks for itself.
 

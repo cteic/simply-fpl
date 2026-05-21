@@ -8,14 +8,14 @@ const ChipBase = styled(Text, {
   alignSelf: 'flex-start',
   fontFamily: '$body',
   fontSize: 11,
-  fontWeight: '500',
+  fontWeight: '600',
   paddingHorizontal: 7,
   paddingVertical: 2,
   borderRadius: 4,
   variants: {
     tone: {
-      up: { color: '$positive', backgroundColor: '$positiveBg' },
-      down: { color: '$negative', backgroundColor: '$negativeBg' },
+      up: { color: '#FFFFFF', backgroundColor: '$positive' },
+      down: { color: '#FFFFFF', backgroundColor: '$negative' },
       neutral: {
         color: '$colorSubtle',
         backgroundColor: '$background',

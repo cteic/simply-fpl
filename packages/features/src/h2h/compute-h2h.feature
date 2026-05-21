@@ -19,3 +19,8 @@ Feature: Head-to-head comparison
     Given my squad scores 50 points with a 4-point transfer hit
     When I compute the H2H result
     Then my net GW points should be 46
+
+  Scenario: Players carry their real team code for kit rendering
+    Given two managers whose squads are all Arsenal players
+    When I compute the H2H result
+    Then every player on both sides should carry Arsenal's team code
