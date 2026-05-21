@@ -12,7 +12,13 @@ const Row = styled(XStack, {
   cursor: 'pointer',
   transition: 'fast',
   hoverStyle: { backgroundColor: '$background' },
+  borderLeftWidth: 3,
+  borderLeftColor: 'transparent',
   variants: {
+    flow: {
+      rise: { borderLeftColor: '$positive' },
+      fall: { borderLeftColor: '$negative' },
+    },
     last: {
       true: { borderBottomWidth: 0 },
     },
@@ -93,15 +99,9 @@ const Prob = styled(Text, {
   borderRadius: 4,
   marginTop: 2,
   variants: {
-    confidence: {
-      hi: { color: '$positive', backgroundColor: '$positiveBg' },
-      md: { color: '$warning', backgroundColor: '$warningBg' },
-      lo: {
-        color: '$colorSubtle',
-        backgroundColor: '$background',
-        borderWidth: 1,
-        borderColor: '$border',
-      },
+    flow: {
+      rise: { color: '#FFFFFF', backgroundColor: '$positive' },
+      fall: { color: '#FFFFFF', backgroundColor: '$negative' },
     },
   } as const,
 });
@@ -116,17 +116,10 @@ interface PriceRowProps {
   last?: boolean;
 }
 
-function confidenceTier(probability: number): 'hi' | 'md' | 'lo' {
-  if (probability >= 70) return 'hi';
-  if (probability >= 40) return 'md';
-  return 'lo';
-}
-
 export function PriceRow({ index, name, club, flow, value, probability, last }: PriceRowProps) {
   const arrow = flow === 'rise' ? '↑' : '↓';
-  const tier = confidenceTier(probability);
   return (
-    <Row last={last}>
+    <Row last={last} flow={flow}>
       <Pos>{index}</Pos>
       <Info>
         <Name>{name}</Name>
@@ -139,7 +132,7 @@ export function PriceRow({ index, name, club, flow, value, probability, last }: 
       </Bar>
       <Right>
         <Value>{value}</Value>
-        <Prob confidence={tier}>
+        <Prob flow={flow}>
           {arrow} {probability}%
         </Prob>
       </Right>
