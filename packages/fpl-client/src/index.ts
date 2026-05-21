@@ -43,6 +43,8 @@ export {
   meanScore,
   scorePoolFrame,
 } from './simulator/expected-curve';
+export { buildReplayWsUrl } from './simulator/replay-url';
+export type { ReplayWsUrlOptions } from './simulator/replay-url';
 export type {
   BuildExpectedCurveArgs,
   ExpectedCurve,
