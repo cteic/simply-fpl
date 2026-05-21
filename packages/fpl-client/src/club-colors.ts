@@ -34,7 +34,45 @@ const CLUB_COLORS: Record<string, string> = {
   LUT: '#F78F1E', // Luton
 };
 
-export function getClubColor(shortName: string | undefined | null): string | undefined {
-  if (!shortName) return undefined;
-  return CLUB_COLORS[shortName.trim().toUpperCase()];
+// Full team names (as used by the FPL API `team_name`) mapped to short codes,
+// so the same helper works for both "LIV" and "Liverpool".
+const NAME_TO_SHORT: Record<string, string> = {
+  ARSENAL: 'ARS',
+  'ASTON VILLA': 'AVL',
+  BOURNEMOUTH: 'BOU',
+  BRENTFORD: 'BRE',
+  BRIGHTON: 'BHA',
+  'BRIGHTON & HOVE ALBION': 'BHA',
+  BURNLEY: 'BUR',
+  CHELSEA: 'CHE',
+  'CRYSTAL PALACE': 'CRY',
+  EVERTON: 'EVE',
+  FULHAM: 'FUL',
+  IPSWICH: 'IPS',
+  LEEDS: 'LEE',
+  LEICESTER: 'LEI',
+  LIVERPOOL: 'LIV',
+  'MAN CITY': 'MCI',
+  'MANCHESTER CITY': 'MCI',
+  'MAN UTD': 'MUN',
+  'MAN UNITED': 'MUN',
+  'MANCHESTER UNITED': 'MUN',
+  NEWCASTLE: 'NEW',
+  "NOTT'M FOREST": 'NFO',
+  'NOTTINGHAM FOREST': 'NFO',
+  'SHEFFIELD UTD': 'SHU',
+  SOUTHAMPTON: 'SOU',
+  SUNDERLAND: 'SUN',
+  SPURS: 'TOT',
+  TOTTENHAM: 'TOT',
+  'TOTTENHAM HOTSPUR': 'TOT',
+  'WEST HAM': 'WHU',
+  WOLVES: 'WOL',
+  LUTON: 'LUT',
+};
+
+export function getClubColor(team: string | undefined | null): string | undefined {
+  if (!team) return undefined;
+  const key = team.trim().toUpperCase();
+  return CLUB_COLORS[key] ?? CLUB_COLORS[NAME_TO_SHORT[key] ?? ''];
 }

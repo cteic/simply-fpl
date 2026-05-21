@@ -13,6 +13,12 @@ describe('getClubColor', () => {
     expect(getClubColor(' Ars ')).toBe('#EF0107');
   });
 
+  it('resolves full FPL team names too', () => {
+    expect(getClubColor('Liverpool')).toBe('#C8102E');
+    expect(getClubColor('Man City')).toBe('#6CABDD');
+    expect(getClubColor('Spurs')).toBe('#132257');
+  });
+
   it('returns undefined for unknown or empty input', () => {
     expect(getClubColor('ZZZ')).toBeUndefined();
     expect(getClubColor('')).toBeUndefined();

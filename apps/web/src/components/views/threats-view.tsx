@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { threats as threatsNs } from '@simplyfpl/features';
 import type { Threat, ThreatPosition } from '@simplyfpl/features/threats';
-import { getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
+import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import {
   Card,
   FNote,
@@ -190,6 +190,13 @@ const TeamMeta = styled(Text, {
   color: '$colorSubtle',
 });
 
+const ClubDot = styled(YStack, {
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  flexShrink: 0,
+});
+
 const StatBlock = styled(YStack, {
   alignItems: 'flex-end',
   minWidth: 64,
@@ -221,14 +228,18 @@ function ThreatRow({ threat, last }: ThreatRowProps) {
   const kitUrl = threat.teamCode > 0 ? getKitUrl(threat.teamCode, { isGoalkeeper }) : undefined;
   const kitUrl2x =
     threat.teamCode > 0 ? getKitUrl(threat.teamCode, { isGoalkeeper, size: 220 }) : undefined;
+  const clubColor = getClubColor(threat.teamShort);
   return (
     <Row last={last}>
       <Shirt kind={POSITION_TO_SHIRT[threat.position]} kitUrl={kitUrl} kitUrl2x={kitUrl2x} />
       <YStack flex={1} minWidth={0}>
         <NameText numberOfLines={1}>{threat.name}</NameText>
-        <TeamMeta>
-          {threat.teamShort} · {threat.position.toUpperCase()}
-        </TeamMeta>
+        <XStack alignItems="center" gap={4}>
+          {clubColor ? <ClubDot backgroundColor={clubColor} /> : null}
+          <TeamMeta>
+            {threat.teamShort} · {threat.position.toUpperCase()}
+          </TeamMeta>
+        </XStack>
       </YStack>
       <StatBlock>
         <StatNumber>{threat.ownedByPct.toFixed(0)}%</StatNumber>
