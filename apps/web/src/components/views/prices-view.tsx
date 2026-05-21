@@ -63,6 +63,7 @@ export function PricesView() {
   return (
     <PageShell>
       <PageHeader
+        tone="stadium"
         title="Price Changes"
         meta="Predictions update daily at midnight · Based on net transfers"
       />
