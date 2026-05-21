@@ -44,7 +44,7 @@ export function SettingsView() {
 
   return (
     <PageShell>
-      <PageHeader title="Settings" meta={user?.email ?? ''} />
+      <PageHeader tone="stadium" title="Settings" meta={user?.email ?? ''} />
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
         <SectionHeader title="Account" />

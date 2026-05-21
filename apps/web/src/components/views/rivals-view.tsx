@@ -325,7 +325,7 @@ function RivalsBoardSection({
 
   return (
     <PageShell>
-      <PageHeader title="Rivals" meta={meta} />
+      <PageHeader tone="stadium" title="Rivals" meta={meta} />
 
       {!ready ? (
         <Card paddingHorizontal={16} paddingVertical={14} marginBottom={16}>
