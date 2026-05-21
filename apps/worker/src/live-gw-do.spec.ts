@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FplLiveGameweek } from '@simplyfpl/types';
 
 import { LiveGwDO } from './live-gw-do';
+import { parseRecording } from './replay';
 
 interface FakeStorage {
   data: Map<string, unknown>;
@@ -73,6 +74,30 @@ function createFakeKv(initial: Record<string, string> = {}): FakeKv {
       const entry: { key: string; value: string; ttl?: number } = { key, value };
       if (opts?.expirationTtl !== undefined) entry.ttl = opts.expirationTtl;
       putCalls.push(entry);
+    },
+  };
+}
+
+interface FakeR2 {
+  store: Map<string, string>;
+  get(key: string): Promise<{ text(): Promise<string> } | null>;
+  put(key: string, value: string): Promise<void>;
+  delete(key: string): Promise<void>;
+}
+
+function createFakeR2(): FakeR2 {
+  const store = new Map<string, string>();
+  return {
+    store,
+    async get(key: string) {
+      const value = store.get(key);
+      return value === undefined ? null : { text: async () => value };
+    },
+    async put(key: string, value: string): Promise<void> {
+      store.set(key, value);
+    },
+    async delete(key: string): Promise<void> {
+      store.delete(key);
     },
   };
 }
@@ -405,5 +430,79 @@ describe('LiveGwDO.alarm', () => {
 
     await doInstance.alarm();
     expect(vi.mocked(globalThis.fetch)).toHaveBeenCalledTimes(1);
+  });
+
+  it('tees changed snapshots to R2 as a ReplayRow when capture is enabled', async () => {
+    const storage = createFakeStorage();
+    await storage.put('gw', 39);
+    await storage.put('snapshot', makeSnapshot(2));
+    await storage.put('captureId', 'gw39');
+
+    const kv = createFakeKv();
+    const r2 = createFakeR2();
+
+    const fakeState = {
+      storage,
+      getWebSockets: () => [],
+      acceptWebSocket: () => {},
+    } as unknown as DurableObjectState;
+
+    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify(makeSnapshot(8)), { status: 200 })
+    );
+
+    const doInstance = new LiveGwDO(fakeState, {
+      FPL_BASE_URL: 'https://fpl.example/api',
+      FPL_CACHE: kv as unknown as KVNamespace,
+      RECORDINGS_R2: r2 as unknown as R2Bucket,
+    });
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    await doInstance.alarm();
+
+    const stored = r2.store.get('gw39/recording.jsonl');
+    expect(stored).toBeDefined();
+    const rows = parseRecording(stored ?? '');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.gw).toBe(39);
+    expect(rows[0]?.data.elements[0]?.stats.total_points).toBe(8);
+  });
+
+  it('appends a second changed snapshot to the same recording', async () => {
+    const storage = createFakeStorage();
+    await storage.put('gw', 39);
+    await storage.put('captureId', 'gw39');
+
+    const kv = createFakeKv();
+    const r2 = createFakeR2();
+
+    const fakeState = {
+      storage,
+      getWebSockets: () => [],
+      acceptWebSocket: () => {},
+    } as unknown as DurableObjectState;
+
+    const env = {
+      FPL_BASE_URL: 'https://fpl.example/api',
+      FPL_CACHE: kv as unknown as KVNamespace,
+      RECORDINGS_R2: r2 as unknown as R2Bucket,
+    };
+    const doInstance = new LiveGwDO(fakeState, env);
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify(makeSnapshot(4)), { status: 200 })
+    );
+    await doInstance.alarm();
+
+    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify(makeSnapshot(9)), { status: 200 })
+    );
+    await doInstance.alarm();
+
+    const rows = parseRecording(r2.store.get('gw39/recording.jsonl') ?? '');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.data.elements[0]?.stats.total_points).toBe(4);
+    expect(rows[1]?.data.elements[0]?.stats.total_points).toBe(9);
   });
 });
