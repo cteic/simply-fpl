@@ -15,6 +15,11 @@ binding = "VS_BUCKET"
 bucket_name = "simplyfpl-vs"
 preview_bucket_name = "simplyfpl-vs-preview"
 
+[[r2_buckets]]
+binding = "RECORDINGS_R2"
+bucket_name = "simplyfpl-recordings"
+preview_bucket_name = "simplyfpl-recordings-preview"
+
 # Browser Rendering — used by the weekly speed-comparison cron.
 # Requires the Browser Rendering product to be enabled on the Cloudflare account.
 [browser]
