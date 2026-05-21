@@ -34,8 +34,10 @@ const Row = styled(XStack, {
   variants: {
     you: {
       true: {
-        backgroundColor: '$youRow',
-        hoverStyle: { backgroundColor: '$youRowHover' },
+        backgroundColor: '$brandBg',
+        borderLeftWidth: 3,
+        borderLeftColor: '$brand',
+        hoverStyle: { backgroundColor: '$brandBg' },
       },
     },
     last: {
@@ -72,8 +74,8 @@ const YouTag = styled(Text, {
   fontWeight: '600',
   textTransform: 'uppercase',
   letterSpacing: '$8',
-  color: '$info',
-  backgroundColor: '$infoBg',
+  color: '#FFFFFF',
+  backgroundColor: '$brand',
   paddingHorizontal: 5,
   paddingVertical: 2,
   borderRadius: 3,
