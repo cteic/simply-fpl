@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
-
 import { useParams } from 'next/navigation';
 
 import { liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
-  estimateLiveRank,
   getKitUrl,
   predictBonusPoints,
 } from '@simplyfpl/fpl-client';
@@ -41,7 +38,7 @@ import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
-const { setLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -263,21 +260,7 @@ function LiveRankInner({ entryId }: InnerProps) {
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
   const playerName = entry ? `${entry.player_first_name} ${entry.player_last_name}`.trim() : '';
-  const preGwRank = entry?.summary_overall_rank ?? 0;
-  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
-  const estimate =
-    ready && preGwRank > 0 ? estimateLiveRank(preGwRank, livePoints, avgEntryScore) : null;
-  const estimateLiveRankValue = estimate?.liveRank ?? null;
-  const estimateMovement = estimate?.movement ?? null;
-  const estimateDirection = estimate?.direction ?? null;
-  useEffect(() => {
-    if (estimateLiveRankValue === null) return;
-    setLiveRankEstimate({
-      liveRank: estimateLiveRankValue,
-      movement: estimateMovement,
-      direction: estimateDirection,
-    });
-  }, [estimateLiveRankValue, estimateMovement, estimateDirection]);
+  const { estimate } = useLiveRankEstimate(entryId);
   let liveRankLabel = '—';
   if (estimate) {
     liveRankLabel = estimate.liveRank.toLocaleString();

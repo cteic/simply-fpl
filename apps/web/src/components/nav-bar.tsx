@@ -45,7 +45,8 @@ export function NavBar() {
   const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   useLiveSnapshot(currentGw);
   const agoMs = useLiveAgoMs();
-  const { liveRank: liveRankValue } = useLiveRankEstimate();
+  const { estimate } = useLiveRankEstimate(entryId);
+  const liveRankValue = estimate?.liveRank ?? null;
   const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
   const baseLinks = buildBaseLinks();
