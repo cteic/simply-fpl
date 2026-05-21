@@ -37,6 +37,13 @@ const Info = styled(YStack, {
   minWidth: 0,
 });
 
+const ClubDot = styled(YStack, {
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  flexShrink: 0,
+});
+
 const Name = styled(Text, {
   fontFamily: '$body',
   fontSize: 12,
@@ -114,15 +121,28 @@ interface PriceRowProps {
   value: string;
   probability: number;
   last?: boolean;
+  accentColor?: string | undefined;
 }
 
-export function PriceRow({ index, name, club, flow, value, probability, last }: PriceRowProps) {
+export function PriceRow({
+  index,
+  name,
+  club,
+  flow,
+  value,
+  probability,
+  last,
+  accentColor,
+}: PriceRowProps) {
   const arrow = flow === 'rise' ? '↑' : '↓';
   return (
     <Row last={last} flow={flow}>
       <Pos>{index}</Pos>
       <Info>
-        <Name>{name}</Name>
+        <XStack alignItems="center" gap={6}>
+          {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
+          <Name>{name}</Name>
+        </XStack>
         <Club>{club}</Club>
       </Info>
       <Bar>

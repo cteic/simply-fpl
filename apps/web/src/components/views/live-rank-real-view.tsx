@@ -6,6 +6,7 @@ import { liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
+  getClubColor,
   getKitUrl,
   predictBonusPoints,
 } from '@simplyfpl/fpl-client';
@@ -118,6 +119,7 @@ function rowsForFormation(
         kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
         kitUrl2x:
           teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
+        accentColor: getClubColor(teamShort),
         ownershipPercent:
           ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
             ? ownershipPercent
@@ -165,6 +167,7 @@ function benchPlayers(
         kitUrl: teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper }) : undefined,
         kitUrl2x:
           teamCode !== undefined ? getKitUrl(teamCode, { isGoalkeeper, size: 220 }) : undefined,
+        accentColor: getClubColor(teamShort),
         ownershipPercent:
           ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
             ? ownershipPercent
@@ -466,6 +469,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                           kitUrl={p.kitUrl}
                           kitUrl2x={p.kitUrl2x}
                           ownershipPercent={p.ownershipPercent}
+                          accentColor={p.accentColor}
                         />
                       ))}
                     </PitchRow>
@@ -486,6 +490,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                         kitUrl={p.kitUrl}
                         kitUrl2x={p.kitUrl2x}
                         ownershipPercent={p.ownershipPercent}
+                        accentColor={p.accentColor}
                         bench
                       />
                     ))}
