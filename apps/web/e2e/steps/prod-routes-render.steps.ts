@@ -181,6 +181,20 @@ Then('no page error should have occurred', async ({ page }) => {
   expect(messages, `Unexpected pageerror events:\n${messages.join('\n---\n')}`).toHaveLength(0);
 });
 
+Then('the live rank hero and stat tiles are visible', async ({ page }) => {
+  await expect(page.getByText('est. live rank', { exact: false }).first()).toBeVisible();
+  for (const label of [
+    'GW Points',
+    'Total Points',
+    'On Bench',
+    'Safety Score',
+    'Off Top 10k',
+    'Captain',
+  ]) {
+    await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+  }
+});
+
 Then('the rendered page matches the snapshot {string}', async ({ page }, name: string) => {
   await page.evaluate(() => document.fonts.ready).catch(() => undefined);
   await expect(page).toHaveScreenshot(`${name}.png`, {
