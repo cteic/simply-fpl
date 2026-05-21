@@ -10,8 +10,8 @@ const Wrap = styled(Card, {
   variants: {
     you: {
       true: {
-        backgroundColor: '$youRow',
-        borderColor: '$info',
+        backgroundColor: '$brandBg',
+        borderColor: '$brand',
       },
     },
   } as const,
@@ -47,8 +47,8 @@ const YouTag = styled(Text, {
   fontWeight: '600',
   textTransform: 'uppercase',
   letterSpacing: '$8',
-  color: '$info',
-  backgroundColor: '$infoBg',
+  color: '#FFFFFF',
+  backgroundColor: '$brand',
   paddingHorizontal: 5,
   paddingVertical: 2,
   borderRadius: 3,
