@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { cohorts as cohortsNs, effectiveOwnership as eoNs } from '@simplyfpl/features';
 import type { EoRow } from '@simplyfpl/features/effective-ownership';
-import { getCurrentGameweek } from '@simplyfpl/fpl-client';
+import { getClubColor, getCurrentGameweek } from '@simplyfpl/fpl-client';
 import {
   Card,
   FNote,
@@ -259,6 +259,13 @@ const TeamMeta = styled(Text, {
   color: '$colorSubtle',
 });
 
+const ClubDot = styled(YStack, {
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  flexShrink: 0,
+});
+
 const NumberCell = styled(Text, {
   width: 60,
   textAlign: 'right',
@@ -278,9 +285,14 @@ function EoRowDisplay({ row, last }: EoRowDisplayProps) {
     <BodyRow last={last}>
       <NameCell>
         <NameText numberOfLines={1}>{row.name}</NameText>
-        <TeamMeta>
-          {row.teamShort} · {row.position.toUpperCase()}
-        </TeamMeta>
+        <XStack alignItems="center" gap={4}>
+          {getClubColor(row.teamShort) ? (
+            <ClubDot backgroundColor={getClubColor(row.teamShort)} />
+          ) : null}
+          <TeamMeta>
+            {row.teamShort} · {row.position.toUpperCase()}
+          </TeamMeta>
+        </XStack>
       </NameCell>
       <NumberCell>{row.eoTop1k.toFixed(0)}%</NumberCell>
       <NumberCell>{row.eoTop10k.toFixed(0)}%</NumberCell>
