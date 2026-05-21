@@ -183,7 +183,14 @@ Then('no page error should have occurred', async ({ page }) => {
 
 Then('the live rank hero and stat tiles are visible', async ({ page }) => {
   await expect(page.getByText('est. live rank', { exact: false }).first()).toBeVisible();
-  for (const label of ['GW Points', 'Total Points', 'On Bench']) {
+  for (const label of [
+    'GW Points',
+    'Total Points',
+    'On Bench',
+    'Safety Score',
+    'Off Top 10k',
+    'Captain',
+  ]) {
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
   }
 });
