@@ -13,7 +13,10 @@ build
 .wrangler
 .tamagui
 .vercel
-var
+var/*
+!var/season-archive/
+var/season-archive/*
+!var/season-archive/2025-26/
 
 # Playwright
 test-results

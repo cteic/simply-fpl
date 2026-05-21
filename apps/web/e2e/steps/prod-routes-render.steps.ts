@@ -167,10 +167,6 @@ When('I visit the live rank page for entry 1', async ({ page }) => {
   await visitAndSettle(page, '/rank/1');
 });
 
-When('I visit the leagues page', async ({ page }) => {
-  await visitAndSettle(page, '/leagues');
-});
-
 When('I visit the head-to-head page for entries 1 and 2', async ({ page }) => {
   await visitAndSettle(page, '/h2h/1/2');
 });
@@ -183,6 +179,20 @@ Then('no page error should have occurred', async ({ page }) => {
   const bag = PAGE_ERRORS.get(page);
   const messages = (bag?.errors ?? []).map((e) => `${e.name}: ${e.message}\n${e.stack ?? ''}`);
   expect(messages, `Unexpected pageerror events:\n${messages.join('\n---\n')}`).toHaveLength(0);
+});
+
+Then('the live rank hero and stat tiles are visible', async ({ page }) => {
+  await expect(page.getByText('est. live rank', { exact: false }).first()).toBeVisible();
+  for (const label of [
+    'GW Points',
+    'Total Points',
+    'On Bench',
+    'Safety Score',
+    'Off Top 10k',
+    'Captain',
+  ]) {
+    await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+  }
 });
 
 Then('the rendered page matches the snapshot {string}', async ({ page }, name: string) => {
