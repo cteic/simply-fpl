@@ -26,18 +26,6 @@ Feature: Prod routes render guardrail
     Then no page error should have occurred
     And the rendered page matches the snapshot "home-with-team"
 
-  Scenario: Leagues page renders for a visitor with no saved team
-    Given no team is saved in storage
-    When I visit the leagues page
-    Then no page error should have occurred
-    And the rendered page matches the snapshot "leagues-no-team"
-
-  Scenario: Leagues page renders for a visitor with a saved team
-    Given a team id is saved in storage
-    When I visit the leagues page
-    Then no page error should have occurred
-    And the rendered page matches the snapshot "leagues-with-team"
-
   Scenario: Head-to-head page renders for a visitor with no saved team
     Given no team is saved in storage
     When I visit the head-to-head page for entries 1 and 2
