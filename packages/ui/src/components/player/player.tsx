@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 import { PBadge } from '../pbadge';
 import { Shirt } from '../shirt';
@@ -46,6 +46,13 @@ const Detail = styled(Text, {
   textAlign: 'center',
 });
 
+const ClubDot = styled(YStack, {
+  width: 6,
+  height: 6,
+  borderRadius: 3,
+  flexShrink: 0,
+});
+
 const Ownership = styled(Text, {
   fontFamily: '$mono',
   fontSize: 8.5,
@@ -66,6 +73,7 @@ interface PlayerProps {
   kitUrl?: string | undefined;
   kitUrl2x?: string | undefined;
   ownershipPercent?: number | undefined;
+  accentColor?: string | undefined;
 }
 
 export function Player({
@@ -78,6 +86,7 @@ export function Player({
   kitUrl,
   kitUrl2x,
   ownershipPercent,
+  accentColor,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
   return (
@@ -87,7 +96,12 @@ export function Player({
         {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
       </ShirtWrap>
       <Name bench={bench}>{name}</Name>
-      {detail ? <Detail>{detail}</Detail> : null}
+      {detail ? (
+        <XStack alignItems="center" justifyContent="center" gap={4}>
+          {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
+          <Detail>{detail}</Detail>
+        </XStack>
+      ) : null}
       {ownershipPercent !== undefined ? (
         <Ownership>{ownershipPercent.toFixed(1)}%</Ownership>
       ) : null}

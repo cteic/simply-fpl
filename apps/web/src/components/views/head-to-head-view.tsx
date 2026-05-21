@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hPosition, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
-import { getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
+import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import {
   BenchDivider,
   Card,
@@ -482,6 +482,7 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
                   badgeTone={pickBadgeTone(p)}
                   kitUrl={kit.kitUrl}
                   kitUrl2x={kit.kitUrl2x}
+                  accentColor={getClubColor(p.teamShort)}
                 />
               );
             })}
@@ -505,6 +506,7 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
                   bench
                   kitUrl={kit.kitUrl}
                   kitUrl2x={kit.kitUrl2x}
+                  accentColor={getClubColor(p.teamShort)}
                 />
               );
             })}
