@@ -94,6 +94,13 @@ export const colors = {
   overlay5: 'rgba(255,255,255,0.28)',
   overlay6: 'rgba(255,255,255,0.45)',
 
+  ink: '#0E0E0C',
+  ink2: '#1B1B17',
+  ink3: '#070706',
+
+  neutralFaint: 'rgba(20,20,16,0.03)',
+  neutralSoft: 'rgba(20,20,16,0.06)',
+
   // True transparent / white / black for occasional needs
   white: '#FFFFFF',
   black: '#000000',
