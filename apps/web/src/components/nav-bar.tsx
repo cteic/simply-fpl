@@ -11,29 +11,21 @@ import { DeadlinePill, LiveRankPill, Nav } from '@simplyfpl/ui';
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
 import { useBootstrap } from '@/queries/fpl';
 
+import { buildNavLinks } from './nav-links';
+
 const { useAuth } = auth;
 const { useCountdown, useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
-interface NavLinkItem {
-  label: string;
-  href: string;
-}
-
-function buildBaseLinks(): NavLinkItem[] {
-  const links: NavLinkItem[] = [{ label: 'Leagues', href: '/#leagues' }];
-  if (FEATURE_PRICES) links.push({ label: 'Prices', href: '/prices' });
-  if (FEATURE_PLANNER) links.push({ label: 'Planner', href: '/planner' });
-  return links;
-}
-
 export function NavBar() {
   const pathname = usePathname() ?? '/';
   const { session, signOut } = useAuth();
   const [entryId, setEntryId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const saved = window.localStorage.getItem(STORAGE_KEY);
     const id = saved ? Number(saved) : NaN;
     if (Number.isInteger(id) && id > 0) {
@@ -49,14 +41,18 @@ export function NavBar() {
   const agoMs = useLiveAgoMs();
   const { estimate } = useLiveRankEstimate(entryId);
   const liveRankValue = estimate?.liveRank ?? null;
-  const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
+  const liveLabel = mounted && currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
   const deadline =
     nextDeadline && countdown.label && !countdown.isPast ? (
       <DeadlinePill gwLabel={`GW${nextDeadline.event}`} countdown={countdown.label} />
     ) : undefined;
 
-  const baseLinks = buildBaseLinks();
+  const baseLinks = buildNavLinks({
+    hasEntry: entryId !== null,
+    prices: FEATURE_PRICES,
+    planner: FEATURE_PLANNER,
+  });
   const allLinks =
     FEATURE_AUTH && session ? [...baseLinks, { label: 'Settings', href: '/settings' }] : baseLinks;
 
