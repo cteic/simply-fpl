@@ -87,13 +87,29 @@ interface InnerProps {
 }
 
 function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
-  const { data: bootstrap } = useBootstrap();
+  const { data: bootstrap, isError: bootstrapError } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
-  const { data: yourEntry, isLoading: yourEntryLoading } = useEntry(yourEntryId);
-  const { data: theirEntry, isLoading: theirEntryLoading } = useEntry(theirEntryId);
-  const { data: yourPicks } = useEntryPicks(yourEntryId, currentGw);
-  const { data: theirPicks } = useEntryPicks(theirEntryId, currentGw);
-  const { data: liveGw } = useLiveGameweek(currentGw);
+  const {
+    data: yourEntry,
+    isLoading: yourEntryLoading,
+    isError: yourEntryError,
+  } = useEntry(yourEntryId);
+  const {
+    data: theirEntry,
+    isLoading: theirEntryLoading,
+    isError: theirEntryError,
+  } = useEntry(theirEntryId);
+  const { data: yourPicks, isError: yourPicksError } = useEntryPicks(yourEntryId, currentGw);
+  const { data: theirPicks, isError: theirPicksError } = useEntryPicks(theirEntryId, currentGw);
+  const { data: liveGw, isError: liveGwError } = useLiveGameweek(currentGw);
+
+  const anyError =
+    bootstrapError ||
+    yourEntryError ||
+    theirEntryError ||
+    yourPicksError ||
+    theirPicksError ||
+    liveGwError;
 
   const ready = yourEntry && theirEntry && yourPicks && theirPicks && bootstrap && liveGw;
   const result: H2hResult | null = useMemo(() => {
@@ -107,6 +123,18 @@ function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
       liveGw,
     });
   }, [ready, yourEntry, theirEntry, yourPicks, theirPicks, bootstrap, liveGw]);
+
+  if (anyError) {
+    return (
+      <PageShell>
+        <PageHeader title="Head to Head" meta="Couldn't load this matchup" />
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          We couldn't load one or both managers' live data. Check the team IDs and refresh to try
+          again.
+        </Text>
+      </PageShell>
+    );
+  }
 
   if (yourEntryLoading || theirEntryLoading) {
     return (
