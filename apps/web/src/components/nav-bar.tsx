@@ -11,22 +11,12 @@ import { LiveRankPill, Nav } from '@simplyfpl/ui';
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
 import { useBootstrap } from '@/queries/fpl';
 
+import { buildNavLinks } from './nav-links';
+
 const { useAuth } = auth;
 const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
-
-interface NavLinkItem {
-  label: string;
-  href: string;
-}
-
-function buildBaseLinks(): NavLinkItem[] {
-  const links: NavLinkItem[] = [{ label: 'Leagues', href: '/#leagues' }];
-  if (FEATURE_PRICES) links.push({ label: 'Prices', href: '/prices' });
-  if (FEATURE_PLANNER) links.push({ label: 'Planner', href: '/planner' });
-  return links;
-}
 
 export function NavBar() {
   const pathname = usePathname() ?? '/';
@@ -49,7 +39,11 @@ export function NavBar() {
   const liveRankValue = estimate?.liveRank ?? null;
   const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
-  const baseLinks = buildBaseLinks();
+  const baseLinks = buildNavLinks({
+    hasEntry: entryId !== null,
+    prices: FEATURE_PRICES,
+    planner: FEATURE_PLANNER,
+  });
   const allLinks =
     FEATURE_AUTH && session ? [...baseLinks, { label: 'Settings', href: '/settings' }] : baseLinks;
 

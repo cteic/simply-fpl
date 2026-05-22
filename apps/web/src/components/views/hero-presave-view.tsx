@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 
-import { Input, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
+import { fplClient } from '@simplyfpl/fpl-client';
+import { Input, Logo, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
+
+import { lookupEntry, parseEntryId } from '../team-id-search';
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -13,8 +16,11 @@ const HERO_COPY = {
   subhead:
     'Your live rank, mini-leagues and head-to-heads — pushed to your screen the second a goal lands. No refreshing, no spinner, no crashing when everyone piles in.',
   ctaLabel: 'View live rank',
+  ctaLabelChecking: 'Checking…',
   inputPlaceholder: 'Team ID or paste your FPL URL',
   searchError: 'Enter a numeric FPL team ID or paste an FPL team URL.',
+  notFoundError: "We couldn't find a team with that ID. Double-check it and try again.",
+  networkError: "Couldn't reach the server — please try again in a moment.",
   note: 'No sign-up needed — just paste your team ID.',
   disclaimer: 'SimplyFPL is not affiliated with the Premier League or Fantasy Premier League.',
 };
@@ -39,19 +45,6 @@ const HERO_FEATURES: HeroFeature[] = [
   },
 ];
 
-function parseEntryId(input: string): number | null {
-  const trimmed = input.trim();
-  if (!trimmed) return null;
-  const direct = Number(trimmed);
-  if (Number.isInteger(direct) && direct > 0) return direct;
-  const fromUrl = trimmed.match(/entry\/(\d+)/i)?.[1];
-  if (fromUrl) {
-    const parsed = Number(fromUrl);
-    if (Number.isInteger(parsed) && parsed > 0) return parsed;
-  }
-  return null;
-}
-
 interface HeroPreSaveViewProps {
   onSave?: (entryId: number) => void;
 }
@@ -59,14 +52,30 @@ interface HeroPreSaveViewProps {
 export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
-  function handleSubmit() {
+  async function handleSubmit() {
+    if (checking) return;
     setError(null);
     const id = parseEntryId(input);
     if (!id) {
       setError(HERO_COPY.searchError);
       return;
     }
+
+    setChecking(true);
+    const result = await lookupEntry(id, fplClient.getEntry);
+    setChecking(false);
+
+    if (result.status === 'not-found') {
+      setError(HERO_COPY.notFoundError);
+      return;
+    }
+    if (result.status === 'error') {
+      setError(HERO_COPY.networkError);
+      return;
+    }
+
     window.localStorage.setItem(STORAGE_KEY, String(id));
     if (onSave) {
       onSave(id);
@@ -92,7 +101,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       }}
     >
       <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
-        <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={52} height={52} />
+        <Logo variant="lockup" tone="inverse" size="lg" href="/" />
 
         <Text
           fontFamily="$body"
@@ -152,6 +161,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
             <Text
               render="button"
               role="button"
+              aria-busy={checking}
               onPress={handleSubmit}
               fontFamily="$body"
               fontSize={15}
@@ -161,12 +171,13 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               paddingHorizontal={24}
               paddingVertical={14}
               borderRadius={8}
-              cursor="pointer"
+              cursor={checking ? 'default' : 'pointer'}
+              opacity={checking ? 0.7 : 1}
               whiteSpace="nowrap"
               hoverStyle={{ backgroundColor: '#34D399' }}
               pressStyle={{ opacity: 0.85 }}
             >
-              {HERO_COPY.ctaLabel} →
+              {checking ? HERO_COPY.ctaLabelChecking : `${HERO_COPY.ctaLabel} →`}
             </Text>
           </XStack>
           {error ? (
