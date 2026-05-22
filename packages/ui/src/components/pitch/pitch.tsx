@@ -15,6 +15,16 @@ const Head = styled(XStack, {
   borderBottomColor: '$border',
 });
 
+const Label = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 10,
+  fontWeight: '600',
+  textTransform: 'uppercase',
+  letterSpacing: '$11',
+  color: '$colorSubtle',
+  marginBottom: 3,
+});
+
 const Title = styled(Text, {
   fontFamily: '$body',
   fontSize: 12.5,
@@ -51,14 +61,18 @@ export const PitchRow = styled(XStack, {
 interface PitchProps {
   teamName: string;
   formation: string;
+  label?: string;
   children: ReactNode;
 }
 
-export function Pitch({ teamName, formation, children }: PitchProps) {
+export function Pitch({ teamName, formation, label, children }: PitchProps) {
   return (
     <Card>
       <Head>
-        <Title>{teamName}</Title>
+        <YStack>
+          {label ? <Label>{label}</Label> : null}
+          <Title>{teamName}</Title>
+        </YStack>
         <FormationTag>{formation}</FormationTag>
       </Head>
       <Body>{children}</Body>
