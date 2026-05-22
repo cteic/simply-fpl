@@ -14,6 +14,7 @@ export * from './components/bench-divider';
 export * from './components/button';
 export * from './components/card';
 export * from './components/cohort-table';
+export * from './components/deadline-pill';
 export * from './components/delta-chip';
 export * from './components/demo-banner';
 export * from './components/differentials-panel';
