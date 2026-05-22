@@ -79,10 +79,10 @@ interface LivePillProps {
 }
 
 function formatAgo(ms: number): string {
-  if (ms < 5_000) return 'just now';
-  if (ms < 60_000) return `${Math.floor(ms / 1000)}s ago`;
-  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
-  return `${Math.floor(ms / 3_600_000)}h ago`;
+  if (ms < 5_000) return 'just updated';
+  if (ms < 60_000) return `updated ${Math.floor(ms / 1000)}s ago`;
+  if (ms < 3_600_000) return `updated ${Math.floor(ms / 60_000)}m ago`;
+  return `updated ${Math.floor(ms / 3_600_000)}h ago`;
 }
 
 function toneForAge(ms: number | null | undefined): 'fresh' | 'stale' | 'cold' {
