@@ -337,6 +337,24 @@ function LiveRankInner({ entryId }: InnerProps) {
     );
   }
 
+  const noPicksYet = snapshot !== undefined && snapshot.picks === null;
+  if (noPicksYet) {
+    return (
+      <PageShell>
+        <PageHeader title="Live Rank" meta={`${teamName} · GW${currentGw ?? '—'}`} />
+        <YStack gap={10}>
+          <Text fontFamily="$body" fontSize={14} fontWeight="500" color="$color">
+            No picks yet for this gameweek
+          </Text>
+          <Text fontFamily="$body" fontSize={12.5} color="$colorMuted">
+            Your team and live rank will appear here once your squad is confirmed for the gameweek.
+            Check back after the deadline.
+          </Text>
+        </YStack>
+      </PageShell>
+    );
+  }
+
   const isLoading = snapshotLoading || liveLoading;
 
   return (
