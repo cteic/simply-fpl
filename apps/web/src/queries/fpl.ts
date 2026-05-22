@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fplClient } from '@simplyfpl/fpl-client';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
+import type { FplBootstrapStatic } from '@simplyfpl/types';
 
 export interface SlimPriceChange {
   id: number;
@@ -38,12 +39,82 @@ export function usePrices() {
   });
 }
 
+const BOOTSTRAP_CACHE_KEY = 'simplyfpl:bootstrap-cache';
+
+interface BootstrapCacheEntry {
+  data: FplBootstrapStatic;
+  savedAt: number;
+}
+
+function isBootstrap(value: unknown): value is FplBootstrapStatic {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'events' in value &&
+    Array.isArray(value.events) &&
+    'elements' in value &&
+    Array.isArray(value.elements) &&
+    'teams' in value &&
+    Array.isArray(value.teams)
+  );
+}
+
+function readBootstrapCache(): BootstrapCacheEntry | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(BOOTSTRAP_CACHE_KEY);
+    if (raw === null) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      'savedAt' in parsed &&
+      typeof parsed.savedAt === 'number' &&
+      'data' in parsed &&
+      isBootstrap(parsed.data)
+    ) {
+      return { data: parsed.data, savedAt: parsed.savedAt };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function writeBootstrapCache(data: FplBootstrapStatic): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const entry: BootstrapCacheEntry = { data, savedAt: Date.now() };
+    window.localStorage.setItem(BOOTSTRAP_CACHE_KEY, JSON.stringify(entry));
+  } catch {
+    // localStorage may be unavailable or full — the fallback is best-effort.
+  }
+}
+
+async function fetchBootstrap(): Promise<FplBootstrapStatic> {
+  const data = await fplClient.getBootstrapStatic();
+  writeBootstrapCache(data);
+  return data;
+}
+
 export function useBootstrap() {
   return useQuery({
     queryKey: ['bootstrap'],
-    queryFn: () => fplClient.getBootstrapStatic(),
+    queryFn: fetchBootstrap,
     staleTime: 60 * 60 * 1000, // 1 hour
+    initialData: () => readBootstrapCache()?.data,
+    initialDataUpdatedAt: () => readBootstrapCache()?.savedAt,
   });
+}
+
+export interface BootstrapStatus {
+  isStale: boolean;
+}
+
+export function useBootstrapStatus(): BootstrapStatus {
+  const { data, dataUpdatedAt, errorUpdatedAt } = useBootstrap();
+  const isStale = data !== undefined && errorUpdatedAt > dataUpdatedAt;
+  return { isStale };
 }
 
 export function useLiveGameweek(eventId: number | null) {
