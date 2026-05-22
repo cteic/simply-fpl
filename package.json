@@ -47,7 +47,7 @@
     "lint-staged": "^15.2.10",
     "playwright-bdd": "^8.5.1",
     "prettier": "^3.5.1",
-    "turbo": "^2.5.8",
+    "turbo": "^2.9.14",
     "typescript": "^5.7.0",
     "vitest": "^2.1.9"
   },
@@ -62,7 +62,9 @@
     "overrides": {
       "@types/react": "^19.0.0",
       "@types/react-dom": "^19.0.0",
-      "react-native-web": "^0.21.0"
+      "react-native-web": "^0.21.0",
+      "uuid": ">=11.1.1",
+      "ws": ">=8.20.1"
     },
     "patchedDependencies": {
       "tamagui-loader@2.0.0-rc.42": "patches/tamagui-loader@2.0.0-rc.42.patch",
