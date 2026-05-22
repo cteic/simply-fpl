@@ -47,9 +47,16 @@ const Glyph = styled(Text, {
   letterSpacing: -0.5,
 });
 
+const WordGlyph = styled(Text, {
+  fontFamily: '$body',
+  fontWeight: '700',
+  letterSpacing: -0.3,
+});
+
 export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href }: LogoProps) {
   const baseColor = tone === 'inverse' ? '$background' : '$color';
-  const dotColor = tone === 'inverse' ? '#5EEAD4' : '$brand';
+  const wordColor = tone === 'inverse' ? '#FFFFFF' : '#0F766E';
+  const tldColor = tone === 'inverse' ? '#5EEAD4' : '#0F766E';
   const linkProps = href ? { tag: 'a' as const, href } : {};
 
   if (variant === 'lockup') {
@@ -69,15 +76,12 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
           }}
         />
         <XStack alignItems="center" gap={0}>
-          <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-            simply
-          </Glyph>
-          <Glyph fontSize={px} lineHeight={px} color={dotColor}>
-            .
-          </Glyph>
-          <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-            fpl
-          </Glyph>
+          <WordGlyph fontSize={px} lineHeight={px} color={wordColor}>
+            simplyfpl
+          </WordGlyph>
+          <WordGlyph fontSize={px} lineHeight={px} color={tldColor}>
+            .com
+          </WordGlyph>
         </XStack>
       </Wrap>
     );
@@ -100,15 +104,12 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
   const px = WORDMARK_SIZE[size];
   return (
     <Wrap {...linkProps}>
-      <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-        simply
-      </Glyph>
-      <Glyph fontSize={px} lineHeight={px} color="$brand">
-        .
-      </Glyph>
-      <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-        fpl
-      </Glyph>
+      <WordGlyph fontSize={px} lineHeight={px} color={wordColor}>
+        simplyfpl
+      </WordGlyph>
+      <WordGlyph fontSize={px} lineHeight={px} color={tldColor}>
+        .com
+      </WordGlyph>
     </Wrap>
   );
 }
