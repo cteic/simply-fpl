@@ -50,3 +50,4 @@ export * from './components/stat-card';
 export * from './components/stat-row';
 export * from './components/team-id-help';
 export * from './components/team-pill';
+export * from './components/theme-picker';
