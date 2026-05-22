@@ -9,6 +9,7 @@ import {
   FilterButton,
   PageHeader,
   PageShell,
+  SkeletonLeagueTable,
   Text,
   XStack,
   YStack,
@@ -42,6 +43,7 @@ export function RivalsSection({ entryId }: RivalsSectionProps) {
       <section data-testid="home-unified-rivals">
         <PageShell>
           <PageHeader title="Rivals" meta="Loading your leagues…" />
+          <SkeletonLeagueTable />
         </PageShell>
       </section>
     );
