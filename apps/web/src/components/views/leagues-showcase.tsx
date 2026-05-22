@@ -10,6 +10,7 @@ import {
   PageHeader,
   PageShell,
   SectionHeader,
+  SkeletonLeagueTable,
   Text,
   XStack,
   YStack,
@@ -43,6 +44,7 @@ export function LeaguesShowcase() {
     return (
       <PageShell>
         <PageHeader title="My Leagues" meta="Loading…" />
+        <SkeletonLeagueTable />
       </PageShell>
     );
   }
@@ -160,13 +162,7 @@ function LeagueListBody({
   emptyMessage,
 }: LeagueListBodyProps) {
   if (isLoading) {
-    return (
-      <Card paddingHorizontal={16} paddingVertical={13}>
-        <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-          Loading your leagues…
-        </Text>
-      </Card>
-    );
+    return <SkeletonLeagueTable />;
   }
 
   if (isError) {

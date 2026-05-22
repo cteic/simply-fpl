@@ -19,14 +19,17 @@ import type {
 } from '@simplyfpl/types';
 import {
   BenchDivider,
+  Card,
   CohortTable,
   FNote,
+  NumberTicker,
   PageHeader,
   PageShell,
   Pitch,
   PitchRow,
   Player,
   SectionHeader,
+  SkeletonLiveRank,
   TeamPill,
   Text,
   XStack,
@@ -251,10 +254,6 @@ function LiveRankInner({ entryId }: InnerProps) {
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
   const { estimate } = useLiveRankEstimate(entryId);
-  let liveRankLabel = '—';
-  if (estimate) {
-    liveRankLabel = estimate.liveRank.toLocaleString();
-  }
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
@@ -313,19 +312,39 @@ function LiveRankInner({ entryId }: InnerProps) {
     {
       label: 'GW Points',
       value: String(ready ? livePoints : '—'),
+      tick: ready ? livePoints : null,
       sub: gwSub,
       accent: '$positive',
     },
-    { label: 'Total Points', value: totalPointsLabel, sub: 'overall', accent: '$brand' },
+    {
+      label: 'Total Points',
+      value: totalPointsLabel,
+      tick: entry?.summary_overall_points ?? null,
+      sub: 'overall',
+      accent: '$brand',
+    },
     {
       label: 'On Bench',
       value: String(ready ? benchPoints : '—'),
+      tick: ready ? benchPoints : null,
       sub: 'autosubs ready',
       accent: '$colorSubtle',
     },
-    { label: 'Safety Score', value: safetyValue, sub: 'green-arrow line', accent: '$positive' },
-    { label: 'Off Top 10k', value: offTop10kValue, sub: 'points behind', accent: '$warning' },
-    { label: 'Captain', value: captainName, sub: captainSub, accent: '$negative' },
+    {
+      label: 'Safety Score',
+      value: safetyValue,
+      tick: null,
+      sub: 'green-arrow line',
+      accent: '$positive',
+    },
+    {
+      label: 'Off Top 10k',
+      value: offTop10kValue,
+      tick: null,
+      sub: 'points behind',
+      accent: '$warning',
+    },
+    { label: 'Captain', value: captainName, tick: null, sub: captainSub, accent: '$negative' },
   ];
 
   if (snapshotError) {
@@ -340,6 +359,14 @@ function LiveRankInner({ entryId }: InnerProps) {
   }
 
   const isLoading = snapshotLoading || liveLoading;
+
+  if (snapshotLoading) {
+    return (
+      <PageShell>
+        <SkeletonLiveRank />
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -367,7 +394,9 @@ function LiveRankInner({ entryId }: InnerProps) {
               <TeamPill teamId={entryId} />
             </XStack>
 
-            <Text
+            <NumberTicker
+              value={estimate?.liveRank ?? null}
+              format={(n) => n.toLocaleString()}
               fontFamily="$mono"
               fontSize={56}
               lineHeight={58}
@@ -376,9 +405,7 @@ function LiveRankInner({ entryId }: InnerProps) {
               color="$inverse"
               marginTop={6}
               $sm={{ fontSize: 44, lineHeight: 46 }}
-            >
-              {liveRankLabel}
-            </Text>
+            />
 
             <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
               {estimate && movementLabel ? (
@@ -459,8 +486,11 @@ function LiveRankInner({ entryId }: InnerProps) {
           </YStack>
 
           <YStack>
-            <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />
-            <Pitch teamName={teamName} formation={formation}>
+            <Pitch
+              teamName={teamName}
+              formation={formation}
+              label={`Your Team · GW${currentGw ?? '—'}`}
+            >
               {ready
                 ? pitchRows.map((row, i) => (
                     <PitchRow key={`row-${i}`}>
@@ -535,15 +565,27 @@ function LiveRankInner({ entryId }: InnerProps) {
                 >
                   {tile.label}
                 </Text>
-                <Text
-                  fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
-                  color="$color"
-                >
-                  {tile.value}
-                </Text>
+                {tile.tick !== null ? (
+                  <NumberTicker
+                    value={tile.tick}
+                    format={(n) => n.toLocaleString()}
+                    fontFamily="$mono"
+                    fontSize={26}
+                    lineHeight={28}
+                    fontWeight="400"
+                    color="$color"
+                  />
+                ) : (
+                  <Text
+                    fontFamily="$mono"
+                    fontSize={26}
+                    lineHeight={28}
+                    fontWeight="400"
+                    color="$color"
+                  >
+                    {tile.value}
+                  </Text>
+                )}
                 <Text fontFamily="$body" fontSize={11} color="$colorMuted" marginTop={6}>
                   {tile.sub}
                 </Text>
@@ -553,16 +595,10 @@ function LiveRankInner({ entryId }: InnerProps) {
         </YStack>
       </XStack>
 
-      <YStack
-        backgroundColor="$surface"
-        paddingHorizontal={20}
-        paddingVertical={12}
-        marginBottom={16}
-        gap={6}
-      >
+      <Card paddingHorizontal={20} paddingVertical={16} marginBottom={16} gap={8}>
         <SectionHeader title="Cohort comparison" />
         <CohortTable rows={cohortRows} footer={cohortFooter} />
-      </YStack>
+      </Card>
 
       <XStack marginTop={4} marginBottom={8} justifyContent="center">
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
