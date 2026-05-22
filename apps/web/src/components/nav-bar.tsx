@@ -5,14 +5,14 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import { auth, liveRank } from '@simplyfpl/features';
-import { getCurrentGameweek } from '@simplyfpl/fpl-client';
-import { LiveRankPill, Nav } from '@simplyfpl/ui';
+import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
+import { DeadlinePill, LiveRankPill, Nav } from '@simplyfpl/ui';
 
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
 import { useBootstrap } from '@/queries/fpl';
 
 const { useAuth } = auth;
-const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { useCountdown, useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -43,11 +43,18 @@ export function NavBar() {
 
   const { data: bootstrap } = useBootstrap();
   const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
+  const nextDeadline = bootstrap ? getNextDeadline(bootstrap) : null;
+  const countdown = useCountdown(nextDeadline?.deadlineTime ?? null);
   useLiveSnapshot(currentGw);
   const agoMs = useLiveAgoMs();
   const { estimate } = useLiveRankEstimate(entryId);
   const liveRankValue = estimate?.liveRank ?? null;
   const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
+
+  const deadline =
+    nextDeadline && countdown.label && !countdown.isPast ? (
+      <DeadlinePill gwLabel={`GW${nextDeadline.event}`} countdown={countdown.label} />
+    ) : undefined;
 
   const baseLinks = buildBaseLinks();
   const allLinks =
@@ -68,7 +75,14 @@ export function NavBar() {
       : {};
 
   const liveRankPill =
-    entryId !== null ? <LiveRankPill rank={liveRankValue} href="/" /> : undefined;
+    entryId !== null ? (
+      <LiveRankPill
+        rank={liveRankValue}
+        movement={estimate?.movement ?? null}
+        direction={estimate?.direction ?? null}
+        href="/"
+      />
+    ) : undefined;
 
   return (
     <Nav
@@ -76,6 +90,7 @@ export function NavBar() {
       liveLabel={liveLabel}
       liveAgoMs={agoMs}
       {...(liveRankPill !== undefined ? { liveRankPill } : {})}
+      {...(deadline !== undefined ? { deadline } : {})}
       signInHref="/login"
       showAuthButton={FEATURE_AUTH}
       {...authProps}
