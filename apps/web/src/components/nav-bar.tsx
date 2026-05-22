@@ -22,8 +22,10 @@ export function NavBar() {
   const pathname = usePathname() ?? '/';
   const { session, signOut } = useAuth();
   const [entryId, setEntryId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const saved = window.localStorage.getItem(STORAGE_KEY);
     const id = saved ? Number(saved) : NaN;
     if (Number.isInteger(id) && id > 0) {
@@ -37,7 +39,7 @@ export function NavBar() {
   const agoMs = useLiveAgoMs();
   const { estimate } = useLiveRankEstimate(entryId);
   const liveRankValue = estimate?.liveRank ?? null;
-  const liveLabel = currentGw !== null ? `GW${currentGw} Live` : 'Live';
+  const liveLabel = mounted && currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
   const baseLinks = buildNavLinks({
     hasEntry: entryId !== null,

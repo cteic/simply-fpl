@@ -41,6 +41,21 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
     );
   }
 
+  if (data.standings.results.length === 0) {
+    return (
+      <Card paddingHorizontal={16} paddingVertical={13}>
+        <YStack gap={4}>
+          <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color">
+            {data.league.name}
+          </Text>
+          <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+            No managers in this league yet.
+          </Text>
+        </YStack>
+      </Card>
+    );
+  }
+
   const totalRows = data.standings.results.length;
   const visible =
     expanded || totalRows <= 10 ? data.standings.results : data.standings.results.slice(0, 10);

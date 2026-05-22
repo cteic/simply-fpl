@@ -182,6 +182,7 @@ export interface FplEntrySnapshot {
   entry: FplEntry;
   picks: FplEntryGameweekPicks | null;
   gw: number;
+  picksAvailable: boolean;
 }
 
 export type BootstrapLitePlayer = Pick<
