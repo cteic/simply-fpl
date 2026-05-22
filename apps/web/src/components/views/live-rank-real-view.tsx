@@ -2,6 +2,8 @@
 
 import { useParams } from 'next/navigation';
 
+import { useThemeName } from 'tamagui';
+
 import { liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
@@ -37,7 +39,8 @@ import {
   XStack,
   YStack,
   colors,
-  stadiumGradient,
+  featureSurfaceStyle,
+  resolveThemeName,
 } from '@simplyfpl/ui';
 import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 
@@ -236,6 +239,7 @@ interface InnerProps {
 }
 
 function LiveRankInner({ entryId }: InnerProps) {
+  const heroSurface = featureSurfaceStyle(resolveThemeName(useThemeName()), 'panel');
   const {
     data: snapshot,
     isLoading: snapshotLoading,
@@ -430,8 +434,10 @@ function LiveRankInner({ entryId }: InnerProps) {
             overflow="hidden"
             paddingHorizontal={22}
             paddingVertical={22}
-            backgroundColor="$brand"
-            style={{ backgroundImage: stadiumGradient }}
+            backgroundColor="$featureSurface"
+            borderWidth={heroSurface.borderWidth}
+            borderColor="$featureBorder"
+            style={{ backgroundImage: heroSurface.backgroundImage }}
           >
             <YStack marginBottom={12}>
               <Logo variant="lockup" tone="stadium" size="md" />
