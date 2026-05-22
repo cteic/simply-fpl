@@ -31,6 +31,8 @@ import {
   Text,
   XStack,
   YStack,
+  colors,
+  stadiumGradient,
 } from '@simplyfpl/ui';
 import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 
@@ -367,10 +369,7 @@ function LiveRankInner({ entryId }: InnerProps) {
             paddingHorizontal={22}
             paddingVertical={22}
             backgroundColor="$brand"
-            style={{
-              backgroundImage:
-                'radial-gradient(120% 130% at 85% -20%, #1A8A6E 0%, #0F766E 45%, #0B4F49 100%)',
-            }}
+            style={{ backgroundImage: stadiumGradient }}
           >
             <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
               <Text
@@ -379,7 +378,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                 fontWeight="600"
                 textTransform="uppercase"
                 letterSpacing={1.4}
-                color="#5EEAD4"
+                color="$stadiumAccent"
               >
                 est. live rank
               </Text>
@@ -392,7 +391,7 @@ function LiveRankInner({ entryId }: InnerProps) {
               lineHeight={58}
               fontWeight="400"
               letterSpacing={-2}
-              color="#FFFFFF"
+              color="$inverse"
               marginTop={6}
               $sm={{ fontSize: 44, lineHeight: 46 }}
             >
@@ -403,12 +402,12 @@ function LiveRankInner({ entryId }: InnerProps) {
               {estimate && movementLabel ? (
                 <XStack
                   alignItems="center"
-                  backgroundColor="#5EEAD4"
+                  backgroundColor="$stadiumAccent"
                   paddingHorizontal={10}
                   paddingVertical={3}
                   borderRadius={99}
                 >
-                  <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
+                  <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$stadium3">
                     {movementLabel}
                   </Text>
                 </XStack>
@@ -416,17 +415,17 @@ function LiveRankInner({ entryId }: InnerProps) {
                 <XStack
                   alignItems="center"
                   borderWidth={1}
-                  borderColor="rgba(255,255,255,0.3)"
+                  borderColor="$overlay5"
                   paddingHorizontal={10}
                   paddingVertical={3}
                   borderRadius={99}
                 >
-                  <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.85)">
+                  <Text fontFamily="$body" fontSize={12} color="$inverseStrong">
                     live
                   </Text>
                 </XStack>
               )}
-              <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
+              <Text fontFamily="$body" fontSize={12.5} color="$inverseStrong">
                 since GW start
               </Text>
             </XStack>
@@ -440,12 +439,19 @@ function LiveRankInner({ entryId }: InnerProps) {
                 <polyline
                   points="0,33 57,34 114,28 171,30 228,19 285,21 342,10 400,6"
                   fill="none"
-                  stroke="#5EEAD4"
+                  stroke={colors.stadiumAccent}
                   strokeWidth={2.4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <circle cx={400} cy={6} r={3.4} fill="#FFFFFF" stroke="#34D399" strokeWidth={2} />
+                <circle
+                  cx={400}
+                  cy={6}
+                  r={3.4}
+                  fill={colors.inverse}
+                  stroke={colors.stadiumAccentStrong}
+                  strokeWidth={2}
+                />
               </svg>
             </YStack>
 
@@ -454,17 +460,17 @@ function LiveRankInner({ entryId }: InnerProps) {
                 flex={1}
                 height={4}
                 borderRadius={2}
-                backgroundColor="rgba(255,255,255,0.18)"
+                backgroundColor="$overlay4"
                 overflow="hidden"
               >
                 <YStack
                   height={4}
                   borderRadius={2}
-                  backgroundColor="#5EEAD4"
+                  backgroundColor="$stadiumAccent"
                   style={{ animation: 'sfRefresh 60s linear infinite' }}
                 />
               </YStack>
-              <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.7)">
+              <Text fontFamily="$body" fontSize={11} color="$inverseMuted">
                 {isLoading ? 'loading…' : 'refreshes every 60s'}
               </Text>
             </XStack>
