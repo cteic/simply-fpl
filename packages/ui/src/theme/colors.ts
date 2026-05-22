@@ -63,6 +63,37 @@ export const colors = {
   youRowHover: '#EDEDFD',
   buttonHover: '#2D2D2A',
 
+  // ── Stadium ────────────────────────────────────────────────────────────
+  // Teal "matchday" gradient surfaces (hero, page headers, live-rank card).
+  // Stops run brightest → darkest; the shared gradients in `gradients.ts`
+  // compose them. stadium2 matches $brand.
+  stadium1: '#1A8A6E',
+  stadium2: '#0F766E',
+  stadium3: '#0B4F49',
+  stadium4: '#082E2A',
+  // Mint accents on the teal field (eyebrow, CTA, sparkline, accent text).
+  stadiumAccent: '#5EEAD4',
+  stadiumAccentStrong: '#34D399',
+  // Error text legible on the teal field.
+  stadiumDanger: '#FCA5A5',
+
+  // ── Inverse content ────────────────────────────────────────────────────
+  // White text ladder for use on stadium / any dark teal surface.
+  inverse: '#FFFFFF',
+  inverseStrong: 'rgba(255,255,255,0.8)',
+  inverseMuted: 'rgba(255,255,255,0.72)',
+  inverseSoft: 'rgba(255,255,255,0.55)',
+  inverseFaint: 'rgba(255,255,255,0.4)',
+
+  // ── Overlay scale ──────────────────────────────────────────────────────
+  // White fills / borders / tracks on teal surfaces, faint → strong.
+  overlay1: 'rgba(255,255,255,0.06)',
+  overlay2: 'rgba(255,255,255,0.1)',
+  overlay3: 'rgba(255,255,255,0.12)',
+  overlay4: 'rgba(255,255,255,0.18)',
+  overlay5: 'rgba(255,255,255,0.28)',
+  overlay6: 'rgba(255,255,255,0.45)',
+
   // True transparent / white / black for occasional needs
   white: '#FFFFFF',
   black: '#000000',
