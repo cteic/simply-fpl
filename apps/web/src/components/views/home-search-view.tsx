@@ -62,7 +62,11 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
 
   return (
     <PageShell>
-      <PageHeader title={<Logo size="lg" />} meta="Live FPL companion · GW30" />
+      <PageHeader
+        tone="stadium"
+        title={<Logo size="lg" tone="stadium" />}
+        meta="Live FPL companion · GW30"
+      />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
         <SectionHeader title="Find your team" />

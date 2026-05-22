@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Input, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
+import { Input, TeamIdHelp, Text, XStack, YStack, stadiumHeroGradient } from '@simplyfpl/ui';
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -87,8 +87,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       backgroundColor="$brand"
       style={{
         minHeight: 'calc(100dvh - 54px)',
-        backgroundImage:
-          'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 64px), radial-gradient(120% 90% at 70% -10%, #1A8A6E 0%, #0F766E 32%, #0B4F49 70%, #082E2A 100%)',
+        backgroundImage: stadiumHeroGradient,
       }}
     >
       <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
@@ -100,7 +99,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           fontWeight="600"
           textTransform="uppercase"
           letterSpacing={2.4}
-          color="#5EEAD4"
+          color="$stadiumAccent"
         >
           {HERO_COPY.eyebrow}
         </Text>
@@ -112,11 +111,11 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           lineHeight={56}
           letterSpacing={-1.8}
           textAlign="center"
-          color="#FFFFFF"
+          color="$inverse"
           $sm={{ fontSize: 36, lineHeight: 38 }}
         >
           {HERO_COPY.headlineLead}
-          <Text color="#5EEAD4">{HERO_COPY.headlineAccent}</Text>
+          <Text color="$stadiumAccent">{HERO_COPY.headlineAccent}</Text>
         </Text>
 
         <Text
@@ -124,7 +123,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           fontSize={16}
           lineHeight={24}
           textAlign="center"
-          color="rgba(255,255,255,0.78)"
+          color="$inverseStrong"
           maxWidth={520}
         >
           {HERO_COPY.subhead}
@@ -143,11 +142,11 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               placeholder={HERO_COPY.inputPlaceholder}
               fontFamily="$mono"
               fontSize={15}
-              backgroundColor="rgba(255,255,255,0.1)"
-              borderColor="rgba(255,255,255,0.28)"
-              color="#FFFFFF"
-              hoverStyle={{ borderColor: 'rgba(255,255,255,0.45)' }}
-              focusStyle={{ borderColor: '#5EEAD4' }}
+              backgroundColor="$overlay2"
+              borderColor="$overlay5"
+              color="$inverse"
+              hoverStyle={{ borderColor: '$overlay6' }}
+              focusStyle={{ borderColor: '$stadiumAccent' }}
             />
             <Text
               render="button"
@@ -156,27 +155,27 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               fontFamily="$body"
               fontSize={15}
               fontWeight="700"
-              color="#0B4F49"
-              backgroundColor="#5EEAD4"
+              color="$stadium3"
+              backgroundColor="$stadiumAccent"
               paddingHorizontal={24}
               paddingVertical={14}
               borderRadius={8}
               cursor="pointer"
               whiteSpace="nowrap"
-              hoverStyle={{ backgroundColor: '#34D399' }}
+              hoverStyle={{ backgroundColor: '$stadiumAccentStrong' }}
               pressStyle={{ opacity: 0.85 }}
             >
               {HERO_COPY.ctaLabel} →
             </Text>
           </XStack>
           {error ? (
-            <Text fontFamily="$body" fontSize={12} color="#FCA5A5" textAlign="center">
+            <Text fontFamily="$body" fontSize={12} color="$stadiumDanger" textAlign="center">
               {error}
             </Text>
           ) : null}
         </YStack>
 
-        <Text fontFamily="$body" fontSize={13} color="rgba(255,255,255,0.55)" textAlign="center">
+        <Text fontFamily="$body" fontSize={13} color="$inverseSoft" textAlign="center">
           {HERO_COPY.note}
         </Text>
 
@@ -189,18 +188,18 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               flexGrow={1}
               flexBasis={180}
               maxWidth={240}
-              backgroundColor="rgba(255,255,255,0.06)"
+              backgroundColor="$overlay1"
               borderWidth={1}
-              borderColor="rgba(255,255,255,0.12)"
+              borderColor="$overlay3"
               borderRadius={12}
               paddingHorizontal={16}
               paddingVertical={14}
               gap={5}
             >
-              <Text fontFamily="$body" fontSize={13} fontWeight="600" color="#FFFFFF">
+              <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$inverse">
                 {feature.title}
               </Text>
-              <Text fontFamily="$body" fontSize={12} lineHeight={17} color="rgba(255,255,255,0.6)">
+              <Text fontFamily="$body" fontSize={12} lineHeight={17} color="$inverseSoft">
                 {feature.body}
               </Text>
             </YStack>
@@ -210,7 +209,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
         <Text
           fontFamily="$body"
           fontSize={11}
-          color="rgba(255,255,255,0.4)"
+          color="$inverseFaint"
           textAlign="center"
           marginTop={16}
         >
