@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Input, Text, XStack, YStack } from '@simplyfpl/ui';
+import { Input, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -92,6 +92,8 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       }}
     >
       <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
+        <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={52} height={52} />
+
         <Text
           fontFamily="$body"
           fontSize={11}
@@ -177,6 +179,8 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
         <Text fontFamily="$body" fontSize={13} color="rgba(255,255,255,0.55)" textAlign="center">
           {HERO_COPY.note}
         </Text>
+
+        <TeamIdHelp tone="inverse" />
 
         <XStack gap={10} flexWrap="wrap" justifyContent="center" marginTop={14}>
           {HERO_FEATURES.map((feature) => (
