@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   const rank = clip((params.get('rank') ?? '').trim(), 16);
   const gw = clip((params.get('gw') ?? '').trim(), 8);
   const tagline = team
-    ? 'Live FPL rank · simply.fpl'
+    ? 'Live FPL rank · simplyfpl.com'
     : 'Fastest live-rank companion for Fantasy Premier League';
 
   const [dmMono, dmSans] = await Promise.all([
@@ -61,9 +61,9 @@ export async function GET(request: NextRequest) {
           lineHeight: 1,
         }}
       >
-        <span style={{ color: COLORS.ink }}>simply</span>
+        <span style={{ color: COLORS.ink }}>simplyfpl</span>
         <span style={{ color: COLORS.accent }}>.</span>
-        <span style={{ color: COLORS.ink }}>fpl</span>
+        <span style={{ color: COLORS.ink }}>com</span>
       </div>
 
       {team ? (
