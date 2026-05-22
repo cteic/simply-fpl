@@ -2,8 +2,19 @@
 
 import { useState } from 'react';
 
+import { useThemeName } from 'tamagui';
+
 import { fplClient } from '@simplyfpl/fpl-client';
-import { Input, Logo, TeamIdHelp, Text, XStack, YStack, stadiumHeroGradient } from '@simplyfpl/ui';
+import {
+  Input,
+  Logo,
+  TeamIdHelp,
+  Text,
+  XStack,
+  YStack,
+  featureSurfaceStyle,
+  resolveThemeName,
+} from '@simplyfpl/ui';
 
 import { lookupEntry, parseEntryId } from '../team-id-search';
 
@@ -53,6 +64,9 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
+  const themeName = resolveThemeName(useThemeName());
+  const surface = featureSurfaceStyle(themeName, 'hero');
+  const logoTone = themeName === 'quiet' ? 'default' : 'inverse';
 
   async function handleSubmit() {
     if (checking) return;
@@ -93,14 +107,16 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       justifyContent="center"
       paddingHorizontal={20}
       paddingVertical={56}
-      backgroundColor="$brand"
+      backgroundColor="$featureSurface"
+      borderWidth={surface.borderWidth}
+      borderColor="$featureBorder"
       style={{
         minHeight: 'calc(100dvh - 54px)',
-        backgroundImage: stadiumHeroGradient,
+        backgroundImage: surface.backgroundImage,
       }}
     >
       <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
-        <Logo variant="lockup" tone="inverse" size="lg" href="/" />
+        <Logo variant="lockup" tone={logoTone} size="lg" href="/" />
 
         <Text
           fontFamily="$body"
