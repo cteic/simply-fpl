@@ -2,7 +2,7 @@
 
 import { Suspense, lazy } from 'react';
 
-import { Text, YStack } from '@simplyfpl/ui';
+import { SkeletonLeagueTable, YStack } from '@simplyfpl/ui';
 
 import { DashboardContainer, DashboardSection } from './dashboard-container';
 import { LiveRankSection } from './sections/live-rank-section';
@@ -22,12 +22,10 @@ const LeaguesSection = lazy(() =>
   import('./sections/leagues-section').then((m) => ({ default: m.LeaguesSection }))
 );
 
-function SectionFallback({ label }: { label: string }) {
+function SectionFallback() {
   return (
-    <YStack paddingVertical={24} alignItems="center">
-      <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-        Loading {label}…
-      </Text>
+    <YStack paddingHorizontal={28} paddingVertical={32} $sm={{ paddingHorizontal: 16 }}>
+      <SkeletonLeagueTable />
     </YStack>
   );
 }
@@ -40,26 +38,26 @@ export function DashboardView({ entryId }: DashboardViewProps) {
   return (
     <DashboardContainer>
       <YStack data-testid="home-unified-dashboard">
-        <DashboardSection id="live-rank" fillViewport>
+        <DashboardSection id="live-rank" fillViewport index={0}>
           <LiveRankSection entryId={entryId} />
         </DashboardSection>
-        <DashboardSection id="effective-ownership">
-          <Suspense fallback={<SectionFallback label="cohort comparison" />}>
+        <DashboardSection id="effective-ownership" index={1}>
+          <Suspense fallback={<SectionFallback />}>
             <EffectiveOwnershipSection />
           </Suspense>
         </DashboardSection>
-        <DashboardSection id="threats">
-          <Suspense fallback={<SectionFallback label="threats" />}>
+        <DashboardSection id="threats" index={2}>
+          <Suspense fallback={<SectionFallback />}>
             <ThreatsSection />
           </Suspense>
         </DashboardSection>
-        <DashboardSection id="rivals">
-          <Suspense fallback={<SectionFallback label="rivals" />}>
+        <DashboardSection id="rivals" index={3}>
+          <Suspense fallback={<SectionFallback />}>
             <RivalsSection entryId={entryId} />
           </Suspense>
         </DashboardSection>
-        <DashboardSection id="leagues">
-          <Suspense fallback={<SectionFallback label="leagues" />}>
+        <DashboardSection id="leagues" index={4}>
+          <Suspense fallback={<SectionFallback />}>
             <LeaguesSection />
           </Suspense>
         </DashboardSection>
