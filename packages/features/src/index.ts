@@ -22,3 +22,4 @@ export * as subscriptions from './subscriptions';
 export * as cohorts from './cohorts';
 export * as threats from './threats';
 export * as effectiveOwnership from './effective-ownership';
+export * as theme from './theme';
