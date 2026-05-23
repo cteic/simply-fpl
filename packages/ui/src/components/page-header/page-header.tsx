@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { stadiumGradient } from '../../theme';
+
 const Header = styled(XStack, {
   alignItems: 'flex-start',
   justifyContent: 'space-between',
@@ -44,10 +46,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
         paddingHorizontal={22}
         paddingVertical={20}
         backgroundColor="$brand"
-        style={{
-          backgroundImage:
-            'radial-gradient(130% 200% at 92% -40%, #1A8A6E 0%, #0F766E 52%, #0B4F49 100%)',
-        }}
+        style={{ backgroundImage: stadiumGradient }}
       >
         <XStack alignItems="center" justifyContent="space-between" gap={12} flexWrap="wrap">
           <YStack>
