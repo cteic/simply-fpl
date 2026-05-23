@@ -476,7 +476,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                   cy={6}
                   r={3.4}
                   fill={colors.inverse}
-                  stroke={colors.stadiumAccentStrong}
+                  stroke={colors.stadiumAccent}
                   strokeWidth={2}
                 />
               </svg>
