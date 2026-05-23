@@ -23,16 +23,21 @@
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-svg": "*"
   },
   "peerDependenciesMeta": {
     "react-native": {
+      "optional": true
+    },
+    "react-native-svg": {
       "optional": true
     }
   },
   "devDependencies": {
     "@simplyfpl/tsconfig-config": "workspace:*",
     "@types/react": "^19.0.0",
+    "react-native-svg": "15.8.0",
     "typescript": "^5.7.0"
   }
 }
