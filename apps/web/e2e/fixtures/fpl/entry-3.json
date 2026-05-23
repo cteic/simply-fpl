@@ -1,0 +1,30 @@
+{
+  "id": 3,
+  "player_first_name": "Multi",
+  "player_last_name": "League",
+  "name": "Multi League FC",
+  "summary_overall_rank": 98765,
+  "summary_overall_points": 2301,
+  "summary_event_rank": null,
+  "summary_event_points": 0,
+  "leagues": {
+    "classic": [
+      {
+        "id": 314,
+        "name": "Overall",
+        "short_name": "ov",
+        "league_type": "s",
+        "entry_rank": 98765
+      },
+      { "id": 1001, "name": "Ireland", "short_name": "ie", "league_type": "x", "entry_rank": 12 },
+      {
+        "id": 200001,
+        "name": "The Office Bantz",
+        "short_name": null,
+        "league_type": "x",
+        "entry_rank": 4
+      }
+    ],
+    "h2h": []
+  }
+}

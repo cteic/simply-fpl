@@ -58,6 +58,7 @@ async function installWorkerRoutes(page: Page): Promise<void> {
   const entry1History = readFixture('entry-1-history.json');
   const entry2 = readFixture('entry-2.json');
   const entry2Picks = readFixture('entry-2-event-37-picks.json');
+  const entry3 = readFixture('entry-3.json');
   const league314 = readFixture('leagues-classic-314.json');
   const league1001 = readFixture('leagues-classic-1001.json');
   const league200001 = readFixture('leagues-classic-200001.json');
@@ -111,6 +112,7 @@ async function installWorkerRoutes(page: Page): Promise<void> {
     if (pathname === '/fpl/entry/2/') return route.fulfill(jsonResponse(entry2));
     if (pathname === '/fpl/entry/2/event/37/picks/')
       return route.fulfill(jsonResponse(entry2Picks));
+    if (pathname === '/fpl/entry/3/') return route.fulfill(jsonResponse(entry3));
     if (pathname === '/fpl/leagues-classic/314/standings/')
       return route.fulfill(jsonResponse(league314));
     if (pathname === '/fpl/leagues-classic/1001/standings/')
@@ -176,6 +178,10 @@ When('I visit the head-to-head page for entries 1 and 2', async ({ page }) => {
   await visitAndSettle(page, '/h2h/1/2');
 });
 
+When('I visit the leagues page', async ({ page }) => {
+  await visitAndSettle(page, '/leagues');
+});
+
 When('I visit the status page', async ({ page }) => {
   await visitAndSettle(page, '/status');
 });
@@ -188,14 +194,9 @@ Then('no page error should have occurred', async ({ page }) => {
 
 Then('the live rank hero and stat tiles are visible', async ({ page }) => {
   await expect(page.getByText('est. live rank', { exact: false }).first()).toBeVisible();
-  for (const label of [
-    'GW Points',
-    'Total Points',
-    'On Bench',
-    'Safety Score',
-    'Off Top 10k',
-    'Captain',
-  ]) {
+  // Safety Score / Off Top 10k tiles only render once real cohort aggregates
+  // exist; the always-present tiles are asserted here.
+  for (const label of ['GW Points', 'Total Points', 'On Bench', 'Captain']) {
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
   }
 });
