@@ -24,8 +24,8 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#F7F7F5',
-          color: '#1A1A18',
+          backgroundColor: '#F6F7F4',
+          color: '#15201A',
           fontFamily: FONT_STACK,
           padding: '24px',
         }}
@@ -37,7 +37,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               fontWeight: 600,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: '#6B6B63',
+              color: '#566055',
               margin: '0 0 10px',
             }}
           >
@@ -46,7 +46,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           <h1 style={{ fontSize: 22, fontWeight: 600, margin: '0 0 10px' }}>
             Something went wrong
           </h1>
-          <p style={{ fontSize: 14, lineHeight: 1.5, color: '#6B6B63', margin: '0 0 20px' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.5, color: '#566055', margin: '0 0 20px' }}>
             The app hit an unexpected error and couldn't load. This is on us — try again, and if it
             keeps happening, come back in a few minutes.
           </p>

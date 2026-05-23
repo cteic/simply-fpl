@@ -10,7 +10,7 @@ import { Logo } from '../logo';
 
 const Bar = styled(XStack, {
   zIndex: 200,
-  backgroundColor: 'rgba(247,247,245,0.92)',
+  backgroundColor: 'rgba(246,247,244,0.86)',
   backdropFilter: 'blur(18px)',
   borderBottomWidth: 1,
   borderBottomColor: '$border',

@@ -14,7 +14,7 @@ export default async function Icon() {
       style={{
         width: '100%',
         height: '100%',
-        background: '#F7F7F5',
+        background: '#F6F7F4',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -25,7 +25,7 @@ export default async function Icon() {
         lineHeight: 1,
       }}
     >
-      <span style={{ color: '#1A1A18' }}>s</span>
+      <span style={{ color: '#15201A' }}>s</span>
       <span style={{ color: '#0F766E' }}>.</span>
     </div>,
     {

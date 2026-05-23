@@ -49,8 +49,8 @@ const TONES: Record<TeamIdHelpTone, TonePalette> = {
   inverse: {
     trigger: 'rgba(255,255,255,0.72)',
     triggerHover: '#FFFFFF',
-    accent: '#5EEAD4',
-    accentBg: 'rgba(94,234,212,0.14)',
+    accent: '$stadiumAccent',
+    accentBg: 'rgba(52,211,153,0.14)',
     panelBg: 'rgba(255,255,255,0.06)',
     panelBorder: 'rgba(255,255,255,0.12)',
     stepText: 'rgba(255,255,255,0.82)',
