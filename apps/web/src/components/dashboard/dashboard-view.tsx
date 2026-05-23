@@ -5,8 +5,10 @@ import { Suspense, lazy } from 'react';
 import { SkeletonLeagueTable, YStack } from '@simplyfpl/ui';
 
 import { DashboardContainer, DashboardSection } from './dashboard-container';
-import { LiveRankSection } from './sections/live-rank-section';
 
+const LiveRankSection = lazy(() =>
+  import('./sections/live-rank-section').then((m) => ({ default: m.LiveRankSection }))
+);
 const ThreatsSection = lazy(() =>
   import('./sections/threats-section').then((m) => ({ default: m.ThreatsSection }))
 );
@@ -39,7 +41,9 @@ export function DashboardView({ entryId }: DashboardViewProps) {
     <DashboardContainer>
       <YStack data-testid="home-unified-dashboard">
         <DashboardSection id="live-rank" fillViewport index={0}>
-          <LiveRankSection entryId={entryId} />
+          <Suspense fallback={<SectionFallback />}>
+            <LiveRankSection entryId={entryId} />
+          </Suspense>
         </DashboardSection>
         <DashboardSection id="effective-ownership" index={1}>
           <Suspense fallback={<SectionFallback />}>

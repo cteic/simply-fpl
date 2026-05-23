@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from 'react';
 
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { DashboardView } from '@/components/dashboard/dashboard-view';
 
-import { HeroPreSaveView } from './hero-presave-view';
 import { type HomeChoice, resolveHomeChoice } from './home-choice';
+
+const HeroPreSaveView = dynamic(
+  () => import('./hero-presave-view').then((m) => m.HeroPreSaveView),
+  { ssr: false }
+);
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
