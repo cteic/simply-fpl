@@ -7,6 +7,7 @@ import type {
 } from '@simplyfpl/types';
 
 import { isGameweekFinishedAndBonusLocked, pickCadenceMs } from './cadence';
+import { captureSnapshotToR2 } from './gw38-capture';
 import {
   type ReplayRow,
   computeNextEmitDelayMs,
@@ -112,6 +113,10 @@ export class LiveGwDO {
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const gw = url.searchParams.get('gw') ?? 'unknown';
+
+    if (url.searchParams.get('capture-tick') === '1') {
+      return this.handleCaptureTick(gw);
+    }
 
     if (request.headers.get('Upgrade') !== 'websocket') {
       return new Response('Expected Upgrade: websocket', { status: 426 });
@@ -367,6 +372,8 @@ export class LiveGwDO {
 
     await this.state.storage.delete(STORAGE_KEY_BACKOFF);
 
+    await this.maybeCaptureGw38(gw, payload);
+
     const prev = await this.state.storage.get<FplLiveGameweek>(STORAGE_KEY_SNAPSHOT);
     const changed = diffLiveSnapshots(prev ?? null, payload);
 
@@ -475,6 +482,29 @@ export class LiveGwDO {
     });
     if (nextDelay !== null) {
       await this.state.storage.setAlarm(Date.now() + nextDelay);
+    }
+  }
+
+  private async handleCaptureTick(gw: string): Promise<Response> {
+    const gwNumber = Number(gw);
+    if (!Number.isFinite(gwNumber)) {
+      return new Response('invalid gw', { status: 400 });
+    }
+    await this.state.storage.put(STORAGE_KEY_GW, gwNumber);
+    const existingAlarm = await this.state.storage.getAlarm();
+    if (existingAlarm === null) {
+      await this.state.storage.setAlarm(Date.now() + FIRST_ALARM_DELAY_MS);
+    }
+    return new Response('ok', { status: 200 });
+  }
+
+  private async maybeCaptureGw38(gw: number, data: FplLiveGameweek): Promise<void> {
+    const bucket = this.env.RECORDINGS_R2;
+    if (!bucket) return;
+    try {
+      await captureSnapshotToR2(bucket, gw, data, Date.now());
+    } catch (err) {
+      console.warn(`LiveGwDO[gw:${gw}]: gw38 capture failed: ${String(err)}`);
     }
   }
 
