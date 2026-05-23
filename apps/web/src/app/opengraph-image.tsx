@@ -40,9 +40,9 @@ export default async function OpenGraphImage() {
           lineHeight: 1,
         }}
       >
-        <span style={{ color: '#1A1A18' }}>simply</span>
+        <span style={{ color: '#1A1A18' }}>simplyfpl</span>
         <span style={{ color: '#0F766E' }}>.</span>
-        <span style={{ color: '#1A1A18' }}>fpl</span>
+        <span style={{ color: '#1A1A18' }}>com</span>
       </div>
       <div
         style={{

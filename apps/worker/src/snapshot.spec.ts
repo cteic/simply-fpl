@@ -188,6 +188,7 @@ describe('handleEntrySnapshot', () => {
     expect(body.bootstrap.events[0]?.id).toBe(30);
     expect(body.entry.id).toBe(1);
     expect(body.picks).not.toBeNull();
+    expect(body.picksAvailable).toBe(true);
   });
 
   it('returns 404 when the entry does not exist', async () => {
@@ -231,6 +232,7 @@ describe('handleEntrySnapshot', () => {
     const body = result.body as FplEntrySnapshot;
     expect(body.entry.id).toBe(2);
     expect(body.picks).toBeNull();
+    expect(body.picksAvailable).toBe(false);
   });
 
   it('returns 502 when bootstrap fetch fails (uncached + upstream down)', async () => {
