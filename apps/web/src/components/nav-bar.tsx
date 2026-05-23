@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { auth, liveRank } from '@simplyfpl/features';
 import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
-import { DeadlinePill, LiveRankPill, Nav } from '@simplyfpl/ui';
+import { LiveStatusPill, Nav } from '@simplyfpl/ui';
 
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
 import { useBootstrap } from '@/queries/fpl';
@@ -43,10 +43,10 @@ export function NavBar() {
   const liveRankValue = estimate?.liveRank ?? null;
   const liveLabel = mounted && currentGw !== null ? `GW${currentGw} Live` : 'Live';
 
-  const deadline =
-    nextDeadline && countdown.label && !countdown.isPast ? (
-      <DeadlinePill gwLabel={`GW${nextDeadline.event}`} countdown={countdown.label} />
-    ) : undefined;
+  const deadlineProps =
+    nextDeadline && countdown.label && !countdown.isPast
+      ? { deadlineLabel: `GW${nextDeadline.event}`, deadlineCountdown: countdown.label }
+      : {};
 
   const baseLinks = buildNavLinks({
     hasEntry: entryId !== null,
@@ -70,23 +70,22 @@ export function NavBar() {
         }
       : {};
 
-  const liveRankPill =
-    entryId !== null ? (
-      <LiveRankPill
-        rank={liveRankValue}
-        movement={estimate?.movement ?? null}
-        direction={estimate?.direction ?? null}
-        href="/"
-      />
-    ) : undefined;
+  const statusPill = (
+    <LiveStatusPill
+      liveLabel={liveLabel}
+      agoMs={agoMs}
+      rank={entryId !== null ? liveRankValue : null}
+      movement={estimate?.movement ?? null}
+      direction={estimate?.direction ?? null}
+      {...deadlineProps}
+      href="/"
+    />
+  );
 
   return (
     <Nav
       links={links}
-      liveLabel={liveLabel}
-      liveAgoMs={agoMs}
-      {...(liveRankPill !== undefined ? { liveRankPill } : {})}
-      {...(deadline !== undefined ? { deadline } : {})}
+      statusPill={statusPill}
       signInHref="/login"
       showAuthButton={FEATURE_AUTH}
       {...authProps}
