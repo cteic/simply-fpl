@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   FNote,
+  FilterButton,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -58,10 +59,13 @@ export function LeaguesShowcase() {
 
 function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: boolean }) {
   const { data: entry, isLoading, isError } = useEntry(entryId);
+  const [activeLeagueId, setActiveLeagueId] = useState<number | null>(null);
 
   const classicLeagues = (entry?.leagues?.classic ?? [])
     .filter((l) => l.league_type !== 's')
     .slice(0, MAX_CLASSIC_LEAGUES);
+
+  const activeId = activeLeagueId ?? classicLeagues[0]?.id ?? null;
 
   return (
     <PageShell>
@@ -73,12 +77,13 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
         }
       />
 
-      <LeagueListBody
+      <LeagueTabsBody
         isLoading={isLoading}
         isError={isError}
-        leagueIds={classicLeagues.map((l) => l.id)}
+        leagues={classicLeagues}
+        activeId={activeId}
+        onSelect={setActiveLeagueId}
         myEntryId={entryId}
-        emptyMessage="No mini-leagues found for this team yet."
       />
 
       {FEATURE_AUTH && !signedIn ? (
@@ -146,21 +151,28 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
   );
 }
 
-interface LeagueListBodyProps {
-  isLoading: boolean;
-  isError: boolean;
-  leagueIds: number[];
-  myEntryId?: number;
-  emptyMessage: string;
+interface LeagueTab {
+  id: number;
+  name: string;
 }
 
-function LeagueListBody({
+interface LeagueTabsBodyProps {
+  isLoading: boolean;
+  isError: boolean;
+  leagues: LeagueTab[];
+  activeId: number | null;
+  onSelect: (leagueId: number) => void;
+  myEntryId: number;
+}
+
+function LeagueTabsBody({
   isLoading,
   isError,
-  leagueIds,
+  leagues,
+  activeId,
+  onSelect,
   myEntryId,
-  emptyMessage,
-}: LeagueListBodyProps) {
+}: LeagueTabsBodyProps) {
   if (isLoading) {
     return <SkeletonLeagueTable />;
   }
@@ -175,25 +187,32 @@ function LeagueListBody({
     );
   }
 
-  if (leagueIds.length === 0) {
+  if (leagues.length === 0) {
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          {emptyMessage}
+          No mini-leagues found for this team yet.
         </Text>
       </Card>
     );
   }
 
   return (
-    <YStack gap={10}>
-      {leagueIds.map((leagueId) => (
-        <TrackedLeagueCard
-          key={leagueId}
-          leagueId={leagueId}
-          {...(myEntryId !== undefined ? { myEntryId } : {})}
-        />
-      ))}
+    <YStack gap={14}>
+      <XStack gap={8} flexWrap="wrap" role="group" aria-label="Mini-leagues">
+        {leagues.map((league) => (
+          <FilterButton
+            key={league.id}
+            active={league.id === activeId}
+            onPress={() => onSelect(league.id)}
+          >
+            {league.name}
+          </FilterButton>
+        ))}
+      </XStack>
+      {activeId !== null ? (
+        <TrackedLeagueCard key={activeId} leagueId={activeId} myEntryId={myEntryId} />
+      ) : null}
     </YStack>
   );
 }
