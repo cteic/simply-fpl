@@ -18,4 +18,4 @@ Feature: Home unified dashboard — marketing hero (pre-team-id)
   Scenario: Saving a team id from the hero reveals the dashboard
     When I visit the home page with the unified flag override
     And I enter team id "1" in the hero and submit
-    Then the unified dashboard contains all five sections
+    Then the unified dashboard contains all four sections

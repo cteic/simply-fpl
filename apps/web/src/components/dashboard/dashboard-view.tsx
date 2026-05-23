@@ -18,9 +18,6 @@ const EffectiveOwnershipSection = lazy(() =>
 const RivalsSection = lazy(() =>
   import('./sections/rivals-section').then((m) => ({ default: m.RivalsSection }))
 );
-const LeaguesSection = lazy(() =>
-  import('./sections/leagues-section').then((m) => ({ default: m.LeaguesSection }))
-);
 
 function SectionFallback() {
   return (
@@ -54,11 +51,6 @@ export function DashboardView({ entryId }: DashboardViewProps) {
         <DashboardSection id="rivals" index={3}>
           <Suspense fallback={<SectionFallback />}>
             <RivalsSection entryId={entryId} />
-          </Suspense>
-        </DashboardSection>
-        <DashboardSection id="leagues" index={4}>
-          <Suspense fallback={<SectionFallback />}>
-            <LeaguesSection />
           </Suspense>
         </DashboardSection>
       </YStack>
