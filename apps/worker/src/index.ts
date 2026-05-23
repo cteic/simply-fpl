@@ -2,6 +2,7 @@ import type { BrowserWorker } from '@cloudflare/puppeteer';
 
 import { runScheduled } from './cohort/cohort';
 import { handleCohortAggregates } from './cohort/serve';
+import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
 import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
@@ -346,6 +347,16 @@ export default {
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    if (event.cron === GW38_CAPTURE_CRON) {
+      if (isWithinGw38CaptureWindow(event.scheduledTime)) {
+        const id = env.LIVE_GW.idFromName(`gw:${GW38_CAPTURE_GW}`);
+        const stub = env.LIVE_GW.get(id);
+        await stub
+          .fetch(`https://capture.internal/live/ws?gw=${GW38_CAPTURE_GW}&capture-tick=1`)
+          .catch(() => undefined);
+      }
+      return;
+    }
     if (event.cron === VS_COMPARISON_CRON) {
       await runComparison(env, { now: new Date(event.scheduledTime) });
       return;
