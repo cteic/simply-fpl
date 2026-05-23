@@ -2,6 +2,7 @@ import { DM_Mono, DM_Sans } from 'next/font/google';
 
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
+import { StaleDataBanner } from '@/components/stale-data-banner';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
 import { rootMetadata } from '@/lib/metadata';
 
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TamaguiClientProvider>
           <Providers>
             <NavBar />
+            <StaleDataBanner />
             {children}
           </Providers>
         </TamaguiClientProvider>
