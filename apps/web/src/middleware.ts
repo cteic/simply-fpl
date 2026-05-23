@@ -17,9 +17,6 @@ export function middleware(req: NextRequest) {
   if (pathname === '/rivals' || pathname.startsWith('/rivals/')) {
     return NextResponse.redirect(new URL('/#rivals', req.url));
   }
-  if (pathname === '/leagues' || pathname.startsWith('/leagues/')) {
-    return NextResponse.redirect(new URL('/#leagues', req.url));
-  }
   // /h2h/<a>/<b> is served by the static /h2h shell; the view parses the ids
   // from window.location.pathname. Sidesteps a next-on-pages bug where the
   // edge-runtime dynamic route's RSC flight payload is chunked mid-string,
@@ -39,8 +36,6 @@ export const config = {
     '/effective-ownership/:path*',
     '/rivals',
     '/rivals/:path*',
-    '/leagues',
-    '/leagues/:path*',
     '/h2h/:path*',
   ],
 };
