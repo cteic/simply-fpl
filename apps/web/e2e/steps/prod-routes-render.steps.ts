@@ -148,6 +148,11 @@ async function visitAndSettle(page: Page, path: string): Promise<void> {
 
 Given('the Worker returns deterministic FPL fixtures', async ({ page }) => {
   trackPageErrors(page);
+  // Freeze the wall clock (timers keep running) so the nav gameweek-deadline
+  // countdown renders a stable value across runs. The bootstrap fixture's next
+  // gameweek (GW38) has a deadline of 2026-05-23T15:00:00Z, so this fixed time
+  // yields a deterministic "1d 3h".
+  await page.clock.setFixedTime(new Date('2026-05-22T12:00:00Z'));
   await installWorkerRoutes(page);
 });
 

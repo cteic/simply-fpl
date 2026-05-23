@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { fplClient } from '@simplyfpl/fpl-client';
-import { Input, Logo, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
+import { Input, Logo, TeamIdHelp, Text, XStack, YStack, stadiumHeroGradient } from '@simplyfpl/ui';
 
 import { lookupEntry, parseEntryId } from '../team-id-search';
 
@@ -96,8 +96,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       backgroundColor="$brand"
       style={{
         minHeight: 'calc(100dvh - 54px)',
-        backgroundImage:
-          'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 64px), radial-gradient(120% 90% at 70% -10%, #1A8A6E 0%, #0F766E 32%, #0B4F49 70%, #082E2A 100%)',
+        backgroundImage: stadiumHeroGradient,
       }}
     >
       <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
@@ -109,7 +108,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           fontWeight="600"
           textTransform="uppercase"
           letterSpacing={2.4}
-          color="#5EEAD4"
+          color="#34D399"
         >
           {HERO_COPY.eyebrow}
         </Text>
@@ -125,7 +124,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           $sm={{ fontSize: 36, lineHeight: 38 }}
         >
           {HERO_COPY.headlineLead}
-          <Text color="#5EEAD4">{HERO_COPY.headlineAccent}</Text>
+          <Text color="#34D399">{HERO_COPY.headlineAccent}</Text>
         </Text>
 
         <Text
@@ -133,7 +132,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           fontSize={16}
           lineHeight={24}
           textAlign="center"
-          color="rgba(255,255,255,0.78)"
+          color="rgba(255,255,255,0.8)"
           maxWidth={520}
         >
           {HERO_COPY.subhead}
@@ -156,7 +155,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               borderColor="rgba(255,255,255,0.28)"
               color="#FFFFFF"
               hoverStyle={{ borderColor: 'rgba(255,255,255,0.45)' }}
-              focusStyle={{ borderColor: '#5EEAD4' }}
+              focusStyle={{ borderColor: '#34D399' }}
             />
             <Text
               render="button"
@@ -167,14 +166,14 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               fontSize={15}
               fontWeight="700"
               color="#0B4F49"
-              backgroundColor="#5EEAD4"
+              backgroundColor="#34D399"
               paddingHorizontal={24}
               paddingVertical={14}
               borderRadius={8}
               cursor={checking ? 'default' : 'pointer'}
               opacity={checking ? 0.7 : 1}
               whiteSpace="nowrap"
-              hoverStyle={{ backgroundColor: '#34D399' }}
+              hoverStyle={{ backgroundColor: '#38E4A5' }}
               pressStyle={{ opacity: 0.85 }}
             >
               {checking ? HERO_COPY.ctaLabelChecking : `${HERO_COPY.ctaLabel} →`}
@@ -211,7 +210,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               <Text fontFamily="$body" fontSize={13} fontWeight="600" color="#FFFFFF">
                 {feature.title}
               </Text>
-              <Text fontFamily="$body" fontSize={12} lineHeight={17} color="rgba(255,255,255,0.6)">
+              <Text fontFamily="$body" fontSize={12} lineHeight={17} color="rgba(255,255,255,0.55)">
                 {feature.body}
               </Text>
             </YStack>

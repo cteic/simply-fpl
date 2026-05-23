@@ -10,6 +10,7 @@ import {
   PageHeader,
   PageShell,
   PriceRow,
+  SkeletonPrices,
   Text,
   XStack,
   YStack,
@@ -59,7 +60,7 @@ export function PricesView() {
   }, [rows, filter]);
 
   const showFallback = isError || !prices;
-  const fallbackRows = isLoading || showFallback ? DEMO_BIG_PRICE_ROWS : null;
+  const fallbackRows = !isLoading && showFallback ? DEMO_BIG_PRICE_ROWS : null;
 
   return (
     <PageShell>
@@ -77,7 +78,9 @@ export function PricesView() {
         ))}
       </XStack>
 
-      {fallbackRows ? (
+      {isLoading ? <SkeletonPrices /> : null}
+
+      {!isLoading && fallbackRows ? (
         <Card>
           {fallbackRows.map((row, i) => (
             <PriceRow
@@ -93,7 +96,9 @@ export function PricesView() {
             />
           ))}
         </Card>
-      ) : (
+      ) : null}
+
+      {!isLoading && !fallbackRows ? (
         <Card>
           {visibleRows.length === 0 ? (
             <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
@@ -117,7 +122,7 @@ export function PricesView() {
             ))
           )}
         </Card>
-      )}
+      ) : null}
 
       <FNote>Price predictions are estimates based on FPL transfer data. Not guaranteed.</FNote>
     </PageShell>

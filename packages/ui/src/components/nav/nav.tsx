@@ -5,12 +5,11 @@ import type { ReactNode } from 'react';
 import { Text, XStack, styled } from 'tamagui';
 
 import { Button } from '../button';
-import { LivePill } from '../live-pill';
 import { Logo } from '../logo';
 
 const Bar = styled(XStack, {
   zIndex: 200,
-  backgroundColor: 'rgba(247,247,245,0.92)',
+  backgroundColor: 'rgba(246,247,244,0.86)',
   backdropFilter: 'blur(18px)',
   borderBottomWidth: 1,
   borderBottomColor: '$border',
@@ -71,9 +70,7 @@ interface NavLinkItem {
 
 interface NavProps {
   links: NavLinkItem[];
-  liveLabel?: string;
-  liveAgoMs?: number | null;
-  liveRankPill?: ReactNode;
+  statusPill?: ReactNode;
   signInHref?: string;
   onSignOut?: () => void;
   showAuthButton?: boolean;
@@ -82,9 +79,7 @@ interface NavProps {
 
 export function Nav({
   links,
-  liveLabel = 'GW30 Live',
-  liveAgoMs,
-  liveRankPill,
+  statusPill,
   signInHref = '/login',
   onSignOut,
   showAuthButton = true,
@@ -109,8 +104,7 @@ export function Nav({
         </NavLinks>
       </Left>
       <Right>
-        <LivePill label={liveLabel} agoMs={liveAgoMs ?? null} />
-        {liveRankPill}
+        {statusPill}
         {showAuthButton ? (
           <HideOnMobile>
             {isSignedIn ? (

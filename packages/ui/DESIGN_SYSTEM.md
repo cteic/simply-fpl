@@ -11,9 +11,15 @@ Tamagui-based design system for SimplyFPL. Source of truth for visual identity a
 
 ## Design philosophy
 
-Linear.app-inspired — quiet, dense, information-first. Warm neutral light theme (not stark white, not dark). Numbers and rank data treated with monospace typography for credibility. Animations are subtle (200ms-1.2s, eased). No gradients, no glassmorphism flourishes beyond a single nav blur.
+Linear.app-inspired — quiet, dense, information-first. Warm neutral light theme (not stark white, not dark). Numbers and rank data treated with monospace typography for credibility. Animations are subtle (200ms-1.2s, eased).
 
-The prototype favours **clarity over decoration**. Every visual element earns its place: borders separate, colour signals state, monospace fonts mean "this is data."
+The base canvas favours **clarity over decoration**. Every visual element earns its place: borders separate, colour signals state, monospace fonts mean "this is data."
+
+### Stadium direction
+
+A small set of **hero surfaces** break the quiet rule on purpose: the landing hero, page headers (`tone="stadium"`) and the live-rank card render on a teal "matchday" gradient with mint accents and inverse (white-on-teal) text. This is the product's identity moment — it should feel like walking out into a floodlit ground — while everything below stays calm and data-first.
+
+The stadium look is **fully tokenised** (see below): there are no bespoke hex values in components. To put any surface on the stadium look, reach for the `stadium*` / `inverse*` / `overlay*` tokens and the shared `stadiumGradient` rather than re-deriving colours.
 
 ## Token reference
 
@@ -48,6 +54,21 @@ Brand tokens (mono lockup wordmark + `s.` favicon):
 - `$brandBg` (#F0FDFA) — tinted bg for future use (badges, callouts)
 
 Brand sits outside the semantic group — it's identity, not state.
+
+Stadium tokens (teal gradient surfaces + inverse content):
+
+- `$stadium1`–`$stadium4` (#1A8A6E → #0F766E → #0B4F49 → #082E2A) — gradient stops, brightest → darkest. `$stadium2` equals `$brand`.
+- `$stadiumAccent` (#5EEAD4) / `$stadiumAccentStrong` (#34D399) — mint accents on the teal field (eyebrow, CTA, sparkline, accent headline word)
+- `$stadiumDanger` (#FCA5A5) — error text legible on teal
+- Inverse text ladder, for any dark teal surface: `$inverse` (white), `$inverseStrong` (.8), `$inverseMuted` (.72), `$inverseSoft` (.55), `$inverseFaint` (.4)
+- Overlay scale, white fills/borders/tracks on teal, faint → strong: `$overlay1` (.06), `$overlay2` (.1), `$overlay3` (.12), `$overlay4` (.18), `$overlay5` (.28), `$overlay6` (.45)
+
+The gradient itself is **not** copied per-component. Import the shared definition from `@simplyfpl/ui` (or `@simplyfpl/ui/theme`):
+
+- `stadiumGradient` — canonical radial used by `PageHeader tone="stadium"` and the live-rank card
+- `stadiumHeroGradient` — `stadiumGradient` plus a faint pitch-stripe overlay, used by the landing hero
+
+Both compose the `$stadium*` stops, so changing the palette updates every surface at once. SVG `fill`/`stroke` (which can't read Tamagui tokens) should import the raw `colors.stadiumAccent` etc. from `@simplyfpl/ui/theme`.
 
 Raw tokens (for non-themed contexts like FDR scale, position shirts) are exported from `@simplyfpl/ui/theme` as plain values.
 
