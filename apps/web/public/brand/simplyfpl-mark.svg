@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SimplyFPL">
+  <title>SimplyFPL</title>
+  <!-- rising rank bars -->
+  <line x1="40" y1="50" x2="63" y2="50" stroke="#0F766E" stroke-opacity="0.35" stroke-width="1.5" stroke-linecap="round" />
+  <rect x="42" y="38" width="6" height="12" rx="1.5" fill="#0B4F49" />
+  <rect x="50" y="30" width="6" height="20" rx="1.5" fill="#0F766E" />
+  <rect x="58" y="22" width="6" height="28" rx="1.5" fill="#2DD4BF" />
+  <!-- crown -->
+  <path d="M16 18 L16 10 L20.5 15 L25 7 L29.5 15 L34 10 L34 18 Z" fill="#0B4F49" />
+  <rect x="14.5" y="17" width="21" height="4" rx="1.5" fill="#0B4F49" />
+  <!-- football: white circle with teal telstar patches -->
+  <circle cx="25" cy="36" r="14" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.6" />
+  <clipPath id="ball"><circle cx="25" cy="36" r="13.4" /></clipPath>
+  <g clip-path="url(#ball)" fill="#0F766E">
+    <polygon points="0,-4.3 4.09,-1.33 2.53,3.48 -2.53,3.48 -4.09,-1.33" transform="translate(25 36)" />
+    <polygon points="0,-4.3 4.09,-1.33 2.53,3.48 -2.53,3.48 -4.09,-1.33" transform="translate(30.585 28.315) rotate(36)" />
+    <polygon points="0,-4.3 4.09,-1.33 2.53,3.48 -2.53,3.48 -4.09,-1.33" transform="translate(34.035 38.936) rotate(108)" />
+    <polygon points="0,-4.3 4.09,-1.33 2.53,3.48 -2.53,3.48 -4.09,-1.33" transform="translate(25 45.5) rotate(180)" />
+    <polygon points="0,-4.3 4.09,-1.33 2.53,3.48 -2.53,3.48 -4.09,-1.33" transform="translate(15.965 38.936) rotate(252)" />
+    <polygon points="0,-4.3 4.09,-1.33 2.53,3.48 -2.53,3.48 -4.09,-1.33" transform="translate(19.415 28.315) rotate(324)" />
+  </g>
+</svg>

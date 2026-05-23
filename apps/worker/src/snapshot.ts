@@ -161,7 +161,8 @@ export async function handleEntrySnapshot(
     return { status: 404, body: { error: 'entry not found' } };
   }
 
-  const picks = picksResult.status === 'fulfilled' ? picksResult.value : null;
+  const picksAvailable = picksResult.status === 'fulfilled';
+  const picks = picksAvailable ? picksResult.value : null;
   const pickIds = picks ? picks.picks.map((p) => p.element) : [];
 
   const liteKey = `lite:bootstrap:gw${gw}:${pickIds
@@ -186,6 +187,7 @@ export async function handleEntrySnapshot(
     entry: entryResult.value,
     picks,
     gw,
+    picksAvailable,
   };
   return { status: 200, body };
 }

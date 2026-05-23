@@ -219,6 +219,30 @@ const light = {
   // Buttons
   buttonPrimary: colors.t1,
   buttonPrimaryHover: colors.buttonHover,
+
+  // Stadium surfaces (teal gradient stops)
+  stadium1: colors.stadium1,
+  stadium2: colors.stadium2,
+  stadium3: colors.stadium3,
+  stadium4: colors.stadium4,
+  stadiumAccent: colors.stadiumAccent,
+  stadiumAccentStrong: colors.stadiumAccentStrong,
+  stadiumDanger: colors.stadiumDanger,
+
+  // Inverse content (white-on-teal text ladder)
+  inverse: colors.inverse,
+  inverseStrong: colors.inverseStrong,
+  inverseMuted: colors.inverseMuted,
+  inverseSoft: colors.inverseSoft,
+  inverseFaint: colors.inverseFaint,
+
+  // Overlay scale (white fills / borders on teal)
+  overlay1: colors.overlay1,
+  overlay2: colors.overlay2,
+  overlay3: colors.overlay3,
+  overlay4: colors.overlay4,
+  overlay5: colors.overlay5,
+  overlay6: colors.overlay6,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

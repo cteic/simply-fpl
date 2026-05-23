@@ -1,74 +1,68 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, Card, SectionHeader, Text, XStack, YStack } from '@simplyfpl/ui';
 
-// Placeholder — auth integration added in next iteration
-const COLORS = {
-  bg: '#0f1117',
-  surface: '#1e2330',
-  accent: '#00d4a0',
-  text: '#f9fafb',
-  muted: '#6b7280',
-};
+import { Screen } from '@/components/screen';
+import { useSavedEntryId } from '@/lib/saved-team';
+
+const PRO_FEATURES = [
+  'Push notifications for price changes',
+  'Transfer planner',
+  'Effective ownership tracker',
+  'Ad-free experience',
+];
 
 export default function ProfileScreen() {
+  const { entryId, clear } = useSavedEntryId();
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Your Account</Text>
-        <Text style={styles.muted}>Sign in to save your team ID and access Pro features.</Text>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Sign in</Text>
-        </Pressable>
-      </View>
+    <Screen>
+      <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
+        <SectionHeader title="Your Team" />
+        {entryId === null ? (
+          <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+            No team linked yet. Add your FPL team ID on the Home tab.
+          </Text>
+        ) : (
+          <YStack gap={10}>
+            <Text fontFamily="$mono" fontSize={20} color="$color">
+              Team {entryId}
+            </Text>
+            <XStack>
+              <Button tone="ghost" size="sm" onPress={clear}>
+                Forget this team
+              </Button>
+            </XStack>
+          </YStack>
+        )}
+      </Card>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>SimplyFPL Pro</Text>
-        <View style={styles.featureList}>
-          {[
-            'Push notifications for price changes',
-            'Transfer planner',
-            'Effective ownership tracker',
-            'Ad-free experience',
-          ].map((feature) => (
-            <View key={feature} style={styles.featureRow}>
-              <Text style={styles.featureTick}>✓</Text>
-              <Text style={styles.featureText}>{feature}</Text>
-            </View>
+      <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
+        <SectionHeader title="SimplyFPL Pro" />
+        <YStack gap={8}>
+          {PRO_FEATURES.map((feature) => (
+            <XStack key={feature} gap={8} alignItems="center">
+              <Text fontFamily="$body" fontWeight="700" color="$positive">
+                ✓
+              </Text>
+              <Text fontFamily="$body" fontSize={14} color="$color" flex={1}>
+                {feature}
+              </Text>
+            </XStack>
           ))}
-        </View>
-        <Text style={styles.price}>€4 / month · €25 / year</Text>
-        <Text style={styles.muted}>Subscribe via simplyfpl.com</Text>
-      </View>
+        </YStack>
+        <Text fontFamily="$body" fontSize={15} fontWeight="700" color="$brand">
+          €4 / month · €25 / year
+        </Text>
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          Subscribe via simplyfpl.com
+        </Text>
+      </Card>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>About</Text>
-        <Text style={styles.muted}>SimplyFPL v0.1.0</Text>
-        <Text style={styles.muted}>Data refreshes every 60 seconds during live gameweeks.</Text>
-      </View>
-    </ScrollView>
+      <Card paddingHorizontal={20} paddingVertical={18} gap={6}>
+        <SectionHeader title="About" />
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          SimplyFPL · Data refreshes every 60 seconds during live gameweeks.
+        </Text>
+      </Card>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bg },
-  content: { padding: 16, gap: 16, paddingBottom: 40 },
-  card: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 16,
-    gap: 10,
-  },
-  cardTitle: { color: COLORS.text, fontSize: 16, fontWeight: '700' },
-  muted: { color: COLORS.muted, fontSize: 13, lineHeight: 18 },
-  button: {
-    backgroundColor: COLORS.accent,
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  buttonText: { color: '#000', fontWeight: '700', fontSize: 15 },
-  featureList: { gap: 8 },
-  featureRow: { flexDirection: 'row', gap: 8 },
-  featureTick: { color: COLORS.accent, fontWeight: '700' },
-  featureText: { color: COLORS.text, fontSize: 14, flex: 1 },
-  price: { color: COLORS.accent, fontSize: 15, fontWeight: '700' },
-});
