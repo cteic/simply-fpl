@@ -26,6 +26,7 @@ export * from './components/league-card';
 export * from './components/league-table';
 export * from './components/live-pill';
 export * from './components/live-rank-pill';
+export * from './components/live-status-pill';
 export * from './components/logo';
 export * from './components/nav';
 export * from './components/number-ticker';
