@@ -14,9 +14,20 @@ const Bar = styled(XStack, {
   borderBottomWidth: 1,
   borderBottomColor: '$border',
   alignItems: 'center',
+  justifyContent: 'center',
+  height: 54,
+});
+
+// Inner content is constrained to PageShell's max-width (960) and centered,
+// so the logo + links line up with the page content rather than running
+// full-bleed to the viewport edges on wide screens.
+const Inner = styled(XStack, {
+  width: '100%',
+  maxWidth: 960,
+  height: '100%',
+  alignItems: 'center',
   justifyContent: 'space-between',
   paddingHorizontal: 28,
-  height: 54,
   $sm: { paddingHorizontal: 16 },
 });
 
@@ -89,43 +100,45 @@ export function Nav({
 
   return (
     <Bar render="nav" style={STICKY_STYLE}>
-      <Left>
-        <Logo href="/" variant="lockup" />
-        <NavLinks>
-          {links.map((link) => (
-            <NavLinkBase
-              key={link.href}
-              render={<a href={link.href} role="link" />}
-              active={link.active === true}
-            >
-              {link.label}
-            </NavLinkBase>
-          ))}
-        </NavLinks>
-      </Left>
-      <Right>
-        {statusPill}
-        {showAuthButton ? (
-          <HideOnMobile>
-            {isSignedIn ? (
-              <Button tone="ghost" size="md" onPress={onSignOut}>
-                Sign out
-              </Button>
-            ) : (
-              <Button
-                tone="ghost"
-                size="md"
-                onPress={() => {
-                  window.location.href = signInHref;
-                }}
+      <Inner>
+        <Left>
+          <Logo href="/" variant="lockup" />
+          <NavLinks>
+            {links.map((link) => (
+              <NavLinkBase
+                key={link.href}
+                render={<a href={link.href} role="link" />}
+                active={link.active === true}
               >
-                Sign in
-              </Button>
-            )}
-          </HideOnMobile>
-        ) : null}
-        {rightAction}
-      </Right>
+                {link.label}
+              </NavLinkBase>
+            ))}
+          </NavLinks>
+        </Left>
+        <Right>
+          {statusPill}
+          {showAuthButton ? (
+            <HideOnMobile>
+              {isSignedIn ? (
+                <Button tone="ghost" size="md" onPress={onSignOut}>
+                  Sign out
+                </Button>
+              ) : (
+                <Button
+                  tone="ghost"
+                  size="md"
+                  onPress={() => {
+                    window.location.href = signInHref;
+                  }}
+                >
+                  Sign in
+                </Button>
+              )}
+            </HideOnMobile>
+          ) : null}
+          {rightAction}
+        </Right>
+      </Inner>
     </Bar>
   );
 }
