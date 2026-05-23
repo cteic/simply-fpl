@@ -8,11 +8,11 @@ export const runtime = 'edge';
 const SIZE = OG_SIZE;
 
 const COLORS = {
-  bg: '#F7F7F5',
+  bg: '#F6F7F4',
   surface: '#FFFFFF',
-  border: '#E9E8E4',
-  ink: '#1A1A18',
-  mute: '#6B6B63',
+  border: '#E2E4DC',
+  ink: '#15201A',
+  mute: '#566055',
   accent: '#0F766E',
 };
 
