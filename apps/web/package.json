@@ -5,9 +5,11 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "clean:tamagui": "rm -rf .tamagui",
+    "clean": "rm -rf .tamagui .next",
     "ensure-tamagui-css": "node -e \"const f=require('fs');f.mkdirSync('public',{recursive:true});f.closeSync(f.openSync('public/tamagui.css','a'))\"",
-    "dev": "pnpm run ensure-tamagui-css && next dev",
-    "build": "pnpm run ensure-tamagui-css && next build",
+    "dev": "pnpm run clean:tamagui && pnpm run ensure-tamagui-css && next dev",
+    "build": "pnpm run clean:tamagui && pnpm run ensure-tamagui-css && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
