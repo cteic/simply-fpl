@@ -164,8 +164,6 @@ function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
 
       <Scoreboard you={you} them={them} scoreDelta={scoreDelta} />
 
-      <CaptainRow you={you} them={them} />
-
       <PitchPair you={you} them={them} />
 
       <DifferentialBlock
@@ -189,8 +187,14 @@ function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
 
 const ScoreCard = styled(Card, {
   paddingHorizontal: 20,
-  paddingVertical: 16,
-  marginBottom: 20,
+  paddingVertical: 14,
+  marginBottom: 12,
+});
+
+const SummaryDivider = styled(YStack, {
+  height: 1,
+  backgroundColor: '$border',
+  marginVertical: 12,
 });
 
 const ScoreNumber = styled(Text, {
@@ -255,6 +259,12 @@ function Scoreboard({ you, them, scoreDelta }: ScoreboardProps) {
         <DeltaBadge tone={tone}>{deltaLabel}</DeltaBadge>
         <SideStat label="Them" side={them} alignRight />
       </XStack>
+      <SummaryDivider />
+      <XStack justifyContent="space-between" alignItems="center">
+        <CaptainCell side={you.captain} alignRight={false} />
+        <ScoreLabel>Captains</ScoreLabel>
+        <CaptainCell side={them.captain} alignRight />
+      </XStack>
     </ScoreCard>
   );
 }
@@ -278,12 +288,6 @@ function SideStat({ label, side, alignRight }: SideStatProps) {
   );
 }
 
-const CapCard = styled(Card, {
-  paddingHorizontal: 20,
-  paddingVertical: 16,
-  marginBottom: 20,
-});
-
 const CapName = styled(Text, {
   fontFamily: '$body',
   fontSize: 13,
@@ -303,24 +307,6 @@ const CapMeta = styled(Text, {
   fontSize: 11,
   color: '$colorSubtle',
 });
-
-interface CaptainRowProps {
-  you: H2hSide;
-  them: H2hSide;
-}
-
-function CaptainRow({ you, them }: CaptainRowProps) {
-  return (
-    <CapCard>
-      <SectionHeader title="Captains" />
-      <XStack justifyContent="space-between" alignItems="center" marginTop={10}>
-        <CaptainCell side={you.captain} alignRight={false} />
-        <CapMeta>vs</CapMeta>
-        <CaptainCell side={them.captain} alignRight />
-      </XStack>
-    </CapCard>
-  );
-}
 
 function CaptainCell({ side, alignRight }: { side: H2hPlayer | null; alignRight: boolean }) {
   if (side === null) {
@@ -348,8 +334,8 @@ interface DifferentialBlockProps {
 function DifferentialBlock({ title, players, empty }: DifferentialBlockProps) {
   if (players.length === 0 && !empty) return null;
   return (
-    <Card paddingHorizontal={0} paddingVertical={0} marginBottom={16}>
-      <YStack paddingHorizontal={16} paddingTop={14} paddingBottom={8}>
+    <Card paddingHorizontal={0} paddingVertical={0} marginBottom={10}>
+      <YStack paddingHorizontal={16} paddingTop={10} paddingBottom={6}>
         <SectionHeader title={title} />
       </YStack>
       {players.length === 0 ? (
@@ -372,8 +358,8 @@ function DifferentialBlock({ title, players, empty }: DifferentialBlockProps) {
 function CommonBlock({ players }: { players: H2hPlayer[] }) {
   if (players.length === 0) return null;
   return (
-    <Card paddingHorizontal={0} paddingVertical={0} marginBottom={16}>
-      <YStack paddingHorizontal={16} paddingTop={14} paddingBottom={8}>
+    <Card paddingHorizontal={0} paddingVertical={0} marginBottom={10}>
+      <YStack paddingHorizontal={16} paddingTop={10} paddingBottom={6}>
         <SectionHeader title={`Both have (${players.length})`} />
       </YStack>
       <YStack>
@@ -387,7 +373,7 @@ function CommonBlock({ players }: { players: H2hPlayer[] }) {
 
 const RowBox = styled(XStack, {
   paddingHorizontal: 16,
-  paddingVertical: 9,
+  paddingVertical: 7,
   alignItems: 'center',
   borderBottomWidth: 1,
   borderBottomColor: '$border',
@@ -431,7 +417,7 @@ function PlayerRow({ player, last }: { player: H2hPlayer; last: boolean }) {
 
 const PitchPairWrap = styled(XStack, {
   gap: 12,
-  marginBottom: 20,
+  marginBottom: 12,
   alignItems: 'stretch',
   $sm: { flexDirection: 'column' },
 });
