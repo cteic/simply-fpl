@@ -35,6 +35,36 @@ Feature: Live points calculation
     When I get the next gameweek
     Then it should return 2
 
+  Scenario: Get the next gameweek deadline from bootstrap data
+    Given bootstrap data with gameweek 2 as next and deadline "2025-08-22T17:30:00Z"
+    When I get the next deadline
+    Then it should return event 2 with deadline "2025-08-22T17:30:00Z"
+
+  Scenario: No next deadline at the end of the season
+    Given bootstrap data with no next gameweek
+    When I get the next deadline
+    Then it should return nothing
+
+  Scenario: Format days and hours remaining
+    Given 2 days 4 hours and 30 minutes remain
+    When I format the time remaining
+    Then it should read "2d 4h"
+
+  Scenario: Format hours and minutes remaining
+    Given 4 hours 32 minutes and 10 seconds remain
+    When I format the time remaining
+    Then it should read "4h 32m"
+
+  Scenario: Format minutes and seconds remaining
+    Given 12 minutes and 30 seconds remain
+    When I format the time remaining
+    Then it should read "12m 30s"
+
+  Scenario: A passed deadline reads as closed
+    Given the deadline has already passed
+    When I format the time remaining
+    Then it should read "closed"
+
   Scenario: Live rank estimate moves up when scoring above average
     Given my pre-gameweek rank is 100000 and the average score is 30
     When I score 50 live points

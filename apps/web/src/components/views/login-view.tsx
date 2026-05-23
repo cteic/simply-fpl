@@ -52,7 +52,7 @@ export function LoginView() {
 
   return (
     <PageShell>
-      <PageHeader title="Sign in" meta="Magic link via email" />
+      <PageHeader tone="stadium" title="Sign in" meta="Magic link via email" />
 
       <Card paddingHorizontal={24} paddingVertical={24}>
         <SectionHeader title="Enter your email" />

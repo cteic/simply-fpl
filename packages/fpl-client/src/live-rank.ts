@@ -104,6 +104,39 @@ export function getNextGameweek(bootstrap: FplBootstrapStatic): number | null {
   return next?.id ?? null;
 }
 
+export interface NextDeadline {
+  event: number;
+  deadlineTime: string;
+}
+
+/**
+ * The upcoming gameweek deadline (the `is_next` event's `deadline_time`).
+ * Returns null at the end of the season when there is no next event.
+ */
+export function getNextDeadline(bootstrap: FplBootstrapStatic): NextDeadline | null {
+  const next = bootstrap.events.find((e) => e.is_next);
+  if (!next) return null;
+  return { event: next.id, deadlineTime: next.deadline_time };
+}
+
+/**
+ * Human-readable time-until-deadline, coarsened to the two most significant
+ * units (e.g. "2d 4h", "4h 32m", "12m 30s", "45s"). Returns "closed" once the
+ * deadline has passed.
+ */
+export function formatTimeRemaining(ms: number): string {
+  if (ms <= 0) return 'closed';
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86_400);
+  const hours = Math.floor((totalSeconds % 86_400) / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
 export interface LiveRankEstimate {
   liveRank: number;
   movement: number;
