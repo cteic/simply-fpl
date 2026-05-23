@@ -8,11 +8,11 @@ export const runtime = 'edge';
 const SIZE = OG_SIZE;
 
 const COLORS = {
-  bg: '#F7F7F5',
+  bg: '#F6F7F4',
   surface: '#FFFFFF',
-  border: '#E9E8E4',
-  ink: '#1A1A18',
-  mute: '#6B6B63',
+  border: '#E2E4DC',
+  ink: '#15201A',
+  mute: '#566055',
   accent: '#0F766E',
 };
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   const rank = clip((params.get('rank') ?? '').trim(), 16);
   const gw = clip((params.get('gw') ?? '').trim(), 8);
   const tagline = team
-    ? 'Live FPL rank · simply.fpl'
+    ? 'Live FPL rank · simplyfpl.com'
     : 'Fastest live-rank companion for Fantasy Premier League';
 
   const [dmMono, dmSans] = await Promise.all([
@@ -61,9 +61,9 @@ export async function GET(request: NextRequest) {
           lineHeight: 1,
         }}
       >
-        <span style={{ color: COLORS.ink }}>simply</span>
+        <span style={{ color: COLORS.ink }}>simplyfpl</span>
         <span style={{ color: COLORS.accent }}>.</span>
-        <span style={{ color: COLORS.ink }}>fpl</span>
+        <span style={{ color: COLORS.ink }}>com</span>
       </div>
 
       {team ? (

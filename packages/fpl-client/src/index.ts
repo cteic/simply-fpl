@@ -3,11 +3,14 @@ export {
   buildLiveLeagueTable,
   calculateLivePoints,
   estimateLiveRank,
+  formatTimeRemaining,
   getCurrentGameweek,
+  getNextDeadline,
   getNextGameweek,
 } from './live-rank';
-export type { LiveRankEstimate } from './live-rank';
+export type { LiveRankEstimate, NextDeadline } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
+export { parseEntryId } from './parse-entry-id';
 export { getKitUrl } from './kits';
 export type { KitUrlOptions } from './kits';
 export { getClubColor } from './club-colors';
