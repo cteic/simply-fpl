@@ -4,12 +4,20 @@ import type { ReactNode } from 'react';
 
 import { useServerInsertedHTML } from 'next/navigation';
 
-import { TamaguiProvider } from 'tamagui';
+import { TamaguiProvider, Theme } from 'tamagui';
 
+import { theme as themeFeature } from '@simplyfpl/features';
 import { config } from '@simplyfpl/ui/tamagui.config';
+
+const { ThemeModeProvider, useThemeMode } = themeFeature;
 
 interface TamaguiClientProviderProps {
   children: ReactNode;
+}
+
+function ThemedTree({ children }: { children: ReactNode }) {
+  const { theme } = useThemeMode();
+  return <Theme name={theme}>{children}</Theme>;
 }
 
 /**
@@ -38,8 +46,10 @@ export function TamaguiClientProvider({ children }: TamaguiClientProviderProps) 
   ));
 
   return (
-    <TamaguiProvider config={config} defaultTheme="light">
-      {children}
+    <TamaguiProvider config={config} defaultTheme="stadium">
+      <ThemeModeProvider>
+        <ThemedTree>{children}</ThemedTree>
+      </ThemeModeProvider>
     </TamaguiProvider>
   );
 }
