@@ -405,7 +405,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                 fontWeight="600"
                 textTransform="uppercase"
                 letterSpacing={1.4}
-                color="#5EEAD4"
+                color="#34D399"
               >
                 est. live rank
               </Text>
@@ -429,7 +429,7 @@ function LiveRankInner({ entryId }: InnerProps) {
               {estimate && movementLabel ? (
                 <XStack
                   alignItems="center"
-                  backgroundColor="#5EEAD4"
+                  backgroundColor="#34D399"
                   paddingHorizontal={10}
                   paddingVertical={3}
                   borderRadius={99}
@@ -493,7 +493,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                 <YStack
                   height={4}
                   borderRadius={2}
-                  backgroundColor="#5EEAD4"
+                  backgroundColor="#34D399"
                   style={{ animation: 'sfRefresh 60s linear infinite' }}
                 />
               </YStack>

@@ -19,7 +19,7 @@ const Pill = styled(XStack, {
   alignItems: 'center',
   gap: 8,
   backgroundColor: '#FFFFFF',
-  borderColor: '#D5D4CF',
+  borderColor: '#CDD0C5',
   borderWidth: 1,
   paddingHorizontal: 11,
   paddingVertical: 4,
@@ -45,8 +45,8 @@ const Dot = styled(YStack, {
   variants: {
     tone: {
       fresh: { backgroundColor: '#15803D' },
-      stale: { backgroundColor: '#D97706' },
-      cold: { backgroundColor: '#DC2626' },
+      stale: { backgroundColor: '#B45309' },
+      cold: { backgroundColor: '#C2333B' },
     },
   } as const,
 });
@@ -54,7 +54,7 @@ const Dot = styled(YStack, {
 const Divider = styled(YStack, {
   width: 1,
   height: 12,
-  backgroundColor: '#E9E8E4',
+  backgroundColor: '#E2E4DC',
 });
 
 const LiveLabel = styled(Text, {
@@ -66,8 +66,8 @@ const LiveLabel = styled(Text, {
   variants: {
     tone: {
       fresh: { color: '#15803D' },
-      stale: { color: '#D97706' },
-      cold: { color: '#DC2626' },
+      stale: { color: '#B45309' },
+      cold: { color: '#C2333B' },
     },
   } as const,
 });
@@ -78,14 +78,14 @@ const MetaLabel = styled(Text, {
   fontWeight: '600',
   letterSpacing: '$9',
   textTransform: 'uppercase',
-  color: '#6B6B63',
+  color: '#566055',
 });
 
 const RankValue = styled(Text, {
   fontFamily: '$mono',
   fontSize: 13.5,
   fontWeight: '500',
-  color: '#1A1A18',
+  color: '#15201A',
   letterSpacing: '$1',
 });
 
@@ -97,8 +97,8 @@ const Move = styled(Text, {
   variants: {
     move: {
       up: { color: '#15803D' },
-      down: { color: '#DC2626' },
-      flat: { color: '#A8A8A0' },
+      down: { color: '#C2333B' },
+      flat: { color: '#869083' },
     },
   } as const,
 });
