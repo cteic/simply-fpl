@@ -48,15 +48,17 @@ const Glyph = styled(Text, {
   letterSpacing: -0.5,
 });
 
-function baseColorForTone(tone: LogoTone): string {
-  if (tone === 'inverse') return '$background';
-  if (tone === 'stadium') return '$inverse';
-  return '$color';
-}
+const WordGlyph = styled(Text, {
+  fontFamily: '$body',
+  fontWeight: '700',
+  letterSpacing: -0.3,
+});
 
 export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href }: LogoProps) {
-  const baseColor = baseColorForTone(tone);
-  const dotColor = tone === 'stadium' || tone === 'inverse' ? '$stadiumAccent' : '$brand';
+  const isDark = tone === 'inverse' || tone === 'stadium';
+  const markColor = isDark ? '#FFFFFF' : '#1A1A18';
+  const wordColor = isDark ? '#FFFFFF' : '#0F766E';
+  const tldColor = isDark ? '#5EEAD4' : '#0F766E';
   const linkProps = href ? { tag: 'a' as const, href } : {};
 
   if (variant === 'lockup') {
@@ -76,15 +78,12 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
           }}
         />
         <XStack alignItems="center" gap={0}>
-          <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-            simply
-          </Glyph>
-          <Glyph fontSize={px} lineHeight={px} color={dotColor}>
-            .
-          </Glyph>
-          <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-            fpl
-          </Glyph>
+          <WordGlyph fontSize={px} lineHeight={px} color={wordColor}>
+            simplyfpl
+          </WordGlyph>
+          <WordGlyph fontSize={px} lineHeight={px} color={tldColor}>
+            .com
+          </WordGlyph>
         </XStack>
       </Wrap>
     );
@@ -94,10 +93,10 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
     const px = MARK_SIZE[size];
     return (
       <Wrap {...linkProps}>
-        <Glyph fontSize={px} lineHeight={px} color={baseColor}>
+        <Glyph fontSize={px} lineHeight={px} color={markColor}>
           s
         </Glyph>
-        <Glyph fontSize={px} lineHeight={px} color={dotColor}>
+        <Glyph fontSize={px} lineHeight={px} color={tldColor}>
           .
         </Glyph>
       </Wrap>
@@ -107,15 +106,12 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
   const px = WORDMARK_SIZE[size];
   return (
     <Wrap {...linkProps}>
-      <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-        simply
-      </Glyph>
-      <Glyph fontSize={px} lineHeight={px} color={dotColor}>
-        .
-      </Glyph>
-      <Glyph fontSize={px} lineHeight={px} color={baseColor}>
-        fpl
-      </Glyph>
+      <WordGlyph fontSize={px} lineHeight={px} color={wordColor}>
+        simplyfpl
+      </WordGlyph>
+      <WordGlyph fontSize={px} lineHeight={px} color={tldColor}>
+        .com
+      </WordGlyph>
     </Wrap>
   );
 }

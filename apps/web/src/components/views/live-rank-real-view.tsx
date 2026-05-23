@@ -618,11 +618,17 @@ function LiveRankInner({ entryId }: InnerProps) {
         <CohortTable rows={cohortRows} footer={cohortFooter} />
       </Card>
 
-      <XStack marginTop={4} marginBottom={8} justifyContent="center">
+      <XStack marginTop={4} marginBottom={8} justifyContent="center" gap={10}>
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
           Not your team?{' '}
           <Text render={<a href="/?change=1" />} color="$color" fontSize={12} fontFamily="$body">
             Search again →
+          </Text>
+        </Text>
+        <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+          ·{' '}
+          <Text render={<a href="/?clear=1" />} color="$color" fontSize={12} fontFamily="$body">
+            Deselect team
           </Text>
         </Text>
       </XStack>
