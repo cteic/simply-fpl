@@ -108,7 +108,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           fontWeight="600"
           textTransform="uppercase"
           letterSpacing={2.4}
-          color="#5EEAD4"
+          color="#34D399"
         >
           {HERO_COPY.eyebrow}
         </Text>
@@ -124,7 +124,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           $sm={{ fontSize: 36, lineHeight: 38 }}
         >
           {HERO_COPY.headlineLead}
-          <Text color="#5EEAD4">{HERO_COPY.headlineAccent}</Text>
+          <Text color="#34D399">{HERO_COPY.headlineAccent}</Text>
         </Text>
 
         <Text
@@ -155,7 +155,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               borderColor="rgba(255,255,255,0.28)"
               color="#FFFFFF"
               hoverStyle={{ borderColor: 'rgba(255,255,255,0.45)' }}
-              focusStyle={{ borderColor: '#5EEAD4' }}
+              focusStyle={{ borderColor: '#34D399' }}
             />
             <Text
               render="button"
@@ -166,14 +166,14 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               fontSize={15}
               fontWeight="700"
               color="#0B4F49"
-              backgroundColor="#5EEAD4"
+              backgroundColor="#34D399"
               paddingHorizontal={24}
               paddingVertical={14}
               borderRadius={8}
               cursor={checking ? 'default' : 'pointer'}
               opacity={checking ? 0.7 : 1}
               whiteSpace="nowrap"
-              hoverStyle={{ backgroundColor: '#34D399' }}
+              hoverStyle={{ backgroundColor: '#38E4A5' }}
               pressStyle={{ opacity: 0.85 }}
             >
               {checking ? HERO_COPY.ctaLabelChecking : `${HERO_COPY.ctaLabel} →`}
