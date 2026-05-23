@@ -22,7 +22,7 @@ export default async function OpenGraphImage() {
       style={{
         width: '100%',
         height: '100%',
-        background: '#F7F7F5',
+        background: '#F6F7F4',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -40,9 +40,9 @@ export default async function OpenGraphImage() {
           lineHeight: 1,
         }}
       >
-        <span style={{ color: '#1A1A18' }}>simply</span>
+        <span style={{ color: '#15201A' }}>simplyfpl</span>
         <span style={{ color: '#0F766E' }}>.</span>
-        <span style={{ color: '#1A1A18' }}>fpl</span>
+        <span style={{ color: '#15201A' }}>com</span>
       </div>
       <div
         style={{
@@ -50,7 +50,7 @@ export default async function OpenGraphImage() {
           fontFamily: 'DM Sans',
           fontSize: 28,
           fontWeight: 500,
-          color: '#6B6B63',
+          color: '#566055',
           letterSpacing: -0.4,
         }}
       >

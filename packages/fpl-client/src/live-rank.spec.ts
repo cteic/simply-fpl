@@ -12,9 +12,12 @@ import {
   buildLiveLeagueTable,
   calculateLivePoints,
   estimateLiveRank,
+  formatTimeRemaining,
   getCurrentGameweek,
+  getNextDeadline,
   getNextGameweek,
 } from './live-rank';
+import type { NextDeadline } from './live-rank';
 
 const feature = await loadFeature('./live-rank.feature');
 
@@ -306,6 +309,149 @@ describeFeature(feature, ({ Scenario }) => {
 
     Then('it should return 2', () => {
       expect(gwResult).toBe(2);
+    });
+  });
+
+  Scenario('Get the next gameweek deadline from bootstrap data', ({ Given, When, Then }) => {
+    let result: NextDeadline | null = null;
+    const bootstrap: FplBootstrapStatic = {
+      elements: [],
+      teams: [],
+      element_types: [],
+      events: [
+        {
+          id: 1,
+          name: 'Gameweek 1',
+          deadline_time: '2025-08-15T17:30:00Z',
+          is_current: true,
+          is_next: false,
+          is_previous: false,
+          average_entry_score: 52,
+          highest_score: null,
+          finished: false,
+        },
+        {
+          id: 2,
+          name: 'Gameweek 2',
+          deadline_time: '2025-08-22T17:30:00Z',
+          is_current: false,
+          is_next: true,
+          is_previous: false,
+          average_entry_score: 0,
+          highest_score: null,
+          finished: false,
+        },
+      ],
+    };
+
+    Given('bootstrap data with gameweek 2 as next and deadline "2025-08-22T17:30:00Z"', () => {});
+
+    When('I get the next deadline', () => {
+      result = getNextDeadline(bootstrap);
+    });
+
+    Then('it should return event 2 with deadline "2025-08-22T17:30:00Z"', () => {
+      expect(result).toEqual({ event: 2, deadlineTime: '2025-08-22T17:30:00Z' });
+    });
+  });
+
+  Scenario('No next deadline at the end of the season', ({ Given, When, Then }) => {
+    let result: NextDeadline | null = null;
+    const bootstrap: FplBootstrapStatic = {
+      elements: [],
+      teams: [],
+      element_types: [],
+      events: [
+        {
+          id: 38,
+          name: 'Gameweek 38',
+          deadline_time: '2026-05-23T15:00:00Z',
+          is_current: true,
+          is_next: false,
+          is_previous: false,
+          average_entry_score: 40,
+          highest_score: null,
+          finished: false,
+        },
+      ],
+    };
+
+    Given('bootstrap data with no next gameweek', () => {});
+
+    When('I get the next deadline', () => {
+      result = getNextDeadline(bootstrap);
+    });
+
+    Then('it should return nothing', () => {
+      expect(result).toBeNull();
+    });
+  });
+
+  Scenario('Format days and hours remaining', ({ Given, When, Then }) => {
+    let ms = 0;
+    let label = '';
+
+    Given('2 days 4 hours and 30 minutes remain', () => {
+      ms = (2 * 86_400 + 4 * 3_600 + 30 * 60) * 1000;
+    });
+
+    When('I format the time remaining', () => {
+      label = formatTimeRemaining(ms);
+    });
+
+    Then('it should read "2d 4h"', () => {
+      expect(label).toBe('2d 4h');
+    });
+  });
+
+  Scenario('Format hours and minutes remaining', ({ Given, When, Then }) => {
+    let ms = 0;
+    let label = '';
+
+    Given('4 hours 32 minutes and 10 seconds remain', () => {
+      ms = (4 * 3_600 + 32 * 60 + 10) * 1000;
+    });
+
+    When('I format the time remaining', () => {
+      label = formatTimeRemaining(ms);
+    });
+
+    Then('it should read "4h 32m"', () => {
+      expect(label).toBe('4h 32m');
+    });
+  });
+
+  Scenario('Format minutes and seconds remaining', ({ Given, When, Then }) => {
+    let ms = 0;
+    let label = '';
+
+    Given('12 minutes and 30 seconds remain', () => {
+      ms = (12 * 60 + 30) * 1000;
+    });
+
+    When('I format the time remaining', () => {
+      label = formatTimeRemaining(ms);
+    });
+
+    Then('it should read "12m 30s"', () => {
+      expect(label).toBe('12m 30s');
+    });
+  });
+
+  Scenario('A passed deadline reads as closed', ({ Given, When, Then }) => {
+    let ms = 0;
+    let label = '';
+
+    Given('the deadline has already passed', () => {
+      ms = -5_000;
+    });
+
+    When('I format the time remaining', () => {
+      label = formatTimeRemaining(ms);
+    });
+
+    Then('it should read "closed"', () => {
+      expect(label).toBe('closed');
     });
   });
 
