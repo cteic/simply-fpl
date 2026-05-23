@@ -43,4 +43,5 @@ export * from './components/section-header';
 export * from './components/shirt';
 export * from './components/stat-card';
 export * from './components/stat-row';
+export * from './components/team-id-help';
 export * from './components/team-pill';

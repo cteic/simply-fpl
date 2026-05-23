@@ -337,6 +337,24 @@ function LiveRankInner({ entryId }: InnerProps) {
     );
   }
 
+  const noPicksYet = snapshot !== undefined && snapshot.picks === null;
+  if (noPicksYet) {
+    return (
+      <PageShell>
+        <PageHeader title="Live Rank" meta={`${teamName} · GW${currentGw ?? '—'}`} />
+        <YStack gap={10}>
+          <Text fontFamily="$body" fontSize={14} fontWeight="500" color="$color">
+            No picks yet for this gameweek
+          </Text>
+          <Text fontFamily="$body" fontSize={12.5} color="$colorMuted">
+            Your team and live rank will appear here once your squad is confirmed for the gameweek.
+            Check back after the deadline.
+          </Text>
+        </YStack>
+      </PageShell>
+    );
+  }
+
   const isLoading = snapshotLoading || liveLoading;
 
   return (
@@ -558,11 +576,17 @@ function LiveRankInner({ entryId }: InnerProps) {
         <CohortTable rows={cohortRows} footer={cohortFooter} />
       </YStack>
 
-      <XStack marginTop={4} marginBottom={8} justifyContent="center">
+      <XStack marginTop={4} marginBottom={8} justifyContent="center" gap={10}>
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
           Not your team?{' '}
           <Text render={<a href="/?change=1" />} color="$color" fontSize={12} fontFamily="$body">
             Search again →
+          </Text>
+        </Text>
+        <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+          ·{' '}
+          <Text render={<a href="/?clear=1" />} color="$color" fontSize={12} fontFamily="$body">
+            Deselect team
           </Text>
         </Text>
       </XStack>

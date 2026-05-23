@@ -47,6 +47,21 @@ export function BrandSmokeTestView() {
 
       <YStack gap={16}>
         <Text fontFamily="$body" fontSize={11} fontWeight="600" color="$colorMuted">
+          ILLUSTRATIVE MARK
+        </Text>
+        <XStack gap={28} alignItems="flex-end">
+          <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={40} height={40} />
+          <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={64} height={64} />
+          <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={96} height={96} />
+        </XStack>
+        <XStack gap={12} alignItems="center" marginTop={8}>
+          <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={44} height={44} />
+          <Logo size="lg" />
+        </XStack>
+      </YStack>
+
+      <YStack gap={16}>
+        <Text fontFamily="$body" fontSize={11} fontWeight="600" color="$colorMuted">
           COEXISTENCE — POSITION SHIRTS + BRAND ACCENT
         </Text>
         <XStack gap={12}>
@@ -84,6 +99,7 @@ export function BrandSmokeTestView() {
         >
           <Logo size="md" tone="inverse" />
           <Logo variant="mark" size="lg" tone="inverse" />
+          <img src="/brand/simplyfpl-mark.svg" alt="SimplyFPL" width={64} height={64} />
         </YStack>
       </YStack>
     </YStack>
