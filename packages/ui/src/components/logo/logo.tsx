@@ -4,7 +4,7 @@ import { Text, XStack, styled } from 'tamagui';
 
 type LogoVariant = 'wordmark' | 'mark' | 'lockup';
 type LogoSize = 'sm' | 'md' | 'lg';
-type LogoTone = 'default' | 'inverse';
+type LogoTone = 'default' | 'inverse' | 'stadium';
 
 interface LogoProps {
   variant?: LogoVariant;
@@ -34,6 +34,7 @@ const LOCKUP_MARK_SIZE: Record<LogoSize, number> = {
 const LOCKUP_MARK_SRC: Record<LogoTone, string> = {
   default: '/brand/simplyfpl-mark.svg',
   inverse: '/brand/simplyfpl-mark-inverse.svg',
+  stadium: '/brand/simplyfpl-mark-inverse.svg',
 };
 
 const Wrap = styled(XStack, {
@@ -53,10 +54,16 @@ const WordGlyph = styled(Text, {
   letterSpacing: -0.3,
 });
 
+function baseColorForTone(tone: LogoTone): string {
+  if (tone === 'inverse' || tone === 'stadium') return '#FFFFFF';
+  return '$color';
+}
+
 export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href }: LogoProps) {
-  const baseColor = tone === 'inverse' ? '$background' : '$color';
-  const wordColor = tone === 'inverse' ? '#FFFFFF' : '#0F766E';
-  const tldColor = tone === 'inverse' ? '#5EEAD4' : '#0F766E';
+  const baseColor = baseColorForTone(tone);
+  const isAccentTone = tone === 'inverse' || tone === 'stadium';
+  const wordColor = isAccentTone ? '#FFFFFF' : '#0F766E';
+  const tldColor = isAccentTone ? '#34D399' : '#0F766E';
   const linkProps = href ? { tag: 'a' as const, href } : {};
 
   if (variant === 'lockup') {
@@ -94,7 +101,7 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
         <Glyph fontSize={px} lineHeight={px} color={baseColor}>
           s
         </Glyph>
-        <Glyph fontSize={px} lineHeight={px} color="$brand">
+        <Glyph fontSize={px} lineHeight={px} color={tldColor}>
           .
         </Glyph>
       </Wrap>

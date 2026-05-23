@@ -11,27 +11,27 @@
 
 export const colors = {
   // Surfaces
-  bg: '#F7F7F5',
+  bg: '#F6F7F4',
   surface: '#FFFFFF',
-  border: '#E9E8E4',
-  border2: '#D5D4CF',
+  border: '#E2E4DC',
+  border2: '#CDD0C5',
 
   // Text
-  t1: '#1A1A18',
-  t2: '#6B6B63',
-  t3: '#A8A8A0',
+  t1: '#15201A',
+  t2: '#566055',
+  t3: '#869083',
 
   // Positive (rank up, price rise, "live", FDR1-2)
   green: '#15803D',
-  gbg: '#F0FDF4',
-  gmid: '#DCFCE7',
+  gbg: '#EAF7EE',
+  gmid: '#C6EBD2',
 
   // Negative (rank down, price fall, FDR5)
-  red: '#DC2626',
-  rbg: '#FEF2F2',
+  red: '#C2333B',
+  rbg: '#FBEBEC',
 
   // Warning (Pro features, FDR3)
-  amber: '#D97706',
+  amber: '#B45309',
   abg: '#FFFBEB',
   amid: '#FDE68A',
 
@@ -62,6 +62,37 @@ export const colors = {
   youRow: '#F5F5FF',
   youRowHover: '#EDEDFD',
   buttonHover: '#2D2D2A',
+
+  // ── Stadium ────────────────────────────────────────────────────────────
+  // Teal "matchday" gradient surfaces (hero, page headers, live-rank card).
+  // Stops run brightest → darkest; the shared gradients in `gradients.ts`
+  // compose them. stadium2 matches $brand.
+  stadium1: '#1A8A6E',
+  stadium2: '#0F766E',
+  stadium3: '#0B4F49',
+  stadium4: '#082E2A',
+  // Mint accents on the teal field (eyebrow, CTA, sparkline, accent text).
+  stadiumAccent: '#34D399',
+  stadiumAccentStrong: '#38E4A5',
+  // Error text legible on the teal field.
+  stadiumDanger: '#FCA5A5',
+
+  // ── Inverse content ────────────────────────────────────────────────────
+  // White text ladder for use on stadium / any dark teal surface.
+  inverse: '#FFFFFF',
+  inverseStrong: 'rgba(255,255,255,0.8)',
+  inverseMuted: 'rgba(255,255,255,0.72)',
+  inverseSoft: 'rgba(255,255,255,0.55)',
+  inverseFaint: 'rgba(255,255,255,0.4)',
+
+  // ── Overlay scale ──────────────────────────────────────────────────────
+  // White fills / borders / tracks on teal surfaces, faint → strong.
+  overlay1: 'rgba(255,255,255,0.06)',
+  overlay2: 'rgba(255,255,255,0.1)',
+  overlay3: 'rgba(255,255,255,0.12)',
+  overlay4: 'rgba(255,255,255,0.18)',
+  overlay5: 'rgba(255,255,255,0.28)',
+  overlay6: 'rgba(255,255,255,0.45)',
 
   // True transparent / white / black for occasional needs
   white: '#FFFFFF',

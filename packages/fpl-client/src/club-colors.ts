@@ -8,7 +8,7 @@
 
 const CLUB_COLORS: Record<string, string> = {
   ARS: '#EF0107', // Arsenal
-  AVL: '#670E36', // Aston Villa
+  AVL: '#95BFE5', // Aston Villa
   BOU: '#DA291C', // Bournemouth
   BRE: '#E30613', // Brentford
   BHA: '#0057B8', // Brighton
@@ -16,7 +16,7 @@ const CLUB_COLORS: Record<string, string> = {
   CHE: '#034694', // Chelsea
   CRY: '#1B458F', // Crystal Palace
   EVE: '#003399', // Everton
-  FUL: '#1A1A18', // Fulham
+  FUL: '#000000', // Fulham
   IPS: '#0044A9', // Ipswich
   LEE: '#1D428A', // Leeds
   LEI: '#003090', // Leicester
