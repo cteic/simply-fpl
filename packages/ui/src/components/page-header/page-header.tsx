@@ -56,7 +56,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
                 fontSize="$13"
                 fontWeight="600"
                 letterSpacing="$2"
-                color="$inverse"
+                color="#FFFFFF"
               >
                 {title}
               </Text>
@@ -68,7 +68,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
                 fontFamily="$body"
                 fontSize="$4"
                 letterSpacing="$6"
-                color="$inverseMuted"
+                color="rgba(255,255,255,0.72)"
                 marginTop={5}
               >
                 {meta}

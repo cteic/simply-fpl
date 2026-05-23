@@ -405,7 +405,7 @@ function LiveRankInner({ entryId }: InnerProps) {
                 fontWeight="600"
                 textTransform="uppercase"
                 letterSpacing={1.4}
-                color="$stadiumAccent"
+                color="#5EEAD4"
               >
                 est. live rank
               </Text>
@@ -420,7 +420,7 @@ function LiveRankInner({ entryId }: InnerProps) {
               lineHeight={58}
               fontWeight="400"
               letterSpacing={-2}
-              color="$inverse"
+              color="#FFFFFF"
               marginTop={6}
               $sm={{ fontSize: 44, lineHeight: 46 }}
             />
@@ -429,12 +429,12 @@ function LiveRankInner({ entryId }: InnerProps) {
               {estimate && movementLabel ? (
                 <XStack
                   alignItems="center"
-                  backgroundColor="$stadiumAccent"
+                  backgroundColor="#5EEAD4"
                   paddingHorizontal={10}
                   paddingVertical={3}
                   borderRadius={99}
                 >
-                  <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$stadium3">
+                  <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
                     {movementLabel}
                   </Text>
                 </XStack>
@@ -442,17 +442,17 @@ function LiveRankInner({ entryId }: InnerProps) {
                 <XStack
                   alignItems="center"
                   borderWidth={1}
-                  borderColor="$overlay5"
+                  borderColor="rgba(255,255,255,0.28)"
                   paddingHorizontal={10}
                   paddingVertical={3}
                   borderRadius={99}
                 >
-                  <Text fontFamily="$body" fontSize={12} color="$inverseStrong">
+                  <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
                     live
                   </Text>
                 </XStack>
               )}
-              <Text fontFamily="$body" fontSize={12.5} color="$inverseStrong">
+              <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
                 since GW start
               </Text>
             </XStack>
@@ -487,17 +487,17 @@ function LiveRankInner({ entryId }: InnerProps) {
                 flex={1}
                 height={4}
                 borderRadius={2}
-                backgroundColor="$overlay4"
+                backgroundColor="rgba(255,255,255,0.18)"
                 overflow="hidden"
               >
                 <YStack
                   height={4}
                   borderRadius={2}
-                  backgroundColor="$stadiumAccent"
+                  backgroundColor="#5EEAD4"
                   style={{ animation: 'sfRefresh 60s linear infinite' }}
                 />
               </YStack>
-              <Text fontFamily="$body" fontSize={11} color="$inverseMuted">
+              <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
                 {isLoading ? 'loading…' : 'refreshes every 60s'}
               </Text>
             </XStack>
