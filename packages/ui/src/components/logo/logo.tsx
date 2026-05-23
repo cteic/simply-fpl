@@ -55,16 +55,15 @@ const WordGlyph = styled(Text, {
 });
 
 function baseColorForTone(tone: LogoTone): string {
-  if (tone === 'inverse') return '$background';
-  if (tone === 'stadium') return '$inverse';
+  if (tone === 'inverse' || tone === 'stadium') return '#FFFFFF';
   return '$color';
 }
 
 export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href }: LogoProps) {
   const baseColor = baseColorForTone(tone);
   const isAccentTone = tone === 'inverse' || tone === 'stadium';
-  const wordColor = isAccentTone ? '$inverse' : '$brand';
-  const tldColor = isAccentTone ? '$stadiumAccent' : '$brand';
+  const wordColor = isAccentTone ? '#FFFFFF' : '#0F766E';
+  const tldColor = isAccentTone ? '#34D399' : '#0F766E';
   const linkProps = href ? { tag: 'a' as const, href } : {};
 
   if (variant === 'lockup') {
