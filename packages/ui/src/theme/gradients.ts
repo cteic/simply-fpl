@@ -18,3 +18,7 @@ export const stadiumGradient = `radial-gradient(125% 125% at 88% -15%, ${colors.
 const PITCH_STRIPES = `repeating-linear-gradient(90deg, ${colors.overlay1} 0 2px, transparent 2px 64px)`;
 
 export const stadiumHeroGradient = `${PITCH_STRIPES}, ${stadiumGradient}`;
+
+export const stadiumPitchHeaderGradient = `linear-gradient(90deg, ${colors.stadium2}, ${colors.stadium3})`;
+
+export const stadiumPitchBodyGradient = `linear-gradient(180deg, #F3FAF4, #FFFFFF), repeating-linear-gradient(0deg, rgba(15,118,110,0.045) 0 30px, transparent 30px 60px)`;

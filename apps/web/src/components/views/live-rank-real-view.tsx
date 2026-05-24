@@ -30,20 +30,19 @@ import {
   FNote,
   FilterButton,
   LiveBattlePanel,
-  Logo,
-  NumberTicker,
   PageHeader,
   PageShell,
   Pitch,
   PitchRow,
   Player,
+  RankHero,
   SectionHeader,
   SkeletonLiveRank,
+  StatTiles,
   Text,
   XStack,
   YStack,
-  colors,
-  featureSurfaceStyle,
+  getThemeDesign,
   resolveThemeName,
 } from '@simplyfpl/ui';
 import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
@@ -73,8 +72,6 @@ function formatLiveAgo(ms: number | null): string {
   if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
   return `${Math.floor(ms / 3_600_000)}h ago`;
 }
-
-const STAT_GRID_STYLE = { display: 'grid' as const, gridTemplateColumns: '1fr 1fr' };
 
 const POSITION: Record<number, ShirtKind> = {
   1: 'gk',
@@ -248,7 +245,7 @@ interface InnerProps {
 }
 
 function LiveRankInner({ entryId }: InnerProps) {
-  const heroSurface = featureSurfaceStyle(resolveThemeName(useThemeName()), 'panel');
+  const design = getThemeDesign(resolveThemeName(useThemeName()));
   const {
     data: snapshot,
     isLoading: snapshotLoading,
@@ -504,201 +501,31 @@ function LiveRankInner({ entryId }: InnerProps) {
           gap={16}
           $md={{ flexGrow: 0, flexBasis: 'auto', width: '100%' }}
         >
-          <YStack
-            borderRadius={14}
-            overflow="hidden"
-            paddingHorizontal={22}
-            paddingVertical={22}
-            backgroundColor="$featureSurface"
-            borderWidth={heroSurface.borderWidth}
-            borderColor="$featureBorder"
-            style={{ backgroundImage: heroSurface.backgroundImage }}
-          >
-            <YStack marginBottom={12}>
-              <Logo variant="lockup" tone="stadium" size="md" />
-            </YStack>
-
-            <Text
-              fontFamily="$body"
-              fontSize={10}
-              fontWeight="600"
-              textTransform="uppercase"
-              letterSpacing={1.4}
-              color="#34D399"
-            >
-              est. live rank
-            </Text>
-
-            <NumberTicker
-              value={estimate?.liveRank ?? null}
-              format={(n) => n.toLocaleString()}
-              fontFamily="$mono"
-              fontSize={56}
-              lineHeight={58}
-              fontWeight="400"
-              letterSpacing={-2}
-              color="#FFFFFF"
-              marginTop={6}
-              $sm={{ fontSize: 44, lineHeight: 46 }}
-            />
-
-            <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
-              {estimate && movementLabel ? (
-                <XStack
-                  alignItems="center"
-                  backgroundColor="#34D399"
-                  paddingHorizontal={10}
-                  paddingVertical={3}
-                  borderRadius={99}
-                >
-                  <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
-                    {movementLabel}
-                  </Text>
-                </XStack>
-              ) : (
-                <XStack
-                  alignItems="center"
-                  borderWidth={1}
-                  borderColor="rgba(255,255,255,0.28)"
-                  paddingHorizontal={10}
-                  paddingVertical={3}
-                  borderRadius={99}
-                >
-                  <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
-                    live
-                  </Text>
-                </XStack>
-              )}
-              <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
-                since GW start
-              </Text>
-            </XStack>
-
-            {rankDetails ? (
-              <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
-                <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
-                  Post-subs ~{rankDetails.postSubsRank.toLocaleString()}
-                </Text>
-                <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
-                  was {rankDetails.oldRank.toLocaleString()}
-                </Text>
-                <Text
-                  fontFamily="$mono"
-                  fontSize={12.5}
-                  color={rankDetails.changePct >= 0 ? '#34D399' : 'rgba(255,255,255,0.8)'}
-                >
-                  {rankDetails.changePct >= 0 ? '+' : ''}
-                  {rankDetails.changePct.toFixed(1)}%
-                </Text>
-              </XStack>
-            ) : null}
-
-            <YStack height={40} marginTop={14}>
-              <svg
-                viewBox="0 0 400 40"
-                preserveAspectRatio="none"
-                style={{ width: '100%', height: '100%', overflow: 'visible' }}
-              >
-                <polyline
-                  points="0,33 57,34 114,28 171,30 228,19 285,21 342,10 400,6"
-                  fill="none"
-                  stroke={colors.stadiumAccent}
-                  strokeWidth={2.4}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle
-                  cx={400}
-                  cy={6}
-                  r={3.4}
-                  fill={colors.inverse}
-                  stroke={colors.stadiumAccent}
-                  strokeWidth={2}
-                />
-              </svg>
-            </YStack>
-
-            <XStack alignItems="center" gap={10} marginTop={12}>
-              <YStack
-                flex={1}
-                height={4}
-                borderRadius={2}
-                backgroundColor="rgba(255,255,255,0.18)"
-                overflow="hidden"
-              >
-                <YStack
-                  height={4}
-                  borderRadius={2}
-                  backgroundColor="#34D399"
-                  style={{ animation: 'sfRefresh 60s linear infinite' }}
-                />
-              </YStack>
-              <Text
-                fontFamily="$body"
-                fontSize={11}
-                color="rgba(255,255,255,0.72)"
-                aria-label="Live data freshness"
-              >
-                {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
-              </Text>
-            </XStack>
-          </YStack>
+          <RankHero
+            rankValue={estimate?.liveRank ?? null}
+            movementLabel={estimate ? movementLabel : null}
+            movementUp={estimate?.direction === 'up'}
+            sinceLabel="since GW start"
+            freshnessLabel={
+              isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`
+            }
+            postSubs={rankDetails}
+          />
 
           <AdSlot placement="rank-inline" minHeight={250} />
 
-          <XStack gap={10} style={STAT_GRID_STYLE}>
-            {tiles.map((tile) => (
-              <YStack
-                key={tile.label}
-                backgroundColor="$surface"
-                borderWidth={1}
-                borderColor="$border"
-                borderLeftWidth={3}
-                borderLeftColor={tile.accent}
-                borderRadius={8}
-                paddingHorizontal={16}
-                paddingVertical={14}
-              >
-                <Text
-                  fontFamily="$body"
-                  fontSize={9.5}
-                  fontWeight="600"
-                  textTransform="uppercase"
-                  letterSpacing={0.6}
-                  color="$colorSubtle"
-                  marginBottom={8}
-                >
-                  {tile.label}
-                </Text>
-                {tile.tick !== null ? (
-                  <NumberTicker
-                    value={tile.tick}
-                    format={(n) => n.toLocaleString()}
-                    fontFamily="$mono"
-                    fontSize={26}
-                    lineHeight={28}
-                    fontWeight="400"
-                    color="$color"
-                  />
-                ) : (
-                  <Text
-                    fontFamily="$mono"
-                    fontSize={26}
-                    lineHeight={28}
-                    fontWeight="400"
-                    color="$color"
-                  >
-                    {tile.value}
-                  </Text>
-                )}
-                <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={6}>
-                  {tile.sub}
-                </Text>
-              </YStack>
-            ))}
-          </XStack>
+          <StatTiles tiles={tiles} />
 
-          <Card paddingHorizontal={20} paddingVertical={16} gap={8}>
+          <Card
+            paddingHorizontal={20}
+            paddingVertical={16}
+            gap={8}
+            borderRadius={design.cardRadius}
+            shadowColor={design.cardShadow.shadowColor}
+            shadowOffset={design.cardShadow.shadowOffset}
+            shadowOpacity={design.cardShadow.shadowOpacity}
+            shadowRadius={design.cardShadow.shadowRadius}
+          >
             <SectionHeader title="Cohort comparison" />
             {hasCohortData ? (
               <CohortTable
@@ -724,7 +551,7 @@ function LiveRankInner({ entryId }: InnerProps) {
           <Pitch
             teamName={teamName}
             formation={formation}
-            label={`Your Team · GW${currentGw ?? '—'}`}
+            label={`${teamName} · GW${currentGw ?? '—'}`}
           >
             {ready ? (
               <YStack gap={6}>

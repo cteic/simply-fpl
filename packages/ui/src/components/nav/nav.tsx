@@ -82,6 +82,7 @@ interface NavLinkItem {
 interface NavProps {
   links: NavLinkItem[];
   statusPill?: ReactNode;
+  themeControl?: ReactNode;
   signInHref?: string;
   onSignOut?: () => void;
   showAuthButton?: boolean;
@@ -91,6 +92,7 @@ interface NavProps {
 export function Nav({
   links,
   statusPill,
+  themeControl,
   signInHref = '/login',
   onSignOut,
   showAuthButton = true,
@@ -116,6 +118,7 @@ export function Nav({
           </NavLinks>
         </Left>
         <Right>
+          {themeControl}
           {statusPill}
           {showAuthButton ? (
             <HideOnMobile>

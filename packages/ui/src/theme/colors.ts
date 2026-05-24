@@ -97,9 +97,20 @@ export const colors = {
   ink: '#0E0E0C',
   ink2: '#1B1B17',
   ink3: '#070706',
+  brandLite: '#5EEAD4',
+
+  neutralBg: '#F7F7F5',
+  neutralSurface: '#FFFFFF',
+  neutralBorder: '#DDDCD6',
+  neutralBorder2: '#C9C8C1',
+  neutralT1: '#1A1A18',
+  neutralT2: '#605F57',
+  neutralT3: '#8A8A82',
 
   neutralFaint: 'rgba(20,20,16,0.03)',
   neutralSoft: 'rgba(20,20,16,0.06)',
+  neutralMid: 'rgba(20,20,16,0.1)',
+  neutralStrong: 'rgba(20,20,16,0.16)',
 
   // True transparent / white / black for occasional needs
   white: '#FFFFFF',
