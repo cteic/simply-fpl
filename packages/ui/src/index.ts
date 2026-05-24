@@ -10,6 +10,7 @@ export {
   styled,
 } from './tamagui-primitives';
 
+export * from './components/ad-slot';
 export * from './components/bench-divider';
 export * from './components/button';
 export * from './components/card';

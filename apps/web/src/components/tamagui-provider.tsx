@@ -40,13 +40,13 @@ export function TamaguiClientProvider({ children }: TamaguiClientProviderProps) 
     <style
       key="tamagui-ssr"
       dangerouslySetInnerHTML={{
-        __html: config.getCSS(),
+        __html: config.getCSS({ exclude: 'design-system' }),
       }}
     />
   ));
 
   return (
-    <TamaguiProvider config={config} defaultTheme="stadium">
+    <TamaguiProvider config={config} defaultTheme="stadium" disableInjectCSS>
       <ThemeModeProvider>
         <ThemedTree>{children}</ThemedTree>
       </ThemeModeProvider>

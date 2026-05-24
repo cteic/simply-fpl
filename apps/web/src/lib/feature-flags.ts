@@ -18,3 +18,5 @@
 export const FEATURE_AUTH = process.env.NEXT_PUBLIC_FEATURE_AUTH === 'true';
 export const FEATURE_PRICES = process.env.NEXT_PUBLIC_FEATURE_PRICES === 'true';
 export const FEATURE_PLANNER = process.env.NEXT_PUBLIC_FEATURE_PLANNER === 'true';
+export const FEATURE_ADS = process.env.NEXT_PUBLIC_FEATURE_ADS === 'true';
+export const SHOW_AD_PLACEHOLDERS = process.env.NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS === 'true';
