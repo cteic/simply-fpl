@@ -55,7 +55,7 @@ async function installWorkerRoutes(page: Page): Promise<void> {
     const url = new URL(route.request().url());
     const pathname = url.pathname;
 
-    if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));
+    if (pathname === '/fpl/bootstrap-static-slim') return route.fulfill(jsonResponse(bootstrap));
     if (pathname === '/fpl/event/37/live/') return route.fulfill(jsonResponse(liveEvent37));
     if (pathname === '/fpl/entry/1001/') return route.fulfill(jsonResponse(entry1001));
     if (pathname === '/fpl/entry/1001/event/37/picks/')
@@ -63,7 +63,7 @@ async function installWorkerRoutes(page: Page): Promise<void> {
     if (pathname === '/fpl/entry/1002/') return route.fulfill(jsonResponse(entry1002));
     if (pathname === '/fpl/entry/1002/event/37/picks/')
       return route.fulfill(jsonResponse(entry1002Picks));
-    if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
+    if (pathname === '/fpl/fixtures-slim') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/fpl/')) return route.fulfill(notFoundResponse());
 
     return route.continue();

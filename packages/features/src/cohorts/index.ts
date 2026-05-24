@@ -6,3 +6,5 @@ export {
   aggregatesToOwnershipByTier,
   type CohortAggregatesByTier,
 } from './from-aggregate';
+export { resolvePitchOwnership } from './pitch-ownership';
+export type { PitchOwnership, PitchOwnershipSource } from './pitch-ownership';
