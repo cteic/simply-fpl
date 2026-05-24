@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { auth } from '@simplyfpl/features';
 import {
   Button,
@@ -173,6 +175,8 @@ function LeagueTabsBody({
   onSelect,
   myEntryId,
 }: LeagueTabsBodyProps) {
+  const router = useRouter();
+
   if (isLoading) {
     return <SkeletonLeagueTable />;
   }
@@ -211,7 +215,14 @@ function LeagueTabsBody({
         ))}
       </XStack>
       {activeId !== null ? (
-        <TrackedLeagueCard key={activeId} leagueId={activeId} myEntryId={myEntryId} />
+        <YStack gap={12}>
+          <XStack justifyContent="flex-end">
+            <Button tone="ghost" size="sm" onPress={() => router.push(`/rivals/${activeId}`)}>
+              View rivals →
+            </Button>
+          </XStack>
+          <TrackedLeagueCard key={activeId} leagueId={activeId} myEntryId={myEntryId} />
+        </YStack>
       ) : null}
     </YStack>
   );

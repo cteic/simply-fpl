@@ -7,6 +7,7 @@
   "description": "React-aware business logic and hooks for SimplyFPL",
   "exports": {
     ".": "./src/index.ts",
+    "./ads": "./src/ads/index.ts",
     "./live-rank": "./src/live-rank/index.ts",
     "./leagues": "./src/leagues/index.ts",
     "./planner": "./src/planner/index.ts",
@@ -17,6 +18,7 @@
     "./subscriptions": "./src/subscriptions/index.ts",
     "./cohorts": "./src/cohorts/index.ts",
     "./threats": "./src/threats/index.ts",
+    "./live-battle": "./src/live-battle/index.ts",
     "./effective-ownership": "./src/effective-ownership/index.ts"
   },
   "scripts": {

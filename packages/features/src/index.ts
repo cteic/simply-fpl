@@ -11,6 +11,7 @@
  *   import { computeLiveRank } from '@simplyfpl/features/live-rank';
  */
 
+export * as ads from './ads';
 export * as liveRank from './live-rank';
 export * as leagues from './leagues';
 export * as planner from './planner';
@@ -21,4 +22,5 @@ export * as rivals from './rivals';
 export * as subscriptions from './subscriptions';
 export * as cohorts from './cohorts';
 export * as threats from './threats';
+export * as liveBattle from './live-battle';
 export * as effectiveOwnership from './effective-ownership';

@@ -39,3 +39,11 @@ When('I open a head-to-head against a rival in the standings', async ({ page }) 
 Then('the head-to-head route for my team opens', async ({ page }) => {
   await page.waitForURL(/\/h2h\/3\/\d+/, { timeout: 10_000 });
 });
+
+When('I open the rivals view for the active league', async ({ page }) => {
+  await page.getByRole('button', { name: 'View rivals' }).click();
+});
+
+Then('the rivals route for that league opens', async ({ page }) => {
+  await page.waitForURL(/\/rivals\/\d+/, { timeout: 10_000 });
+});

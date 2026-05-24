@@ -166,6 +166,7 @@ export type FplDifficulty = 1 | 2 | 3 | 4 | 5;
 export interface FplFixture {
   id: number;
   event: number | null;
+  started?: boolean;
   finished: boolean;
   finished_provisional?: boolean;
   kickoff_time: string | null;
