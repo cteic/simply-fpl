@@ -64,7 +64,7 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
   const isAccentTone = tone === 'inverse' || tone === 'stadium';
   const wordColor = isAccentTone ? '#FFFFFF' : '#0F766E';
   const tldColor = isAccentTone ? '#34D399' : '#0F766E';
-  const linkProps = href ? { tag: 'a' as const, href } : {};
+  const linkProps = href ? { render: <a href={href} aria-label="SimplyFPL home" /> } : {};
 
   if (variant === 'lockup') {
     const px = WORDMARK_SIZE[size];
