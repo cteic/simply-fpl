@@ -21,3 +21,10 @@ Feature: Leagues route with mini-league tabs
     When I visit the leagues page
     And I open a head-to-head against a rival in the standings
     Then the head-to-head route for my team opens
+
+  Scenario: Opening Rivals from a league lands on the rivals route
+    When I visit the leagues page
+    And I switch to the "Ireland" league tab
+    And I open the rivals view for the active league
+    Then no page error should have occurred
+    And the rivals route for that league opens

@@ -10,6 +10,7 @@ export {
   styled,
 } from './tamagui-primitives';
 
+export * from './components/ad-slot';
 export * from './components/bench-divider';
 export * from './components/button';
 export * from './components/card';
@@ -24,6 +25,7 @@ export * from './components/fnote';
 export * from './components/input';
 export * from './components/league-card';
 export * from './components/league-table';
+export * from './components/live-battle-panel';
 export * from './components/live-pill';
 export * from './components/live-rank-pill';
 export * from './components/live-status-pill';

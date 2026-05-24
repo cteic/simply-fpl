@@ -32,13 +32,13 @@ export function TamaguiClientProvider({ children }: TamaguiClientProviderProps) 
     <style
       key="tamagui-ssr"
       dangerouslySetInnerHTML={{
-        __html: config.getCSS(),
+        __html: config.getCSS({ exclude: 'design-system' }),
       }}
     />
   ));
 
   return (
-    <TamaguiProvider config={config} defaultTheme="light">
+    <TamaguiProvider config={config} defaultTheme="light" disableInjectCSS>
       {children}
     </TamaguiProvider>
   );

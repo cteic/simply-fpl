@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 
-import { Button, Card, LeagueCard, Text, XStack, YStack } from '@simplyfpl/ui';
+import { AdSlot, Button, Card, LeagueCard, LeagueTable, Text, XStack, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
 
 import { useClassicLeague } from '@/queries/fpl';
+
+const AD_FREQUENCY = 8;
 
 interface TrackedLeagueCardProps {
   leagueId: number;
@@ -77,14 +79,31 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
         }
       : undefined;
 
+  const chunks: LeagueTableRow[][] = [];
+  for (let i = 0; i < rows.length; i += AD_FREQUENCY) {
+    chunks.push(rows.slice(i, i + AD_FREQUENCY));
+  }
+
   return (
     <YStack gap={6}>
-      <LeagueCard
-        name={data.league.name}
-        meta={`Classic · ${totalRows} managers`}
-        rows={rows}
-        {...(onRowClick !== undefined ? { onRowClick } : {})}
-      />
+      {chunks.map((chunk, idx) =>
+        idx === 0 ? (
+          <LeagueCard
+            key={idx}
+            name={data.league.name}
+            meta={`Classic · ${totalRows} managers`}
+            rows={chunk}
+            {...(onRowClick !== undefined ? { onRowClick } : {})}
+          />
+        ) : (
+          <YStack key={idx} gap={6}>
+            <AdSlot placement="leagues-row" minHeight={120} />
+            <Card>
+              <LeagueTable rows={chunk} {...(onRowClick !== undefined ? { onRowClick } : {})} />
+            </Card>
+          </YStack>
+        )
+      )}
       <XStack gap={8}>
         <Button
           tone="primary"

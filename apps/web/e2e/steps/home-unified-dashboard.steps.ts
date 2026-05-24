@@ -19,3 +19,18 @@ Then('the unified dashboard contains all four sections', async ({ page }) => {
     await expect(page.getByTestId(testid)).toBeVisible();
   }
 });
+
+When('I filter threats by {string}', async ({ page }, label: string) => {
+  const section = page.getByTestId('home-unified-threats');
+  await section.getByRole('button', { name: label, exact: true }).click();
+});
+
+Then('the threats section shows {string}', async ({ page }, name: string) => {
+  const section = page.getByTestId('home-unified-threats');
+  await expect(section.getByText(name, { exact: true })).toBeVisible();
+});
+
+Then('the threats section hides {string}', async ({ page }, name: string) => {
+  const section = page.getByTestId('home-unified-threats');
+  await expect(section.getByText(name, { exact: true })).toHaveCount(0);
+});

@@ -19,3 +19,7 @@ Feature: gw38 live capture to R2
     Given an R2 recording bucket
     When a gw38 snapshot is captured at "2026-05-24T15:30:00.000Z"
     Then the captured row has the same shape as a gw36 recording row
+
+  Scenario: The capture cron uses a Cloudflare-valid weekday
+    Then the capture cron has five fields
+    And the capture cron weekday field is within Cloudflare's 1 to 7 range

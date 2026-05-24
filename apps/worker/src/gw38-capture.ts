@@ -4,7 +4,7 @@ export const GW38_CAPTURE_GW = 38;
 export const GW38_RECORDING_KEY = 'recordings/gw38/recording.jsonl';
 export const GW38_WINDOW_START_MS = Date.parse('2026-05-24T14:00:00.000Z');
 export const GW38_WINDOW_END_MS = Date.parse('2026-05-24T18:00:00.000Z');
-export const GW38_CAPTURE_CRON = '*/10 14-18 * * 0';
+export const GW38_CAPTURE_CRON = '*/10 14-18 * * 1';
 
 export interface CaptureRow {
   ts: string;
