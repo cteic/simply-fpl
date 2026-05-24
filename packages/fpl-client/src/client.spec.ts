@@ -70,7 +70,7 @@ describeFeature(feature, ({ Scenario }) => {
 
     When('I call getBootstrapStatic and it fails', async () => {
       server.use(
-        http.get(`${BASE}/fpl/bootstrap-static/`, () => new HttpResponse(null, { status: 500 }))
+        http.get(`${BASE}/fpl/bootstrap-static-slim`, () => new HttpResponse(null, { status: 500 }))
       );
       try {
         await client.getBootstrapStatic();

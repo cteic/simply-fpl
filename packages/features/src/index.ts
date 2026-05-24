@@ -11,6 +11,7 @@
  *   import { computeLiveRank } from '@simplyfpl/features/live-rank';
  */
 
+export * as ads from './ads';
 export * as liveRank from './live-rank';
 export * as leagues from './leagues';
 export * as planner from './planner';

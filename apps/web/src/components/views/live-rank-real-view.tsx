@@ -1,14 +1,16 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useMemo, useState } from 'react';
+
 import { useParams } from 'next/navigation';
 
 import { useThemeName } from 'tamagui';
 
-import { liveBattle, liveRank } from '@simplyfpl/features';
+import { cohorts, liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
+  computeRankDetails,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
@@ -21,14 +23,20 @@ import type {
   FplPlayer,
 } from '@simplyfpl/types';
 import {
+  AdSlot,
+  BenchDivider,
   Card,
   CohortTable,
   FNote,
+  FilterButton,
   LiveBattlePanel,
   Logo,
   NumberTicker,
   PageHeader,
   PageShell,
+  Pitch,
+  PitchRow,
+  Player,
   SectionHeader,
   SkeletonLiveRank,
   Text,
@@ -45,19 +53,11 @@ import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
 import type { LivePitchPlayer } from './live-pitch';
 
-const LivePitch = dynamic(() => import('./live-pitch').then((m) => m.LivePitch), {
-  ssr: false,
-  loading: () => (
-    <Card minHeight={460} alignItems="center" justifyContent="center">
-      <Text fontFamily="$body" fontSize={12} color="$colorMuted">
-        Loading your team…
-      </Text>
-    </Card>
-  ),
-});
-
 const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 const { computeLiveBattle } = liveBattle;
+const { aggregateToOwnershipMap, resolvePitchOwnership } = cohorts;
+
+type OwnershipMode = 'global' | 'top10k';
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -259,6 +259,7 @@ function LiveRankInner({ entryId }: InnerProps) {
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
   const aggregates = useCohortAggregates(currentGw);
+  const [ownershipMode, setOwnershipMode] = useState<OwnershipMode>('global');
   const { data: liveGw } = useLiveSnapshot(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
   const liveLoading = liveGw === undefined;
@@ -278,9 +279,50 @@ function LiveRankInner({ entryId }: InnerProps) {
     ready && postSubsPicks
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
+  const preGwRank = entry?.summary_overall_rank ?? 0;
+  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const rankDetails = ready
+    ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
+    : null;
   const formation = ready ? deriveFormation(picks, bootstrap) : '4–4–2';
   const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
+
+  const top10kPayload = aggregates?.tiers.top_10k;
+  const top10kOwnership = useMemo(
+    () => (top10kPayload ? aggregateToOwnershipMap(top10kPayload) : undefined),
+    [top10kPayload]
+  );
+
+  function ownershipFor(playerKey: number, globalPct: number | undefined) {
+    if (ownershipMode === 'global') {
+      return { ownershipPercent: globalPct, ownershipPartial: false };
+    }
+    const resolved = resolvePitchOwnership(playerKey, top10kOwnership, globalPct);
+    if (resolved === undefined) {
+      return { ownershipPercent: undefined, ownershipPartial: false };
+    }
+    return { ownershipPercent: resolved.value, ownershipPartial: resolved.source === 'global' };
+  }
+
+  const top10kSampleSize = top10kPayload?.entries_sampled ?? 0;
+  const hasTop10kSample = top10kOwnership !== undefined && Object.keys(top10kOwnership).length > 0;
+  const anyTop10kFallback =
+    ownershipMode === 'top10k' &&
+    [...pitchRows.flat(), ...bench].some(
+      (p) => resolvePitchOwnership(p.key, top10kOwnership, p.ownershipPercent)?.source === 'global'
+    );
+  let ownershipNote: string | null = null;
+  if (ownershipMode === 'top10k') {
+    if (!hasTop10kSample) {
+      ownershipNote = 'Top 10k sample still building — showing global ownership';
+    } else if (anyTop10kFallback) {
+      ownershipNote = `Top 10k sample building (${top10kSampleSize.toLocaleString()} managers) — some shown as global`;
+    } else {
+      ownershipNote = `Top 10k ownership · live sample of ${top10kSampleSize.toLocaleString()} managers`;
+    }
+  }
+
   const teamName = entry?.name ?? '—';
   const { estimate } = useLiveRankEstimate(entryId);
   const agoMs = useLiveAgoMs();
@@ -532,6 +574,25 @@ function LiveRankInner({ entryId }: InnerProps) {
               </Text>
             </XStack>
 
+            {rankDetails ? (
+              <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
+                <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
+                  Post-subs ~{rankDetails.postSubsRank.toLocaleString()}
+                </Text>
+                <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
+                  was {rankDetails.oldRank.toLocaleString()}
+                </Text>
+                <Text
+                  fontFamily="$mono"
+                  fontSize={12.5}
+                  color={rankDetails.changePct >= 0 ? '#34D399' : 'rgba(255,255,255,0.8)'}
+                >
+                  {rankDetails.changePct >= 0 ? '+' : ''}
+                  {rankDetails.changePct.toFixed(1)}%
+                </Text>
+              </XStack>
+            ) : null}
+
             <YStack height={40} marginTop={14}>
               <svg
                 viewBox="0 0 400 40"
@@ -582,6 +643,8 @@ function LiveRankInner({ entryId }: InnerProps) {
               </Text>
             </XStack>
           </YStack>
+
+          <AdSlot placement="rank-inline" minHeight={250} />
 
           <XStack gap={10} style={STAT_GRID_STYLE}>
             {tiles.map((tile) => (
@@ -658,13 +721,97 @@ function LiveRankInner({ entryId }: InnerProps) {
           minWidth={0}
           $md={{ flexGrow: 0, flexBasis: 'auto', width: '100%' }}
         >
-          <LivePitch
+          <Pitch
             teamName={teamName}
             formation={formation}
             label={`Your Team · GW${currentGw ?? '—'}`}
-            rows={ready ? pitchRows : []}
-            bench={ready ? bench : []}
-          />
+          >
+            {ready ? (
+              <YStack gap={6}>
+                <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
+                  <Text
+                    fontFamily="$body"
+                    fontSize={9.5}
+                    fontWeight="600"
+                    textTransform="uppercase"
+                    letterSpacing={0.6}
+                    color="$colorSubtle"
+                  >
+                    Ownership
+                  </Text>
+                  <XStack gap={6}>
+                    <FilterButton
+                      active={ownershipMode === 'global'}
+                      onPress={() => setOwnershipMode('global')}
+                    >
+                      Global
+                    </FilterButton>
+                    <FilterButton
+                      active={ownershipMode === 'top10k'}
+                      onPress={() => setOwnershipMode('top10k')}
+                    >
+                      Top 10k
+                    </FilterButton>
+                  </XStack>
+                </XStack>
+                {ownershipNote ? (
+                  <Text fontFamily="$body" fontSize={10.5} color="$colorMuted">
+                    {ownershipNote}
+                  </Text>
+                ) : null}
+              </YStack>
+            ) : null}
+            {ready
+              ? pitchRows.map((row, i) => (
+                  <PitchRow key={`row-${i}`}>
+                    {row.map((p) => {
+                      const own = ownershipFor(p.key, p.ownershipPercent);
+                      return (
+                        <Player
+                          key={p.key}
+                          name={p.name}
+                          detail={p.detail}
+                          position={p.position}
+                          badge={p.badge}
+                          badgeTone={p.badgeTone}
+                          kitUrl={p.kitUrl}
+                          kitUrl2x={p.kitUrl2x}
+                          ownershipPercent={own.ownershipPercent}
+                          ownershipPartial={own.ownershipPartial}
+                          accentColor={p.accentColor}
+                        />
+                      );
+                    })}
+                  </PitchRow>
+                ))
+              : null}
+            {ready && bench.length > 0 ? (
+              <>
+                <BenchDivider />
+                <PitchRow>
+                  {bench.map((p) => {
+                    const own = ownershipFor(p.key, p.ownershipPercent);
+                    return (
+                      <Player
+                        key={p.key}
+                        name={p.name}
+                        detail={p.detail}
+                        position={p.position}
+                        badge={p.badge}
+                        badgeTone={p.badgeTone}
+                        kitUrl={p.kitUrl}
+                        kitUrl2x={p.kitUrl2x}
+                        ownershipPercent={own.ownershipPercent}
+                        ownershipPartial={own.ownershipPartial}
+                        accentColor={p.accentColor}
+                        bench
+                      />
+                    );
+                  })}
+                </PitchRow>
+              </>
+            ) : null}
+          </Pitch>
         </YStack>
       </XStack>
 

@@ -2,14 +2,18 @@ export { createFplClient, fplClient } from './client';
 export {
   buildLiveLeagueTable,
   calculateLivePoints,
+  computeRankDetails,
   estimateLiveRank,
   formatTimeRemaining,
   getCurrentGameweek,
   getNextDeadline,
   getNextGameweek,
 } from './live-rank';
-export type { LiveRankEstimate, NextDeadline } from './live-rank';
+export type { LiveRankEstimate, NextDeadline, RankDetails } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
+export { buildSlimBootstrap } from './slim-bootstrap';
+export { buildSlimFixtures } from './slim-fixtures';
+export { buildSlimLeague } from './slim-league';
 export { parseEntryId } from './parse-entry-id';
 export { getKitUrl } from './kits';
 export type { KitUrlOptions } from './kits';

@@ -162,6 +162,7 @@ pnpm dev:mobile     # Expo dev server
 - `main` is production. Auto-deploys to Cloudflare Pages + the Worker on every push.
 - `dev` is the integration branch and the **default branch** of the repo. PRs target `dev`.
 - Feature/fix/docs branches (`feat/*`, `fix/*`, `docs/*`, `chore/*`) branch from `dev` and PR back to `dev`.
+- **No stacked PRs.** Every PR branches off `dev` and targets `dev` directly — never branch a PR off another open PR's branch. Stacked PRs have repeatedly stranded work here: a PR gets merged into its parent branch instead of `dev`, the parent is then superseded, and the commits never reach `dev`/`main`. When several pieces of work are genuinely shared or dependent, put them in **one larger PR off `dev` with separate, well-scoped commits** rather than a stack.
 - Releases are PRs from `dev` → `main`. Merge with a merge commit (preserves the per-feature history). Tag the merge commit on main `v0.X.0`.
 - After a release lands on main, the next PR to dev should include a `chore: sync main into dev` merge so dev stays at-or-ahead of main.
 - Hotfix exception: a true production hotfix can branch off `main` and PR to `main`, then cherry-pick back to `dev`. Use sparingly. Run `/hotfix` (see `.claude/commands/hotfix.md`) to automate the flow.

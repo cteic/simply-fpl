@@ -69,7 +69,7 @@ async function installDelayedWorker(page: Page): Promise<void> {
 
   await page.route(`${WORKER_URL}/**`, (route: Route) => {
     const pathname = new URL(route.request().url()).pathname;
-    if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));
+    if (pathname === '/fpl/bootstrap-static-slim') return route.fulfill(jsonResponse(bootstrap));
     if (/^\/snapshot\/entry\/\d+\/?$/.test(pathname)) {
       return route.fulfill(jsonResponse(snapshotPayload));
     }
@@ -82,10 +82,10 @@ async function installDelayedWorker(page: Page): Promise<void> {
     if (pathname === '/fpl/entry/1/event/37/picks/')
       return route.fulfill(jsonResponse(entry1Picks));
     if (pathname === '/fpl/entry/1/history/') return route.fulfill(jsonResponse(entry1History));
-    if (/^\/fpl\/leagues-classic\/\d+\/standings\/$/.test(pathname)) {
+    if (/^\/fpl\/leagues\/\d+\/summary$/.test(pathname)) {
       return route.fulfill(jsonResponse(league314));
     }
-    if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
+    if (pathname === '/fpl/fixtures-slim') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/fpl/')) return route.fulfill(notFoundResponse());
     return route.continue();
   });
