@@ -16,4 +16,4 @@ Feature: Home cohort comparison table visual regression
     And the Worker returns deterministic cohort aggregates for gameweek 37
     When I visit the home page
     Then no page error should have occurred
-    And the rendered page matches the snapshot "home-cohort-real-data"
+    And the rendered page with the live pitch matches the snapshot "home-cohort-real-data"
