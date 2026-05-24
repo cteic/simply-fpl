@@ -17,6 +17,7 @@
     "./subscriptions": "./src/subscriptions/index.ts",
     "./cohorts": "./src/cohorts/index.ts",
     "./threats": "./src/threats/index.ts",
+    "./live-battle": "./src/live-battle/index.ts",
     "./effective-ownership": "./src/effective-ownership/index.ts"
   },
   "scripts": {
