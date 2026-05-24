@@ -19,7 +19,7 @@ import {
   resolveThemeName,
 } from '@simplyfpl/ui';
 
-const STORAGE_KEY = 'simplyfpl:lastEntryId';
+import { readSavedEntryId, setSavedEntryId } from '@/lib/saved-entry-id';
 
 function parseEntryId(input: string): number | null {
   const trimmed = input.trim();
@@ -44,9 +44,8 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
   const logoTone = resolveThemeName(useThemeName()) === 'quiet' ? 'default' : 'stadium';
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    const id = saved ? Number(saved) : NaN;
-    if (Number.isInteger(id) && id > 0) setInput(String(id));
+    const id = readSavedEntryId();
+    if (id !== null) setInput(String(id));
   }, []);
 
   function handleSubmit() {
@@ -56,7 +55,7 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
       setError('Enter a numeric FPL team ID or paste an FPL team URL.');
       return;
     }
-    window.localStorage.setItem(STORAGE_KEY, String(id));
+    setSavedEntryId(id);
     if (onSave) {
       onSave(id);
     } else {
