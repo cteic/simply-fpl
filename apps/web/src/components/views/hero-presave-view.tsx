@@ -16,9 +16,9 @@ import {
   resolveThemeName,
 } from '@simplyfpl/ui';
 
-import { lookupEntry, parseEntryId } from '../team-id-search';
+import { setSavedEntryId } from '@/lib/saved-entry-id';
 
-const STORAGE_KEY = 'simplyfpl:lastEntryId';
+import { lookupEntry, parseEntryId } from '../team-id-search';
 
 const HERO_COPY = {
   eyebrow: 'Live FPL companion',
@@ -90,7 +90,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       return;
     }
 
-    window.localStorage.setItem(STORAGE_KEY, String(id));
+    setSavedEntryId(id);
     if (onSave) {
       onSave(id);
     } else {
