@@ -2,8 +2,9 @@ Feature: Home unified dashboard (feature-flagged)
 
   Phase 1 of the single-page architecture. With `?unified=1` (dev override)
   or NEXT_PUBLIC_FEATURE_HOME_UNIFIED=true, `/` renders a stacked dashboard
-  composing the existing live-rank, threats, effective-ownership, rivals and
-  leagues surfaces as sections — no route navigation required.
+  composing the existing live-rank, threats, effective-ownership and rivals
+  surfaces as sections — no route navigation required. Leagues lives on its
+  own /leagues route.
 
   Background:
     Given the Worker returns deterministic FPL fixtures
@@ -12,4 +13,4 @@ Feature: Home unified dashboard (feature-flagged)
   Scenario: Unified dashboard renders all sections without page errors
     When I visit the home page with the unified flag override
     Then no page error should have occurred
-    And the unified dashboard contains all five sections
+    And the unified dashboard contains all four sections
