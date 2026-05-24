@@ -28,9 +28,9 @@ function readHref(el: ReactElement): unknown {
   return undefined;
 }
 
-function readTag(el: ReactElement): unknown {
+function readRender(el: ReactElement): unknown {
   const props = el.props;
-  if (props !== null && typeof props === 'object' && 'tag' in props) return props.tag;
+  if (props !== null && typeof props === 'object' && 'render' in props) return props.render;
   return undefined;
 }
 
@@ -45,7 +45,10 @@ describe('Nav logo home link', () => {
 
   it('Logo renders as an anchor when given an href', () => {
     const el = Logo({ href: '/' });
-    expect(readTag(el)).toBe('a');
-    expect(readHref(el)).toBe('/');
+    const rendered = readRender(el);
+    expect(isValidElement(rendered)).toBe(true);
+    if (!isValidElement(rendered)) return;
+    expect(rendered.type).toBe('a');
+    expect(readHref(rendered)).toBe('/');
   });
 });
