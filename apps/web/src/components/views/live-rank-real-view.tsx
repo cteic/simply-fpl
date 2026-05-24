@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 
-import { liveRank } from '@simplyfpl/features';
+import { liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
@@ -22,6 +22,7 @@ import {
   Card,
   CohortTable,
   FNote,
+  LiveBattlePanel,
   Logo,
   NumberTicker,
   PageHeader,
@@ -44,6 +45,7 @@ import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
 const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { computeLiveBattle } = liveBattle;
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -254,6 +256,10 @@ function LiveRankInner({ entryId }: InnerProps) {
       ? predictBonusPoints(liveGw, fixtures, bootstrap)
       : new Map<number, BonusPrediction>();
   const livePoints = ready ? calculateLivePoints(picks, liveGw, bootstrap, bonusMap) : 0;
+  const battle =
+    ready && fixtures
+      ? computeLiveBattle({ yourPicks: picks, bootstrap, liveGw, fixtures, bonusMap })
+      : null;
   const postSubsPicks = ready ? applyAutosubs(picks, liveGw, bootstrap) : null;
   const postSubsPoints =
     ready && postSubsPicks
@@ -666,6 +672,26 @@ function LiveRankInner({ entryId }: InnerProps) {
           </Pitch>
         </YStack>
       </XStack>
+
+      {battle && battle.isLive && (battle.gains.length > 0 || battle.losses.length > 0) ? (
+        <YStack marginBottom={16}>
+          <LiveBattlePanel
+            gains={battle.gains.map((p) => ({
+              id: p.elementId,
+              name: p.name,
+              teamShort: p.teamShort,
+              rankImpact: p.rankImpact,
+            }))}
+            losses={battle.losses.map((p) => ({
+              id: p.elementId,
+              name: p.name,
+              teamShort: p.teamShort,
+              rankImpact: p.rankImpact,
+            }))}
+            totalImpact={battle.totalImpact}
+          />
+        </YStack>
+      ) : null}
 
       <XStack marginTop={4} marginBottom={8} justifyContent="center" gap={10}>
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
