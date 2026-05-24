@@ -74,7 +74,7 @@ Given('my team ID {int} is stored in local storage', async ({ page }, entryId: n
 });
 
 Given('the Worker returns bootstrap static data for the rivals view', async ({ page }) => {
-  await page.route(`${WORKER_URL}/fpl/bootstrap-static/`, (route) =>
+  await page.route(`${WORKER_URL}/fpl/bootstrap-static-slim`, (route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -118,7 +118,7 @@ Given(
       const entry = rank === 10 ? USER_ENTRY_ID : 1000 + i;
       return makeStanding(entry, rank);
     });
-    await page.route(`${WORKER_URL}/fpl/leagues-classic/${LEAGUE_ID}/standings/**`, (route) =>
+    await page.route(`${WORKER_URL}/fpl/leagues/${LEAGUE_ID}/summary**`, (route) =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',
