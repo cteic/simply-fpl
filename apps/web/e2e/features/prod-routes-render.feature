@@ -18,7 +18,7 @@ Feature: Prod routes render guardrail
     Given a team id is saved in storage
     When I visit the home page
     Then no page error should have occurred
-    And the rendered page matches the snapshot "home-with-team"
+    And the rendered page with the live pitch matches the snapshot "home-with-team"
 
   Scenario: Home shows the consolidated live-rank hero and stat tiles
     Given a team id is saved in storage
@@ -30,7 +30,7 @@ Feature: Prod routes render guardrail
     Given a team id is saved in storage
     When I visit the live rank page for entry 1
     Then no page error should have occurred
-    And the rendered page matches the snapshot "home-with-team"
+    And the rendered page with the live pitch matches the snapshot "home-with-team"
 
   Scenario: Head-to-head page renders for a visitor with no saved team
     Given no team is saved in storage
@@ -43,6 +43,12 @@ Feature: Prod routes render guardrail
     When I visit the head-to-head page for entries 1 and 2
     Then no page error should have occurred
     And the rendered page matches the snapshot "h2h-with-team"
+
+  Scenario: Head-to-head pitches fit side-by-side without overlap on a tablet
+    Given a team id is saved in storage
+    When I visit the head-to-head page for entries 1 and 2 on a tablet
+    Then no page error should have occurred
+    And the rendered page matches the snapshot "h2h-with-team-tablet"
 
   Scenario: Leagues page renders for a visitor with no saved team
     Given no team is saved in storage
