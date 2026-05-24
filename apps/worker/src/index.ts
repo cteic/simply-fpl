@@ -1,8 +1,11 @@
 import type { BrowserWorker } from '@cloudflare/puppeteer';
 
+import { handleBootstrapSlim } from './bootstrap';
 import { runScheduled } from './cohort/cohort';
 import { handleCohortAggregates } from './cohort/serve';
+import { handleFixturesSlim } from './fixtures';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
+import { handleLeagueSummary } from './leagues';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
 import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
@@ -319,6 +322,58 @@ export default {
     // Returns ~5KB instead of shipping the full 200KB bootstrap to the client.
     if (url.pathname === '/fpl/prices' || url.pathname === '/fpl/prices/') {
       const result = await handlePrices(env, ctx);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
+    // Route: /fpl/bootstrap-static-slim → bootstrap projected to the fields the
+    // UI renders (~16KB gzipped vs ~210KB for the raw passthrough).
+    if (
+      url.pathname === '/fpl/bootstrap-static-slim' ||
+      url.pathname === '/fpl/bootstrap-static-slim/'
+    ) {
+      const result = await handleBootstrapSlim(env, ctx);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
+    // Route: /fpl/fixtures-slim[?event=N] → fixtures with the per-fixture stats
+    // blob dropped (~90% smaller gzipped). Optional ?event filters to one GW.
+    if (url.pathname === '/fpl/fixtures-slim' || url.pathname === '/fpl/fixtures-slim/') {
+      const eventParam = url.searchParams.get('event');
+      const eventId =
+        eventParam !== null && /^\d+$/.test(eventParam) ? Number(eventParam) : undefined;
+      const result = await handleFixturesSlim(env, ctx, eventId);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
+    // Route: /fpl/leagues/:id/summary[?page=N] → classic-league standings with
+    // the new_entries block and league metadata stripped.
+    const leagueSummaryMatch = url.pathname.match(/^\/fpl\/leagues\/(\d+)\/summary\/?$/);
+    if (leagueSummaryMatch && leagueSummaryMatch[1]) {
+      const leagueId = Number(leagueSummaryMatch[1]);
+      const pageParam = url.searchParams.get('page');
+      const page = pageParam !== null && /^\d+$/.test(pageParam) ? Number(pageParam) : 1;
+      const result = await handleLeagueSummary(env, ctx, leagueId, page);
       return new Response(JSON.stringify(result.body), {
         status: result.status,
         headers: {

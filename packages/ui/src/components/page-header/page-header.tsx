@@ -2,9 +2,9 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled, useThemeName } from 'tamagui';
 
-import { stadiumGradient } from '../../theme';
+import { featureSurfaceStyle, resolveThemeName } from '../../theme';
 
 const Header = styled(XStack, {
   alignItems: 'flex-start',
@@ -37,7 +37,9 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderProps) {
+  const themeName = resolveThemeName(useThemeName());
   if (tone === 'stadium') {
+    const surface = featureSurfaceStyle(themeName, 'panel');
     return (
       <YStack
         borderRadius={14}
@@ -45,8 +47,10 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
         marginBottom={20}
         paddingHorizontal={22}
         paddingVertical={20}
-        backgroundColor="$brand"
-        style={{ backgroundImage: stadiumGradient }}
+        backgroundColor="$featureSurface"
+        borderWidth={surface.borderWidth}
+        borderColor="$featureBorder"
+        style={{ backgroundImage: surface.backgroundImage }}
       >
         <XStack alignItems="center" justifyContent="space-between" gap={12} flexWrap="wrap">
           <YStack>

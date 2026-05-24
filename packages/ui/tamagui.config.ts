@@ -245,6 +245,39 @@ const light = {
   overlay6: colors.overlay6,
 };
 
+const stadium = {
+  ...light,
+  featureSurface: colors.brand,
+  featureBorder: colors.transparent,
+};
+
+const bold = {
+  ...stadium,
+  featureSurface: colors.ink,
+  featureBorder: colors.transparent,
+};
+
+const quiet = {
+  ...stadium,
+  featureSurface: colors.surface,
+  featureBorder: colors.border,
+  inverse: colors.t1,
+  inverseStrong: colors.t1,
+  inverseMuted: colors.t2,
+  inverseSoft: colors.t2,
+  inverseFaint: colors.t3,
+  overlay1: colors.neutralFaint,
+  overlay2: colors.neutralSoft,
+  overlay3: colors.border,
+  overlay4: colors.border2,
+  overlay5: colors.border2,
+  overlay6: colors.t3,
+  stadiumAccent: colors.brand,
+  stadiumAccentStrong: colors.brandHover,
+  stadiumDanger: colors.red,
+  stadium3: colors.white,
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Config
 // ─────────────────────────────────────────────────────────────────────────────
@@ -261,8 +294,9 @@ export const config = createTamagui({
     mono: dmMono,
   },
   themes: {
-    light,
-    // Tamagui requires at least one theme; we provide light as default
+    stadium,
+    bold,
+    quiet,
   },
   tokens,
   shorthands,
