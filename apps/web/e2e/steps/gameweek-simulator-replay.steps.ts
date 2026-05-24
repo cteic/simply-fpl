@@ -106,14 +106,14 @@ Given(
       if (/^\/snapshot\/entry\/\d+\/?$/.test(pathname)) {
         return route.fulfill(jsonResponse(snapshotPayload));
       }
-      if (pathname === '/fpl/bootstrap-static/') {
+      if (pathname === '/fpl/bootstrap-static-slim') {
         return route.fulfill(jsonResponse(JSON.stringify(bootstrap)));
       }
       if (/^\/fpl\/event\/\d+\/live\/$/.test(pathname)) {
         const first = frames[0];
         return route.fulfill(jsonResponse(JSON.stringify(first ? first.data : { elements: [] })));
       }
-      if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
+      if (pathname === '/fpl/fixtures-slim') return route.fulfill(jsonResponse('[]'));
       if (pathname.startsWith('/fpl/')) return route.fulfill(notFoundResponse());
       return route.fulfill(notFoundResponse());
     });

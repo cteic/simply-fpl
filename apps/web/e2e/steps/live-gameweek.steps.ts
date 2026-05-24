@@ -15,7 +15,7 @@ Given('the Worker returns live gameweek data for event 1', async ({ page }) => {
 });
 
 Given('the Worker returns bootstrap static data', async ({ page }) => {
-  await page.route(`${WORKER_URL}/fpl/bootstrap-static/`, (route) => {
+  await page.route(`${WORKER_URL}/fpl/bootstrap-static-slim`, (route) => {
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
