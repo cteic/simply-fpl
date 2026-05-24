@@ -14,3 +14,9 @@ Feature: Home unified dashboard (feature-flagged)
     When I visit the home page with the unified flag override
     Then no page error should have occurred
     And the unified dashboard contains all four sections
+
+  Scenario: Threats playing-status filter narrows the visible players
+    When I visit the home page with the unified flag override
+    And I filter threats by "Didn't Play"
+    Then the threats section shows "Watkins"
+    And the threats section hides "M.Salah"
