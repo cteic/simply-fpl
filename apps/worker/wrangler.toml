@@ -56,5 +56,5 @@ crons = [
   "0 */6 * * *",   # idle cadence
   "*/15 * * * *",  # /fpl/prices KV warm — keep bootstrap + slim prices hot
   "0 6 * * 1",      # weekly speed-comparison (Mon 06:00 UTC)
-  "*/10 14-18 * * 0"
+  "*/10 14-18 * * 1"
 ]
