@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { threats as threatsNs } from '@simplyfpl/features';
-import type { Threat, ThreatPosition } from '@simplyfpl/features/threats';
+import type { Threat, ThreatPosition, ThreatStatusFilter } from '@simplyfpl/features/threats';
 import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import {
   Card,
   FNote,
+  FilterButton,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -20,9 +21,17 @@ import {
 import type { ShirtKind } from '@simplyfpl/ui';
 
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
-import { useBootstrap, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
+import { useBootstrap, useEntryPicks, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { computeThreats } = threatsNs;
+const { computeThreats, filterThreatsByStatus } = threatsNs;
+
+const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }> = [
+  { label: 'All', value: 'all' },
+  { label: 'Playing', value: 'playing' },
+  { label: 'To Play', value: 'to-play' },
+  { label: 'Played', value: 'played' },
+  { label: "Didn't Play", value: 'didnt-play' },
+];
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -37,8 +46,12 @@ const PLACEHOLDER_THREATS: Threat[] = [
     ownedByPct: 78,
     captainPct: 41,
     effectiveOwnershipPct: 119,
-    livePoints: 0,
+    livePoints: 13,
+    minutes: 90,
     liveRankImpactIfTheyHaul: 9.52,
+    pointsLostToThreat: 15.47,
+    scorePct: 26,
+    playingStatus: 'played',
   },
   {
     elementId: 328,
@@ -50,8 +63,12 @@ const PLACEHOLDER_THREATS: Threat[] = [
     ownedByPct: 72,
     captainPct: 18,
     effectiveOwnershipPct: 90,
-    livePoints: 0,
+    livePoints: 6,
+    minutes: 64,
     liveRankImpactIfTheyHaul: 7.2,
+    pointsLostToThreat: 5.4,
+    scorePct: 9,
+    playingStatus: 'playing',
   },
   {
     elementId: 401,
@@ -63,8 +80,12 @@ const PLACEHOLDER_THREATS: Threat[] = [
     ownedByPct: 54,
     captainPct: 4,
     effectiveOwnershipPct: 58,
-    livePoints: 0,
+    livePoints: 2,
+    minutes: 31,
     liveRankImpactIfTheyHaul: 4.64,
+    pointsLostToThreat: 1.16,
+    scorePct: 2,
+    playingStatus: 'playing',
   },
   {
     elementId: 220,
@@ -77,7 +98,11 @@ const PLACEHOLDER_THREATS: Threat[] = [
     captainPct: 7,
     effectiveOwnershipPct: 56,
     livePoints: 0,
+    minutes: 0,
     liveRankImpactIfTheyHaul: 4.48,
+    pointsLostToThreat: 0,
+    scorePct: 0,
+    playingStatus: 'to-play',
   },
   {
     elementId: 182,
@@ -90,7 +115,11 @@ const PLACEHOLDER_THREATS: Threat[] = [
     captainPct: 3,
     effectiveOwnershipPct: 39,
     livePoints: 0,
+    minutes: 0,
     liveRankImpactIfTheyHaul: 3.12,
+    pointsLostToThreat: 0,
+    scorePct: 0,
+    playingStatus: 'didnt-play',
   },
 ];
 
@@ -112,6 +141,7 @@ function readSavedEntryId(): number | null {
 
 export function ThreatsView() {
   const [entryId, setEntryId] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ThreatStatusFilter>('all');
   useEffect(() => {
     setEntryId(readSavedEntryId());
   }, []);
@@ -122,6 +152,7 @@ export function ThreatsView() {
   const cohort = aggregates?.tiers.top_10k;
   const { data: yourPicks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
   const { data: liveGw } = useLiveGameweek(currentGw);
+  const { data: fixtures } = useFixtures(currentGw);
 
   const rows = useMemo<Threat[]>(() => {
     if (cohort && bootstrap && liveGw && yourPicks) {
@@ -130,10 +161,16 @@ export function ThreatsView() {
         cohort,
         bootstrap,
         liveGw,
+        fixtures: fixtures ?? [],
       });
     }
     return PLACEHOLDER_THREATS;
-  }, [cohort, bootstrap, liveGw, yourPicks]);
+  }, [cohort, bootstrap, liveGw, yourPicks, fixtures]);
+
+  const visibleRows = useMemo(
+    () => filterThreatsByStatus(rows, statusFilter),
+    [rows, statusFilter]
+  );
 
   const headline = entryId === null ? 'Save a team on Home to personalise' : `For team ${entryId}`;
 
@@ -145,15 +182,35 @@ export function ThreatsView() {
         meta={`${headline} · GW${currentGw ?? '—'} · Players nearby managers own that you don't`}
       />
 
+      <XStack gap={8} flexWrap="wrap" marginBottom={16}>
+        {STATUS_FILTERS.map((f) => (
+          <FilterButton
+            key={f.value}
+            active={f.value === statusFilter}
+            onPress={() => setStatusFilter(f.value)}
+          >
+            {f.label}
+          </FilterButton>
+        ))}
+      </XStack>
+
       <Card paddingHorizontal={0} paddingVertical={0} marginBottom={16}>
         <YStack paddingHorizontal={16} paddingTop={14} paddingBottom={8}>
-          <SectionHeader title={`Top threats (${rows.length})`} />
+          <SectionHeader title={`Top threats (${visibleRows.length})`} />
         </YStack>
-        <YStack>
-          {rows.map((row, idx) => (
-            <ThreatRow key={row.elementId} threat={row} last={idx === rows.length - 1} />
-          ))}
-        </YStack>
+        {visibleRows.length === 0 ? (
+          <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
+            <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+              No threats match this filter.
+            </Text>
+          </YStack>
+        ) : (
+          <YStack>
+            {visibleRows.map((row, idx) => (
+              <ThreatRow key={row.elementId} threat={row} last={idx === visibleRows.length - 1} />
+            ))}
+          </YStack>
+        )}
       </Card>
 
       <FNote>
@@ -199,7 +256,7 @@ const ClubDot = styled(YStack, {
 
 const StatBlock = styled(YStack, {
   alignItems: 'flex-end',
-  minWidth: 64,
+  minWidth: 52,
 });
 
 const StatNumber = styled(Text, {
@@ -229,6 +286,9 @@ function ThreatRow({ threat, last }: ThreatRowProps) {
   const kitUrl2x =
     threat.teamCode > 0 ? getKitUrl(threat.teamCode, { isGoalkeeper, size: 220 }) : undefined;
   const clubColor = getClubColor(threat.teamShort);
+  const scoreLabel = threat.scorePct === null ? '—' : `${threat.scorePct.toFixed(0)}%`;
+  const lostLabel =
+    threat.pointsLostToThreat > 0 ? `−${threat.pointsLostToThreat.toFixed(1)}` : '0.0';
   return (
     <Row last={last}>
       <Shirt kind={POSITION_TO_SHIRT[threat.position]} kitUrl={kitUrl} kitUrl2x={kitUrl2x} />
@@ -237,17 +297,22 @@ function ThreatRow({ threat, last }: ThreatRowProps) {
         <XStack alignItems="center" gap={4}>
           {clubColor ? <ClubDot backgroundColor={clubColor} /> : null}
           <TeamMeta>
-            {threat.teamShort} · {threat.position.toUpperCase()}
+            {threat.teamShort} · {threat.position.toUpperCase()} · {threat.ownedByPct.toFixed(0)}%
+            own
           </TeamMeta>
         </XStack>
       </YStack>
       <StatBlock>
-        <StatNumber>{threat.ownedByPct.toFixed(0)}%</StatNumber>
-        <StatLabel>owned</StatLabel>
-      </StatBlock>
-      <StatBlock>
         <StatNumber>{threat.effectiveOwnershipPct.toFixed(0)}%</StatNumber>
         <StatLabel>EO</StatLabel>
+      </StatBlock>
+      <StatBlock>
+        <StatNumber>{scoreLabel}</StatNumber>
+        <StatLabel>score%</StatLabel>
+      </StatBlock>
+      <StatBlock>
+        <StatNumber>{lostLabel}</StatNumber>
+        <StatLabel>lost</StatLabel>
       </StatBlock>
       <StatBlock>
         <StatNumber>−{threat.liveRankImpactIfTheyHaul.toFixed(1)}</StatNumber>
