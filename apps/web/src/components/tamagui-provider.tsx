@@ -46,7 +46,7 @@ export function TamaguiClientProvider({ children }: TamaguiClientProviderProps) 
   ));
 
   return (
-    <TamaguiProvider config={config} defaultTheme="stadium" disableInjectCSS>
+    <TamaguiProvider config={config} defaultTheme="light" disableInjectCSS>
       <ThemeModeProvider>
         <ThemedTree>{children}</ThemedTree>
       </ThemeModeProvider>

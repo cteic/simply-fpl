@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 import { Text, XStack, YStack, styled, useThemeName } from 'tamagui';
 
-import { featureSurfaceStyle, resolveThemeName } from '../../theme';
+import { featureSurfaceStyle, getThemeDesign, resolveThemeName } from '../../theme';
 
 const Header = styled(XStack, {
   alignItems: 'flex-start',
@@ -40,9 +40,10 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
   const themeName = resolveThemeName(useThemeName());
   if (tone === 'stadium') {
     const surface = featureSurfaceStyle(themeName, 'panel');
+    const design = getThemeDesign(themeName);
     return (
       <YStack
-        borderRadius={14}
+        borderRadius={design.cardRadius}
         overflow="hidden"
         marginBottom={20}
         paddingHorizontal={22}
@@ -50,6 +51,10 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
         backgroundColor="$featureSurface"
         borderWidth={surface.borderWidth}
         borderColor="$featureBorder"
+        shadowColor={design.cardShadow.shadowColor}
+        shadowOffset={design.cardShadow.shadowOffset}
+        shadowOpacity={design.cardShadow.shadowOpacity}
+        shadowRadius={design.cardShadow.shadowRadius}
         style={{ backgroundImage: surface.backgroundImage }}
       >
         <XStack alignItems="center" justifyContent="space-between" gap={12} flexWrap="wrap">
@@ -60,7 +65,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
                 fontSize="$13"
                 fontWeight="600"
                 letterSpacing="$2"
-                color="#FFFFFF"
+                color="$inverse"
               >
                 {title}
               </Text>
@@ -72,7 +77,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
                 fontFamily="$body"
                 fontSize="$4"
                 letterSpacing="$6"
-                color="rgba(255,255,255,0.72)"
+                color="$inverseMuted"
                 marginTop={5}
               >
                 {meta}
