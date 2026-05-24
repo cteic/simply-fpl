@@ -41,4 +41,24 @@ describe('LiveStatusPill', () => {
     expect(text).toContain('Live');
     expect(text).not.toContain('Rank');
   });
+
+  it('shows the team id beside the rank when a team is selected', () => {
+    const text = collectText(
+      LiveStatusPill({
+        liveLabel: 'GW37 Live',
+        rank: 124356,
+        teamId: 1234567,
+        onDeselect: () => undefined,
+      })
+    );
+    expect(text).toContain('Rank');
+    expect(text).toContain('124,356');
+    expect(text).toContain('Team');
+    expect(text).toContain('1234567');
+  });
+
+  it('omits the team segment when no team id is provided', () => {
+    const text = collectText(LiveStatusPill({ liveLabel: 'Live', rank: null }));
+    expect(text).not.toContain('Team');
+  });
 });
