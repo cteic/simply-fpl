@@ -22,6 +22,7 @@ import {
   Card,
   CohortTable,
   FNote,
+  Logo,
   NumberTicker,
   PageHeader,
   PageShell,
@@ -426,6 +427,10 @@ function LiveRankInner({ entryId }: InnerProps) {
             backgroundColor="$brand"
             style={{ backgroundImage: stadiumGradient }}
           >
+            <YStack marginBottom={12}>
+              <Logo variant="lockup" tone="stadium" size="md" />
+            </YStack>
+
             <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
               <Text
                 fontFamily="$body"
