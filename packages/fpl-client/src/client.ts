@@ -32,7 +32,7 @@ export function createFplClient(config: FplClientConfig = {}) {
 
   return {
     getBootstrapStatic(): Promise<FplBootstrapStatic> {
-      return get<FplBootstrapStatic>('/fpl/bootstrap-static/');
+      return get<FplBootstrapStatic>('/fpl/bootstrap-static-slim');
     },
 
     getLiveGameweek(eventId: number): Promise<FplLiveGameweek> {
@@ -52,11 +52,11 @@ export function createFplClient(config: FplClientConfig = {}) {
     },
 
     getClassicLeague(leagueId: number, page = 1): Promise<FplLeague> {
-      return get<FplLeague>(`/fpl/leagues-classic/${leagueId}/standings/?page_standings=${page}`);
+      return get<FplLeague>(`/fpl/leagues/${leagueId}/summary?page=${page}`);
     },
 
     getFixtures(eventId?: number): Promise<FplFixture[]> {
-      const path = eventId ? `/fpl/fixtures/?event=${eventId}` : `/fpl/fixtures/`;
+      const path = eventId ? `/fpl/fixtures-slim?event=${eventId}` : `/fpl/fixtures-slim`;
       return get<FplFixture[]>(path);
     },
   };

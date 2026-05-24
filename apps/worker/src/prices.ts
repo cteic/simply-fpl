@@ -1,5 +1,8 @@
 import { predictPriceChanges } from '@simplyfpl/fpl-client';
-import type { FplBootstrapStatic } from '@simplyfpl/types';
+import type { FplBootstrapStatic, FplFixture } from '@simplyfpl/types';
+
+import { warmBootstrapSlim } from './bootstrap';
+import { warmFixturesSlim } from './fixtures';
 
 export interface PricesEnv {
   FPL_CACHE: KVNamespace;
@@ -167,9 +170,19 @@ export async function warmPricesCache(env: PricesEnv, ctx: ExecutionContext): Pr
         expirationTtl: FIXTURES_TTL_SECONDS,
       }).catch(() => undefined)
     );
+    try {
+      const parsedFixtures = JSON.parse(fixturesText) as unknown;
+      if (Array.isArray(parsedFixtures)) {
+        ctx.waitUntil(warmFixturesSlim(env, parsedFixtures as FplFixture[]));
+      }
+    } catch {
+      // fall through and recompute
+    }
   }
 
   if (!bootstrap) return;
+
+  ctx.waitUntil(warmBootstrapSlim(env, bootstrap));
 
   const slim = buildSlimPrices(bootstrap);
   await env.FPL_CACHE.put(PRICES_SLIM_CACHE_KEY, JSON.stringify(slim), {
