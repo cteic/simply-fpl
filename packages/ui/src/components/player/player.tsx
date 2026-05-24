@@ -70,6 +70,7 @@ interface PlayerProps {
   badge?: string;
   badgeTone?: BadgeTone;
   bench?: boolean;
+  compact?: boolean;
   kitUrl?: string | undefined;
   kitUrl2x?: string | undefined;
   ownershipPercent?: number | undefined;
@@ -83,6 +84,7 @@ export function Player({
   badge,
   badgeTone = 'default',
   bench = false,
+  compact = false,
   kitUrl,
   kitUrl2x,
   ownershipPercent,
@@ -90,12 +92,14 @@ export function Player({
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
   return (
-    <Wrap>
+    <Wrap width={compact ? 56 : undefined}>
       <ShirtWrap bench={bench}>
-        <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} />
+        <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} size={compact ? 36 : 44} />
         {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
       </ShirtWrap>
-      <Name bench={bench}>{name}</Name>
+      <Name bench={bench} maxWidth={compact ? 54 : undefined}>
+        {name}
+      </Name>
       {detail ? (
         <XStack alignItems="center" justifyContent="center" gap={4}>
           {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
