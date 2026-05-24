@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 
 import { usePathname, useRouter } from 'next/navigation';
 
-import { auth, liveRank } from '@simplyfpl/features';
+import { auth, liveRank, theme as themeFeature } from '@simplyfpl/features';
 import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
-import { LiveStatusPill, Nav } from '@simplyfpl/ui';
+import { LiveStatusPill, Nav, ThemeToggle } from '@simplyfpl/ui';
 
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
 import { useBootstrap } from '@/queries/fpl';
@@ -15,6 +15,7 @@ import { buildNavLinks } from './nav-links';
 
 const { useAuth } = auth;
 const { useCountdown, useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { useThemeMode } = themeFeature;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -22,6 +23,7 @@ export function NavBar() {
   const pathname = usePathname() ?? '/';
   const router = useRouter();
   const { session, signOut } = useAuth();
+  const { theme, setTheme } = useThemeMode();
   const [entryId, setEntryId] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -95,6 +97,7 @@ export function NavBar() {
     <Nav
       links={links}
       statusPill={statusPill}
+      themeControl={<ThemeToggle value={theme} onSelect={setTheme} />}
       signInHref="/login"
       showAuthButton={FEATURE_AUTH}
       {...authProps}

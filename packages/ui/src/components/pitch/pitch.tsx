@@ -2,8 +2,14 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled, useThemeName } from 'tamagui';
 
+import {
+  getThemeDesign,
+  resolveThemeName,
+  stadiumPitchBodyGradient,
+  stadiumPitchHeaderGradient,
+} from '../../theme';
 import { Card } from '../card';
 
 const Head = styled(XStack, {
@@ -11,7 +17,6 @@ const Head = styled(XStack, {
   justifyContent: 'space-between',
   paddingHorizontal: 18,
   paddingVertical: 13,
-  borderBottomWidth: 1,
   borderBottomColor: '$border',
 });
 
@@ -21,7 +26,6 @@ const Label = styled(Text, {
   fontWeight: '600',
   textTransform: 'uppercase',
   letterSpacing: '$11',
-  color: '$colorSubtle',
   marginBottom: 3,
 });
 
@@ -30,17 +34,13 @@ const Title = styled(Text, {
   fontSize: 12.5,
   fontWeight: '500',
   letterSpacing: '$5',
-  color: '$color',
 });
 
 const FormationTag = styled(Text, {
   fontFamily: '$mono',
   fontSize: 11,
   fontWeight: '500',
-  color: '$colorMuted',
-  backgroundColor: '$background',
   borderWidth: 1,
-  borderColor: '$borderStrong',
   paddingHorizontal: 8,
   paddingVertical: 3,
   borderRadius: 4,
@@ -66,16 +66,39 @@ interface PitchProps {
 }
 
 export function Pitch({ teamName, formation, label, children }: PitchProps) {
+  const design = getThemeDesign(resolveThemeName(useThemeName()));
+  const gradientHeader = design.pitchHeader === 'gradient';
+
   return (
-    <Card>
-      <Head>
+    <Card
+      borderRadius={design.cardRadius}
+      shadowColor={design.cardShadow.shadowColor}
+      shadowOffset={design.cardShadow.shadowOffset}
+      shadowOpacity={design.cardShadow.shadowOpacity}
+      shadowRadius={design.cardShadow.shadowRadius}
+    >
+      <Head
+        borderBottomWidth={gradientHeader ? 0 : 1}
+        backgroundColor={gradientHeader ? '$featureSurface' : 'transparent'}
+        style={gradientHeader ? { backgroundImage: stadiumPitchHeaderGradient } : undefined}
+      >
         <YStack>
-          {label ? <Label>{label}</Label> : null}
-          <Title>{teamName}</Title>
+          {label ? (
+            <Label color={gradientHeader ? '$inverseStrong' : '$colorSubtle'}>{label}</Label>
+          ) : null}
+          <Title color={gradientHeader ? '$inverse' : '$color'}>{teamName}</Title>
         </YStack>
-        <FormationTag>{formation}</FormationTag>
+        <FormationTag
+          color={gradientHeader ? '$inverse' : '$colorMuted'}
+          backgroundColor={gradientHeader ? '$overlay3' : '$background'}
+          borderColor={gradientHeader ? '$overlay4' : '$borderStrong'}
+        >
+          {formation}
+        </FormationTag>
       </Head>
-      <Body>{children}</Body>
+      <Body style={design.pitchGrass ? { backgroundImage: stadiumPitchBodyGradient } : undefined}>
+        {children}
+      </Body>
     </Card>
   );
 }
