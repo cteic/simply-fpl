@@ -146,6 +146,7 @@ describeFeature(feature, ({ Scenario }) => {
         cohort: picksToAggregate(cohortPicks),
         bootstrap: makeBootstrap(allIds),
         liveGw: makeLive(scores),
+        fixtures: [],
       });
     });
 
@@ -185,6 +186,7 @@ describeFeature(feature, ({ Scenario }) => {
         cohort: picksToAggregate(cohort),
         bootstrap: makeBootstrap(allIds),
         liveGw: makeLive(scores),
+        fixtures: [],
       });
     });
 
@@ -213,6 +215,7 @@ describeFeature(feature, ({ Scenario }) => {
         cohort: picksToAggregate([]),
         bootstrap: makeBootstrap(allIds),
         liveGw: makeLive(scores),
+        fixtures: [],
       });
     });
 
