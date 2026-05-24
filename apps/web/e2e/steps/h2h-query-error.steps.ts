@@ -35,7 +35,7 @@ async function installH2hErrorWorker(page: Page): Promise<void> {
 
   await page.route(`${WORKER_URL}/**`, (route: Route) => {
     const pathname = new URL(route.request().url()).pathname;
-    if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));
+    if (pathname === '/fpl/bootstrap-static-slim') return route.fulfill(jsonResponse(bootstrap));
     if (/^\/fpl\/event\/\d+\/live\/$/.test(pathname)) {
       return route.fulfill(jsonResponse(liveEvent37));
     }
@@ -44,7 +44,7 @@ async function installH2hErrorWorker(page: Page): Promise<void> {
       return route.fulfill(jsonResponse(entry1Picks));
     }
     if (pathname === '/fpl/entry/2/') return route.fulfill(serverErrorResponse());
-    if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
+    if (pathname === '/fpl/fixtures-slim') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/fpl/')) return route.fulfill(serverErrorResponse());
     return route.continue();
   });
