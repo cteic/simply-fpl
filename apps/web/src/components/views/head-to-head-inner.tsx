@@ -6,6 +6,7 @@ import { h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import {
+  AdSlot,
   Card,
   FNote,
   PageHeader,
@@ -107,6 +108,8 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
       <Scoreboard you={you} them={them} scoreDelta={scoreDelta} />
 
       <PitchPair you={you} them={them} />
+
+      <AdSlot placement="h2h-below-fold" minHeight={250} />
 
       <DifferentialBlock
         title={`Only ${you.managerName || 'you'} have`}
