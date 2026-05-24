@@ -42,7 +42,7 @@ import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
-const { useLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -51,6 +51,15 @@ function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   if (Number.isNaN(parsed) || parsed <= 0) return null;
   return parsed;
 }
+
+function formatLiveAgo(ms: number | null): string {
+  if (ms === null || ms < 5_000) return 'just now';
+  if (ms < 60_000) return `${Math.floor(ms / 1000)}s ago`;
+  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
+  return `${Math.floor(ms / 3_600_000)}h ago`;
+}
+
+const STAT_GRID_STYLE = { display: 'grid' as const, gridTemplateColumns: '1fr 1fr' };
 
 const POSITION: Record<number, ShirtKind> = {
   1: 'gk',
@@ -254,6 +263,7 @@ function LiveRankInner({ entryId }: InnerProps) {
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
   const { estimate } = useLiveRankEstimate(entryId);
+  const agoMs = useLiveAgoMs();
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
@@ -265,28 +275,23 @@ function LiveRankInner({ entryId }: InnerProps) {
   const top10kAvg = aggregates?.tiers.top_10k?.avg_event_points;
   const overallAvg = aggregates?.tiers.overall?.avg_event_points;
   const legendaryAvg = aggregates?.tiers.legendary?.avg_event_points;
-  const cohortRows: CohortTableRow[] = aggregates
-    ? [
-        {
-          label: 'Score',
-          you: ready ? livePoints : '—',
-          top10k: top10kAvg != null ? Math.round(top10kAvg) : '—',
-          overall: overallAvg != null ? Math.round(overallAvg) : '—',
-          legendary: legendaryAvg != null ? Math.round(legendaryAvg) : '—',
-        },
-        { label: 'Players played', you: '—', top10k: '—', overall: '—', legendary: '—' },
-        { label: 'Budget played', you: '—', top10k: '—', overall: '—', legendary: '—' },
-        { label: 'Captain pts', you: '—', top10k: '—', overall: '—', legendary: '—' },
-      ]
-    : [
-        { label: 'Score', you: ready ? livePoints : '—', top10k: 80, overall: 65, legendary: 77 },
-        { label: 'Players played', you: '—', top10k: 9, overall: 8, legendary: 10 },
-        { label: 'Budget played', you: '—', top10k: '£82m', overall: '£78m', legendary: '£89m' },
-        { label: 'Captain pts', you: '—', top10k: 14, overall: 10, legendary: 18 },
-      ];
-  const cohortFooter = aggregates
-    ? 'Live cohort data refreshes every 60s while gameweeks are active.'
-    : 'Placeholder data — real cohort numbers landing this week';
+  // Only the "Score" row has real numbers today; the per-stat breakdowns
+  // (players played / budget / captain pts) are not aggregated yet, so we omit
+  // them rather than render a wall of em-dashes. When no aggregates exist at
+  // all we fall back to a "coming soon" message below instead of fake numbers.
+  const cohortRows: CohortTableRow[] =
+    aggregates && ready
+      ? [
+          {
+            label: 'Score',
+            you: livePoints,
+            top10k: top10kAvg != null ? Math.round(top10kAvg) : '—',
+            overall: overallAvg != null ? Math.round(overallAvg) : '—',
+            legendary: legendaryAvg != null ? Math.round(legendaryAvg) : '—',
+          },
+        ]
+      : [];
+  const hasCohortData = cohortRows.length > 0;
 
   const benchPoints = bench.reduce((sum, p) => sum + (Number(p.badge) || 0), 0);
 
@@ -302,6 +307,8 @@ function LiveRankInner({ entryId }: InnerProps) {
     captainSub = `×${captainPick.multiplier} · ${captainTbp ? 'TBP' : `${captainPts} pts`}`;
   }
 
+  const showSafety = overallAvg != null;
+  const showOffTop10k = ready && top10kAvg != null;
   const safetyValue = overallAvg != null ? String(Math.round(overallAvg)) : '—';
   const offTop10kValue =
     ready && top10kAvg != null ? String(Math.max(0, Math.round(top10kAvg) - livePoints)) : '—';
@@ -330,20 +337,28 @@ function LiveRankInner({ entryId }: InnerProps) {
       sub: 'autosubs ready',
       accent: '$colorSubtle',
     },
-    {
-      label: 'Safety Score',
-      value: safetyValue,
-      tick: null,
-      sub: 'green-arrow line',
-      accent: '$positive',
-    },
-    {
-      label: 'Off Top 10k',
-      value: offTop10kValue,
-      tick: null,
-      sub: 'points behind',
-      accent: '$warning',
-    },
+    ...(showSafety
+      ? [
+          {
+            label: 'Safety Score',
+            value: safetyValue,
+            tick: null,
+            sub: 'green-arrow line',
+            accent: '$positive',
+          },
+        ]
+      : []),
+    ...(showOffTop10k
+      ? [
+          {
+            label: 'Off Top 10k',
+            value: offTop10kValue,
+            tick: null,
+            sub: 'points behind',
+            accent: '$warning',
+          },
+        ]
+      : []),
     { label: 'Captain', value: captainName, tick: null, sub: captainSub, accent: '$negative' },
   ];
 
@@ -388,8 +403,21 @@ function LiveRankInner({ entryId }: InnerProps) {
 
   return (
     <PageShell>
-      <XStack flexWrap="wrap" gap={16} alignItems="flex-start" marginBottom={16}>
-        <YStack flexGrow={1} flexBasis={340} minWidth={300} gap={16}>
+      <XStack
+        gap={16}
+        alignItems="flex-start"
+        marginBottom={16}
+        flexDirection="row"
+        $md={{ flexDirection: 'column' }}
+      >
+        <YStack
+          flexGrow={1.2}
+          flexShrink={1}
+          flexBasis={0}
+          minWidth={0}
+          gap={16}
+          $md={{ flexGrow: 0, flexBasis: 'auto', width: '100%' }}
+        >
           <YStack
             borderRadius={14}
             overflow="hidden"
@@ -497,87 +525,36 @@ function LiveRankInner({ entryId }: InnerProps) {
                   style={{ animation: 'sfRefresh 60s linear infinite' }}
                 />
               </YStack>
-              <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
-                {isLoading ? 'loading…' : 'refreshes every 60s'}
+              <Text
+                fontFamily="$body"
+                fontSize={11}
+                color="rgba(255,255,255,0.72)"
+                aria-label="Live data freshness"
+              >
+                {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
               </Text>
             </XStack>
           </YStack>
 
-          <YStack>
-            <Pitch
-              teamName={teamName}
-              formation={formation}
-              label={`Your Team · GW${currentGw ?? '—'}`}
-            >
-              {ready
-                ? pitchRows.map((row, i) => (
-                    <PitchRow key={`row-${i}`}>
-                      {row.map((p) => (
-                        <Player
-                          key={p.key}
-                          name={p.name}
-                          detail={p.detail}
-                          position={p.position}
-                          badge={p.badge}
-                          badgeTone={p.badgeTone}
-                          kitUrl={p.kitUrl}
-                          kitUrl2x={p.kitUrl2x}
-                          ownershipPercent={p.ownershipPercent}
-                          accentColor={p.accentColor}
-                        />
-                      ))}
-                    </PitchRow>
-                  ))
-                : null}
-              {ready && bench.length > 0 ? (
-                <>
-                  <BenchDivider />
-                  <PitchRow>
-                    {bench.map((p) => (
-                      <Player
-                        key={p.key}
-                        name={p.name}
-                        detail={p.detail}
-                        position={p.position}
-                        badge={p.badge}
-                        badgeTone={p.badgeTone}
-                        kitUrl={p.kitUrl}
-                        kitUrl2x={p.kitUrl2x}
-                        ownershipPercent={p.ownershipPercent}
-                        accentColor={p.accentColor}
-                        bench
-                      />
-                    ))}
-                  </PitchRow>
-                </>
-              ) : null}
-            </Pitch>
-          </YStack>
-        </YStack>
-
-        <YStack flexGrow={1} flexBasis={260} minWidth={240}>
-          <XStack flexWrap="wrap" gap={10}>
+          <XStack gap={10} style={STAT_GRID_STYLE}>
             {tiles.map((tile) => (
               <YStack
                 key={tile.label}
-                flexGrow={1}
-                flexBasis={120}
-                minWidth={120}
                 backgroundColor="$surface"
                 borderWidth={1}
                 borderColor="$border"
                 borderLeftWidth={3}
                 borderLeftColor={tile.accent}
-                borderRadius={10}
+                borderRadius={8}
                 paddingHorizontal={16}
                 paddingVertical={14}
               >
                 <Text
                   fontFamily="$body"
-                  fontSize={10}
+                  fontSize={9.5}
                   fontWeight="600"
                   textTransform="uppercase"
-                  letterSpacing={0.7}
+                  letterSpacing={0.6}
                   color="$colorSubtle"
                   marginBottom={8}
                 >
@@ -604,19 +581,86 @@ function LiveRankInner({ entryId }: InnerProps) {
                     {tile.value}
                   </Text>
                 )}
-                <Text fontFamily="$body" fontSize={11} color="$colorMuted" marginTop={6}>
+                <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={6}>
                   {tile.sub}
                 </Text>
               </YStack>
             ))}
           </XStack>
+
+          <Card paddingHorizontal={20} paddingVertical={16} gap={8}>
+            <SectionHeader title="Cohort comparison" />
+            {hasCohortData ? (
+              <CohortTable
+                rows={cohortRows}
+                footer="Live cohort data refreshes every 60s · more breakdowns coming soon"
+              />
+            ) : (
+              <Text fontFamily="$body" fontSize={12.5} color="$colorMuted" lineHeight={18}>
+                Cohort comparison is coming soon — live Top 10k, Overall and Legendary benchmarks
+                land this week.
+              </Text>
+            )}
+          </Card>
+        </YStack>
+
+        <YStack
+          flexGrow={1}
+          flexShrink={1}
+          flexBasis={0}
+          minWidth={0}
+          $md={{ flexGrow: 0, flexBasis: 'auto', width: '100%' }}
+        >
+          <Pitch
+            teamName={teamName}
+            formation={formation}
+            label={`Your Team · GW${currentGw ?? '—'}`}
+          >
+            {ready
+              ? pitchRows.map((row, i) => (
+                  <PitchRow key={`row-${i}`}>
+                    {row.map((p) => (
+                      <Player
+                        key={p.key}
+                        name={p.name}
+                        detail={p.detail}
+                        position={p.position}
+                        badge={p.badge}
+                        badgeTone={p.badgeTone}
+                        kitUrl={p.kitUrl}
+                        kitUrl2x={p.kitUrl2x}
+                        ownershipPercent={p.ownershipPercent}
+                        accentColor={p.accentColor}
+                      />
+                    ))}
+                  </PitchRow>
+                ))
+              : null}
+            {ready && bench.length > 0 ? (
+              <>
+                <BenchDivider />
+                <PitchRow>
+                  {bench.map((p) => (
+                    <Player
+                      key={p.key}
+                      name={p.name}
+                      detail={p.detail}
+                      position={p.position}
+                      badge={p.badge}
+                      badgeTone={p.badgeTone}
+                      kitUrl={p.kitUrl}
+                      kitUrl2x={p.kitUrl2x}
+                      ownershipPercent={p.ownershipPercent}
+                      accentColor={p.accentColor}
+                      bench
+                    />
+                  ))}
+                </PitchRow>
+              </>
+            ) : null}
+          </Pitch>
         </YStack>
       </XStack>
-
-      <Card paddingHorizontal={20} paddingVertical={16} marginBottom={16} gap={8}>
-        <SectionHeader title="Cohort comparison" />
-        <CohortTable rows={cohortRows} footer={cohortFooter} />
-      </Card>
 
       <XStack marginTop={4} marginBottom={8} justifyContent="center" gap={10}>
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
