@@ -207,3 +207,20 @@ Then('the rendered page matches the snapshot {string}', async ({ page }, name: s
     maxDiffPixelRatio: 0.05,
   });
 });
+
+// The live-rank pitch is lazy-loaded (next/dynamic, ssr: false), so it paints a
+// beat after the rest of the page. Wait for its squad to render before
+// snapshotting, otherwise the gate captures an empty pitch shell.
+Then(
+  'the rendered page with the live pitch matches the snapshot {string}',
+  async ({ page }, name: string) => {
+    await expect(page.getByText('FPL Test FC').first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Saka').first()).toBeVisible({ timeout: 15_000 });
+    await page.evaluate(() => document.fonts.ready).catch(() => undefined);
+    await expect(page).toHaveScreenshot(`${name}.png`, {
+      fullPage: true,
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.05,
+    });
+  }
+);
