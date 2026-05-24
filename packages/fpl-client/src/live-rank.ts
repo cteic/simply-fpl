@@ -158,3 +158,27 @@ export function estimateLiveRank(
   else if (movement < 0) direction = 'down';
   return { liveRank, movement, direction };
 }
+
+export interface RankDetails {
+  oldRank: number;
+  preSubsRank: number;
+  postSubsRank: number;
+  changePct: number;
+}
+
+export function computeRankDetails(
+  preGwRank: number,
+  livePoints: number,
+  postSubsPoints: number,
+  avgEntryScore: number
+): RankDetails | null {
+  if (preGwRank <= 0) return null;
+  const preSubs = estimateLiveRank(preGwRank, livePoints, avgEntryScore);
+  const postSubs = estimateLiveRank(preGwRank, postSubsPoints, avgEntryScore);
+  return {
+    oldRank: preGwRank,
+    preSubsRank: preSubs.liveRank,
+    postSubsRank: postSubs.liveRank,
+    changePct: (postSubs.movement / preGwRank) * 100,
+  };
+}

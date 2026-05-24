@@ -59,6 +59,11 @@ const Ownership = styled(Text, {
   color: '$colorSubtle',
   textAlign: 'center',
   letterSpacing: 0,
+  variants: {
+    partial: {
+      true: { fontStyle: 'italic', color: '$colorMuted' },
+    },
+  } as const,
 });
 
 type BadgeTone = 'default' | 'hot' | 'bench' | 'captain' | 'tbp';
@@ -73,6 +78,7 @@ interface PlayerProps {
   kitUrl?: string | undefined;
   kitUrl2x?: string | undefined;
   ownershipPercent?: number | undefined;
+  ownershipPartial?: boolean;
   accentColor?: string | undefined;
 }
 
@@ -86,6 +92,7 @@ export function Player({
   kitUrl,
   kitUrl2x,
   ownershipPercent,
+  ownershipPartial = false,
   accentColor,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
@@ -102,8 +109,11 @@ export function Player({
           <Detail>{detail}</Detail>
         </XStack>
       ) : null}
-      {ownershipPercent !== undefined ? (
-        <Ownership>{ownershipPercent.toFixed(1)}%</Ownership>
+      {ownershipPercent !== undefined && Number.isFinite(ownershipPercent) ? (
+        <Ownership partial={ownershipPartial}>
+          {ownershipPartial ? '~' : ''}
+          {ownershipPercent.toFixed(1)}%
+        </Ownership>
       ) : null}
     </Wrap>
   );
