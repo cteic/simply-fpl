@@ -13,7 +13,7 @@ describe('buildNavLinks', () => {
 
   it('shows Leagues once a team is selected', () => {
     const links = buildNavLinks({ hasEntry: true, prices: false, planner: false });
-    expect(links).toEqual([{ label: 'Leagues', href: '/#leagues' }]);
+    expect(links).toEqual([{ label: 'Leagues', href: '/leagues' }]);
   });
 
   it('includes flagged links and keeps Leagues gated on the entry', () => {
