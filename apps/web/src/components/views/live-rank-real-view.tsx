@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 
 import { useThemeName } from 'tamagui';
@@ -20,7 +21,6 @@ import type {
   FplPlayer,
 } from '@simplyfpl/types';
 import {
-  BenchDivider,
   Card,
   CohortTable,
   FNote,
@@ -29,12 +29,8 @@ import {
   NumberTicker,
   PageHeader,
   PageShell,
-  Pitch,
-  PitchRow,
-  Player,
   SectionHeader,
   SkeletonLiveRank,
-  TeamPill,
   Text,
   XStack,
   YStack,
@@ -46,6 +42,19 @@ import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
+
+import type { LivePitchPlayer } from './live-pitch';
+
+const LivePitch = dynamic(() => import('./live-pitch').then((m) => m.LivePitch), {
+  ssr: false,
+  loading: () => (
+    <Card minHeight={460} alignItems="center" justifyContent="center">
+      <Text fontFamily="$body" fontSize={12} color="$colorMuted">
+        Loading your team…
+      </Text>
+    </Card>
+  ),
+});
 
 const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 const { computeLiveBattle } = liveBattle;
@@ -79,7 +88,7 @@ function rowsForFormation(
   bootstrap: FplBootstrapStatic,
   liveGw: FplLiveGameweek,
   bonusMap: Map<number, BonusPrediction>
-) {
+): LivePitchPlayer[][] {
   const elementsById = new Map<number, FplPlayer>();
   for (const e of bootstrap.elements) {
     elementsById.set(e.id, e);
@@ -156,7 +165,7 @@ function benchPlayers(
   picks: FplEntryGameweekPicks,
   bootstrap: FplBootstrapStatic,
   liveGw: FplLiveGameweek
-) {
+): LivePitchPlayer[] {
   const elementsById = new Map<number, FplPlayer>();
   for (const e of bootstrap.elements) elementsById.set(e.id, e);
   const teamShortById = new Map<number, string>();
@@ -286,10 +295,31 @@ function LiveRankInner({ entryId }: InnerProps) {
   const top10kAvg = aggregates?.tiers.top_10k?.avg_event_points;
   const overallAvg = aggregates?.tiers.overall?.avg_event_points;
   const legendaryAvg = aggregates?.tiers.legendary?.avg_event_points;
-  // Only the "Score" row has real numbers today; the per-stat breakdowns
-  // (players played / budget / captain pts) are not aggregated yet, so we omit
-  // them rather than render a wall of em-dashes. When no aggregates exist at
-  // all we fall back to a "coming soon" message below instead of fake numbers.
+  const captainPick = ready ? picks.picks.find((p) => p.is_captain) : undefined;
+  let captainName = '—';
+  let captainSub = 'no captain set';
+  let captainPointsValue: number | null = null;
+  if (ready && captainPick) {
+    const captainPlayer = bootstrap.elements.find((e) => e.id === captainPick.element);
+    const captainLive = liveGw.elements.find((e) => e.id === captainPick.element);
+    const captainTbp = (captainLive?.stats.minutes ?? 0) === 0;
+    const captainPts = (captainLive?.stats.total_points ?? 0) * captainPick.multiplier;
+    captainName = captainPlayer?.web_name ?? '—';
+    captainSub = `×${captainPick.multiplier} · ${captainTbp ? 'TBP' : `${captainPts} pts`}`;
+    captainPointsValue = captainTbp ? null : captainPts;
+  }
+
+  const liveById = ready ? new Map(liveGw.elements.map((e) => [e.id, e])) : null;
+  const playersPlayed =
+    ready && liveById
+      ? picks.picks.filter(
+          (p) => p.position <= 11 && (liveById.get(p.element)?.stats.minutes ?? 0) > 0
+        ).length
+      : null;
+
+  // The cohort aggregates currently expose only an average score per tier; the
+  // per-stat breakdowns aren't aggregated yet, so those cohort columns show an
+  // em-dash placeholder rather than collapsing the table to a single row.
   const cohortRows: CohortTableRow[] =
     aggregates && ready
       ? [
@@ -300,23 +330,26 @@ function LiveRankInner({ entryId }: InnerProps) {
             overall: overallAvg != null ? Math.round(overallAvg) : '—',
             legendary: legendaryAvg != null ? Math.round(legendaryAvg) : '—',
           },
+          {
+            label: 'Players played',
+            you: playersPlayed ?? '—',
+            top10k: '—',
+            overall: '—',
+            legendary: '—',
+          },
+          { label: 'Budget played', you: '—', top10k: '—', overall: '—', legendary: '—' },
+          {
+            label: 'Captain pts',
+            you: captainPointsValue ?? '—',
+            top10k: '—',
+            overall: '—',
+            legendary: '—',
+          },
         ]
       : [];
   const hasCohortData = cohortRows.length > 0;
 
   const benchPoints = bench.reduce((sum, p) => sum + (Number(p.badge) || 0), 0);
-
-  const captainPick = ready ? picks.picks.find((p) => p.is_captain) : undefined;
-  let captainName = '—';
-  let captainSub = 'no captain set';
-  if (ready && captainPick) {
-    const captainPlayer = bootstrap.elements.find((e) => e.id === captainPick.element);
-    const captainLive = liveGw.elements.find((e) => e.id === captainPick.element);
-    const captainTbp = (captainLive?.stats.minutes ?? 0) === 0;
-    const captainPts = (captainLive?.stats.total_points ?? 0) * captainPick.multiplier;
-    captainName = captainPlayer?.web_name ?? '—';
-    captainSub = `×${captainPick.multiplier} · ${captainTbp ? 'TBP' : `${captainPts} pts`}`;
-  }
 
   const showSafety = overallAvg != null;
   const showOffTop10k = ready && top10kAvg != null;
@@ -443,19 +476,16 @@ function LiveRankInner({ entryId }: InnerProps) {
               <Logo variant="lockup" tone="stadium" size="md" />
             </YStack>
 
-            <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
-              <Text
-                fontFamily="$body"
-                fontSize={10}
-                fontWeight="600"
-                textTransform="uppercase"
-                letterSpacing={1.4}
-                color="#34D399"
-              >
-                est. live rank
-              </Text>
-              <TeamPill teamId={entryId} />
-            </XStack>
+            <Text
+              fontFamily="$body"
+              fontSize={10}
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing={1.4}
+              color="#34D399"
+            >
+              est. live rank
+            </Text>
 
             <NumberTicker
               value={estimate?.liveRank ?? null}
@@ -628,54 +658,13 @@ function LiveRankInner({ entryId }: InnerProps) {
           minWidth={0}
           $md={{ flexGrow: 0, flexBasis: 'auto', width: '100%' }}
         >
-          <Pitch
+          <LivePitch
             teamName={teamName}
             formation={formation}
             label={`Your Team · GW${currentGw ?? '—'}`}
-          >
-            {ready
-              ? pitchRows.map((row, i) => (
-                  <PitchRow key={`row-${i}`}>
-                    {row.map((p) => (
-                      <Player
-                        key={p.key}
-                        name={p.name}
-                        detail={p.detail}
-                        position={p.position}
-                        badge={p.badge}
-                        badgeTone={p.badgeTone}
-                        kitUrl={p.kitUrl}
-                        kitUrl2x={p.kitUrl2x}
-                        ownershipPercent={p.ownershipPercent}
-                        accentColor={p.accentColor}
-                      />
-                    ))}
-                  </PitchRow>
-                ))
-              : null}
-            {ready && bench.length > 0 ? (
-              <>
-                <BenchDivider />
-                <PitchRow>
-                  {bench.map((p) => (
-                    <Player
-                      key={p.key}
-                      name={p.name}
-                      detail={p.detail}
-                      position={p.position}
-                      badge={p.badge}
-                      badgeTone={p.badgeTone}
-                      kitUrl={p.kitUrl}
-                      kitUrl2x={p.kitUrl2x}
-                      ownershipPercent={p.ownershipPercent}
-                      accentColor={p.accentColor}
-                      bench
-                    />
-                  ))}
-                </PitchRow>
-              </>
-            ) : null}
-          </Pitch>
+            rows={ready ? pitchRows : []}
+            bench={ready ? bench : []}
+          />
         </YStack>
       </XStack>
 

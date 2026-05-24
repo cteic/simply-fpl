@@ -6,15 +6,17 @@ import { BenchDivider, Pitch, PitchRow, Player, XStack, YStack, styled } from '@
 import type { ShirtKind } from '@simplyfpl/ui';
 
 const PitchPairWrap = styled(XStack, {
+  flexWrap: 'wrap',
   gap: 12,
   marginBottom: 12,
-  alignItems: 'stretch',
-  $sm: { flexDirection: 'column' },
+  alignItems: 'flex-start',
 });
 
 const PitchColumn = styled(YStack, {
-  flex: 1,
-  minWidth: 0,
+  flexGrow: 1,
+  flexShrink: 1,
+  flexBasis: 300,
+  minWidth: 260,
 });
 
 const POSITION_TO_SHIRT: Record<H2hPosition, ShirtKind> = {
@@ -60,7 +62,7 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
     <Pitch teamName={headerLabel} formation={side.formation}>
       {rows.map((row, i) =>
         row.length === 0 ? null : (
-          <PitchRow key={`row-${i}`}>
+          <PitchRow key={`row-${i}`} gap={6}>
             {row.map((p) => {
               const kit = kitProps(p);
               return (
@@ -74,6 +76,7 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
                   kitUrl={kit.kitUrl}
                   kitUrl2x={kit.kitUrl2x}
                   accentColor={getClubColor(p.teamShort)}
+                  compact
                 />
               );
             })}
@@ -83,7 +86,7 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
       {side.bench.length > 0 ? (
         <>
           <BenchDivider />
-          <PitchRow>
+          <PitchRow gap={6}>
             {side.bench.map((p) => {
               const kit = kitProps(p);
               return (
@@ -98,6 +101,7 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
                   kitUrl={kit.kitUrl}
                   kitUrl2x={kit.kitUrl2x}
                   accentColor={getClubColor(p.teamShort)}
+                  compact
                 />
               );
             })}

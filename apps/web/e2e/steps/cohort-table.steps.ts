@@ -8,7 +8,9 @@ Then('the cohort table compares my score against each tier', async ({ page }) =>
   for (const header of ['You', 'Top 10k', 'Overall', 'Legendary']) {
     await expect(page.getByText(header, { exact: true })).toBeVisible();
   }
-  await expect(page.getByText('Score', { exact: true })).toBeVisible();
+  for (const row of ['Score', 'Players played', 'Budget played', 'Captain pts']) {
+    await expect(page.getByText(row, { exact: true })).toBeVisible();
+  }
 });
 
 Then('the cohort comparison shows a coming-soon placeholder', async ({ page }) => {
