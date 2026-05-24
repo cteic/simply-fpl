@@ -18,6 +18,7 @@ import type {
   FplPlayer,
 } from '@simplyfpl/types';
 import {
+  AdSlot,
   BenchDivider,
   Card,
   CohortTable,
@@ -546,6 +547,8 @@ function LiveRankInner({ entryId }: InnerProps) {
               </Text>
             </XStack>
           </YStack>
+
+          <AdSlot placement="rank-inline" minHeight={250} />
 
           <XStack gap={10} style={STAT_GRID_STYLE}>
             {tiles.map((tile) => (
