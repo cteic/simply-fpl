@@ -6,6 +6,7 @@ import { liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
+  computeRankDetails,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
@@ -265,6 +266,11 @@ function LiveRankInner({ entryId }: InnerProps) {
     ready && postSubsPicks
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
+  const preGwRank = entry?.summary_overall_rank ?? 0;
+  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const rankDetails = ready
+    ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
+    : null;
   const formation = ready ? deriveFormation(picks, bootstrap) : '4–4–2';
   const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
@@ -495,6 +501,25 @@ function LiveRankInner({ entryId }: InnerProps) {
                 since GW start
               </Text>
             </XStack>
+
+            {rankDetails ? (
+              <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
+                <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
+                  Post-subs ~{rankDetails.postSubsRank.toLocaleString()}
+                </Text>
+                <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
+                  was {rankDetails.oldRank.toLocaleString()}
+                </Text>
+                <Text
+                  fontFamily="$mono"
+                  fontSize={12.5}
+                  color={rankDetails.changePct >= 0 ? '#34D399' : 'rgba(255,255,255,0.8)'}
+                >
+                  {rankDetails.changePct >= 0 ? '+' : ''}
+                  {rankDetails.changePct.toFixed(1)}%
+                </Text>
+              </XStack>
+            ) : null}
 
             <YStack height={40} marginTop={14}>
               <svg

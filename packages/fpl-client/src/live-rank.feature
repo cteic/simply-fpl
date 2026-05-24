@@ -79,3 +79,13 @@ Feature: Live points calculation
     Given my pre-gameweek rank is 500 and the average score is 30
     When I score 100 live points
     Then the live rank estimate is 1 with movement up 49000
+
+  Scenario: Rank details derive pre-subs and post-subs ranks with change percent
+    Given my pre-gameweek rank is 100000 and the average score is 30
+    When I compute rank details with 50 live points and 58 post-subs points
+    Then the old rank is 100000, pre-subs rank 86000, post-subs rank 80400 and change 19.6 percent
+
+  Scenario: Rank details are unavailable without a pre-gameweek rank
+    Given my pre-gameweek rank is 0 and the average score is 30
+    When I compute rank details with 50 live points and 58 post-subs points
+    Then there are no rank details
