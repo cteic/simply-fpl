@@ -257,6 +257,10 @@ When a feature requires new components, build them in this order:
 
 For each component, give Claude Code one focused task referencing this doc and the prototype HTML. Don't ask it to "implement the design" — ask it to "implement the StatCard component matching the Live Rank stat row in the prototype, using Tamagui primitives and tokens from `@simplyfpl/ui/theme`."
 
+## Ad slots
+
+`<AdSlot placement="..." minHeight={n} />` — reserved for post-launch monetisation. Slots are flag-gated (`NEXT_PUBLIC_FEATURE_ADS`): they render `null` in production until the flag is enabled. A dev-only flag (`NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS`) renders transparent spacers to visualise reserved space. Three placements: `rank-inline` (between rank card and stat tiles, 250px), `leagues-row` (after every 8 league table rows, 120px), `h2h-below-fold` (after the pitch comparison, 250px). Slot styling: warm `#F7F7F5` bg, 1px `$border` hairline, 12px radius, DM Sans 11px "Sponsored" label. No brand accent or position-shirt palette inside slots.
+
 ## When mobile is added
 
 The token consumption for React Native StyleSheet:

@@ -11,13 +11,14 @@ import type {
 import {
   buildLiveLeagueTable,
   calculateLivePoints,
+  computeRankDetails,
   estimateLiveRank,
   formatTimeRemaining,
   getCurrentGameweek,
   getNextDeadline,
   getNextGameweek,
 } from './live-rank';
-import type { NextDeadline } from './live-rank';
+import type { NextDeadline, RankDetails } from './live-rank';
 
 const feature = await loadFeature('./live-rank.feature');
 
@@ -521,6 +522,54 @@ describeFeature(feature, ({ Scenario }) => {
       expect(estimate.liveRank).toBe(1);
       expect(estimate.movement).toBe(49000);
       expect(estimate.direction).toBe('up');
+    });
+  });
+
+  Scenario(
+    'Rank details derive pre-subs and post-subs ranks with change percent',
+    ({ Given, When, Then }) => {
+      let preGwRank = 0;
+      let avgScore = 0;
+      let details: RankDetails | null = null;
+
+      Given('my pre-gameweek rank is 100000 and the average score is 30', () => {
+        preGwRank = 100000;
+        avgScore = 30;
+      });
+
+      When('I compute rank details with 50 live points and 58 post-subs points', () => {
+        details = computeRankDetails(preGwRank, 50, 58, avgScore);
+      });
+
+      Then(
+        'the old rank is 100000, pre-subs rank 86000, post-subs rank 80400 and change 19.6 percent',
+        () => {
+          if (details === null) throw new Error('expected rank details');
+          expect(details.oldRank).toBe(100000);
+          expect(details.preSubsRank).toBe(86000);
+          expect(details.postSubsRank).toBe(80400);
+          expect(details.changePct).toBeCloseTo(19.6, 5);
+        }
+      );
+    }
+  );
+
+  Scenario('Rank details are unavailable without a pre-gameweek rank', ({ Given, When, Then }) => {
+    let preGwRank = 0;
+    let avgScore = 0;
+    let details: RankDetails | null = null;
+
+    Given('my pre-gameweek rank is 0 and the average score is 30', () => {
+      preGwRank = 0;
+      avgScore = 30;
+    });
+
+    When('I compute rank details with 50 live points and 58 post-subs points', () => {
+      details = computeRankDetails(preGwRank, 50, 58, avgScore);
+    });
+
+    Then('there are no rank details', () => {
+      expect(details).toBeNull();
     });
   });
 });
