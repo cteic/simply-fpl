@@ -36,6 +36,7 @@ export * from './components/page-header';
 export * from './components/page-shell';
 export * from './components/pbadge';
 export * from './components/pitch';
+export * from './components/pitch-background';
 export * from './components/planner-grid';
 export * from './components/player';
 export * from './components/postag';
