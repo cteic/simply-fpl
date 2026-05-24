@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-
 import { useRouter } from 'next/navigation';
 
 import { auth, theme as themeFeature } from '@simplyfpl/features';
@@ -26,13 +24,7 @@ export function SettingsView() {
   const { session, user, isPro, isLoading, signOut } = useAuth();
   const { theme: activeTheme, setTheme } = useThemeMode();
 
-  useEffect(() => {
-    if (!isLoading && !session) {
-      router.replace('/login');
-    }
-  }, [isLoading, session, router]);
-
-  if (isLoading || !session) {
+  if (isLoading) {
     return (
       <PageShell>
         <PageHeader title="Settings" meta="Loading…" />
@@ -50,14 +42,6 @@ export function SettingsView() {
       <PageHeader tone="stadium" title="Settings" meta={user?.email ?? ''} />
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Account" />
-        <YStack gap={10} marginTop={8}>
-          <Row label="Email" value={user?.email ?? '—'} />
-          <Row label="Plan" value={isPro ? 'Pro' : 'Free'} />
-        </YStack>
-      </Card>
-
-      <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
         <SectionHeader title="Appearance" />
         <YStack gap={12} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
@@ -67,25 +51,37 @@ export function SettingsView() {
         </YStack>
       </Card>
 
-      <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Session" />
-        <YStack gap={10} marginTop={8}>
-          <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Signing out will end your session on this device. Your tracked leagues stay saved.
-          </Text>
-          <XStack>
-            <Button
-              tone="ghost"
-              size="md"
-              onPress={() => {
-                handleSignOut();
-              }}
-            >
-              Sign out
-            </Button>
-          </XStack>
-        </YStack>
-      </Card>
+      {session ? (
+        <>
+          <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
+            <SectionHeader title="Account" />
+            <YStack gap={10} marginTop={8}>
+              <Row label="Email" value={user?.email ?? '—'} />
+              <Row label="Plan" value={isPro ? 'Pro' : 'Free'} />
+            </YStack>
+          </Card>
+
+          <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
+            <SectionHeader title="Session" />
+            <YStack gap={10} marginTop={8}>
+              <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+                Signing out will end your session on this device. Your tracked leagues stay saved.
+              </Text>
+              <XStack>
+                <Button
+                  tone="ghost"
+                  size="md"
+                  onPress={() => {
+                    handleSignOut();
+                  }}
+                >
+                  Sign out
+                </Button>
+              </XStack>
+            </YStack>
+          </Card>
+        </>
+      ) : null}
 
       <FNote>More account controls coming once subscriptions launch.</FNote>
     </PageShell>

@@ -53,8 +53,7 @@ export function NavBar() {
     prices: FEATURE_PRICES,
     planner: FEATURE_PLANNER,
   });
-  const allLinks =
-    FEATURE_AUTH && session ? [...baseLinks, { label: 'Settings', href: '/settings' }] : baseLinks;
+  const allLinks = [...baseLinks, { label: 'Settings', href: '/settings' }];
 
   const links = allLinks.map((link) => {
     const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
