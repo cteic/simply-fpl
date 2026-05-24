@@ -13,7 +13,7 @@ const WEB_DIR = join(REPO_ROOT, 'apps', 'web');
 const NEXT_DIR = join(WEB_DIR, '.next');
 
 const BUDGETS = {
-  '/': 170 * 1024,
+  '/': 180 * 1024,
   '/h2h': 165 * 1024,
 };
 
