@@ -3,7 +3,12 @@ import { expect } from 'vitest';
 
 import type { FplLiveGameweek } from '@simplyfpl/types';
 
-import { type CaptureBucket, GW38_RECORDING_KEY, captureSnapshotToR2 } from './gw38-capture';
+import {
+  type CaptureBucket,
+  GW38_CAPTURE_CRON,
+  GW38_RECORDING_KEY,
+  captureSnapshotToR2,
+} from './gw38-capture';
 import { parseRecording } from './replay';
 
 function makeLive(totalPoints: number): FplLiveGameweek {
@@ -127,6 +132,21 @@ describeFeature(feature, ({ Scenario }) => {
       const rows = parseRecording(line);
       expect(rows).toHaveLength(1);
       expect(rows[0]?.data.elements[0]?.stats).toHaveProperty('total_points');
+    });
+  });
+
+  Scenario('The capture cron uses a Cloudflare-valid weekday', ({ Then, And }) => {
+    let fields: string[];
+
+    Then('the capture cron has five fields', () => {
+      fields = GW38_CAPTURE_CRON.trim().split(/\s+/);
+      expect(fields).toHaveLength(5);
+    });
+    And("the capture cron weekday field is within Cloudflare's 1 to 7 range", () => {
+      const weekday = Number(fields[4]);
+      expect(Number.isInteger(weekday)).toBe(true);
+      expect(weekday).toBeGreaterThanOrEqual(1);
+      expect(weekday).toBeLessThanOrEqual(7);
     });
   });
 });
