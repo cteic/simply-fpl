@@ -74,7 +74,7 @@ Given('the Worker returns deterministic FPL fixtures for fallback', async ({ pag
     if (/^\/snapshot\/entry\/\d+\/?$/.test(pathname)) {
       return route.fulfill(jsonResponse(snapshotPayload));
     }
-    if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));
+    if (pathname === '/fpl/bootstrap-static-slim') return route.fulfill(jsonResponse(bootstrap));
     if (/^\/fpl\/event\/\d+\/live\/$/.test(pathname)) {
       return route.fulfill(jsonResponse(liveEvent37));
     }
@@ -87,7 +87,7 @@ Given('the Worker returns deterministic FPL fixtures for fallback', async ({ pag
     if (/^\/fpl\/entry\/\d+\/$/.test(pathname)) {
       return route.fulfill(jsonResponse(entry1));
     }
-    if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
+    if (pathname === '/fpl/fixtures-slim') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/fpl/')) return route.fulfill(notFoundResponse());
 
     return route.continue();
