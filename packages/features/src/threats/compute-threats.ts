@@ -1,11 +1,13 @@
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
+  FplFixture,
   FplLiveGameweek,
   FplPlayer,
 } from '@simplyfpl/types';
 
 import type { CohortSnapshotPayload } from '../cohorts/types';
+import { type ThreatPlayingStatus, derivePlayingStatus } from './playing-status';
 
 export type ThreatPosition = 'gk' | 'def' | 'mid' | 'fwd';
 
@@ -27,25 +29,40 @@ export interface Threat {
   captainPct: number;
   effectiveOwnershipPct: number;
   livePoints: number;
+  minutes: number;
   liveRankImpactIfTheyHaul: number;
+  pointsLostToThreat: number;
+  scorePct: number | null;
+  playingStatus: ThreatPlayingStatus;
 }
+
+export type ThreatStatusFilter = 'all' | ThreatPlayingStatus;
 
 interface ComputeArgs {
   yourPicks: FplEntryGameweekPicks;
   cohort: CohortSnapshotPayload;
   bootstrap: FplBootstrapStatic;
   liveGw: FplLiveGameweek;
+  fixtures: FplFixture[];
   haulPoints?: number;
+  nowMs?: number;
 }
 
 const DEFAULT_HAUL_POINTS = 8;
+
+export function filterThreatsByStatus(threats: Threat[], filter: ThreatStatusFilter): Threat[] {
+  if (filter === 'all') return threats;
+  return threats.filter((threat) => threat.playingStatus === filter);
+}
 
 export function computeThreats({
   yourPicks,
   cohort,
   bootstrap,
   liveGw,
+  fixtures,
   haulPoints = DEFAULT_HAUL_POINTS,
+  nowMs = Date.now(),
 }: ComputeArgs): Threat[] {
   const yourElementIds = new Set(yourPicks.picks.map((p) => p.element));
 
@@ -84,8 +101,19 @@ export function computeThreats({
     const captainCount = captainCounts.get(elementId) ?? 0;
     const captainPct = (captainCount / cohortSize) * 100;
     const effectiveOwnershipPct = ownedByPct + captainPct;
-    const livePoints = liveById.get(elementId)?.stats.total_points ?? 0;
+    const live = liveById.get(elementId);
+    const livePoints = live?.stats.total_points ?? 0;
+    const minutes = live?.stats.minutes ?? 0;
     const liveRankImpactIfTheyHaul = (effectiveOwnershipPct / 100) * haulPoints;
+    const pointsLostToThreat = (effectiveOwnershipPct / 100) * livePoints;
+    const scorePct =
+      cohort.avg_event_points > 0 ? (pointsLostToThreat / cohort.avg_event_points) * 100 : null;
+    const playingStatus = derivePlayingStatus({
+      teamId: player.team,
+      fixtures,
+      minutes,
+      nowMs,
+    });
 
     threats.push({
       elementId,
@@ -98,7 +126,11 @@ export function computeThreats({
       captainPct,
       effectiveOwnershipPct,
       livePoints,
+      minutes,
       liveRankImpactIfTheyHaul,
+      pointsLostToThreat,
+      scorePct,
+      playingStatus,
     });
   }
 
