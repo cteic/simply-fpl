@@ -16,9 +16,9 @@ export interface TierConfig {
 
 export const TIER_CONFIGS: Record<CohortTier, TierConfig> = {
   legendary: { slug: 'legendary', pagesToFetch: 20, budgetPerTick: 30 },
-  top_10k: { slug: 'top_10k', pagesToFetch: 200, budgetPerTick: 30 },
-  top_100k: { slug: 'top_100k', pagesToFetch: 2000, budgetPerTick: 30 },
-  overall: { slug: 'overall', pagesToFetch: 100, budgetPerTick: 30 },
+  top_10k: { slug: 'top_10k', pagesToFetch: 30, budgetPerTick: 150 },
+  top_100k: { slug: 'top_100k', pagesToFetch: 60, budgetPerTick: 150 },
+  overall: { slug: 'overall', pagesToFetch: 40, budgetPerTick: 150 },
 };
 
 const GLOBAL_LEAGUE_ID = 314;
