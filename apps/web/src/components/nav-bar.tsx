@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { auth, liveRank } from '@simplyfpl/features';
 import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
@@ -20,9 +20,16 @@ const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
 export function NavBar() {
   const pathname = usePathname() ?? '/';
+  const router = useRouter();
   const { session, signOut } = useAuth();
   const [entryId, setEntryId] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  function handleDeselectTeam() {
+    window.localStorage.removeItem(STORAGE_KEY);
+    setEntryId(null);
+    router.push('/?clear=1');
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -77,6 +84,8 @@ export function NavBar() {
       rank={entryId !== null ? liveRankValue : null}
       movement={estimate?.movement ?? null}
       direction={estimate?.direction ?? null}
+      teamId={entryId}
+      onDeselect={handleDeselectTeam}
       {...deadlineProps}
       href="/"
     />

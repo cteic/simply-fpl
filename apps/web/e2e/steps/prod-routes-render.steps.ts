@@ -100,7 +100,7 @@ async function installWorkerRoutes(page: Page): Promise<void> {
     }
 
     if (pathname === '/status') return route.fulfill(jsonResponse(statusPayload));
-    if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));
+    if (pathname === '/fpl/bootstrap-static-slim') return route.fulfill(jsonResponse(bootstrap));
     if (pathname === '/fpl/event/37/live/') return route.fulfill(jsonResponse(liveEvent37));
     if (/^\/fpl\/event\/\d+\/live\/$/.test(pathname)) {
       return route.fulfill(jsonResponse(liveEvent37));
@@ -113,13 +113,11 @@ async function installWorkerRoutes(page: Page): Promise<void> {
     if (pathname === '/fpl/entry/2/event/37/picks/')
       return route.fulfill(jsonResponse(entry2Picks));
     if (pathname === '/fpl/entry/3/') return route.fulfill(jsonResponse(entry3));
-    if (pathname === '/fpl/leagues-classic/314/standings/')
-      return route.fulfill(jsonResponse(league314));
-    if (pathname === '/fpl/leagues-classic/1001/standings/')
-      return route.fulfill(jsonResponse(league1001));
-    if (pathname === '/fpl/leagues-classic/200001/standings/')
+    if (pathname === '/fpl/leagues/314/summary') return route.fulfill(jsonResponse(league314));
+    if (pathname === '/fpl/leagues/1001/summary') return route.fulfill(jsonResponse(league1001));
+    if (pathname === '/fpl/leagues/200001/summary')
       return route.fulfill(jsonResponse(league200001));
-    if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
+    if (pathname === '/fpl/fixtures-slim') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/fpl/')) return route.fulfill(notFoundResponse());
 
     return route.continue();
@@ -209,3 +207,20 @@ Then('the rendered page matches the snapshot {string}', async ({ page }, name: s
     maxDiffPixelRatio: 0.05,
   });
 });
+
+// The live-rank pitch is lazy-loaded (next/dynamic, ssr: false), so it paints a
+// beat after the rest of the page. Wait for its squad to render before
+// snapshotting, otherwise the gate captures an empty pitch shell.
+Then(
+  'the rendered page with the live pitch matches the snapshot {string}',
+  async ({ page }, name: string) => {
+    await expect(page.getByText('FPL Test FC').first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Saka').first()).toBeVisible({ timeout: 15_000 });
+    await page.evaluate(() => document.fonts.ready).catch(() => undefined);
+    await expect(page).toHaveScreenshot(`${name}.png`, {
+      fullPage: true,
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.05,
+    });
+  }
+);

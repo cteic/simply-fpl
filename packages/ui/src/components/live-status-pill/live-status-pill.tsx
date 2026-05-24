@@ -110,6 +110,29 @@ const DeadlineValue = styled(Text, {
   color: '#0F766E',
 });
 
+const PillInner = styled(XStack, {
+  alignItems: 'center',
+  gap: 8,
+});
+
+const TeamValue = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: 12,
+  fontWeight: '500',
+  color: '#15201A',
+  letterSpacing: '$1',
+});
+
+const DeselectButton = styled(XStack, {
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 17,
+  height: 17,
+  borderRadius: 99,
+  cursor: 'pointer',
+  hoverStyle: { backgroundColor: '#FBEBEC' },
+});
+
 type MoveDirection = 'up' | 'down' | 'flat';
 type FreshnessTone = 'fresh' | 'stale' | 'cold';
 
@@ -122,6 +145,8 @@ interface LiveStatusPillProps {
   deadlineLabel?: string;
   deadlineCountdown?: string;
   href?: string;
+  teamId?: number | null;
+  onDeselect?: () => void;
 }
 
 function toneForAge(ms: number | null | undefined): FreshnessTone {
@@ -149,9 +174,12 @@ export function LiveStatusPill({
   deadlineLabel,
   deadlineCountdown,
   href,
+  teamId,
+  onDeselect,
 }: LiveStatusPillProps) {
   const tone = toneForAge(agoMs);
   const hasRank = rank !== null && rank !== undefined;
+  const hasTeam = teamId !== null && teamId !== undefined;
   const dir: MoveDirection = direction ?? 'flat';
   const showMove =
     typeof movement === 'number' && movement !== 0 && (dir === 'up' || dir === 'down');
@@ -176,6 +204,14 @@ export function LiveStatusPill({
         </>
       ) : null}
 
+      {hasTeam ? (
+        <>
+          <Divider />
+          <MetaLabel>Team</MetaLabel>
+          <TeamValue>{teamId}</TeamValue>
+        </>
+      ) : null}
+
       {hasDeadline ? (
         <>
           <Divider />
@@ -186,13 +222,31 @@ export function LiveStatusPill({
     </>
   );
 
+  const deselectControl =
+    hasTeam && onDeselect ? (
+      <DeselectButton
+        render={<button type="button" title="Deselect team" aria-label="Deselect team" />}
+        onPress={onDeselect}
+      >
+        <svg width={9} height={9} viewBox="0 0 9 9" fill="none" aria-hidden="true">
+          <path d="M2 2l5 5M7 2l-5 5" stroke="#C2333B" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+      </DeselectButton>
+    ) : null;
+
   if (href !== undefined) {
     return (
-      <Pill interactive render={<a href={href} role="link" style={ANCHOR_STYLE} />}>
-        {content}
+      <Pill interactive>
+        <PillInner render={<a href={href} role="link" style={ANCHOR_STYLE} />}>{content}</PillInner>
+        {deselectControl}
       </Pill>
     );
   }
 
-  return <Pill>{content}</Pill>;
+  return (
+    <Pill>
+      <PillInner>{content}</PillInner>
+      {deselectControl}
+    </Pill>
+  );
 }

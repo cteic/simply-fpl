@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useThemeName } from 'tamagui';
+
 import {
   Button,
   Card,
@@ -14,6 +16,7 @@ import {
   Text,
   XStack,
   YStack,
+  resolveThemeName,
 } from '@simplyfpl/ui';
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
@@ -38,6 +41,7 @@ interface HomeSearchViewProps {
 export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const logoTone = resolveThemeName(useThemeName()) === 'quiet' ? 'default' : 'stadium';
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -64,7 +68,7 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
     <PageShell>
       <PageHeader
         tone="stadium"
-        title={<Logo size="lg" tone="stadium" />}
+        title={<Logo size="lg" tone={logoTone} />}
         meta="Live FPL companion · GW30"
       />
 

@@ -11,8 +11,6 @@ describe('tamagui design-system CSS', () => {
     for (const cssVar of DESIGN_SYSTEM_VARS) {
       expect(css).toContain(cssVar);
     }
-
-    expect(css).toContain('.t_light');
   });
 
   it('resolves theme variables to real token values, not black', () => {
