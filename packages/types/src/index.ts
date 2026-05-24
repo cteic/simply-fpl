@@ -224,4 +224,6 @@ export interface PriceChange {
   probability: number; // 0-1
 }
 
+export type ThemeName = 'stadium' | 'bold' | 'quiet';
+
 export * from './db';
