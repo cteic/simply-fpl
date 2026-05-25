@@ -34,6 +34,7 @@ const Inner = styled(XStack, {
 const Left = styled(XStack, {
   alignItems: 'center',
   gap: 26,
+  $sm: { gap: 14 },
 });
 
 const Right = styled(XStack, {
@@ -43,7 +44,6 @@ const Right = styled(XStack, {
 
 const NavLinks = styled(XStack, {
   gap: 1,
-  $sm: { display: 'none' },
 });
 
 const NavLinkBase = styled(Text, {
@@ -69,6 +69,11 @@ const NavLinkBase = styled(Text, {
 
 const HideOnMobile = styled(XStack, {
   $sm: { display: 'none' },
+});
+
+const ShowOnMobile = styled(XStack, {
+  display: 'none',
+  $sm: { display: 'flex' },
 });
 
 const STICKY_STYLE = { position: 'sticky' as const, top: 0 };
@@ -102,7 +107,12 @@ export function Nav({
     <Bar render="nav" style={STICKY_STYLE}>
       <Inner>
         <Left>
-          <Logo href="/" variant="lockup" />
+          <HideOnMobile>
+            <Logo href="/" variant="lockup" />
+          </HideOnMobile>
+          <ShowOnMobile>
+            <Logo href="/" variant="mark" />
+          </ShowOnMobile>
           <NavLinks>
             {links.map((link) => (
               <NavLinkBase
