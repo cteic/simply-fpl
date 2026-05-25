@@ -265,6 +265,12 @@ async function writeManifest(bootstrap, finalGws, pendingGws, league, missingPic
     totalBytes += file.bytes;
   }
 
+  const totalEvents = bootstrap.events?.length ?? 0;
+  const complete = pendingGws.length === 0 && finalGws.length === totalEvents;
+  const gameweekNote = complete
+    ? `Season complete — all ${totalEvents} gameweeks captured (finished and data-checked).`
+    : `Pending until a later top-up run: ${pendingGws.join(', ') || '(none)'}.`;
+
   const manifest = {
     season: SEASON,
     generatedAt: new Date().toISOString(),
@@ -276,9 +282,12 @@ async function writeManifest(bootstrap, finalGws, pendingGws, league, missingPic
       events: bootstrap.events?.length ?? 0,
     },
     gameweeks: {
+      complete,
+      capturedCount: finalGws.length,
+      totalEvents,
       captured: finalGws,
       pending: pendingGws,
-      note: 'gw38 (and any other unfinished gameweek) is pending the Sunday 2026-05-24 top-up run.',
+      note: gameweekNote,
     },
     league: {
       id: LEAGUE_ID,
