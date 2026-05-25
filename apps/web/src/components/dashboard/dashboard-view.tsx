@@ -10,11 +10,6 @@ import { LiveRankSection } from './sections/live-rank-section';
 const ThreatsSection = lazy(() =>
   import('./sections/threats-section').then((m) => ({ default: m.ThreatsSection }))
 );
-const EffectiveOwnershipSection = lazy(() =>
-  import('./sections/effective-ownership-section').then((m) => ({
-    default: m.EffectiveOwnershipSection,
-  }))
-);
 const RivalsSection = lazy(() =>
   import('./sections/rivals-section').then((m) => ({ default: m.RivalsSection }))
 );
@@ -38,17 +33,12 @@ export function DashboardView({ entryId }: DashboardViewProps) {
         <DashboardSection id="live-rank" fillViewport index={0}>
           <LiveRankSection entryId={entryId} />
         </DashboardSection>
-        <DashboardSection id="effective-ownership" index={1}>
-          <Suspense fallback={<SectionFallback />}>
-            <EffectiveOwnershipSection />
-          </Suspense>
-        </DashboardSection>
-        <DashboardSection id="threats" index={2}>
+        <DashboardSection id="threats" index={1}>
           <Suspense fallback={<SectionFallback />}>
             <ThreatsSection />
           </Suspense>
         </DashboardSection>
-        <DashboardSection id="rivals" index={3}>
+        <DashboardSection id="rivals" index={2}>
           <Suspense fallback={<SectionFallback />}>
             <RivalsSection entryId={entryId} />
           </Suspense>
