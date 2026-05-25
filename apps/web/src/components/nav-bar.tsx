@@ -9,6 +9,7 @@ import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
 import { LiveStatusPill, Nav, ThemeToggle } from '@simplyfpl/ui';
 
 import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
+import { setSavedEntryId, useSavedEntryId } from '@/lib/saved-entry-id';
 import { useBootstrap } from '@/queries/fpl';
 
 import { buildNavLinks } from './nav-links';
@@ -17,29 +18,21 @@ const { useAuth } = auth;
 const { useCountdown, useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 const { useThemeMode } = themeFeature;
 
-const STORAGE_KEY = 'simplyfpl:lastEntryId';
-
 export function NavBar() {
   const pathname = usePathname() ?? '/';
   const router = useRouter();
   const { session, signOut } = useAuth();
   const { theme, setTheme } = useThemeMode();
-  const [entryId, setEntryId] = useState<number | null>(null);
+  const entryId = useSavedEntryId();
   const [mounted, setMounted] = useState(false);
 
   function handleDeselectTeam() {
-    window.localStorage.removeItem(STORAGE_KEY);
-    setEntryId(null);
+    setSavedEntryId(null);
     router.push('/?clear=1');
   }
 
   useEffect(() => {
     setMounted(true);
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    const id = saved ? Number(saved) : NaN;
-    if (Number.isInteger(id) && id > 0) {
-      setEntryId(id);
-    }
   }, []);
 
   const { data: bootstrap } = useBootstrap();

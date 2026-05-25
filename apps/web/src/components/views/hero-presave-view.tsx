@@ -8,6 +8,7 @@ import { fplClient } from '@simplyfpl/fpl-client';
 import {
   Input,
   Logo,
+  PitchBackground,
   TeamIdHelp,
   Text,
   XStack,
@@ -17,9 +18,9 @@ import {
   resolveThemeName,
 } from '@simplyfpl/ui';
 
-import { lookupEntry, parseEntryId } from '../team-id-search';
+import { setSavedEntryId } from '@/lib/saved-entry-id';
 
-const STORAGE_KEY = 'simplyfpl:lastEntryId';
+import { lookupEntry, parseEntryId } from '../team-id-search';
 
 const HERO_COPY = {
   eyebrow: 'Live FPL companion',
@@ -92,7 +93,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
       return;
     }
 
-    window.localStorage.setItem(STORAGE_KEY, String(id));
+    setSavedEntryId(id);
     if (onSave) {
       onSave(id);
     } else {
@@ -104,6 +105,8 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
     <YStack
       data-testid="home-unified-hero"
       render="main"
+      position="relative"
+      overflow="hidden"
       width="100%"
       alignItems="center"
       justifyContent="center"
@@ -117,7 +120,16 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
         backgroundImage: surface.backgroundImage,
       }}
     >
-      <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
+      <PitchBackground />
+
+      <YStack
+        maxWidth={640}
+        width="100%"
+        alignItems="center"
+        gap={20}
+        position="relative"
+        zIndex={1}
+      >
         <Logo variant="lockup" tone={logoTone} size="lg" href="/" />
 
         <Text
