@@ -24,7 +24,6 @@ const Pill = styled(XStack, {
   paddingHorizontal: 11,
   paddingVertical: 4,
   borderRadius: '$7',
-  $sm: { display: 'none' },
   // Note: no Tamagui `animation`/`transition` here. This pill is always
   // mounted while the entry id loads (href toggles undefined → "/"), and a
   // toggling animation prop changes the hook count on the same instance,
@@ -55,6 +54,16 @@ const Divider = styled(YStack, {
   width: 1,
   height: 12,
   backgroundColor: '#E2E4DC',
+});
+
+const HideSm = styled(XStack, {
+  alignItems: 'center',
+  gap: 8,
+  $sm: { display: 'none' },
+});
+
+const DividerSm = styled(Divider, {
+  $sm: { display: 'none' },
 });
 
 const LiveLabel = styled(Text, {
@@ -131,6 +140,7 @@ const DeselectButton = styled(XStack, {
   borderRadius: 99,
   cursor: 'pointer',
   hoverStyle: { backgroundColor: '#FBEBEC' },
+  $sm: { display: 'none' },
 });
 
 type MoveDirection = 'up' | 'down' | 'flat';
@@ -185,16 +195,18 @@ export function LiveStatusPill({
     typeof movement === 'number' && movement !== 0 && (dir === 'up' || dir === 'down');
   const hasDeadline = typeof deadlineLabel === 'string' && typeof deadlineCountdown === 'string';
 
+  const liveLabelNode = <LiveLabel tone={tone}>{liveLabel}</LiveLabel>;
+
   const content = (
     <>
       <Dot tone={tone} />
-      <LiveLabel tone={tone}>{liveLabel}</LiveLabel>
+      {hasRank ? <HideSm>{liveLabelNode}</HideSm> : liveLabelNode}
 
       {hasRank ? (
         <>
-          <Divider />
+          <DividerSm />
           <MetaLabel>Rank</MetaLabel>
-          <RankValue>{rank.toLocaleString()}</RankValue>
+          <RankValue data-testid="live-status-pill-rank">{rank.toLocaleString()}</RankValue>
           {showMove ? (
             <Move move={dir}>
               {dir === 'up' ? '↑' : '↓'}
@@ -205,19 +217,19 @@ export function LiveStatusPill({
       ) : null}
 
       {hasTeam ? (
-        <>
+        <HideSm>
           <Divider />
           <MetaLabel>Team</MetaLabel>
           <TeamValue>{teamId}</TeamValue>
-        </>
+        </HideSm>
       ) : null}
 
       {hasDeadline ? (
-        <>
+        <HideSm>
           <Divider />
           <MetaLabel>{deadlineLabel}</MetaLabel>
           <DeadlineValue>{deadlineCountdown}</DeadlineValue>
-        </>
+        </HideSm>
       ) : null}
     </>
   );
@@ -236,7 +248,7 @@ export function LiveStatusPill({
 
   if (href !== undefined) {
     return (
-      <Pill interactive>
+      <Pill interactive data-testid="live-status-pill">
         <PillInner render={<a href={href} role="link" style={ANCHOR_STYLE} />}>{content}</PillInner>
         {deselectControl}
       </Pill>
@@ -244,7 +256,7 @@ export function LiveStatusPill({
   }
 
   return (
-    <Pill>
+    <Pill data-testid="live-status-pill">
       <PillInner>{content}</PillInner>
       {deselectControl}
     </Pill>
