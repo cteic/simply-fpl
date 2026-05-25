@@ -12,7 +12,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/#threats', req.url));
   }
   if (pathname === '/effective-ownership' || pathname.startsWith('/effective-ownership/')) {
-    return NextResponse.redirect(new URL('/#effective-ownership', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
   if (pathname === '/rivals' || pathname.startsWith('/rivals/')) {
     return NextResponse.redirect(new URL('/#rivals', req.url));
