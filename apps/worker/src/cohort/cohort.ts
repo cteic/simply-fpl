@@ -56,9 +56,9 @@ export async function runScheduled(
     const result = await resumeCohortFetch(env, gw, tierConfig);
     if (result.paused) break;
 
-    if (result.done) {
+    if (result.fetched > 0) {
       const agg = await readAggregate(env, gw, tierSlug);
-      await flushToSupabase(env, gw, tierSlug, agg, true);
+      await flushToSupabase(env, gw, tierSlug, agg, result.done);
     }
   }
 }
