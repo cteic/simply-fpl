@@ -28,11 +28,13 @@ const Cols = styled(XStack, {
   gap: 0,
   borderTopWidth: 1,
   borderTopColor: '$border',
-  $sm: { flexDirection: 'column' },
+  alignItems: 'stretch',
+  $sm: { flexDirection: 'column', alignItems: 'stretch' },
 });
 
 const Col = styled(YStack, {
   flex: 1,
+  flexBasis: 0,
   minWidth: 0,
   borderRightWidth: 1,
   borderRightColor: '$border',
@@ -40,6 +42,8 @@ const Col = styled(YStack, {
     last: { true: { borderRightWidth: 0 } },
   } as const,
   $sm: {
+    flexBasis: 'auto',
+    width: '100%',
     borderRightWidth: 0,
     borderBottomWidth: 1,
     borderBottomColor: '$border',
@@ -69,6 +73,15 @@ const ColHeadLabel = styled(Text, {
   } as const,
 });
 
+const ColHeadMeta = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 9,
+  fontWeight: '600',
+  textTransform: 'uppercase',
+  letterSpacing: '$10',
+  color: '$colorSubtle',
+});
+
 const Row = styled(XStack, {
   paddingHorizontal: 16,
   paddingVertical: 9,
@@ -76,13 +89,11 @@ const Row = styled(XStack, {
   gap: 8,
   borderBottomWidth: 1,
   borderBottomColor: '$border',
-  variants: {
-    last: { true: { borderBottomWidth: 0 } },
-  } as const,
 });
 
 const PlayerName = styled(Text, {
   flex: 1,
+  minWidth: 0,
   fontFamily: '$body',
   fontSize: 12.5,
   fontWeight: '500',
@@ -93,6 +104,17 @@ const TeamShort = styled(Text, {
   fontFamily: '$body',
   fontSize: 11,
   color: '$colorSubtle',
+  flexShrink: 0,
+});
+
+const Pts = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: 12,
+  fontWeight: '500',
+  color: '$colorMuted',
+  textAlign: 'right',
+  minWidth: 34,
+  flexShrink: 0,
 });
 
 const EmptyText = styled(Text, {
@@ -101,6 +123,14 @@ const EmptyText = styled(Text, {
   fontFamily: '$body',
   fontSize: 12,
   color: '$colorSubtle',
+});
+
+const ColTotalRow = styled(XStack, {
+  paddingHorizontal: 16,
+  paddingVertical: 10,
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 8,
 });
 
 const TotalRow = styled(XStack, {
@@ -125,6 +155,7 @@ export interface LiveBattleRow {
   id: number;
   name: string;
   teamShort: string;
+  points: number;
   rankImpact: number;
 }
 
@@ -147,7 +178,13 @@ function toneFor(value: number): 'up' | 'down' | 'neutral' {
   return 'neutral';
 }
 
+function sumImpact(rows: LiveBattleRow[]): number {
+  return rows.reduce((sum, row) => sum + row.rankImpact, 0);
+}
+
 export function LiveBattlePanel({ gains, losses, totalImpact }: LiveBattlePanelProps) {
+  const gainsTotal = sumImpact(gains);
+  const lossesTotal = sumImpact(losses);
   return (
     <Wrap>
       <Head>
@@ -158,14 +195,16 @@ export function LiveBattlePanel({ gains, losses, totalImpact }: LiveBattlePanelP
         <Col>
           <ColHead>
             <ColHeadLabel tone="up">Gains</ColHeadLabel>
+            <ColHeadMeta>Pts</ColHeadMeta>
           </ColHead>
-          <BattleList rows={gains} empty="No live gains yet." />
+          <BattleList rows={gains} empty="No live gains yet." columnTotal={gainsTotal} />
         </Col>
         <Col last>
           <ColHead>
             <ColHeadLabel tone="down">Losses</ColHeadLabel>
+            <ColHeadMeta>Pts</ColHeadMeta>
           </ColHead>
-          <BattleList rows={losses} empty="No live losses yet." />
+          <BattleList rows={losses} empty="No live losses yet." columnTotal={lossesTotal} />
         </Col>
       </Cols>
       <TotalRow>
@@ -176,19 +215,32 @@ export function LiveBattlePanel({ gains, losses, totalImpact }: LiveBattlePanelP
   );
 }
 
-function BattleList({ rows, empty }: { rows: LiveBattleRow[]; empty: string }) {
+interface BattleListProps {
+  rows: LiveBattleRow[];
+  empty: string;
+  columnTotal: number;
+}
+
+function BattleList({ rows, empty, columnTotal }: BattleListProps) {
   if (rows.length === 0) {
     return <EmptyText>{empty}</EmptyText>;
   }
   return (
-    <YStack>
-      {rows.map((row, idx) => (
-        <Row key={row.id} last={idx === rows.length - 1}>
-          <PlayerName numberOfLines={1}>{row.name}</PlayerName>
-          <TeamShort>{row.teamShort}</TeamShort>
-          <DeltaChip tone={toneFor(row.rankImpact)}>{formatImpact(row.rankImpact)}</DeltaChip>
-        </Row>
-      ))}
+    <YStack flex={1}>
+      <YStack flex={1}>
+        {rows.map((row) => (
+          <Row key={row.id}>
+            <PlayerName numberOfLines={1}>{row.name}</PlayerName>
+            <TeamShort>{row.teamShort}</TeamShort>
+            <Pts>{row.points}</Pts>
+            <DeltaChip tone={toneFor(row.rankImpact)}>{formatImpact(row.rankImpact)}</DeltaChip>
+          </Row>
+        ))}
+      </YStack>
+      <ColTotalRow>
+        <TotalLabel>Total</TotalLabel>
+        <DeltaChip tone={toneFor(columnTotal)}>{formatImpact(columnTotal)}</DeltaChip>
+      </ColTotalRow>
     </YStack>
   );
 }
