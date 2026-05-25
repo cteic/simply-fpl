@@ -822,12 +822,14 @@ function LiveRankInner({ entryId }: InnerProps) {
               id: p.elementId,
               name: p.name,
               teamShort: p.teamShort,
+              points: p.livePoints,
               rankImpact: p.rankImpact,
             }))}
             losses={battle.losses.map((p) => ({
               id: p.elementId,
               name: p.name,
               teamShort: p.teamShort,
+              points: p.livePoints,
               rankImpact: p.rankImpact,
             }))}
             totalImpact={battle.totalImpact}
