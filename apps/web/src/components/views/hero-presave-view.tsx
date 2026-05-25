@@ -8,6 +8,7 @@ import { fplClient } from '@simplyfpl/fpl-client';
 import {
   Input,
   Logo,
+  PitchBackground,
   TeamIdHelp,
   Text,
   XStack,
@@ -102,6 +103,8 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
     <YStack
       data-testid="home-unified-hero"
       render="main"
+      position="relative"
+      overflow="hidden"
       width="100%"
       alignItems="center"
       justifyContent="center"
@@ -115,7 +118,16 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
         backgroundImage: surface.backgroundImage,
       }}
     >
-      <YStack maxWidth={640} width="100%" alignItems="center" gap={20}>
+      <PitchBackground />
+
+      <YStack
+        maxWidth={640}
+        width="100%"
+        alignItems="center"
+        gap={20}
+        position="relative"
+        zIndex={1}
+      >
         <Logo variant="lockup" tone={logoTone} size="lg" href="/" />
 
         <Text
