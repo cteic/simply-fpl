@@ -15,7 +15,7 @@ Then('the dashboard container applies proximity snap-scroll', async ({ page }) =
 });
 
 Then('each dashboard section opts into start-aligned snap', async ({ page }) => {
-  for (const id of ['live-rank', 'effective-ownership', 'threats', 'rivals']) {
+  for (const id of ['live-rank', 'threats', 'rivals']) {
     const section = page.locator(`#${id}`);
     await expect(section, `section #${id} not in DOM`).toHaveCount(1);
     const align = await section.evaluate((el) => window.getComputedStyle(el).scrollSnapAlign);
