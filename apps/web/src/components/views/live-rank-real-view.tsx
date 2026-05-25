@@ -58,6 +58,7 @@ const { computeLiveBattle } = liveBattle;
 const { aggregateToOwnershipMap, resolvePitchOwnership } = cohorts;
 
 type OwnershipMode = 'global' | 'top10k';
+type SubsMode = 'pre' | 'post';
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -221,6 +222,32 @@ function deriveFormation(picks: FplEntryGameweekPicks, bootstrap: FplBootstrapSt
   return `${def}–${mid}–${fwd}`;
 }
 
+interface SubsToggleButtonProps {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}
+
+function SubsToggleButton({ label, active, onPress }: SubsToggleButtonProps) {
+  return (
+    <Text
+      render="button"
+      role="button"
+      onPress={onPress}
+      fontFamily="$body"
+      fontSize={11}
+      fontWeight="600"
+      paddingHorizontal={11}
+      paddingVertical={4}
+      cursor="pointer"
+      color={active ? '#0B4F49' : 'rgba(255,255,255,0.78)'}
+      backgroundColor={active ? '#34D399' : 'transparent'}
+    >
+      {label}
+    </Text>
+  );
+}
+
 interface LiveRankRealViewProps {
   entryId?: number;
 }
@@ -260,6 +287,7 @@ function LiveRankInner({ entryId }: InnerProps) {
   const currentGw = snapshot?.gw ?? null;
   const aggregates = useCohortAggregates(currentGw);
   const [ownershipMode, setOwnershipMode] = useState<OwnershipMode>('global');
+  const [subsMode, setSubsMode] = useState<SubsMode>('pre');
   const { data: liveGw } = useLiveSnapshot(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
   const liveLoading = liveGw === undefined;
@@ -284,6 +312,19 @@ function LiveRankInner({ entryId }: InnerProps) {
   const rankDetails = ready
     ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
     : null;
+  const autosubsApply = postSubsPoints !== livePoints;
+  const showPostSubs = autosubsApply && subsMode === 'post';
+  const displayedPoints = showPostSubs ? postSubsPoints : livePoints;
+  const provisionalBonusTotal =
+    ready && picks
+      ? picks.picks
+          .filter((p) => p.position <= 11)
+          .reduce((sum, p) => {
+            const info = bonusMap.get(p.element);
+            const bonus = info && info.provisional ? info.bonus : 0;
+            return sum + bonus * p.multiplier;
+          }, 0)
+      : 0;
   const formation = ready ? deriveFormation(picks, bootstrap) : '4–4–2';
   const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
@@ -325,6 +366,8 @@ function LiveRankInner({ entryId }: InnerProps) {
 
   const teamName = entry?.name ?? '—';
   const { estimate } = useLiveRankEstimate(entryId);
+  const heroRank =
+    showPostSubs && rankDetails ? rankDetails.postSubsRank : (estimate?.liveRank ?? null);
   const agoMs = useLiveAgoMs();
   const movementLabel =
     estimate && estimate.movement !== 0
@@ -398,14 +441,16 @@ function LiveRankInner({ entryId }: InnerProps) {
   const safetyValue = overallAvg != null ? String(Math.round(overallAvg)) : '—';
   const offTop10kValue =
     ready && top10kAvg != null ? String(Math.max(0, Math.round(top10kAvg) - livePoints)) : '—';
-  const gwSub =
-    ready && postSubsPoints !== livePoints ? `Post-subs ${postSubsPoints}` : 'live points';
+  let gwSub = 'live points';
+  if (ready && autosubsApply) {
+    gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
+  }
 
   const tiles = [
     {
       label: 'GW Points',
-      value: String(ready ? livePoints : '—'),
-      tick: ready ? livePoints : null,
+      value: String(ready ? displayedPoints : '—'),
+      tick: ready ? displayedPoints : null,
       sub: gwSub,
       accent: '$positive',
     },
@@ -518,19 +563,42 @@ function LiveRankInner({ entryId }: InnerProps) {
               <Logo variant="lockup" tone="stadium" size="md" />
             </YStack>
 
-            <Text
-              fontFamily="$body"
-              fontSize={10}
-              fontWeight="600"
-              textTransform="uppercase"
-              letterSpacing={1.4}
-              color="#34D399"
-            >
-              est. live rank
-            </Text>
+            <XStack alignItems="center" justifyContent="space-between" gap={10} flexWrap="wrap">
+              <Text
+                fontFamily="$body"
+                fontSize={10}
+                fontWeight="600"
+                textTransform="uppercase"
+                letterSpacing={1.4}
+                color="#34D399"
+              >
+                est. live rank
+              </Text>
+              {autosubsApply ? (
+                <XStack
+                  alignItems="center"
+                  borderWidth={1}
+                  borderColor="rgba(255,255,255,0.28)"
+                  borderRadius={99}
+                  overflow="hidden"
+                  aria-label="Autosubs toggle"
+                >
+                  <SubsToggleButton
+                    label="Pre"
+                    active={subsMode === 'pre'}
+                    onPress={() => setSubsMode('pre')}
+                  />
+                  <SubsToggleButton
+                    label="Post"
+                    active={subsMode === 'post'}
+                    onPress={() => setSubsMode('post')}
+                  />
+                </XStack>
+              ) : null}
+            </XStack>
 
             <NumberTicker
-              value={estimate?.liveRank ?? null}
+              value={heroRank}
               format={(n) => n.toLocaleString()}
               fontFamily="$mono"
               fontSize={56}
@@ -577,7 +645,9 @@ function LiveRankInner({ entryId }: InnerProps) {
             {rankDetails ? (
               <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
                 <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
-                  Post-subs ~{rankDetails.postSubsRank.toLocaleString()}
+                  {showPostSubs
+                    ? `Pre-subs ~${rankDetails.preSubsRank.toLocaleString()}`
+                    : `Post-subs ~${rankDetails.postSubsRank.toLocaleString()}`}
                 </Text>
                 <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
                   was {rankDetails.oldRank.toLocaleString()}
@@ -810,6 +880,21 @@ function LiveRankInner({ entryId }: InnerProps) {
                   })}
                 </PitchRow>
               </>
+            ) : null}
+            {ready && provisionalBonusTotal > 0 ? (
+              <Text
+                fontFamily="$body"
+                fontSize={10.5}
+                color="$colorMuted"
+                marginTop={8}
+                aria-label="Provisional bonus note"
+              >
+                Includes provisional bonus (
+                <Text fontFamily="$mono" fontSize={10.5} color="$colorMuted">
+                  +{provisionalBonusTotal}b?
+                </Text>
+                ) — not yet confirmed by FPL
+              </Text>
             ) : null}
           </Pitch>
         </YStack>
