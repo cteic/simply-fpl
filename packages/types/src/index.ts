@@ -226,4 +226,32 @@ export interface PriceChange {
 
 export type ThemeName = 'stadium' | 'bold' | 'quiet';
 
+export interface ScorePercentiles {
+  p1: number;
+  p5: number;
+  p10: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p90: number;
+  p95: number;
+  p99: number;
+}
+
+export interface ScoreHistogramBin {
+  min: number;
+  max: number;
+  count: number;
+}
+
+export interface ScoreDistribution {
+  sampleSize: number;
+  min: number;
+  max: number;
+  mean: number;
+  median: number;
+  percentiles: ScorePercentiles;
+  histogram: ScoreHistogramBin[];
+}
+
 export * from './db';

@@ -17,6 +17,13 @@ var/*
 !var/season-archive/
 var/season-archive/*
 !var/season-archive/2025-26/
+!var/cohorts/
+var/cohorts/*
+!var/cohorts/README.md
+!var/cohorts/gw*/
+var/cohorts/gw*/*
+!var/cohorts/gw*/score-distribution.json
+!var/cohorts/gw*/scores.json
 
 # Playwright
 test-results
