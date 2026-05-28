@@ -1,0 +1,32 @@
+{
+  "gw": 38,
+  "builtAt": "2026-05-28T13:07:43.128Z",
+  "binSize": 5,
+  "cohorts": {
+    "top_10k": {
+      "sampleSize": 513,
+      "min": 0,
+      "max": 0,
+      "mean": 0,
+      "median": 0,
+      "percentiles": {
+        "p1": 0,
+        "p5": 0,
+        "p10": 0,
+        "p25": 0,
+        "p50": 0,
+        "p75": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0
+      },
+      "histogram": [
+        {
+          "min": 0,
+          "max": 5,
+          "count": 513
+        }
+      ]
+    }
+  }
+}
