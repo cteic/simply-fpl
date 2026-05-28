@@ -27,7 +27,7 @@
 //   node scripts/archive-season.mjs --max-entries=5   (quick smoke test)
 //
 // Run from a network that can reach fantasy.premierleague.com (e.g. a laptop).
-import { access, mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises';
+import { access, mkdir, readdir, rename, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
@@ -145,14 +145,9 @@ async function captureFile(filePath, path, { gzip = false, allow404 = false } = 
 }
 
 async function loadOrFetchBootstrap() {
-  const bootstrapPath = join(OUT_ROOT, 'bootstrap-static.json');
-  if (await pathExists(bootstrapPath)) {
-    log('bootstrap-static.json present — loading from disk');
-    return JSON.parse(await readFile(bootstrapPath, 'utf8'));
-  }
   log('fetching bootstrap-static');
   const bootstrap = await fetchJson('/bootstrap-static/');
-  await writeJsonAtomic(bootstrapPath, bootstrap);
+  await writeJsonAtomic(join(OUT_ROOT, 'bootstrap-static.json'), bootstrap);
   return bootstrap;
 }
 
@@ -175,13 +170,10 @@ async function collectLeagueEntries() {
   let page = 1;
   for (;;) {
     const pageFile = join(LEAGUE_DIR, 'standings', `page-${page}.json`);
-    let pageData;
-    if (await pathExists(pageFile)) {
-      pageData = JSON.parse(await readFile(pageFile, 'utf8'));
-    } else {
-      pageData = await fetchJson(`/leagues-classic/${LEAGUE_ID}/standings/?page_standings=${page}`);
-      await writeJsonAtomic(pageFile, pageData);
-    }
+    const pageData = await fetchJson(
+      `/leagues-classic/${LEAGUE_ID}/standings/?page_standings=${page}`
+    );
+    await writeJsonAtomic(pageFile, pageData);
     leagueName = leagueName ?? pageData?.league?.name ?? null;
     const results = pageData?.standings?.results ?? [];
     for (const row of results) {
@@ -201,8 +193,10 @@ async function captureEntries(entryIds, finalGws) {
   for (let i = 0; i < entryIds.length; i++) {
     const id = entryIds[i];
     const entryDir = join(LEAGUE_DIR, 'entry', String(id));
-    await captureFile(join(entryDir, 'entry.json'), `/entry/${id}/`);
-    await captureFile(join(entryDir, 'history.json'), `/entry/${id}/history/`);
+    const entryData = await fetchJson(`/entry/${id}/`);
+    await writeJsonAtomic(join(entryDir, 'entry.json'), entryData);
+    const historyData = await fetchJson(`/entry/${id}/history/`);
+    await writeJsonAtomic(join(entryDir, 'history.json'), historyData);
     for (const gw of finalGws) {
       const result = await captureFile(
         join(entryDir, 'picks', `gw${gw}.json`),
