@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -21,10 +21,21 @@ import {
 const { useAuth } = auth;
 const { useThemeMode } = themeFeature;
 
+type BillingPortalState = 'idle' | 'opening' | 'error';
+
+function readBillingPortalUrl(value: unknown): string | null {
+  if (typeof value !== 'object' || value === null) return null;
+  if (!('url' in value)) return null;
+
+  const url = value.url;
+  return typeof url === 'string' && url.length > 0 ? url : null;
+}
+
 export function SettingsView() {
   const router = useRouter();
   const { session, user, isPro, isLoading, signOut } = useAuth();
   const { theme: activeTheme, setTheme } = useThemeMode();
+  const [billingPortalState, setBillingPortalState] = useState<BillingPortalState>('idle');
 
   useEffect(() => {
     if (!isLoading && !session) {
@@ -45,6 +56,29 @@ export function SettingsView() {
     router.replace('/');
   }
 
+  async function handleBillingPortal() {
+    setBillingPortalState('opening');
+    try {
+      const response = await fetch('/api/stripe/portal', { method: 'POST' });
+      let payload: unknown = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+
+      const url = readBillingPortalUrl(payload);
+      if (!response.ok || !url) {
+        setBillingPortalState('error');
+        return;
+      }
+
+      window.location.assign(url);
+    } catch {
+      setBillingPortalState('error');
+    }
+  }
+
   return (
     <PageShell>
       <PageHeader tone="stadium" title="Settings" meta={user?.email ?? ''} />
@@ -54,6 +88,26 @@ export function SettingsView() {
         <YStack gap={10} marginTop={8}>
           <Row label="Email" value={user?.email ?? '—'} />
           <Row label="Plan" value={isPro ? 'Pro' : 'Free'} />
+          {isPro ? (
+            <YStack gap={8} marginTop={4}>
+              <XStack>
+                <Button
+                  tone="ghost"
+                  size="md"
+                  onPress={() => {
+                    handleBillingPortal();
+                  }}
+                >
+                  {billingPortalState === 'opening' ? 'Opening billing…' : 'Manage billing'}
+                </Button>
+              </XStack>
+              {billingPortalState === 'error' ? (
+                <Text fontFamily="$body" fontSize={12} color="$colorMuted">
+                  Billing portal is not available for this account yet.
+                </Text>
+              ) : null}
+            </YStack>
+          ) : null}
         </YStack>
       </Card>
 

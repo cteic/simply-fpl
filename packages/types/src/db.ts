@@ -44,6 +44,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          status: 'active' | 'canceled' | 'past_due' | 'trialing';
+          plan: 'pro_monthly' | 'pro_yearly';
+          current_period_end: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          status: 'active' | 'canceled' | 'past_due' | 'trialing';
+          plan: 'pro_monthly' | 'pro_yearly';
+          current_period_end: string;
+          created_at?: string;
+        };
+        Update: {
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string;
+          status?: 'active' | 'canceled' | 'past_due' | 'trialing';
+          plan?: 'pro_monthly' | 'pro_yearly';
+          current_period_end?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -54,3 +84,4 @@ export interface Database {
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type UserLeague = Database['public']['Tables']['user_leagues']['Row'];
+export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
