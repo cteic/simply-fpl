@@ -39,8 +39,6 @@ export type {
   ReplaySample,
   ScoredSample,
 } from './rank-accuracy/replay-archive';
-export { loadArchive, loadBootstrap, loadEntries } from './rank-accuracy/archive-reader';
-export type { LoadArchiveOptions, LoadedArchive } from './rank-accuracy/archive-reader';
 export { mulberry32, pickWeightedIndex } from './simulator/prng';
 export {
   isRecordingRow,
