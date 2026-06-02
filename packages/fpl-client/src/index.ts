@@ -11,6 +11,8 @@ export {
 } from './live-rank';
 export type { LiveRankEstimate, NextDeadline, RankDetails } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
+export { computeScoreDistribution } from './score-distribution';
+export type { ScoreDistributionOptions } from './score-distribution';
 export { buildSlimBootstrap } from './slim-bootstrap';
 export { buildSlimFixtures } from './slim-fixtures';
 export { buildSlimLeague } from './slim-league';
@@ -21,6 +23,24 @@ export { getClubColor } from './club-colors';
 export { predictBonusPoints } from './bonus-points';
 export type { BonusPrediction } from './bonus-points';
 export { applyAutosubs } from './autosubs';
+export {
+  buildSamples,
+  buildSamplesForEntry,
+  RANK_BANDS,
+  replayArchive,
+  scoreSample,
+} from './rank-accuracy/replay-archive';
+export type {
+  ArchiveBootstrap,
+  ArchiveEntry,
+  ArchiveGwHistory,
+  BandStats,
+  PointsMode,
+  RankBand,
+  ReplayResult,
+  ReplaySample,
+  ScoredSample,
+} from './rank-accuracy/replay-archive';
 export { mulberry32, pickWeightedIndex } from './simulator/prng';
 export {
   isRecordingRow,

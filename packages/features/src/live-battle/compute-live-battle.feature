@@ -37,3 +37,9 @@ Feature: Live Battle — players moving your rank right now
     When I compute the live battle
     Then the live battle should not be live
     And the gains and losses columns should be empty
+
+  Scenario: Each battle row exposes the player's live points for the PTS column
+    Given a fixture for team 1 is in progress
+    And you own player 10 who is owned by 5% of the field and has scored 12 live points
+    When I compute the live battle
+    Then player 10 should report 12 live points

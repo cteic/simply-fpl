@@ -5,11 +5,10 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { DashboardView } from '@/components/dashboard/dashboard-view';
+import { readSavedEntryId, setSavedEntryId } from '@/lib/saved-entry-id';
 
 import { HeroPreSaveView } from './hero-presave-view';
 import { type HomeChoice, resolveHomeChoice } from './home-choice';
-
-const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
 type Choice = 'pending' | HomeChoice;
 
@@ -21,13 +20,11 @@ export function HomeChooser() {
   const [choice, setChoice] = useState<Choice>('pending');
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    const id = saved ? Number(saved) : NaN;
-    const savedId = Number.isInteger(id) && id > 0 ? id : null;
+    const savedId = readSavedEntryId();
 
     const result = resolveHomeChoice({ clear: clearTeam, forceForm, savedId });
     if (result.clearStorage) {
-      window.localStorage.removeItem(STORAGE_KEY);
+      setSavedEntryId(null);
       router.replace('/');
     }
     setChoice(result.choice);
