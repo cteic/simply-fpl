@@ -69,6 +69,9 @@ export async function installWorkerMocks(page: Page): Promise<void> {
 
     if (pathname === '/status') return route.fulfill(jsonResponse(statusPayload));
     if (pathname === '/fpl/bootstrap-static/') return route.fulfill(jsonResponse(bootstrap));
+    if (pathname === '/fpl/bootstrap-static-slim' || pathname === '/fpl/bootstrap-static-slim/') {
+      return route.fulfill(jsonResponse(bootstrap));
+    }
     if (/^\/fpl\/event\/\d+\/live\/$/.test(pathname)) {
       return route.fulfill(jsonResponse(liveEvent37));
     }
