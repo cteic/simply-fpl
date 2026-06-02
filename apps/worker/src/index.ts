@@ -6,6 +6,7 @@ import { handleCohortAggregates } from './cohort/serve';
 import { handleFixturesSlim } from './fixtures';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
+import { buildFplPassthroughTarget } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
 import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
@@ -394,8 +395,7 @@ export default {
     }
 
     const fplPath = fplMatch[1];
-    const upstreamUrl = `${FPL_ORIGIN}${fplPath}`;
-    const cacheKey = `fpl:${fplPath}`;
+    const { upstreamUrl, cacheKey } = buildFplPassthroughTarget(FPL_ORIGIN, fplPath, url.search);
     const ttl = getTtl(fplPath);
 
     return fetchWithCache(env, ctx, cacheKey, upstreamUrl, ttl);
