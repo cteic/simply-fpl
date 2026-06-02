@@ -517,6 +517,20 @@
       "event_transfers": 0,
       "event_transfers_cost": 0,
       "points_on_bench": 18
+    },
+    {
+      "event": 38,
+      "points": 45,
+      "total_points": 2318,
+      "rank": 5239393,
+      "rank_sort": 5239626,
+      "overall_rank": 122957,
+      "percentile_rank": 45,
+      "bank": 4,
+      "value": 1049,
+      "event_transfers": 3,
+      "event_transfers_cost": 4,
+      "points_on_bench": 0
     }
   ],
   "past": [
