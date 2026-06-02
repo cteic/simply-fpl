@@ -517,6 +517,20 @@
       "event_transfers": 0,
       "event_transfers_cost": 0,
       "points_on_bench": 0
+    },
+    {
+      "event": 38,
+      "points": 65,
+      "total_points": 1963,
+      "rank": 928305,
+      "rank_sort": 954906,
+      "overall_rank": 4738239,
+      "percentile_rank": 10,
+      "bank": 7,
+      "value": 992,
+      "event_transfers": 0,
+      "event_transfers_cost": 0,
+      "points_on_bench": 0
     }
   ],
   "past": [
@@ -541,5 +555,11 @@
       "rank": 5747194
     }
   ],
-  "chips": []
+  "chips": [
+    {
+      "name": "wildcard",
+      "time": "2026-05-16T00:43:36.795487Z",
+      "event": 38
+    }
+  ]
 }
