@@ -1,0 +1,334 @@
+{
+  "elements": [
+    {
+      "id": 1,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 1,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 3,
+        "bonus": 0,
+        "bps": 20,
+        "total_points": 6
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 1,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 28,
+        "total_points": 6
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 1,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 15,
+        "total_points": 6
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 1,
+        "assists": 1,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 42,
+        "total_points": 13
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "stats": {
+        "minutes": 70,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 8,
+        "total_points": 2
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 2,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 38,
+        "total_points": 13
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 12,
+        "total_points": 2
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 2,
+        "bonus": 0,
+        "bps": 10,
+        "total_points": 2
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "stats": {
+        "minutes": 0,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 0,
+        "total_points": 0
+      },
+      "explain": [
+        {
+          "fixture": 101,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 1,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 2,
+        "bps": 33,
+        "total_points": 6
+      },
+      "explain": [
+        {
+          "fixture": 102,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "stats": {
+        "minutes": 80,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 18,
+        "total_points": 2
+      },
+      "explain": [
+        {
+          "fixture": 102,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 1,
+        "assists": 1,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 3,
+        "bps": 40,
+        "total_points": 9
+      },
+      "explain": [
+        {
+          "fixture": 102,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 1,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 1,
+        "bps": 30,
+        "total_points": 6
+      },
+      "explain": [
+        {
+          "fixture": 103,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 0,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 0,
+        "bps": 14,
+        "total_points": 2
+      },
+      "explain": [
+        {
+          "fixture": 103,
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "stats": {
+        "minutes": 90,
+        "goals_scored": 1,
+        "assists": 0,
+        "clean_sheets": 0,
+        "goals_conceded": 0,
+        "yellow_cards": 0,
+        "red_cards": 0,
+        "saves": 0,
+        "bonus": 2,
+        "bps": 31,
+        "total_points": 6
+      },
+      "explain": [
+        {
+          "fixture": 103,
+          "stats": []
+        }
+      ]
+    }
+  ]
+}

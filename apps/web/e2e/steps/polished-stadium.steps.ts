@@ -20,3 +20,15 @@ When('I deselect the team from the status pill', async ({ page }) => {
 Then('the home search hero is shown', async ({ page }) => {
   await expect(page.getByTestId('home-unified-hero')).toBeVisible();
 });
+
+Then('the nav shows the Leagues link', async ({ page }) => {
+  await expect(page.getByRole('link', { name: 'Leagues' })).toBeVisible();
+});
+
+When('I deselect my team from the dashboard', async ({ page }) => {
+  await page.getByRole('link', { name: 'Deselect team' }).click();
+});
+
+Then('the nav no longer shows the Leagues link', async ({ page }) => {
+  await expect(page.getByRole('link', { name: 'Leagues' })).toHaveCount(0);
+});

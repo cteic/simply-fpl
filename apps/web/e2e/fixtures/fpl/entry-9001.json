@@ -1,0 +1,14 @@
+{
+  "id": 9001,
+  "player_first_name": "Battle",
+  "player_last_name": "Tester",
+  "name": "Battle Test FC",
+  "summary_overall_rank": 250000,
+  "summary_overall_points": 2100,
+  "summary_event_rank": null,
+  "summary_event_points": 0,
+  "leagues": {
+    "classic": [],
+    "h2h": []
+  }
+}
