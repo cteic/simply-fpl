@@ -244,4 +244,32 @@ describeFeature(feature, ({ Scenario }) => {
       expect(battle.losses).toEqual([]);
     });
   });
+
+  Scenario(
+    "Each battle row exposes the player's live points for the PTS column",
+    ({ Given, And, When, Then }) => {
+      let battle: LiveBattle;
+
+      Given('a fixture for team 1 is in progress', () => {});
+      And(
+        'you own player 10 who is owned by 5% of the field and has scored 12 live points',
+        () => {}
+      );
+
+      When('I compute the live battle', () => {
+        const players = [makePlayer(10, 1, 5)];
+        battle = computeLiveBattle({
+          yourPicks: makePicks([{ element: 10 }]),
+          bootstrap: makeBootstrap(players, [1]),
+          liveGw: makeLive({ 10: 12 }),
+          fixtures: [makeFixture(1, 1, 2, true, false)],
+        });
+      });
+
+      Then('player 10 should report 12 live points', () => {
+        const row = battle.gains.find((p) => p.elementId === 10);
+        expect(row?.livePoints).toBe(12);
+      });
+    }
+  );
 });
