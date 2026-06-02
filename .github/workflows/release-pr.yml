@@ -59,7 +59,7 @@ jobs:
             echo
             echo "## Post-merge actions"
             echo
-            echo "- On merge, the **Tag release on main** workflow auto-tags \`${{ steps.version.outputs.version }}\` and publishes a GitHub Release (no manual step). Run it from the Actions tab only if you need to re-tag or override the version."
+            echo "- On merge, the **Tag release on main** workflow auto-tags \`${{ steps.version.outputs.version }}\`, publishes a GitHub Release, and merges \`main\` back into \`dev\` (\`chore: sync main into dev\`) so dev stays at-or-ahead of main. Run it from the Actions tab only if you need to re-tag or override the version."
             echo "- Cloudflare Pages + Worker auto-deploy on push to main."
             echo "- Smoke-test https://simplyfpl.com in incognito once the deploy is live."
             echo

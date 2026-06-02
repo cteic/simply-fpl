@@ -60,3 +60,24 @@ jobs:
           git tag "$v"
           git push origin "$v"
           gh release create "$v" --generate-notes --latest --target main
+
+      - name: Sync main back into dev
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          v="${{ steps.version.outputs.version }}"
+          git fetch origin dev
+          git checkout dev
+          # No-op if dev already contains main (idempotent on re-runs).
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "dev already contains main — nothing to sync."
+            exit 0
+          fi
+          if ! git merge --no-ff --no-edit -m "chore: sync main into dev (post-${v})" origin/main; then
+            echo "::error::Merge conflict syncing main → dev. Resolve manually:"
+            echo "::error::  git fetch origin && git checkout dev && git merge origin/main"
+            git merge --abort || true
+            exit 1
+          fi
+          git push origin dev
+          echo "Synced main → dev (post-${v})."
