@@ -67,17 +67,18 @@ Suggested set: **38, 37, 36, 28, 19, 10, 1** (late → early), cohorts `top_10k`
 
 | GW | top_10k | overall | Notes |
 | -- | ------- | ------- | ----- |
-| 38 | ☐ | ☐ | **Priority** — final standings; grab first |
-| 37 | ☐ | ☐ | recent |
-| 36 | ☐ | ☐ | recent |
-| 28 | ☐ | ☐ | late-season |
-| 19 | ☐ | ☐ | mid-season |
-| 10 | ☐ | ☐ | early-season |
-| 1  | ☐ | ☐ | season opener |
+| 38 | ☑ | ☑ | **Priority** — final standings; grab first |
+| 37 | ☑ | ☑ | recent |
+| 36 | ☑ | ☑ | recent |
+| 28 | ☑ | ☑ | late-season |
+| 19 | ☑ | ☑ | mid-season |
+| 10 | ☑ | ☑ | early-season |
+| 1  | ☑ | ☑ | season opener |
 
-**Status (2026-05-26):** nothing captured yet. The capture was attempted from the
-Claude-on-the-web environment but is blocked there by the network allowlist (see above),
-so the full set above remains to be grabbed from an FPL-reachable host before the
-August wipe.
+**Status (2026-06-02):** the suggested spread (38, 37, 36, 28, 19, 10, 1) is captured
+from Pete's laptop — `legendary` (top 1000) is also grabbed alongside `top_10k` +
+`overall`. Each gameweek holds 6000 picks (2500 + 2500 + 1000). The remaining 31
+gameweeks (2–9, 11–18, 20–27, 29–35) are being captured to complete the full season
+before the August wipe; tick them off as they land.
 
 Tick a box and commit the two summary JSONs once a gameweek/cohort is captured.
