@@ -23,6 +23,24 @@ export { getClubColor } from './club-colors';
 export { predictBonusPoints } from './bonus-points';
 export type { BonusPrediction } from './bonus-points';
 export { applyAutosubs } from './autosubs';
+export {
+  buildSamples,
+  buildSamplesForEntry,
+  RANK_BANDS,
+  replayArchive,
+  scoreSample,
+} from './rank-accuracy/replay-archive';
+export type {
+  ArchiveBootstrap,
+  ArchiveEntry,
+  ArchiveGwHistory,
+  BandStats,
+  PointsMode,
+  RankBand,
+  ReplayResult,
+  ReplaySample,
+  ScoredSample,
+} from './rank-accuracy/replay-archive';
 export { mulberry32, pickWeightedIndex } from './simulator/prng';
 export {
   isRecordingRow,
