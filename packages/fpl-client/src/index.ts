@@ -11,6 +11,8 @@ export {
 } from './live-rank';
 export type { LiveRankEstimate, NextDeadline, RankDetails } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
+export { computeScoreDistribution } from './score-distribution';
+export type { ScoreDistributionOptions } from './score-distribution';
 export { buildSlimBootstrap } from './slim-bootstrap';
 export { buildSlimFixtures } from './slim-fixtures';
 export { buildSlimLeague } from './slim-league';
