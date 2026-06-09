@@ -61,24 +61,15 @@ Pacing is built in: ~2 req/sec with exponential backoff on 429. A full gameweek
 
 ## Capture plan & status
 
-Target a representative spread (prioritise GW38 and recent gameweeks), not all 38.
-Suggested set: **38, 37, 36, 28, 19, 10, 1** (late → early), cohorts `top_10k` + `overall`,
-~2500 managers each.
+**Status (2026-06-04): full season captured — gw1 through gw38, all three cohorts
+(`top_10k`, `overall`, `legendary`).** 6000 picks per gameweek (2500 + 2500 + 1000),
+scraped from Pete's laptop before FPL's August wipe of 2025/26 data.
 
-| GW | top_10k | overall | Notes |
-| -- | ------- | ------- | ----- |
-| 38 | ☑ | ☑ | **Priority** — final standings; grab first |
-| 37 | ☑ | ☑ | recent |
-| 36 | ☑ | ☑ | recent |
-| 28 | ☑ | ☑ | late-season |
-| 19 | ☑ | ☑ | mid-season |
-| 10 | ☑ | ☑ | early-season |
-| 1  | ☑ | ☑ | season opener |
+Each gameweek directory holds:
 
-**Status (2026-06-02):** the suggested spread (38, 37, 36, 28, 19, 10, 1) is captured
-from Pete's laptop — `legendary` (top 1000) is also grabbed alongside `top_10k` +
-`overall`. Each gameweek holds 6000 picks (2500 + 2500 + 1000). The remaining 31
-gameweeks (2–9, 11–18, 20–27, 29–35) are being captured to complete the full season
-before the August wipe; tick them off as they land.
+- `picks.jsonl` — raw scraped picks (gitignored).
+- `score-distribution.json` — committed.
+- `scores.json` — committed.
 
-Tick a box and commit the two summary JSONs once a gameweek/cohort is captured.
+If a future run regenerates a gameweek (different sample or schema change), just
+re-run the scrape + build for that GW and commit the two summary JSONs.
