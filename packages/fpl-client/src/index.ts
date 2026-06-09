@@ -13,6 +13,16 @@ export type { LiveRankEstimate, NextDeadline, RankDetails } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
 export { computeScoreDistribution } from './score-distribution';
 export type { ScoreDistributionOptions } from './score-distribution';
+export {
+  DistributionUnavailableError,
+  estimateLiveRankFromDistribution,
+  estimateRankFromScore,
+  hasDistribution,
+  loadDistribution,
+  scoreToPercentile,
+} from './estimate-rank';
+export type { DistributionRankEstimate, LoadDistributionOptions } from './estimate-rank';
+export { DISTRIBUTION_GAMEWEEKS } from './score-distributions/distributions.generated';
 export { buildSlimBootstrap } from './slim-bootstrap';
 export { buildSlimFixtures } from './slim-fixtures';
 export { buildSlimLeague } from './slim-league';
