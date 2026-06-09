@@ -84,6 +84,7 @@ export default function RootLayout() {
               options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
             />
             <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
+            <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
           </Tabs>
         </QueryClientProvider>
       </SafeAreaProvider>
