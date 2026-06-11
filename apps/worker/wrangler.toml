@@ -8,6 +8,11 @@ binding = "FPL_CACHE"
 id = "478c306b8b974f85bc2a9b83a51d87d1"
 preview_id = "51fbb5bf51fb4ff7a2a6ff28bffaac0a"
 
+[[kv_namespaces]]
+binding = "FRANK_WEEKLY_CACHE"
+id = "e1bc894c74a54453944b3c48d0f56d08"
+preview_id = "0fb68df53a444314b23b7440e8f64357"
+
 # Speed-comparison artefact store — see docs/rfcs/003-speed-comparison.md.
 # Pete must create the bucket (`wrangler r2 bucket create simplyfpl-vs`) before deploy.
 [[r2_buckets]]
@@ -58,3 +63,4 @@ crons = [
   "0 6 * * 1",      # weekly speed-comparison (Mon 06:00 UTC)
   "*/10 14-18 * * 1"
 ]
+
