@@ -1,0 +1,274 @@
+'use client';
+
+import { useState } from 'react';
+
+import { auth } from '@simplyfpl/features';
+import {
+  Card,
+  FNote,
+  PageHeader,
+  PageShell,
+  SectionHeader,
+  Text,
+  XStack,
+  YStack,
+} from '@simplyfpl/ui';
+
+import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
+import { useFrankWeekly } from '@/queries/frank';
+
+const { useAuth } = auth;
+
+interface CandidateRowProps {
+  name: string;
+  team: string;
+  reason: string;
+  last: boolean;
+}
+
+function CandidateRow({ name, team, reason, last }: CandidateRowProps) {
+  return (
+    <YStack
+      paddingHorizontal={16}
+      paddingVertical={14}
+      borderBottomWidth={last ? 0 : 1}
+      borderBottomColor="$border"
+      borderStyle="solid"
+    >
+      <XStack alignItems="center" gap={8} marginBottom={4}>
+        <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color">
+          {name}
+        </Text>
+        <Text fontFamily="$mono" fontSize={10} color="$colorSubtle">
+          {team}
+        </Text>
+      </XStack>
+      <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
+        {reason}
+      </Text>
+    </YStack>
+  );
+}
+
+function AiChip() {
+  return (
+    <XStack
+      backgroundColor="$brandBg"
+      borderWidth={1}
+      borderStyle="solid"
+      borderColor="$brand"
+      borderRadius={4}
+      paddingHorizontal={6}
+      paddingVertical={2}
+      alignItems="center"
+    >
+      <Text fontFamily="$body" fontSize={9} fontWeight="700" color="$brand" letterSpacing={0.8}>
+        AI-POWERED
+      </Text>
+    </XStack>
+  );
+}
+
+function AskFrankForm() {
+  const { tier } = useAuth();
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (tier !== 'ultimate') {
+    return (
+      <Card paddingHorizontal={16} paddingVertical={20} alignItems="center" marginBottom={20}>
+        <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color" marginBottom={6}>
+          Ask Frank anything
+        </Text>
+        <Text fontFamily="$body" fontSize={12} color="$colorMuted" textAlign="center">
+          On-demand questions are an Ultimate feature. Upgrade to unlock.
+        </Text>
+      </Card>
+    );
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!question.trim()) return;
+    setIsLoading(true);
+    setError(null);
+    setAnswer(null);
+
+    try {
+      const res = await fetch('/api/frank/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      if (!res.ok) {
+        const body = (await res.json()) as { error?: string };
+        setError(body.error ?? 'Something went wrong');
+        return;
+      }
+      const data = (await res.json()) as { answer: string };
+      setAnswer(data.answer);
+      setQuestion('');
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <Card marginBottom={20}>
+      <YStack paddingHorizontal={16} paddingTop={16} paddingBottom={4}>
+        <SectionHeader title="Ask Frank" />
+      </YStack>
+      <form onSubmit={(e) => void handleSubmit(e)}>
+        <YStack paddingHorizontal={16} paddingBottom={16} gap={10}>
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Should I captain Salah or Haaland this week?"
+            rows={3}
+            disabled={isLoading}
+            style={{
+              fontFamily: 'var(--font-body, sans-serif)',
+              fontSize: 13,
+              padding: '10px 12px',
+              borderRadius: 8,
+              border: '1px solid var(--border, #E9E8E4)',
+              background: 'var(--surface, #FFF)',
+              color: 'var(--color, #1A1A18)',
+              resize: 'vertical',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !question.trim()}
+            style={{
+              fontFamily: 'var(--font-body, sans-serif)',
+              fontSize: 12,
+              fontWeight: 600,
+              padding: '8px 16px',
+              borderRadius: 6,
+              border: 'none',
+              background: isLoading || !question.trim() ? '#A8A8A0' : '#0F766E',
+              color: '#FFF',
+              cursor: isLoading || !question.trim() ? 'not-allowed' : 'pointer',
+              alignSelf: 'flex-end',
+            }}
+          >
+            {isLoading ? 'Asking Frank…' : 'Ask Frank'}
+          </button>
+          {error ? (
+            <Text fontFamily="$body" fontSize={12} color="$negative">
+              {error}
+            </Text>
+          ) : null}
+          {answer ? (
+            <YStack
+              backgroundColor="$brandBg"
+              borderRadius={8}
+              paddingHorizontal={14}
+              paddingVertical={12}
+            >
+              <Text fontFamily="$body" fontSize={12} color="$color" lineHeight={20}>
+                {answer}
+              </Text>
+            </YStack>
+          ) : null}
+        </YStack>
+      </form>
+    </Card>
+  );
+}
+
+export function FrankView() {
+  const { data, isLoading, isError } = useFrankWeekly();
+
+  const title = (
+    <XStack alignItems="center" gap={10}>
+      <Text fontFamily="$body" fontSize={21} fontWeight="600" color="#FFFFFF">
+        Frank
+      </Text>
+      <AiChip />
+    </XStack>
+  );
+
+  return (
+    <PageShell>
+      <PageHeader
+        tone="stadium"
+        title={title}
+        meta="Your AI FPL coach · Updated weekly after the deadline"
+      />
+
+      {isLoading ? (
+        <Card paddingHorizontal={16} paddingVertical={28} alignItems="center" marginBottom={20}>
+          <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+            Loading Frank's advice…
+          </Text>
+        </Card>
+      ) : null}
+
+      {!isLoading && isError ? (
+        <Card paddingHorizontal={16} paddingVertical={28} alignItems="center" marginBottom={20}>
+          <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+            Frank's advice isn't ready yet. Check back after the next deadline.
+          </Text>
+        </Card>
+      ) : null}
+
+      {!isLoading && data ? (
+        <>
+          {data.chipNote ? (
+            <>
+              <SectionHeader title="Chip watch" />
+              <Card marginBottom={20}>
+                <YStack paddingHorizontal={16} paddingVertical={14}>
+                  <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
+                    {data.chipNote}
+                  </Text>
+                </YStack>
+              </Card>
+            </>
+          ) : null}
+
+          <SectionHeader title={`Captain picks · GW${data.gameweek}`} />
+          <Card marginBottom={20}>
+            {data.captainCandidates.map((c, i) => (
+              <CandidateRow
+                key={`cap-${c.name}`}
+                name={c.name}
+                team={c.team}
+                reason={c.reason}
+                last={i === data.captainCandidates.length - 1}
+              />
+            ))}
+          </Card>
+
+          <SectionHeader title="Transfer targets" />
+          <Card marginBottom={20}>
+            {data.transferTargets.map((c, i) => (
+              <CandidateRow
+                key={`xfer-${c.name}`}
+                name={c.name}
+                team={c.team}
+                reason={c.reason}
+                last={i === data.transferTargets.length - 1}
+              />
+            ))}
+          </Card>
+        </>
+      ) : null}
+
+      {FEATURE_FRANK_ONDEMAND ? <AskFrankForm /> : null}
+
+      <FNote>
+        Frank is an AI coach powered by Claude. Advice is generated weekly and may not reflect
+        late-breaking news. Always verify player availability before finalising your team.
+      </FNote>
+    </PageShell>
+  );
+}

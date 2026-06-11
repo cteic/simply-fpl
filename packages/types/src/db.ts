@@ -1,5 +1,7 @@
 // Supabase database schema — matches supabase/migrations/0001_init.sql
 
+export type Tier = 'free' | 'pro' | 'ultimate';
+
 export interface Database {
   public: {
     Tables: {
@@ -10,6 +12,7 @@ export interface Database {
           fpl_entry_id: number | null;
           is_pro: boolean;
           pro_until: string | null;
+          tier: Tier;
           created_at: string;
           updated_at: string;
         };
@@ -19,11 +22,40 @@ export interface Database {
           fpl_entry_id?: number | null;
           is_pro?: boolean;
           pro_until?: string | null;
+          tier?: Tier;
         };
         Update: {
           fpl_entry_id?: number | null;
           is_pro?: boolean;
           pro_until?: string | null;
+          tier?: Tier;
+        };
+        Relationships: [];
+      };
+      frank_queries: {
+        Row: {
+          id: string;
+          user_id: string;
+          question: string;
+          response: unknown;
+          model: string | null;
+          tokens_in: number | null;
+          tokens_out: number | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          question: string;
+          response?: unknown;
+          model?: string | null;
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+        };
+        Update: {
+          response?: unknown;
+          model?: string | null;
+          tokens_in?: number | null;
+          tokens_out?: number | null;
         };
         Relationships: [];
       };
