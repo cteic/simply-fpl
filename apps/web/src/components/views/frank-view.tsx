@@ -8,14 +8,16 @@ import {
   FNote,
   PageHeader,
   PageShell,
+  ProgressBar,
   SectionHeader,
+  Skeleton,
   Text,
   XStack,
   YStack,
 } from '@simplyfpl/ui';
 
 import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
-import { useFrankWeekly } from '@/queries/frank';
+import { useFrankHistory, useFrankQuota, useFrankWeekly } from '@/queries/frank';
 
 const { useAuth } = auth;
 
@@ -69,12 +71,25 @@ function AiChip() {
   );
 }
 
+interface AskFormResponse {
+  advice: string;
+  follow_up_question?: string | null;
+  used?: number;
+  softCap?: number;
+  hardCap?: number;
+}
+
 function AskFrankForm() {
-  const { tier } = useAuth();
+  const { tier, client, user } = useAuth();
   const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<AskFormResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const userId = user?.id ?? null;
+  const { data: quota, refetch: refetchQuota } = useFrankQuota(client, userId);
+  const { data: history, refetch: refetchHistory } = useFrankHistory(client, userId);
 
   if (tier !== 'ultimate') {
     return (
@@ -83,11 +98,20 @@ function AskFrankForm() {
           Ask Frank anything
         </Text>
         <Text fontFamily="$body" fontSize={12} color="$colorMuted" textAlign="center">
-          On-demand questions are an Ultimate feature. Upgrade to unlock.
+          On-demand questions are an Ultimate feature.{' '}
+          <a href="/upgrade" style={{ color: 'var(--brand, #0F766E)', textDecoration: 'none' }}>
+            Upgrade to unlock.
+          </a>
         </Text>
       </Card>
     );
   }
+
+  const quotaUsed = answer?.used ?? quota?.used ?? 0;
+  const softCap = answer?.softCap ?? quota?.softCap ?? 50;
+  const hardCap = answer?.hardCap ?? quota?.hardCap ?? 80;
+  const quotaPercent = hardCap > 0 ? Math.round((quotaUsed / hardCap) * 100) : 0;
+  const atSoftCap = quotaUsed >= softCap;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -102,16 +126,26 @@ function AskFrankForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question }),
       });
-      if (!res.ok) {
-        const body = (await res.json()) as { error?: string };
-        setError(body.error ?? 'Something went wrong');
+      if (res.status === 429) {
+        setError("You've hit your monthly quota — resets on the 1st.");
         return;
       }
-      const data = (await res.json()) as { answer: string };
-      setAnswer(data.answer);
+      if (!res.ok) {
+        const errBody = (await res.json()) as { error?: string };
+        if (res.status >= 500) {
+          setError('Frank is briefly unavailable; try again.');
+        } else {
+          setError(errBody.error ?? 'Something went wrong');
+        }
+        return;
+      }
+      const data = (await res.json()) as AskFormResponse;
+      setAnswer(data);
       setQuestion('');
+      void refetchQuota();
+      void refetchHistory();
     } catch {
-      setError('Network error. Please try again.');
+      setError('Frank is briefly unavailable; try again.');
     } finally {
       setIsLoading(false);
     }
@@ -124,25 +158,34 @@ function AskFrankForm() {
       </YStack>
       <form onSubmit={(e) => void handleSubmit(e)}>
         <YStack paddingHorizontal={16} paddingBottom={16} gap={10}>
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Should I captain Salah or Haaland this week?"
-            rows={3}
-            disabled={isLoading}
-            style={{
-              fontFamily: 'var(--font-body, sans-serif)',
-              fontSize: 13,
-              padding: '10px 12px',
-              borderRadius: 8,
-              border: '1px solid var(--border, #E9E8E4)',
-              background: 'var(--surface, #FFF)',
-              color: 'var(--color, #1A1A18)',
-              resize: 'vertical',
-              width: '100%',
-              boxSizing: 'border-box',
-            }}
-          />
+          {isLoading ? (
+            <YStack gap={8}>
+              <Skeleton height={12} width="80%" />
+              <Skeleton height={12} width="60%" />
+              <Skeleton height={12} width="70%" />
+            </YStack>
+          ) : null}
+          {!isLoading ? (
+            <textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Should I captain Salah or Haaland this week?"
+              rows={3}
+              disabled={isLoading}
+              style={{
+                fontFamily: 'var(--font-body, sans-serif)',
+                fontSize: 13,
+                padding: '10px 12px',
+                borderRadius: 8,
+                border: '1px solid var(--border, #E9E8E4)',
+                background: 'var(--surface, #FFF)',
+                color: 'var(--color, #1A1A18)',
+                resize: 'vertical',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            />
+          ) : null}
           <button
             type="submit"
             disabled={isLoading || !question.trim()}
@@ -172,14 +215,82 @@ function AskFrankForm() {
               borderRadius={8}
               paddingHorizontal={14}
               paddingVertical={12}
+              gap={8}
             >
+              <XStack alignItems="center" gap={8}>
+                <AiChip />
+              </XStack>
               <Text fontFamily="$body" fontSize={12} color="$color" lineHeight={20}>
-                {answer}
+                {answer.advice}
               </Text>
+              {answer.follow_up_question ? (
+                <Text fontFamily="$body" fontSize={11} color="$colorSubtle" lineHeight={18}>
+                  💡 {answer.follow_up_question}
+                </Text>
+              ) : null}
+            </YStack>
+          ) : null}
+          {atSoftCap && !error ? (
+            <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
+              You've used {quotaUsed} of {hardCap} questions this month.
+            </Text>
+          ) : null}
+          <ProgressBar
+            percent={quotaPercent}
+            labels={[`${quotaUsed} / ${hardCap} questions used this month`]}
+          />
+        </YStack>
+      </form>
+
+      {history && history.length > 0 ? (
+        <YStack
+          borderTopWidth={1}
+          borderTopColor="$border"
+          borderStyle="solid"
+          paddingHorizontal={16}
+          paddingVertical={12}
+        >
+          <button
+            type="button"
+            onClick={() => setHistoryOpen((o) => !o)}
+            style={{
+              fontFamily: 'var(--font-body, sans-serif)',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--colorSubtle, #767672)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              textAlign: 'left',
+            }}
+          >
+            {historyOpen ? '▾' : '▸'} Past questions ({history.length})
+          </button>
+          {historyOpen ? (
+            <YStack gap={12} marginTop={12}>
+              {history.map((q) => {
+                const resp = q.response as { advice?: string } | null;
+                return (
+                  <YStack key={q.id} gap={4}>
+                    <Text fontFamily="$body" fontSize={12} fontWeight="600" color="$color">
+                      {q.question}
+                    </Text>
+                    {resp?.advice ? (
+                      <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
+                        {resp.advice}
+                      </Text>
+                    ) : null}
+                    <Text fontFamily="$mono" fontSize={10} color="$colorSubtle">
+                      {new Date(q.created_at).toLocaleDateString()}
+                    </Text>
+                  </YStack>
+                );
+              })}
             </YStack>
           ) : null}
         </YStack>
-      </form>
+      ) : null}
     </Card>
   );
 }
