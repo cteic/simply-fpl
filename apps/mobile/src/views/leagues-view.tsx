@@ -1,4 +1,17 @@
-import { Card, FNote, SectionHeader, Text, YStack } from '@simplyfpl/ui';
+import { useState } from 'react';
+
+import { useRouter } from 'expo-router';
+
+import {
+  Button,
+  Card,
+  FNote,
+  FilterButton,
+  SectionHeader,
+  Text,
+  XStack,
+  YStack,
+} from '@simplyfpl/ui';
 
 import { Screen } from '@/components/screen';
 import { TrackedLeagueCard } from '@/components/tracked-league-card';
@@ -31,12 +44,20 @@ export function LeaguesView() {
   return <EntryLeagues entryId={entryId} />;
 }
 
-function EntryLeagues({ entryId }: { entryId: number }) {
+interface EntryLeaguesProps {
+  entryId: number;
+}
+
+function EntryLeagues({ entryId }: EntryLeaguesProps) {
   const { data: entry, isLoading, isError } = useEntry(entryId);
+  const router = useRouter();
+  const [activeLeagueId, setActiveLeagueId] = useState<number | null>(null);
 
   const classicLeagues = (entry?.leagues?.classic ?? [])
     .filter((l) => l.league_type !== 's')
     .slice(0, MAX_CLASSIC_LEAGUES);
+
+  const activeId = activeLeagueId ?? classicLeagues[0]?.id ?? null;
 
   return (
     <Screen>
@@ -73,9 +94,32 @@ function EntryLeagues({ entryId }: { entryId: number }) {
         </Card>
       ) : null}
 
-      {classicLeagues.map((league) => (
-        <TrackedLeagueCard key={league.id} leagueId={league.id} myEntryId={entryId} />
-      ))}
+      {classicLeagues.length > 0 ? (
+        <YStack gap={14}>
+          <XStack gap={8} flexWrap="wrap">
+            {classicLeagues.map((league) => (
+              <FilterButton
+                key={league.id}
+                active={league.id === activeId}
+                onPress={() => setActiveLeagueId(league.id)}
+              >
+                {league.name}
+              </FilterButton>
+            ))}
+          </XStack>
+
+          {activeId !== null ? (
+            <YStack gap={12}>
+              <XStack justifyContent="flex-end">
+                <Button tone="ghost" size="sm" onPress={() => router.push(`/rivals/${activeId}`)}>
+                  View rivals →
+                </Button>
+              </XStack>
+              <TrackedLeagueCard key={activeId} leagueId={activeId} myEntryId={entryId} />
+            </YStack>
+          ) : null}
+        </YStack>
+      ) : null}
 
       <FNote>Tap a rival to see your head-to-head. Standings refresh live every 90s.</FNote>
     </Screen>
