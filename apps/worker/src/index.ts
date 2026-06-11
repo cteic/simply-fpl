@@ -4,6 +4,7 @@ import { handleBootstrapSlim } from './bootstrap';
 import { runScheduled } from './cohort/cohort';
 import { handleCohortAggregates } from './cohort/serve';
 import { handleFixturesSlim } from './fixtures';
+import { FRANK_WEEKLY_CRON, handleFrankWeekly, runFrankWeekly } from './frank/weekly-cache';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
 import { buildFplPassthroughTarget } from './passthrough';
@@ -16,6 +17,7 @@ export { LiveGwDO } from './live-gw-do';
 
 export interface Env {
   FPL_CACHE: KVNamespace;
+  FRANK_WEEKLY_CACHE: KVNamespace;
   LIVE_GW: DurableObjectNamespace;
   VS_BUCKET: R2Bucket;
   RECORDINGS_R2?: R2Bucket;
@@ -27,6 +29,7 @@ export interface Env {
   LEAGUE_TTL: string;
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE?: string;
+  ANTHROPIC_API_KEY?: string;
   GIT_SHA?: string;
   ENVIRONMENT?: string;
   VS_DEBUG_TOKEN?: string;
@@ -385,6 +388,11 @@ export default {
       });
     }
 
+    // Route: /frank/weekly → cached AI weekly advice
+    if (url.pathname === '/frank/weekly' || url.pathname === '/frank/weekly/') {
+      return handleFrankWeekly(env);
+    }
+
     // Route: /fpl/* → proxy to FPL API
     const fplMatch = url.pathname.match(/^\/fpl(\/.+)$/);
     if (!fplMatch || !fplMatch[1]) {
@@ -414,6 +422,10 @@ export default {
     }
     if (event.cron === VS_COMPARISON_CRON) {
       await runComparison(env, { now: new Date(event.scheduledTime) });
+      return;
+    }
+    if (event.cron === FRANK_WEEKLY_CRON) {
+      await runFrankWeekly(env).catch(() => undefined);
       return;
     }
     await warmPricesCache(env, ctx).catch(() => undefined);

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 
-import type { Database } from '@simplyfpl/types';
+import type { Database, Tier } from '@simplyfpl/types';
 
 type Client = SupabaseClient<Database>;
 
@@ -14,6 +14,7 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   isPro: boolean;
+  tier: Tier;
   isLoading: boolean;
   signInWithEmail: (email: string, redirectTo?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -41,6 +42,7 @@ function writeLocalEntryId(id: number) {
 export function AuthProvider({ client, children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [isPro, setIsPro] = useState(false);
+  const [tier, setTier] = useState<Tier>('free');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -65,6 +67,7 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
   useEffect(() => {
     if (!session?.user) {
       setIsPro(false);
+      setTier('free');
       return;
     }
 
@@ -74,17 +77,19 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
     async function fetchAndSyncProfile() {
       const { data } = await client
         .from('profiles')
-        .select('is_pro, pro_until, fpl_entry_id')
+        .select('is_pro, pro_until, fpl_entry_id, tier')
         .eq('id', userId)
         .maybeSingle<{
           is_pro: boolean;
           pro_until: string | null;
           fpl_entry_id: number | null;
+          tier: Tier;
         }>();
       if (cancelled || !data) return;
 
       const stillValid = data.pro_until === null || new Date(data.pro_until) > new Date();
       setIsPro(data.is_pro && stillValid);
+      setTier(data.tier ?? 'free');
 
       const local = readLocalEntryId();
       const remote = data.fpl_entry_id;
@@ -109,6 +114,7 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
       session,
       user: session?.user ?? null,
       isPro,
+      tier,
       isLoading,
       signInWithEmail: async (email, redirectTo) => {
         const { error } = await client.auth.signInWithOtp({
@@ -121,7 +127,7 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
         await client.auth.signOut();
       },
     }),
-    [client, session, isPro, isLoading]
+    [client, session, isPro, tier, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
