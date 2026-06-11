@@ -9,7 +9,7 @@ type Client = SupabaseClient<Database>;
 
 const ENTRY_ID_STORAGE_KEY = 'simplyfpl:lastEntryId';
 
-interface AuthContextValue {
+export interface AuthContextValue {
   client: Client;
   session: Session | null;
   user: User | null;
@@ -20,7 +20,7 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
 interface AuthProviderProps {
   client: Client;
