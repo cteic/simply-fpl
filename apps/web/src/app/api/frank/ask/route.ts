@@ -12,7 +12,7 @@ const FEATURE_FRANK_ONDEMAND_SERVER = process.env['FEATURE_FRANK_ONDEMAND'] === 
 const FRANK_MODEL = 'claude-haiku-4-5-20251001';
 const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
 
 interface AskBody {
   question: string;
