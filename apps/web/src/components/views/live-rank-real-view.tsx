@@ -15,10 +15,12 @@ import {
   getKitUrl,
   predictBonusPoints,
 } from '@simplyfpl/fpl-client';
-import type { BonusPrediction } from '@simplyfpl/fpl-client';
+import type { BonusPrediction, LiveRankEstimate } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
+  FplEntrySnapshot,
+  FplFixture,
   FplLiveGameweek,
   FplPlayer,
 } from '@simplyfpl/types';
@@ -49,9 +51,22 @@ import {
 import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
+import type { CohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
 
 import type { LivePitchPlayer } from './live-pitch';
+
+export interface LiveRankDataOverride {
+  snapshot: FplEntrySnapshot | undefined;
+  snapshotLoading: boolean;
+  snapshotError: boolean;
+  liveGw: FplLiveGameweek | undefined;
+  fixtures: FplFixture[] | undefined;
+  aggregates?: CohortAggregates | undefined;
+  estimate: LiveRankEstimate | null;
+  agoMs: number | null;
+  replayBanner?: string;
+}
 
 const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 const { computeLiveBattle } = liveBattle;
@@ -250,9 +265,13 @@ function SubsToggleButton({ label, active, onPress }: SubsToggleButtonProps) {
 
 interface LiveRankRealViewProps {
   entryId?: number;
+  dataOverride?: LiveRankDataOverride;
 }
 
-export function LiveRankRealView({ entryId: entryIdProp }: LiveRankRealViewProps = {}) {
+export function LiveRankRealView({
+  entryId: entryIdProp,
+  dataOverride,
+}: LiveRankRealViewProps = {}) {
   const params = useParams();
   const entryId = entryIdProp ?? parseEntryIdParam(params?.entryId);
 
@@ -267,29 +286,37 @@ export function LiveRankRealView({ entryId: entryIdProp }: LiveRankRealViewProps
     );
   }
 
+  if (dataOverride) {
+    return <LiveRankInner entryId={entryId} dataOverride={dataOverride} />;
+  }
   return <LiveRankInner entryId={entryId} />;
 }
 
 interface InnerProps {
   entryId: number;
+  dataOverride?: LiveRankDataOverride;
 }
 
-function LiveRankInner({ entryId }: InnerProps) {
+function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const heroSurface = featureSurfaceStyle(resolveThemeName(useThemeName()), 'panel');
-  const {
-    data: snapshot,
-    isLoading: snapshotLoading,
-    isError: snapshotError,
-  } = useEntrySnapshot(entryId);
+  const queryEntryId = dataOverride ? null : entryId;
+  const liveSnapshotQuery = useEntrySnapshot(queryEntryId);
+  const snapshot = dataOverride ? dataOverride.snapshot : liveSnapshotQuery.data;
+  const snapshotLoading = dataOverride ? dataOverride.snapshotLoading : liveSnapshotQuery.isLoading;
+  const snapshotError = dataOverride ? dataOverride.snapshotError : liveSnapshotQuery.isError;
   const bootstrap = snapshot?.bootstrap;
   const entry = snapshot?.entry;
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
-  const aggregates = useCohortAggregates(currentGw);
+  const cohortGw = dataOverride ? null : currentGw;
+  const liveAggregates = useCohortAggregates(cohortGw);
+  const aggregates = dataOverride ? dataOverride.aggregates : liveAggregates;
   const [ownershipMode, setOwnershipMode] = useState<OwnershipMode>('global');
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
-  const { data: liveGw } = useLiveSnapshot(currentGw);
-  const { data: fixtures } = useFixtures(currentGw);
+  const liveGwQuery = useLiveSnapshot(dataOverride ? null : currentGw);
+  const liveGw = dataOverride ? dataOverride.liveGw : liveGwQuery.data;
+  const fixturesQuery = useFixtures(dataOverride ? null : currentGw);
+  const fixtures = dataOverride ? dataOverride.fixtures : fixturesQuery.data;
   const liveLoading = liveGw === undefined;
 
   const ready = entry && picks && liveGw && bootstrap;
@@ -365,10 +392,12 @@ function LiveRankInner({ entryId }: InnerProps) {
   }
 
   const teamName = entry?.name ?? '—';
-  const { estimate } = useLiveRankEstimate(entryId);
+  const liveEstimate = useLiveRankEstimate(dataOverride ? null : entryId);
+  const estimate = dataOverride ? dataOverride.estimate : liveEstimate.estimate;
   const heroRank =
     showPostSubs && rankDetails ? rankDetails.postSubsRank : (estimate?.liveRank ?? null);
-  const agoMs = useLiveAgoMs();
+  const liveAgoMs = useLiveAgoMs();
+  const agoMs = dataOverride ? dataOverride.agoMs : liveAgoMs;
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
