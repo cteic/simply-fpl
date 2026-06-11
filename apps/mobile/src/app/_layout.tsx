@@ -80,6 +80,10 @@ export default function RootLayout() {
             />
             <Tabs.Screen name="h2h" options={{ title: 'Head to Head', tabBarLabel: 'H2H' }} />
             <Tabs.Screen
+              name="planner"
+              options={{ title: 'Transfer Planner', tabBarLabel: 'Planner' }}
+            />
+            <Tabs.Screen
               name="prices"
               options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
             />
