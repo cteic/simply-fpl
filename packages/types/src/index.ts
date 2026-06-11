@@ -277,3 +277,4 @@ export interface ScoreDistributionFile {
 export type Percentiles = ScorePercentiles;
 
 export * from './db';
+export * from './frank';
