@@ -27,6 +27,7 @@ import {
 } from '@simplyfpl/ui';
 import type { DifferentialPlayer } from '@simplyfpl/ui';
 
+import { useFlipAnimation } from '@/hooks/use-flip-animation';
 import { useBootstrap, useClassicLeague, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
 
 const { computeDifferentials, computeRivalsBoard, selectRivalEntryIds, useRivalPicks } = rivals;
@@ -275,13 +276,18 @@ function RivalsBoardSection({
   }, [ready, userEntryId, standings, rivalsData, liveGw, bootstrap]);
 
   const orderedRows = useMemo(() => {
-    return includedEntryIds.flatMap((entryId) => {
+    const rowByEntry = new Map(board.map((r) => [r.entryId, r]));
+    // When live data is available, sort by live points (board order); fall back to league rank.
+    const orderedIds = board.length > 0 ? board.map((r) => r.entryId) : includedEntryIds;
+    return orderedIds.flatMap((entryId) => {
       const standing = standingsByEntry.get(entryId);
       if (!standing) return [];
-      const row = board.find((r) => r.entryId === entryId);
-      return [{ entryId, standing, row }];
+      return [{ entryId, standing, row: rowByEntry.get(entryId) }];
     });
-  }, [includedEntryIds, standingsByEntry, board]);
+  }, [board, includedEntryIds, standingsByEntry]);
+
+  const orderedKeys = useMemo(() => orderedRows.map((r) => r.entryId), [orderedRows]);
+  const boardRef = useFlipAnimation(orderedKeys);
 
   const rivalAbove = useMemo(() => {
     return [...rivalEntryIds]
@@ -335,42 +341,47 @@ function RivalsBoardSection({
         </Card>
       ) : null}
 
-      <YStack gap={10} marginBottom={20} data-testid="rivals-board">
-        {orderedRows.length === 0 ? (
-          <Card paddingHorizontal={16} paddingVertical={14}>
-            <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-              No rival data yet — picks are still loading.
-            </Text>
-          </Card>
-        ) : (
-          orderedRows.map(({ entryId, standing, row }) => {
-            const isYou = entryId === userEntryId;
-            const captainEl = row?.captainElement ?? null;
-            const captainPts =
-              captainEl !== null ? (liveLookup?.get(captainEl)?.stats.total_points ?? null) : null;
-            const erroredCell = picksErrors.has(entryId);
-            return (
-              <RivalCell
-                key={entryId}
-                rank={standing.rank}
-                managerName={standing.player_name}
-                teamName={standing.entry_name}
-                livePoints={row?.livePoints ?? 0}
-                captainName={
-                  captainEl !== null ? (playerLookup?.get(captainEl)?.web_name ?? null) : null
-                }
-                captainPoints={erroredCell ? null : captainPts}
-                captainMultiplier={row?.captainMultiplier ?? 1}
-                activeChip={row?.activeChip ?? null}
-                transferHits={row?.transferHits ?? 0}
-                benchPointsWasted={row?.benchPointsWasted ?? 0}
-                isYou={isYou}
-                {...(isYou ? {} : { onPress: () => {} })}
-              />
-            );
-          })
-        )}
-      </YStack>
+      <div ref={boardRef} data-testid="rivals-board">
+        <YStack gap={10} marginBottom={20}>
+          {orderedRows.length === 0 ? (
+            <Card paddingHorizontal={16} paddingVertical={14}>
+              <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+                No rival data yet — picks are still loading.
+              </Text>
+            </Card>
+          ) : (
+            orderedRows.map(({ entryId, standing, row }) => {
+              const isYou = entryId === userEntryId;
+              const captainEl = row?.captainElement ?? null;
+              const captainPts =
+                captainEl !== null
+                  ? (liveLookup?.get(captainEl)?.stats.total_points ?? null)
+                  : null;
+              const erroredCell = picksErrors.has(entryId);
+              return (
+                <div key={entryId} data-rival-key={String(entryId)}>
+                  <RivalCell
+                    rank={standing.rank}
+                    managerName={standing.player_name}
+                    teamName={standing.entry_name}
+                    livePoints={row?.livePoints ?? 0}
+                    captainName={
+                      captainEl !== null ? (playerLookup?.get(captainEl)?.web_name ?? null) : null
+                    }
+                    captainPoints={erroredCell ? null : captainPts}
+                    captainMultiplier={row?.captainMultiplier ?? 1}
+                    activeChip={row?.activeChip ?? null}
+                    transferHits={row?.transferHits ?? 0}
+                    benchPointsWasted={row?.benchPointsWasted ?? 0}
+                    isYou={isYou}
+                    {...(isYou ? {} : { onPress: () => {} })}
+                  />
+                </div>
+              );
+            })
+          )}
+        </YStack>
+      </div>
 
       {differentials && rivalAbove ? (
         <YStack marginBottom={20}>
