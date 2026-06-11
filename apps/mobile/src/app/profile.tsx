@@ -23,6 +23,67 @@ export default function ProfileScreen() {
     await signOut();
   }
 
+  function renderAccount() {
+    if (isLoading) {
+      return (
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          Loading…
+        </Text>
+      );
+    }
+    if (session) {
+      return (
+        <YStack gap={10}>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+              Email
+            </Text>
+            <Text fontFamily="$body" fontSize={13} color="$color">
+              {user?.email ?? '—'}
+            </Text>
+          </XStack>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+              Plan
+            </Text>
+            <Text fontFamily="$body" fontSize={13} color="$color">
+              {isPro ? 'Pro' : 'Free'}
+            </Text>
+          </XStack>
+          <XStack marginTop={4}>
+            <Button
+              tone="ghost"
+              size="sm"
+              onPress={() => {
+                handleSignOut();
+              }}
+            >
+              Sign out
+            </Button>
+          </XStack>
+        </YStack>
+      );
+    }
+    return (
+      <YStack gap={10}>
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          Sign in to sync your team and unlock Pro features.
+        </Text>
+        <XStack>
+          <Button
+            tone="primary"
+            size="md"
+            onPress={() => {
+              router.navigate('/login');
+            }}
+          >
+            Sign in
+          </Button>
+        </XStack>
+      </YStack>
+    );
+  }
+
   return (
     <Screen>
       <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
@@ -47,58 +108,7 @@ export default function ProfileScreen() {
 
       <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
         <SectionHeader title="Account" />
-        {isLoading ? (
-          <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Loading…
-          </Text>
-        ) : session ? (
-          <YStack gap={10}>
-            <XStack justifyContent="space-between" alignItems="center">
-              <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-                Email
-              </Text>
-              <Text fontFamily="$body" fontSize={13} color="$color">
-                {user?.email ?? '—'}
-              </Text>
-            </XStack>
-            <XStack justifyContent="space-between" alignItems="center">
-              <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-                Plan
-              </Text>
-              <Text fontFamily="$body" fontSize={13} color="$color">
-                {isPro ? 'Pro' : 'Free'}
-              </Text>
-            </XStack>
-            <XStack marginTop={4}>
-              <Button
-                tone="ghost"
-                size="sm"
-                onPress={() => {
-                  handleSignOut();
-                }}
-              >
-                Sign out
-              </Button>
-            </XStack>
-          </YStack>
-        ) : (
-          <YStack gap={10}>
-            <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-              Sign in to sync your team and unlock Pro features.
-            </Text>
-            <XStack>
-              <Button
-                tone="primary"
-                size="md"
-                onPress={() => {
-                  router.navigate('/login');
-                }}
-              >
-                Sign in
-              </Button>
-            </XStack>
-          </YStack>
-        )}
+        {renderAccount()}
       </Card>
 
       <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
