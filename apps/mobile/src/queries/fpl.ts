@@ -2,6 +2,55 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fplClient, getCurrentGameweek } from '@simplyfpl/fpl-client';
 
+const API_BASE_URL = process.env['EXPO_PUBLIC_API_URL'] ?? 'http://localhost:8787';
+
+export interface SlimPriceChange {
+  id: number;
+  web_name: string;
+  element_type: number;
+  team_name: string;
+  now_cost: number;
+  ownership: number;
+  direction: 'rise' | 'fall';
+  probability: number;
+}
+
+export interface SlimPricesResponse {
+  generated_at: string;
+  changes: SlimPriceChange[];
+}
+
+function isSlimPricesResponse(value: unknown): value is SlimPricesResponse {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'generated_at' in value &&
+    'changes' in value &&
+    Array.isArray(value.changes)
+  );
+}
+
+async function fetchSlimPrices(): Promise<SlimPricesResponse> {
+  const res = await fetch(`${API_BASE_URL}/fpl/prices`);
+  if (!res.ok) {
+    throw new Error(`/fpl/prices ${res.status} ${res.statusText}`);
+  }
+  const json: unknown = await res.json();
+  if (!isSlimPricesResponse(json)) {
+    throw new Error('/fpl/prices: unexpected response shape');
+  }
+  return json;
+}
+
+export function usePrices() {
+  return useQuery({
+    queryKey: ['prices-slim'],
+    queryFn: fetchSlimPrices,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+  });
+}
+
 export function useBootstrap() {
   return useQuery({
     queryKey: ['bootstrap'],
