@@ -1,15 +1,24 @@
 import { useMemo, useState } from 'react';
 
-import { formatPrice, getClubColor, predictPriceChanges } from '@simplyfpl/fpl-client';
-import { Card, FNote, FilterButton, PriceRow, Text, XStack, YStack } from '@simplyfpl/ui';
+import { formatPrice, getClubColor } from '@simplyfpl/fpl-client';
+import {
+  Card,
+  FNote,
+  FilterButton,
+  PriceRow,
+  SkeletonPrices,
+  Text,
+  XStack,
+  YStack,
+} from '@simplyfpl/ui';
 
 import { Screen } from '@/components/screen';
-import { useBootstrap } from '@/queries/fpl';
+import { usePrices } from '@/queries/fpl';
 
 const FILTERS = ['All', 'Risers', 'Fallers', 'GK', 'DEF', 'MID', 'FWD'] as const;
 type Filter = (typeof FILTERS)[number];
 
-const POSITION_BY_ELEMENT_TYPE: Record<number, Filter> = {
+const POSITION_BY_ELEMENT_TYPE: Record<number, Filter | undefined> = {
   1: 'GK',
   2: 'DEF',
   3: 'MID',
@@ -17,25 +26,25 @@ const POSITION_BY_ELEMENT_TYPE: Record<number, Filter> = {
 };
 
 export function PricesView() {
-  const { data: bootstrap, isLoading, isError } = useBootstrap();
+  const { data: prices, isLoading, isError } = usePrices();
   const [filter, setFilter] = useState<Filter>('All');
 
   const rows = useMemo(() => {
-    if (!bootstrap) return [];
-    return predictPriceChanges(bootstrap).map((change) => {
-      const positionLabel = POSITION_BY_ELEMENT_TYPE[change.player.element_type] ?? 'MID';
+    if (!prices) return [];
+    return prices.changes.map((change) => {
+      const positionLabel = POSITION_BY_ELEMENT_TYPE[change.element_type] ?? 'MID';
       return {
-        id: change.player.id,
-        name: change.player.web_name,
-        club: `${positionLabel} · ${change.team.name} · ${formatPrice(change.player.now_cost)}`,
-        flow: (change.direction === 'rise' ? 'rise' : 'fall') as 'rise' | 'fall',
+        id: change.id,
+        name: change.web_name,
+        club: `${positionLabel} · ${change.team_name} · ${formatPrice(change.now_cost)}`,
+        accentColor: getClubColor(change.team_name),
+        flow: change.direction,
         value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
         probability: Math.round(change.probability * 100),
         position: positionLabel,
-        accentColor: getClubColor(change.team.short_name),
       };
     });
-  }, [bootstrap]);
+  }, [prices]);
 
   const visibleRows = useMemo(
     () =>
@@ -55,7 +64,7 @@ export function PricesView() {
           Price Changes
         </Text>
         <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={4}>
-          Predictions update daily · Based on net transfers
+          Predictions update daily at midnight · Based on net transfers
         </Text>
       </YStack>
 
@@ -67,13 +76,7 @@ export function PricesView() {
         ))}
       </XStack>
 
-      {isLoading ? (
-        <Card paddingHorizontal={16} paddingVertical={28}>
-          <Text fontFamily="$body" fontSize={12} color="$colorSubtle" textAlign="center">
-            Loading price predictions…
-          </Text>
-        </Card>
-      ) : null}
+      {isLoading ? <SkeletonPrices /> : null}
 
       {isError ? (
         <Card paddingHorizontal={16} paddingVertical={28}>
