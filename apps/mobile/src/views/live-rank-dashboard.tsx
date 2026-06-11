@@ -4,6 +4,7 @@ import { liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
+  computeRankDetails,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
@@ -19,6 +20,8 @@ import {
   BenchDivider,
   CohortTable,
   FNote,
+  Logo,
+  NumberTicker,
   Pitch,
   PitchRow,
   Player,
@@ -34,11 +37,14 @@ import { RankSparkline } from '@/components/rank-sparkline';
 import { Screen } from '@/components/screen';
 import { StadiumGradient } from '@/components/stadium-gradient';
 import { StatTile } from '@/components/stat-tile';
+import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
 const { useLiveRankEstimate } = liveRank;
 
 const POSITION: Record<number, ShirtKind> = { 1: 'gk', 2: 'def', 3: 'mid', 4: 'fwd' };
+
+type SubsMode = 'pre' | 'post';
 
 interface PitchPlayer {
   key: number;
@@ -186,9 +192,33 @@ function LiveDot() {
       width={6}
       height={6}
       borderRadius={99}
-      backgroundColor="#5EEAD4"
+      backgroundColor="#34D399"
       opacity={bright ? 1 : 0.3}
     />
+  );
+}
+
+interface SubsToggleButtonProps {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}
+
+function SubsToggleButton({ label, active, onPress }: SubsToggleButtonProps) {
+  return (
+    <Text
+      onPress={onPress}
+      fontFamily="$body"
+      fontSize={11}
+      fontWeight="600"
+      paddingHorizontal={11}
+      paddingVertical={4}
+      color={active ? '#0B4F49' : 'rgba(255,255,255,0.78)'}
+      backgroundColor={active ? '#34D399' : 'transparent'}
+      pressStyle={{ opacity: 0.7 }}
+    >
+      {label}
+    </Text>
   );
 }
 
@@ -205,7 +235,9 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const currentGw = snapshot?.gw ?? null;
   const { data: liveGw } = useLiveGameweek(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
+  const aggregates = useCohortAggregates(currentGw);
   const { estimate } = useLiveRankEstimate(entryId);
+  const [subsMode, setSubsMode] = useState<SubsMode>('pre');
 
   if (isError) {
     return (
@@ -235,14 +267,33 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     postSubsPicks && liveGw && bootstrap
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
+  const preGwRank = entry?.summary_overall_rank ?? 0;
+  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const rankDetails =
+    ready && entry
+      ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
+      : null;
+  const autosubsApply = postSubsPoints !== livePoints;
+  const showPostSubs = autosubsApply && subsMode === 'post';
+  const displayedPoints = showPostSubs ? postSubsPoints : livePoints;
+  const provisionalBonusTotal =
+    ready && picks
+      ? picks.picks
+          .filter((p) => p.position <= 11)
+          .reduce((sum, p) => {
+            const info = bonusMap.get(p.element);
+            const bonus = info && info.provisional ? info.bonus : 0;
+            return sum + bonus * p.multiplier;
+          }, 0)
+      : 0;
   const formation = picks && bootstrap ? deriveFormation(picks, bootstrap) : '4–4–2';
   const pitchRows =
     picks && bootstrap && liveGw ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = picks && bootstrap && liveGw ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
 
-  let liveRankLabel = '—';
-  if (estimate) liveRankLabel = estimate.liveRank.toLocaleString();
+  const heroRank =
+    showPostSubs && rankDetails ? rankDetails.postSubsRank : (estimate?.liveRank ?? null);
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
@@ -255,6 +306,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
 
   let captainName = '—';
   let captainSub = 'no captain set';
+  let captainPointsValue: number | null = null;
   const captainPick = picks?.picks.find((p) => p.is_captain);
   if (ready && captainPick && bootstrap && liveGw) {
     const captainPlayer = bootstrap.elements.find((e) => e.id === captainPick.element);
@@ -263,15 +315,36 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     const captainPts = (captainLive?.stats.total_points ?? 0) * captainPick.multiplier;
     captainName = captainPlayer?.web_name ?? '—';
     captainSub = `×${captainPick.multiplier} · ${captainTbp ? 'TBP' : `${captainPts} pts`}`;
+    captainPointsValue = captainTbp ? null : captainPts;
   }
 
-  const gwSub =
-    ready && postSubsPoints !== livePoints ? `Post-subs ${postSubsPoints}` : 'live points';
+  const liveById = liveGw ? new Map(liveGw.elements.map((e) => [e.id, e])) : null;
+  const playersPlayed =
+    ready && picks && liveById
+      ? picks.picks.filter(
+          (p) => p.position <= 11 && (liveById.get(p.element)?.stats.minutes ?? 0) > 0
+        ).length
+      : null;
+
+  const top10kAvg = aggregates?.tiers.top_10k?.avg_event_points;
+  const overallAvg = aggregates?.tiers.overall?.avg_event_points;
+  const legendaryAvg = aggregates?.tiers.legendary?.avg_event_points;
+
+  let gwSub = 'live points';
+  if (ready && autosubsApply) {
+    gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
+  }
+
+  const showSafety = overallAvg != null;
+  const showOffTop10k = ready && top10kAvg != null;
+  const safetyValue = overallAvg != null ? String(Math.round(overallAvg)) : '—';
+  const offTop10kValue =
+    ready && top10kAvg != null ? String(Math.max(0, Math.round(top10kAvg) - livePoints)) : '—';
 
   const tiles = [
     {
       label: 'GW Points',
-      value: String(ready ? livePoints : '—'),
+      value: String(ready ? displayedPoints : '—'),
       sub: gwSub,
       accent: '$positive',
     },
@@ -282,21 +355,66 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
       sub: 'autosubs ready',
       accent: '$colorSubtle',
     },
+    ...(showSafety
+      ? [
+          {
+            label: 'Safety Score',
+            value: safetyValue,
+            sub: 'green-arrow line',
+            accent: '$positive',
+          },
+        ]
+      : []),
+    ...(showOffTop10k
+      ? [
+          {
+            label: 'Off Top 10k',
+            value: offTop10kValue,
+            sub: 'points behind',
+            accent: '$warning',
+          },
+        ]
+      : []),
     { label: 'Captain', value: captainName, sub: captainSub, accent: '$negative' },
   ];
 
-  const cohortRows: CohortTableRow[] = [
-    { label: 'Score', you: ready ? livePoints : '—', top10k: 80, overall: 65, legendary: 77 },
-    { label: 'Players played', you: '—', top10k: 9, overall: 8, legendary: 10 },
-    { label: 'Budget played', you: '—', top10k: '£82m', overall: '£78m', legendary: '£89m' },
-    { label: 'Captain pts', you: '—', top10k: 14, overall: 10, legendary: 18 },
-  ];
+  const cohortRows: CohortTableRow[] =
+    aggregates && ready
+      ? [
+          {
+            label: 'Score',
+            you: livePoints,
+            top10k: top10kAvg != null ? Math.round(top10kAvg) : '—',
+            overall: overallAvg != null ? Math.round(overallAvg) : '—',
+            legendary: legendaryAvg != null ? Math.round(legendaryAvg) : '—',
+          },
+          {
+            label: 'Players played',
+            you: playersPlayed ?? '—',
+            top10k: '—',
+            overall: '—',
+            legendary: '—',
+          },
+          { label: 'Budget played', you: '—', top10k: '—', overall: '—', legendary: '—' },
+          {
+            label: 'Captain pts',
+            you: captainPointsValue ?? '—',
+            top10k: '—',
+            overall: '—',
+            legendary: '—',
+          },
+        ]
+      : [];
+  const hasCohortData = cohortRows.length > 0;
 
   const isLoading = snapshotLoading || liveGw === undefined;
 
   return (
     <Screen topInset>
       <StadiumGradient borderRadius={14} paddingHorizontal={22} paddingVertical={22}>
+        <YStack marginBottom={12}>
+          <Logo variant="lockup" tone="stadium" size="md" />
+        </YStack>
         <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
           <Text
             fontFamily="$body"
@@ -304,14 +422,37 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             fontWeight="600"
             textTransform="uppercase"
             letterSpacing={1.4}
-            color="#5EEAD4"
+            color="#34D399"
           >
             est. live rank
           </Text>
-          <TeamPill teamId={entryId} onPress={onChangeTeam} />
+          {autosubsApply ? (
+            <XStack
+              alignItems="center"
+              borderWidth={1}
+              borderColor="rgba(255,255,255,0.28)"
+              borderRadius={99}
+              overflow="hidden"
+            >
+              <SubsToggleButton
+                label="Pre"
+                active={subsMode === 'pre'}
+                onPress={() => setSubsMode('pre')}
+              />
+              <SubsToggleButton
+                label="Post"
+                active={subsMode === 'post'}
+                onPress={() => setSubsMode('post')}
+              />
+            </XStack>
+          ) : (
+            <TeamPill teamId={entryId} onPress={onChangeTeam} />
+          )}
         </XStack>
 
-        <Text
+        <NumberTicker
+          value={heroRank}
+          format={(n) => n.toLocaleString()}
           fontFamily="$mono"
           fontSize={52}
           lineHeight={56}
@@ -319,15 +460,13 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           letterSpacing={-2}
           color="#FFFFFF"
           marginTop={6}
-        >
-          {liveRankLabel}
-        </Text>
+        />
 
         <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
           {movementLabel ? (
             <XStack
               alignItems="center"
-              backgroundColor="#5EEAD4"
+              backgroundColor="#34D399"
               paddingHorizontal={10}
               paddingVertical={3}
               borderRadius={99}
@@ -357,11 +496,32 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           </Text>
         </XStack>
 
+        {rankDetails ? (
+          <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
+            <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
+              {showPostSubs
+                ? `Pre-subs ~${rankDetails.preSubsRank.toLocaleString()}`
+                : `Post-subs ~${rankDetails.postSubsRank.toLocaleString()}`}
+            </Text>
+            <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
+              was {rankDetails.oldRank.toLocaleString()}
+            </Text>
+            <Text
+              fontFamily="$mono"
+              fontSize={12.5}
+              color={rankDetails.changePct >= 0 ? '#34D399' : 'rgba(255,255,255,0.8)'}
+            >
+              {rankDetails.changePct >= 0 ? '+' : ''}
+              {rankDetails.changePct.toFixed(1)}%
+            </Text>
+          </XStack>
+        ) : null}
+
         <RankSparkline />
 
         <XStack alignItems="center" gap={10} marginTop={12}>
           <YStack flex={1} height={4} borderRadius={2} backgroundColor="rgba(255,255,255,0.18)">
-            <YStack height={4} borderRadius={2} backgroundColor="#5EEAD4" width="35%" />
+            <YStack height={4} borderRadius={2} backgroundColor="#34D399" width="35%" />
           </YStack>
           <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.7)">
             {isLoading ? 'loading…' : 'refreshes every 60s'}
@@ -426,15 +586,30 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
               </PitchRow>
             </>
           ) : null}
+          {ready && provisionalBonusTotal > 0 ? (
+            <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={8}>
+              Includes provisional bonus (
+              <Text fontFamily="$mono" fontSize={10.5} color="$colorMuted">
+                +{provisionalBonusTotal}b?
+              </Text>
+              ) — not yet confirmed by FPL
+            </Text>
+          ) : null}
         </Pitch>
       </YStack>
 
       <YStack backgroundColor="$surface" paddingHorizontal={16} paddingVertical={12} gap={6}>
         <SectionHeader title="Cohort comparison" />
-        <CohortTable
-          rows={cohortRows}
-          footer="Placeholder data — real cohort numbers landing this week"
-        />
+        {hasCohortData ? (
+          <CohortTable
+            rows={cohortRows}
+            footer="Live cohort data refreshes every 60s · more breakdowns coming soon"
+          />
+        ) : (
+          <Text fontFamily="$body" fontSize={12.5} color="$colorMuted">
+            Cohort benchmarks loading…
+          </Text>
+        )}
       </YStack>
 
       <XStack justifyContent="center">
