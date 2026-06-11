@@ -186,6 +186,30 @@ describeFeature(feature, ({ Scenario }) => {
     }
   );
 
+  Scenario(
+    'Mid-size league with fewer than 20 members shows all members as rivals',
+    ({ Given, When, Then, And }) => {
+      let standings: FplLeagueStanding[] = [];
+      let result: SelectRivalsResult;
+
+      Given('a league with 12 entries and I sit at rank 7', () => {
+        standings = Array.from({ length: 12 }, (_, i) => makeStanding(200 + i, i + 1));
+      });
+
+      When('I select rivals', () => {
+        result = selectRivalEntryIds(standings, 206);
+      });
+
+      Then('all 11 other entries should be rivals', () => {
+        expect(result.rivalEntryIds).toHaveLength(11);
+      });
+
+      And('the whole-league flag should be true', () => {
+        expect(result.isWholeLeague).toBe(true);
+      });
+    }
+  );
+
   Scenario('Small league renders every other manager as a rival', ({ Given, When, Then, And }) => {
     let standings: FplLeagueStanding[] = [];
     let result: SelectRivalsResult;
