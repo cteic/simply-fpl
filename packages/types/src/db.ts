@@ -1,4 +1,4 @@
-// Supabase database schema — matches supabase/migrations/0001_init.sql
+// Supabase database schema — matches supabase/migrations/*.sql
 
 export type Tier = 'free' | 'pro' | 'ultimate';
 
@@ -73,6 +73,87 @@ export interface Database {
         };
         Update: {
           position?: number;
+        };
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          platform: 'web';
+          endpoint: string;
+          p256dh: string;
+          auth_key: string;
+          created_at: string;
+          last_used_at: string | null;
+          last_error: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          platform: 'web';
+          endpoint: string;
+          p256dh: string;
+          auth_key: string;
+          last_used_at?: string | null;
+          last_error?: string | null;
+        };
+        Update: {
+          last_used_at?: string | null;
+          last_error?: string | null;
+        };
+        Relationships: [];
+      };
+      notification_prefs: {
+        Row: {
+          user_id: string;
+          deadline_reminder: boolean;
+          captain_scored: boolean;
+          bonus_confirmed: boolean;
+          price_drop: boolean;
+          rank_swing: boolean;
+          rank_swing_threshold: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          deadline_reminder?: boolean;
+          captain_scored?: boolean;
+          bonus_confirmed?: boolean;
+          price_drop?: boolean;
+          rank_swing?: boolean;
+          rank_swing_threshold?: number;
+          updated_at?: string;
+        };
+        Update: {
+          deadline_reminder?: boolean;
+          captain_scored?: boolean;
+          bonus_confirmed?: boolean;
+          price_drop?: boolean;
+          rank_swing?: boolean;
+          rank_swing_threshold?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      notification_log: {
+        Row: {
+          id: number;
+          user_id: string | null;
+          event: string;
+          payload: unknown;
+          sent_at: string;
+          clicked_at: string | null;
+        };
+        Insert: {
+          user_id?: string | null;
+          event: string;
+          payload?: unknown;
+          sent_at?: string;
+          clicked_at?: string | null;
+        };
+        Update: {
+          clicked_at?: string | null;
         };
         Relationships: [];
       };

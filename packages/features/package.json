@@ -21,7 +21,8 @@
     "./live-battle": "./src/live-battle/index.ts",
     "./effective-ownership": "./src/effective-ownership/index.ts",
     "./replay": "./src/replay/index.ts",
-    "./frank": "./src/frank/index.ts"
+    "./frank": "./src/frank/index.ts",
+    "./push": "./src/push/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

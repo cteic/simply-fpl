@@ -51,17 +51,27 @@ LEAGUE_TTL = "90"
 # Falls back to "unknown" on /status if not set.
 GIT_SHA = "unknown"
 
+# Web push VAPID subject — surfaced to push services if they need to reach the sender.
+# Public key and private key are secrets (see below).
+VAPID_SUBJECT = "mailto:pete@cteic.ie"
+
 # Cohort engine cron triggers — see docs/rfcs/004-cohort-engine.md
 # DISABLED by default. Uncomment to enable after setting Supabase secrets:
 #   wrangler secret put SUPABASE_URL
 #   wrangler secret put SUPABASE_SERVICE_ROLE
+#
+# Web push secrets (set via wrangler secret put before deploying):
+#   wrangler secret put VAPID_PUBLIC_KEY
+#   wrangler secret put VAPID_PRIVATE_KEY
+#   wrangler secret put NOTIFY_DISPATCH_SECRET
 [triggers]
 crons = [
-  "*/10 * * * *",  # live-GW cadence
+  "*/10 * * * *",  # live-GW cadence + captain-scored check
   "0 */6 * * *",   # idle cadence
   "*/15 * * * *",  # /fpl/prices KV warm — keep bootstrap + slim prices hot
   "0 6 * * 1",      # weekly speed-comparison (Mon 06:00 UTC)
   "*/10 14-18 * * 1",
-  "0 6 * * 2"       # Frank weekly AI advice cache (Tue 06:00 UTC, after GW deadline Mon)
+  "0 6 * * 2",      # Frank weekly AI advice cache (Tue 06:00 UTC, after GW deadline Mon)
+  "30 17 * * *"     # GW deadline reminder (30 min before typical 18:00 UTC deadline)
 ]
 

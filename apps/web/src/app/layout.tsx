@@ -2,8 +2,10 @@ import { DM_Mono, DM_Sans } from 'next/font/google';
 
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
+import { ServiceWorkerInitializer } from '@/components/service-worker-initializer';
 import { StaleDataBanner } from '@/components/stale-data-banner';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
+import { FEATURE_WEB_PUSH } from '@/lib/feature-flags';
 import { rootMetadata } from '@/lib/metadata';
 
 import '../../public/tamagui.css';
@@ -35,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <NavBar />
             <StaleDataBanner />
+            {FEATURE_WEB_PUSH ? <ServiceWorkerInitializer /> : null}
             {children}
           </Providers>
         </TamaguiClientProvider>

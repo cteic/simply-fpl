@@ -4,11 +4,12 @@ import { useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { auth, theme as themeFeature } from '@simplyfpl/features';
+import { auth, push, theme as themeFeature } from '@simplyfpl/features';
 import {
   Button,
   Card,
   FNote,
+  NotificationsSettings,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -18,13 +19,17 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
+import { FEATURE_WEB_PUSH, VAPID_PUBLIC_KEY } from '@/lib/feature-flags';
+
 const { useAuth } = auth;
 const { useThemeMode } = themeFeature;
+const { useNotificationsOptIn } = push;
 
 export function SettingsView() {
   const router = useRouter();
   const { session, user, isPro, isLoading, signOut } = useAuth();
   const { theme: activeTheme, setTheme } = useThemeMode();
+  const notifications = useNotificationsOptIn({ vapidPublicKey: VAPID_PUBLIC_KEY });
 
   useEffect(() => {
     if (!isLoading && !session) {
@@ -86,6 +91,31 @@ export function SettingsView() {
           </XStack>
         </YStack>
       </Card>
+
+      {FEATURE_WEB_PUSH ? (
+        <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
+          <SectionHeader title="Notifications" />
+          <YStack gap={12} marginTop={8}>
+            <NotificationsSettings
+              isPro={isPro}
+              permission={notifications.permission}
+              isSubscribed={notifications.isSubscribed}
+              isLoading={notifications.isLoading}
+              prefs={notifications.prefs}
+              error={notifications.error}
+              onSubscribe={() => {
+                notifications.subscribe();
+              }}
+              onUnsubscribe={() => {
+                notifications.unsubscribe();
+              }}
+              onTogglePref={(key, value) => {
+                notifications.updatePrefs({ [key]: value });
+              }}
+            />
+          </YStack>
+        </Card>
+      ) : null}
 
       <FNote>More account controls coming once subscriptions launch.</FNote>
     </PageShell>
