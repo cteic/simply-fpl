@@ -254,4 +254,26 @@ export interface ScoreDistribution {
   histogram: ScoreHistogramBin[];
 }
 
+export type RankDistributionCohort = 'overall' | 'top_10k' | 'legendary';
+
+export interface RankDistribution extends ScoreDistribution {
+  gw: number;
+  cohort: RankDistributionCohort;
+}
+
+export interface ScoreDistributionFileCohorts {
+  top_10k?: ScoreDistribution;
+  overall?: ScoreDistribution;
+  legendary?: ScoreDistribution;
+}
+
+export interface ScoreDistributionFile {
+  gw: number;
+  builtAt: string;
+  binSize: number;
+  cohorts: ScoreDistributionFileCohorts;
+}
+
+export type Percentiles = ScorePercentiles;
+
 export * from './db';
