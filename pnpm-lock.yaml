@@ -162,6 +162,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.55.0
+        version: 0.55.1
       '@simplyfpl/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -202,6 +205,9 @@ importers:
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
+      '@amiceli/vitest-cucumber':
+        specifier: 4.7.0
+        version: 4.7.0(@types/node@25.9.2)(lightningcss@1.27.0)(msw@2.14.6(@types/node@25.9.2)(typescript@5.9.3))(terser@5.48.0)
       '@cloudflare/next-on-pages':
         specifier: ^1.13.16
         version: 1.13.16(@cloudflare/workers-types@4.20260426.1)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(wrangler@4.86.0(@cloudflare/workers-types@4.20260426.1))
@@ -235,6 +241,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.55.0
+        version: 0.55.1
       '@cloudflare/puppeteer':
         specifier: ^1.1.0
         version: 1.1.0
@@ -432,6 +441,13 @@ packages:
     resolution:
       {
         integrity: sha512-/ZOdD7CQUeEUcJoWbdbNLzFKXBq7Uuqm8S/uCiXt+BIQ7lMkpvGUBUYH7I/YUR921DiEVuBR/UYXkCR6La0QIg==,
+      }
+    hasBin: true
+
+  '@anthropic-ai/sdk@0.55.1':
+    resolution:
+      {
+        integrity: sha512-gjOMS4chmm8BxClKmCjNHmvf1FrO1Cn++CSX6K3YCZjz5JG4I9ZttQ/xEH4FBsz6HQyZvnUpiKlOAkmxaGmEaQ==,
       }
     hasBin: true
 
@@ -14002,6 +14018,8 @@ snapshots:
       - supports-color
       - terser
 
+  '@anthropic-ai/sdk@0.55.1': {}
+
   '@babel/code-frame@7.10.4':
     dependencies:
       '@babel/highlight': 7.25.9
@@ -16040,7 +16058,7 @@ snapshots:
 
   '@expo/xcpretty@4.4.3':
     dependencies:
-      '@babel/code-frame': 7.29.0
+      '@babel/code-frame': 7.29.7
       chalk: 4.1.2
       js-yaml: 4.1.1
 
@@ -20006,9 +20024,9 @@ snapshots:
   babel-literal-to-ast@2.1.0(@babel/core@7.29.0):
     dependencies:
       '@babel/core': 7.29.0
-      '@babel/parser': 7.29.2
+      '@babel/parser': 7.29.7
       '@babel/traverse': 7.29.0
-      '@babel/types': 7.29.0
+      '@babel/types': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
@@ -22702,13 +22720,13 @@ snapshots:
 
   metro@0.81.5:
     dependencies:
-      '@babel/code-frame': 7.29.0
+      '@babel/code-frame': 7.29.7
       '@babel/core': 7.29.0
-      '@babel/generator': 7.29.1
-      '@babel/parser': 7.29.2
-      '@babel/template': 7.28.6
+      '@babel/generator': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/template': 7.29.7
       '@babel/traverse': 7.29.0
-      '@babel/types': 7.29.0
+      '@babel/types': 7.29.7
       accepts: 1.3.8
       chalk: 4.1.2
       ci-info: 2.0.0
