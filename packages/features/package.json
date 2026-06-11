@@ -20,7 +20,8 @@
     "./threats": "./src/threats/index.ts",
     "./live-battle": "./src/live-battle/index.ts",
     "./effective-ownership": "./src/effective-ownership/index.ts",
-    "./replay": "./src/replay/index.ts"
+    "./replay": "./src/replay/index.ts",
+    "./frank": "./src/frank/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

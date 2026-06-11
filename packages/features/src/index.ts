@@ -26,3 +26,4 @@ export * as liveBattle from './live-battle';
 export * as effectiveOwnership from './effective-ownership';
 export * as theme from './theme';
 export * as replay from './replay';
+export * as frank from './frank';
