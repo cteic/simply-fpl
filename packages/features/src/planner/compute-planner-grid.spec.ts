@@ -180,4 +180,29 @@ describeFeature(feature, ({ Scenario }) => {
       expect(result[0]?.label).toMatch(/Live/);
     });
   });
+
+  Scenario(
+    'Bench players at positions 12-15 are excluded from the planner grid',
+    ({ Given, When, Then }) => {
+      let result: PlannerGridCell[];
+
+      Given('a squad of 15 players where positions 12-15 are bench players', () => {});
+
+      When('I compute the planner grid starting at GW1 with count 1', () => {
+        const allPlayerIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        const picks = makePicks(allPlayerIds);
+        result = computePlannerGrid({
+          picks,
+          bootstrap: makeBootstrap(1, false, allPlayerIds),
+          fixtures: [makeFixture(1, 1, 2, 1)],
+          startGameweek: 1,
+          count: 1,
+        });
+      });
+
+      Then('the grid cell should contain exactly 11 players', () => {
+        expect(result[0]?.players).toHaveLength(11);
+      });
+    }
+  );
 });
