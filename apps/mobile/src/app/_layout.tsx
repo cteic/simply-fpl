@@ -9,8 +9,13 @@ import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-googl
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { auth } from '@simplyfpl/features';
 import { TamaguiProvider } from '@simplyfpl/ui';
 import { config } from '@simplyfpl/ui/tamagui.config';
+
+import { supabaseClient } from '@/lib/supabase';
+
+const { AuthProvider } = auth;
 
 const COLORS = {
   bg: '#F7F7F5',
@@ -56,36 +61,40 @@ export default function RootLayout() {
     <TamaguiProvider config={config} defaultTheme="stadium">
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <StatusBar style="dark" />
-          <Tabs
-            screenOptions={{
-              tabBarStyle: {
-                backgroundColor: COLORS.surface,
-                borderTopColor: COLORS.border,
-              },
-              tabBarActiveTintColor: COLORS.brand,
-              tabBarInactiveTintColor: COLORS.inactive,
-              headerStyle: { backgroundColor: COLORS.bg },
-              headerTintColor: COLORS.text,
-              headerShadowVisible: false,
-            }}
-          >
-            <Tabs.Screen
-              name="index"
-              options={{ title: 'Live Rank', tabBarLabel: 'Home', headerShown: false }}
-            />
-            <Tabs.Screen
-              name="leagues"
-              options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues' }}
-            />
-            <Tabs.Screen name="h2h" options={{ title: 'Head to Head', tabBarLabel: 'H2H' }} />
-            <Tabs.Screen
-              name="prices"
-              options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
-            />
-            <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
-            <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
-          </Tabs>
+          <AuthProvider client={supabaseClient}>
+            <StatusBar style="dark" />
+            <Tabs
+              screenOptions={{
+                tabBarStyle: {
+                  backgroundColor: COLORS.surface,
+                  borderTopColor: COLORS.border,
+                },
+                tabBarActiveTintColor: COLORS.brand,
+                tabBarInactiveTintColor: COLORS.inactive,
+                headerStyle: { backgroundColor: COLORS.bg },
+                headerTintColor: COLORS.text,
+                headerShadowVisible: false,
+              }}
+            >
+              <Tabs.Screen
+                name="index"
+                options={{ title: 'Live Rank', tabBarLabel: 'Home', headerShown: false }}
+              />
+              <Tabs.Screen
+                name="leagues"
+                options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues' }}
+              />
+              <Tabs.Screen name="h2h" options={{ title: 'Head to Head', tabBarLabel: 'H2H' }} />
+              <Tabs.Screen
+                name="prices"
+                options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
+              />
+              <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
+              <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
+              <Tabs.Screen name="login" options={{ title: 'Sign In', href: null }} />
+              <Tabs.Screen name="auth/callback" options={{ title: 'Signing In', href: null }} />
+            </Tabs>
+          </AuthProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </TamaguiProvider>
