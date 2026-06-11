@@ -19,3 +19,8 @@ Feature: Fixture planner grid
     Given bootstrap data marking GW2 as current and active
     When I compute the planner grid starting at GW2 with count 1
     Then the GW2 cell label should include Live
+
+  Scenario: Bench players at positions 12-15 are excluded from the planner grid
+    Given a squad of 15 players where positions 12-15 are bench players
+    When I compute the planner grid starting at GW1 with count 1
+    Then the grid cell should contain exactly 11 players
