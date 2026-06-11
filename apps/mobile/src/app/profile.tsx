@@ -1,7 +1,12 @@
+import { router } from 'expo-router';
+
+import { auth } from '@simplyfpl/features';
 import { Button, Card, SectionHeader, Text, XStack, YStack } from '@simplyfpl/ui';
 
 import { Screen } from '@/components/screen';
 import { useSavedEntryId } from '@/lib/saved-team';
+
+const { useAuth } = auth;
 
 const PRO_FEATURES = [
   'Push notifications for price changes',
@@ -12,6 +17,72 @@ const PRO_FEATURES = [
 
 export default function ProfileScreen() {
   const { entryId, clear } = useSavedEntryId();
+  const { session, user, isPro, isLoading, signOut } = useAuth();
+
+  async function handleSignOut() {
+    await signOut();
+  }
+
+  function renderAccount() {
+    if (isLoading) {
+      return (
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          Loading…
+        </Text>
+      );
+    }
+    if (session) {
+      return (
+        <YStack gap={10}>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+              Email
+            </Text>
+            <Text fontFamily="$body" fontSize={13} color="$color">
+              {user?.email ?? '—'}
+            </Text>
+          </XStack>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+              Plan
+            </Text>
+            <Text fontFamily="$body" fontSize={13} color="$color">
+              {isPro ? 'Pro' : 'Free'}
+            </Text>
+          </XStack>
+          <XStack marginTop={4}>
+            <Button
+              tone="ghost"
+              size="sm"
+              onPress={() => {
+                handleSignOut();
+              }}
+            >
+              Sign out
+            </Button>
+          </XStack>
+        </YStack>
+      );
+    }
+    return (
+      <YStack gap={10}>
+        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+          Sign in to sync your team and unlock Pro features.
+        </Text>
+        <XStack>
+          <Button
+            tone="primary"
+            size="md"
+            onPress={() => {
+              router.navigate('/login');
+            }}
+          >
+            Sign in
+          </Button>
+        </XStack>
+      </YStack>
+    );
+  }
 
   return (
     <Screen>
@@ -33,6 +104,11 @@ export default function ProfileScreen() {
             </XStack>
           </YStack>
         )}
+      </Card>
+
+      <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
+        <SectionHeader title="Account" />
+        {renderAccount()}
       </Card>
 
       <Card paddingHorizontal={20} paddingVertical={18} gap={10}>

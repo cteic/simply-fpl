@@ -27,6 +27,11 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+export function computeIsPro(profile: { is_pro: boolean; pro_until: string | null }): boolean {
+  const stillValid = profile.pro_until === null || new Date(profile.pro_until) > new Date();
+  return profile.is_pro && stillValid;
+}
+
 function readLocalEntryId(): number | null {
   if (typeof window === 'undefined') return null;
   const raw = window.localStorage.getItem(ENTRY_ID_STORAGE_KEY);
@@ -87,8 +92,7 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
         }>();
       if (cancelled || !data) return;
 
-      const stillValid = data.pro_until === null || new Date(data.pro_until) > new Date();
-      setIsPro(data.is_pro && stillValid);
+      setIsPro(computeIsPro(data));
       setTier(data.tier ?? 'free');
 
       const local = readLocalEntryId();
