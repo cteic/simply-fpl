@@ -55,7 +55,6 @@ export function useFixtures(eventId: number | null) {
   return useQuery({
     queryKey: ['fixtures', eventId],
     queryFn: () => fplClient.getFixtures(eventId ?? undefined),
-    enabled: eventId !== null,
     staleTime: 5 * 60 * 1000,
   });
 }
