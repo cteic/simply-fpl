@@ -4,7 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hPosition, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
-import { getCurrentGameweek, parseEntryId } from '@simplyfpl/fpl-client';
+import { getClubColor, getCurrentGameweek, getKitUrl, parseEntryId } from '@simplyfpl/fpl-client';
 import {
   BenchDivider,
   Button,
@@ -156,7 +156,6 @@ function HeadToHeadInner({
       </YStack>
 
       <Scoreboard you={you} them={them} scoreDelta={scoreDelta} />
-      <CaptainRow you={you} them={them} />
       <PitchSide side={you} label="You" />
       <PitchSide side={them} label="Them" />
 
@@ -217,6 +216,32 @@ const DeltaBadge = styled(Text, {
   } as const,
 });
 
+const SummaryDivider = styled(YStack, {
+  height: 1,
+  backgroundColor: '$border',
+  marginVertical: 12,
+});
+
+const CapName = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 13,
+  fontWeight: '500',
+  color: '$color',
+});
+
+const CapPoints = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: 14,
+  fontWeight: '500',
+  color: '$color',
+});
+
+const CapMeta = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 11,
+  color: '$colorSubtle',
+});
+
 function Scoreboard({
   you,
   them,
@@ -241,6 +266,12 @@ function Scoreboard({
         <DeltaBadge tone={tone}>{deltaLabel}</DeltaBadge>
         <SideStat label="Them" side={them} alignRight />
       </XStack>
+      <SummaryDivider />
+      <XStack justifyContent="space-between" alignItems="center">
+        <CaptainCell side={you.captain} alignRight={false} />
+        <ScoreLabel>Captains</ScoreLabel>
+        <CaptainCell side={them.captain} alignRight />
+      </XStack>
     </Card>
   );
 }
@@ -263,39 +294,6 @@ function SideStat({
       </ScoreSub>
       <ScoreSub>{side.teamName}</ScoreSub>
     </YStack>
-  );
-}
-
-const CapName = styled(Text, {
-  fontFamily: '$body',
-  fontSize: 13,
-  fontWeight: '500',
-  color: '$color',
-});
-
-const CapPoints = styled(Text, {
-  fontFamily: '$mono',
-  fontSize: 14,
-  fontWeight: '500',
-  color: '$color',
-});
-
-const CapMeta = styled(Text, {
-  fontFamily: '$body',
-  fontSize: 11,
-  color: '$colorSubtle',
-});
-
-function CaptainRow({ you, them }: { you: H2hSide; them: H2hSide }) {
-  return (
-    <Card paddingHorizontal={20} paddingVertical={16}>
-      <SectionHeader title="Captains" />
-      <XStack justifyContent="space-between" alignItems="center" marginTop={10}>
-        <CaptainCell side={you.captain} alignRight={false} />
-        <CapMeta>vs</CapMeta>
-        <CaptainCell side={them.captain} alignRight />
-      </XStack>
-    </Card>
   );
 }
 
@@ -323,6 +321,18 @@ const POSITION_TO_SHIRT: Record<H2hPosition, ShirtKind> = {
   fwd: 'fwd',
 };
 
+function kitProps(player: H2hPlayer): {
+  kitUrl: string | undefined;
+  kitUrl2x: string | undefined;
+} {
+  if (player.teamCode <= 0) return { kitUrl: undefined, kitUrl2x: undefined };
+  const isGoalkeeper = player.position === 'gk';
+  return {
+    kitUrl: getKitUrl(player.teamCode, { isGoalkeeper }),
+    kitUrl2x: getKitUrl(player.teamCode, { isGoalkeeper, size: 220 }),
+  };
+}
+
 function pickBadgeTone(player: H2hPlayer): 'default' | 'hot' | 'captain' | 'tbp' {
   if (player.minutes === 0) return 'tbp';
   if (player.isCaptain) return 'captain';
@@ -344,35 +354,49 @@ function PitchSide({ side, label }: { side: H2hSide; label: string }) {
     <Pitch teamName={`${label} · ${side.teamName}`} formation={side.formation}>
       {rows.map((row, i) =>
         row.length === 0 ? null : (
-          <PitchRow key={`row-${i}`}>
-            {row.map((p) => (
-              <Player
-                key={p.id}
-                name={p.isCaptain ? `${p.name} (C)` : p.name}
-                detail={p.minutes === 0 ? `${p.teamShort} · TBP` : p.teamShort}
-                position={POSITION_TO_SHIRT[p.position]}
-                badge={p.minutes === 0 ? '–' : String(p.effectivePoints)}
-                badgeTone={pickBadgeTone(p)}
-              />
-            ))}
+          <PitchRow key={`row-${i}`} gap={6}>
+            {row.map((p) => {
+              const kit = kitProps(p);
+              return (
+                <Player
+                  key={p.id}
+                  name={p.isCaptain ? `${p.name} (C)` : p.name}
+                  detail={p.minutes === 0 ? `${p.teamShort} · TBP` : p.teamShort}
+                  position={POSITION_TO_SHIRT[p.position]}
+                  badge={p.minutes === 0 ? '–' : String(p.effectivePoints)}
+                  badgeTone={pickBadgeTone(p)}
+                  kitUrl={kit.kitUrl}
+                  kitUrl2x={kit.kitUrl2x}
+                  accentColor={getClubColor(p.teamShort)}
+                  compact
+                />
+              );
+            })}
           </PitchRow>
         )
       )}
       {side.bench.length > 0 ? (
         <>
           <BenchDivider />
-          <PitchRow>
-            {side.bench.map((p) => (
-              <Player
-                key={p.id}
-                name={p.name}
-                detail={p.teamShort}
-                position={POSITION_TO_SHIRT[p.position]}
-                badge={String(p.rawPoints)}
-                badgeTone="bench"
-                bench
-              />
-            ))}
+          <PitchRow gap={6}>
+            {side.bench.map((p) => {
+              const kit = kitProps(p);
+              return (
+                <Player
+                  key={p.id}
+                  name={p.name}
+                  detail={p.teamShort}
+                  position={POSITION_TO_SHIRT[p.position]}
+                  badge={String(p.rawPoints)}
+                  badgeTone="bench"
+                  bench
+                  kitUrl={kit.kitUrl}
+                  kitUrl2x={kit.kitUrl2x}
+                  accentColor={getClubColor(p.teamShort)}
+                  compact
+                />
+              );
+            })}
           </PitchRow>
         </>
       ) : null}
