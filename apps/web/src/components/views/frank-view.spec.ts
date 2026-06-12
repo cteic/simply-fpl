@@ -222,12 +222,12 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 
-  Scenario('Free user sees upgrade CTA linking to /upgrade', ({ Given, When, Then }) => {
+  Scenario('Free user sees upgrade CTA linking to /upgrade', ({ Given, When, Then, And }) => {
     Given('the user is on the free tier', () => {
       // tier gate is checked in frank-view.tsx
     });
 
-    Given('the FEATURE_FRANK_ONDEMAND flag is on', () => {
+    And('the FEATURE_FRANK_ONDEMAND flag is on', () => {
       // presentation-layer concern
     });
 
