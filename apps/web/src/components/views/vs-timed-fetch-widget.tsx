@@ -27,8 +27,10 @@ function isRateLimitBody(value: unknown): value is RateLimitBody {
   return (
     typeof value === 'object' &&
     value !== null &&
-    (value as Record<string, unknown>).error === 'rate_limited' &&
-    typeof (value as Record<string, unknown>).retryAfterSeconds === 'number'
+    'error' in value &&
+    value.error === 'rate_limited' &&
+    'retryAfterSeconds' in value &&
+    typeof value.retryAfterSeconds === 'number'
   );
 }
 
@@ -36,7 +38,8 @@ function isFetchTimingResponse(value: unknown): value is FetchTimingResponse {
   return (
     typeof value === 'object' &&
     value !== null &&
-    typeof (value as Record<string, unknown>).durationMs === 'number'
+    'durationMs' in value &&
+    typeof value.durationMs === 'number'
   );
 }
 
