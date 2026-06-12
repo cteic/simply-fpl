@@ -58,12 +58,33 @@ Given('the Worker returns deterministic vs-livefpl speed comparison data', async
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        gw: 37,
-        generated_at: '2026-05-15T23:00:00.000Z',
-        simplyfpl: { p50_ms: 240, p95_ms: 410 },
-        livefpl: { p50_ms: 1980, p95_ms: 3400 },
+        measuredAt: '2026-05-19T06:00:00.000Z',
+        week: '2026-W21',
+        sites: [
+          {
+            slug: 'simplyfpl',
+            label: 'SimplyFPL',
+            url: 'https://simplyfpl.com/',
+            timeToFirstData: 920,
+            totalBytes: 327680,
+            thirdPartyCount: 2,
+            screenshotKey: 'vs/2026-W21/simplyfpl.jpg',
+          },
+          {
+            slug: 'livefpl',
+            label: 'livefpl.net',
+            url: 'https://livefpl.net/',
+            timeToFirstData: 3400,
+            totalBytes: 1887437,
+            thirdPartyCount: 12,
+            screenshotKey: 'vs/2026-W21/livefpl.jpg',
+          },
+        ],
       }),
     })
+  );
+  await page.route(`${WORKER_URL}/vs/screenshot/**`, (route: Route) =>
+    route.fulfill({ status: 404, body: '' })
   );
 });
 
