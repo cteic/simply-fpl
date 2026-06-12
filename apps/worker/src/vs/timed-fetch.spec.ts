@@ -58,10 +58,10 @@ describeFeature(feature, ({ Scenario }) => {
 
     Then('the response is 200 with durationMs and bytesReceived', async () => {
       expect(response.status).toBe(200);
-      const body = (await response.json()) as Record<string, unknown>;
-      expect(typeof body.durationMs).toBe('number');
-      expect(typeof body.bytesReceived).toBe('number');
-      expect(body.target).toBe('simplyfpl');
+      const body: unknown = await response.json();
+      expect(body).toHaveProperty('durationMs', expect.any(Number));
+      expect(body).toHaveProperty('bytesReceived', expect.any(Number));
+      expect(body).toHaveProperty('target', 'simplyfpl');
     });
   });
 
@@ -84,9 +84,9 @@ describeFeature(feature, ({ Scenario }) => {
 
     Then('the response is 429 with retryAfterSeconds', async () => {
       expect(response.status).toBe(429);
-      const body = (await response.json()) as Record<string, unknown>;
-      expect(body.error).toBe('rate_limited');
-      expect(typeof body.retryAfterSeconds).toBe('number');
+      const body: unknown = await response.json();
+      expect(body).toHaveProperty('error', 'rate_limited');
+      expect(body).toHaveProperty('retryAfterSeconds', expect.any(Number));
       expect(response.headers.get('Retry-After')).toBeTruthy();
     });
   });
