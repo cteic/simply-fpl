@@ -14,6 +14,8 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
+import { VsTimedFetchWidget } from './vs-timed-fetch-widget';
+
 const WORKER_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
 
 function formatMs(ms: number | null): string {
@@ -136,23 +138,26 @@ function EmptyState() {
 
 export interface VsLivefplViewProps {
   snapshot: ComparisonSnapshot | null;
+  isFallback?: boolean;
 }
 
-export function VsLivefplView({ snapshot }: VsLivefplViewProps) {
+export function VsLivefplView({ snapshot, isFallback = false }: VsLivefplViewProps) {
   const simplyfpl = snapshot?.sites.find((s) => s.slug === 'simplyfpl');
   const livefpl = snapshot?.sites.find((s) => s.slug === 'livefpl');
 
+  const metaText = snapshot
+    ? `Last measured: ${formatWeek(snapshot.week)}${isFallback ? ' — hand-curated data (automated measurement unavailable)' : ''}`
+    : 'No measurement data yet';
+
   return (
     <PageShell>
-      <PageHeader
-        title="SimplyFPL vs livefpl.net"
-        meta={snapshot ? `Last measured: ${formatWeek(snapshot.week)}` : 'No measurement data yet'}
-      />
+      <PageHeader title="SimplyFPL vs livefpl.net" meta={metaText} />
 
       {snapshot !== null && simplyfpl !== undefined && livefpl !== undefined ? (
         <YStack gap={32}>
           <MetricCards a={simplyfpl} b={livefpl} />
           <ScreenshotPair week={snapshot.week} sites={snapshot.sites} />
+          <VsTimedFetchWidget />
           <YStack gap={12}>
             <SectionHeader title="Methodology" />
             <Card padding={20}>

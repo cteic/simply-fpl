@@ -86,6 +86,20 @@ Given('the Worker returns deterministic vs-livefpl speed comparison data', async
   await page.route(`${WORKER_URL}/vs/screenshot/**`, (route: Route) =>
     route.fulfill({ status: 404, body: '' })
   );
+  await page.route(`${WORKER_URL}/vs/timed-fetch**`, (route: Route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        target: 'simplyfpl',
+        url: 'https://simplyfpl.com/',
+        durationMs: 185,
+        statusCode: 200,
+        bytesReceived: 12345,
+        timedAt: '2026-05-19T06:00:00.000Z',
+      }),
+    })
+  );
 });
 
 When('I visit the vs-livefpl page', async ({ page }) => {
