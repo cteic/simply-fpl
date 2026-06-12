@@ -276,5 +276,21 @@ export interface ScoreDistributionFile {
 
 export type Percentiles = ScorePercentiles;
 
+export interface ComparisonSiteEntry {
+  slug: string;
+  label: string;
+  url: string;
+  timeToFirstData: number | null;
+  totalBytes: number;
+  thirdPartyCount: number;
+  screenshotKey: string;
+}
+
+export interface ComparisonSnapshot {
+  measuredAt: string;
+  week: string;
+  sites: ComparisonSiteEntry[];
+}
+
 export * from './db';
 export * from './frank';

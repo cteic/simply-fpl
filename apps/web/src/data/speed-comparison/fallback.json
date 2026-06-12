@@ -1,0 +1,24 @@
+{
+  "measuredAt": "2026-06-09T06:00:00.000Z",
+  "week": "2026-W24",
+  "sites": [
+    {
+      "slug": "simplyfpl",
+      "label": "SimplyFPL",
+      "url": "https://simplyfpl.com/",
+      "timeToFirstData": 920,
+      "totalBytes": 327680,
+      "thirdPartyCount": 2,
+      "screenshotKey": ""
+    },
+    {
+      "slug": "livefpl",
+      "label": "livefpl.net",
+      "url": "https://livefpl.net/",
+      "timeToFirstData": 3400,
+      "totalBytes": 1887437,
+      "thirdPartyCount": 12,
+      "screenshotKey": ""
+    }
+  ]
+}
