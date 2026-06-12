@@ -9,8 +9,6 @@ import { AuthContext } from './use-auth';
 
 type AuthContextValue = NonNullable<ContextType<typeof AuthContext>>;
 
-const stubClient = createClient<Database>('https://stub.supabase.co', 'stub-anon-key');
-
 interface StubAuthProviderProps {
   tier?: Tier;
   isPro?: boolean;
@@ -23,7 +21,7 @@ export function StubAuthProvider({
   children,
 }: StubAuthProviderProps) {
   const value: AuthContextValue = {
-    client: stubClient,
+    client: createClient<Database>('https://stub.supabase.co', 'stub-anon-key'),
     session: null,
     user: null,
     isPro,
