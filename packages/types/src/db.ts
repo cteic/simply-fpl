@@ -13,6 +13,8 @@ export interface Database {
           is_pro: boolean;
           pro_until: string | null;
           tier: Tier;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -23,12 +25,16 @@ export interface Database {
           is_pro?: boolean;
           pro_until?: string | null;
           tier?: Tier;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
         };
         Update: {
           fpl_entry_id?: number | null;
           is_pro?: boolean;
           pro_until?: string | null;
           tier?: Tier;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
         };
         Relationships: [];
       };
@@ -57,6 +63,17 @@ export interface Database {
           tokens_in?: number | null;
           tokens_out?: number | null;
         };
+        Relationships: [];
+      };
+      stripe_events: {
+        Row: {
+          id: string;
+          processed_at: string;
+        };
+        Insert: {
+          id: string;
+        };
+        Update: Record<string, never>;
         Relationships: [];
       };
       user_leagues: {

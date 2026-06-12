@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
+export const runtime = 'edge';
+
 const FRANK_ADMIN_EMAILS = (process.env['FRANK_ADMIN_EMAILS'] ?? '')
   .split(',')
   .map((e) => e.trim())

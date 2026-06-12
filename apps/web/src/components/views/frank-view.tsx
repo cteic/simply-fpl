@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 
-import { auth } from '@simplyfpl/features';
+import { useRouter } from 'next/navigation';
+
+import { auth, subscriptions } from '@simplyfpl/features';
 import {
   Card,
   FNote,
@@ -20,6 +22,7 @@ import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
 import { useFrankHistory, useFrankQuota, useFrankWeekly } from '@/queries/frank';
 
 const { useAuth } = auth;
+const { isUltimate } = subscriptions;
 
 interface CandidateRowProps {
   name: string;
@@ -81,6 +84,7 @@ interface AskFormResponse {
 
 function AskFrankForm() {
   const { tier, client, user } = useAuth();
+  const router = useRouter();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState<AskFormResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -91,17 +95,30 @@ function AskFrankForm() {
   const { data: quota, refetch: refetchQuota } = useFrankQuota(client, userId);
   const { data: history, refetch: refetchHistory } = useFrankHistory(client, userId);
 
-  if (tier !== 'ultimate') {
+  if (!isUltimate(tier)) {
     return (
       <Card paddingHorizontal={16} paddingVertical={20} alignItems="center" marginBottom={20}>
         <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color" marginBottom={6}>
           Ask Frank anything
         </Text>
-        <Text fontFamily="$body" fontSize={12} color="$colorMuted" textAlign="center">
-          On-demand questions are an Ultimate feature.{' '}
-          <a href="/upgrade" style={{ color: 'var(--brand, #0F766E)', textDecoration: 'none' }}>
-            Upgrade to unlock.
-          </a>
+        <Text
+          fontFamily="$body"
+          fontSize={12}
+          color="$colorMuted"
+          textAlign="center"
+          marginBottom={10}
+        >
+          On-demand questions are an Ultimate feature.
+        </Text>
+        <Text
+          fontFamily="$body"
+          fontSize={12}
+          color="$brand"
+          textDecorationLine="underline"
+          cursor="pointer"
+          onPress={() => router.push('/upgrade')}
+        >
+          Upgrade to Ultimate for on-demand AI queries
         </Text>
       </Card>
     );
