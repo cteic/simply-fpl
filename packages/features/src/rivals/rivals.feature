@@ -17,6 +17,12 @@ Feature: Rivals board and differentials
     When I compute the differentials
     Then the captaincy diff same flag should be true
 
+  Scenario: Mid-size league with fewer than 20 members shows all members as rivals
+    Given a league with 12 entries and I sit at rank 7
+    When I select rivals
+    Then all 11 other entries should be rivals
+    And the whole-league flag should be true
+
   Scenario: Small league renders every other manager as a rival
     Given a league with 6 entries and I sit at rank 3
     When I select rivals
