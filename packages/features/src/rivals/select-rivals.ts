@@ -1,6 +1,6 @@
 import type { FplLeagueStanding } from '@simplyfpl/types';
 
-export const SMALL_LEAGUE_THRESHOLD = 8;
+export const SMALL_LEAGUE_THRESHOLD = 19;
 export const DEFAULT_WINDOW_ABOVE = 2;
 export const DEFAULT_WINDOW_BELOW = 2;
 
