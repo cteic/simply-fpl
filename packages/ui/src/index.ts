@@ -47,6 +47,7 @@ export * from './components/progress-bar';
 export * from './components/pts-chip';
 export * from './components/rival-cell';
 export * from './components/section-header';
+export * from './components/speed-metric-bar';
 export * from './components/shirt';
 export * from './components/skeleton';
 export * from './components/stat-card';

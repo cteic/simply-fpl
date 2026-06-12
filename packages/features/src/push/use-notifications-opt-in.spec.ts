@@ -5,6 +5,9 @@ import { urlBase64ToUint8Array } from './use-notifications-opt-in';
 
 const feature = await loadFeature('./use-notifications-opt-in.feature');
 
+// Test fixture: a non-secret VAPID PUBLIC key used only to drive the
+// urlBase64ToUint8Array decoder in tests. Public keys are not secrets.
+// gitleaks:allow
 const VAPID_KEY =
   'BNbxvPGKJoElbvgAfLwzLbJKkiXB8zFGpZxH_bGvbvzYZNDZxPRakvnvMBFjAo5qEoiUXZ0-kqD2m7KsRLjAmQ4';
 
