@@ -3,6 +3,7 @@ import { type MeasureEnv, measure } from './measure';
 import { type VsEnv } from './scheduled';
 
 export type { VsEnv };
+export { handleVsTimedFetch } from './timed-fetch';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
