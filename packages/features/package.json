@@ -22,7 +22,8 @@
     "./effective-ownership": "./src/effective-ownership/index.ts",
     "./replay": "./src/replay/index.ts",
     "./frank": "./src/frank/index.ts",
-    "./push": "./src/push/index.ts"
+    "./push": "./src/push/index.ts",
+    "./what-if": "./src/what-if/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
