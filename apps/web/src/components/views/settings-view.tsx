@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth, theme as themeFeature } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
@@ -35,7 +36,7 @@ export function SettingsView() {
   if (isLoading || !session) {
     return (
       <PageShell>
-        <PageHeader title="Settings" meta="Loading…" />
+        <PageHeader title={t('settings.title')} meta={t('settings.loading_meta')} />
       </PageShell>
     );
   }
@@ -47,31 +48,34 @@ export function SettingsView() {
 
   return (
     <PageShell>
-      <PageHeader tone="stadium" title="Settings" meta={user?.email ?? ''} />
+      <PageHeader tone="stadium" title={t('settings.title')} meta={user?.email ?? ''} />
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Account" />
+        <SectionHeader title={t('settings.account_section')} />
         <YStack gap={10} marginTop={8}>
-          <Row label="Email" value={user?.email ?? '—'} />
-          <Row label="Plan" value={isPro ? 'Pro' : 'Free'} />
+          <Row label={t('settings.email_label')} value={user?.email ?? '—'} />
+          <Row
+            label={t('settings.plan_label')}
+            value={isPro ? t('settings.plan_pro') : t('settings.plan_free')}
+          />
         </YStack>
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Appearance" />
+        <SectionHeader title={t('settings.appearance_section')} />
         <YStack gap={12} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Choose how SimplyFPL looks. Your choice is saved on this device and applies everywhere.
+            {t('settings.appearance_body')}
           </Text>
           <ThemePicker value={activeTheme} onSelect={setTheme} />
         </YStack>
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Session" />
+        <SectionHeader title={t('settings.session_section')} />
         <YStack gap={10} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Signing out will end your session on this device. Your tracked leagues stay saved.
+            {t('settings.session_body')}
           </Text>
           <XStack>
             <Button
@@ -81,13 +85,13 @@ export function SettingsView() {
                 handleSignOut();
               }}
             >
-              Sign out
+              {t('settings.sign_out')}
             </Button>
           </XStack>
         </YStack>
       </Card>
 
-      <FNote>More account controls coming once subscriptions launch.</FNote>
+      <FNote>{t('settings.more_coming')}</FNote>
     </PageShell>
   );
 }

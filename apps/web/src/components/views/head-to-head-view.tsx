@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
+import { t } from '@simplyfpl/i18n';
 import { PageHeader, PageShell, Text } from '@simplyfpl/ui';
 
 const HeadToHeadInner = dynamic(() => import('./head-to-head-inner'), {
@@ -60,8 +61,7 @@ export function HeadToHeadView() {
       <PageShell>
         <PageHeader title="Head to Head" meta="Invalid team IDs in URL" />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          The URL needs two different positive integer team IDs, like
-          <code> /h2h/123456/789012</code>.
+          {t('h2h.invalid_url')}
         </Text>
       </PageShell>
     );

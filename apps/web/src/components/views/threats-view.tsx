@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { threats as threatsNs } from '@simplyfpl/features';
 import type { Threat, ThreatPosition, ThreatStatusFilter } from '@simplyfpl/features/threats';
 import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import {
   Card,
   FNote,
@@ -172,7 +173,8 @@ export function ThreatsView() {
     [rows, statusFilter]
   );
 
-  const headline = entryId === null ? 'Save a team on Home to personalise' : `For team ${entryId}`;
+  const headline =
+    entryId === null ? t('threats.save_team_prompt') : t('threats.for_team', { entryId });
 
   return (
     <PageShell>
@@ -201,7 +203,7 @@ export function ThreatsView() {
         {visibleRows.length === 0 ? (
           <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
             <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-              No threats match this filter.
+              {t('threats.empty')}
             </Text>
           </YStack>
         ) : (
@@ -213,11 +215,7 @@ export function ThreatsView() {
         )}
       </Card>
 
-      <FNote>
-        {cohort
-          ? 'Live cohort data refreshes every 60s while gameweeks are active.'
-          : 'Placeholder data — real threats landing once cohort aggregates are available.'}
-      </FNote>
+      <FNote>{cohort ? t('threats.refresh_note') : t('threats.placeholder_note')}</FNote>
     </PageShell>
   );
 }

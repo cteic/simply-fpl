@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 
 import { replay } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import { Text, YStack } from '@simplyfpl/ui';
 
 import { LiveRankRealView } from './live-rank-real-view';
@@ -79,7 +80,7 @@ export function ReplayView() {
     return (
       <YStack padding={32}>
         <Text fontFamily="$body" fontSize={14} color="$negative">
-          Failed to load replay bundle: {String(manifestError.message)}
+          {t('replay.error_load_bundle', { message: String(manifestError.message) })}
         </Text>
       </YStack>
     );
@@ -89,7 +90,7 @@ export function ReplayView() {
     return (
       <YStack padding={32}>
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          Loading replay bundle ({loadedCount}/{totalCount} GWs)…
+          {t('replay.loading_bundle', { loaded: loadedCount, total: totalCount })}
         </Text>
       </YStack>
     );
@@ -126,8 +127,7 @@ export function ReplayView() {
       </Text>
       {!hasStarted ? (
         <Text fontFamily="$body" fontSize={12.5} color="$colorMuted" marginBottom={12}>
-          Press Play to replay the 2025–26 season. Default 1 gameweek per minute — switch to 60x for
-          a full season in 38 seconds.
+          {t('replay.intro')}
         </Text>
       ) : null}
       <LiveRankRealView entryId={bundle.manifest.entryId} dataOverride={dataOverride} />

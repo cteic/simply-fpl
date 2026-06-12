@@ -1,6 +1,7 @@
 'use client';
 
 import { replay } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import { FilterButton, Text, XStack, YStack } from '@simplyfpl/ui';
 
 const { REPLAY_SPEEDS } = replay;
@@ -19,9 +20,9 @@ interface ReplayControlsProps {
 }
 
 function formatStatus(state: ReplayClockState): string {
-  if (state.status === 'playing') return 'Playing';
-  if (state.status === 'finished') return 'Finished';
-  return 'Paused';
+  if (state.status === 'playing') return t('replay.status_playing');
+  if (state.status === 'finished') return t('replay.status_finished');
+  return t('replay.status_paused');
 }
 
 export function ReplayControls({
@@ -36,9 +37,9 @@ export function ReplayControls({
 }: ReplayControlsProps) {
   const isPlaying = state.status === 'playing';
   const fullyLoaded = loadedGameweeks >= totalGameweeks;
-  let playLabel = 'Play';
-  if (state.status === 'finished') playLabel = 'Restart';
-  else if (isPlaying) playLabel = 'Pause';
+  let playLabel = t('replay.play');
+  if (state.status === 'finished') playLabel = t('replay.restart');
+  else if (isPlaying) playLabel = t('replay.pause');
 
   return (
     <YStack
@@ -62,7 +63,7 @@ export function ReplayControls({
             letterSpacing={1.4}
             color="$colorSubtle"
           >
-            Season Replay · 2025–26
+            {t('replay.controls_title')}
           </Text>
           <Text fontFamily="$mono" fontSize={18} fontWeight="500" color="$color">
             GW{state.gw}
@@ -90,7 +91,7 @@ export function ReplayControls({
           </FilterButton>
           <FilterButton onPress={onRestart}>
             <Text fontFamily="$body" fontSize={12} fontWeight="600">
-              Restart
+              {t('replay.restart')}
             </Text>
           </FilterButton>
         </XStack>
@@ -106,11 +107,13 @@ export function ReplayControls({
             letterSpacing={1.4}
             color="$colorSubtle"
           >
-            Speed
+            {t('replay.speed_label')}
           </Text>
           <Text fontFamily="$body" fontSize={11} color="$colorMuted">
             {formatStatus(state)} ·{' '}
-            {fullyLoaded ? 'all data ready' : `loading ${loadedGameweeks}/${totalGameweeks}`}
+            {fullyLoaded
+              ? t('replay.all_data_ready')
+              : t('replay.loading_data', { loaded: loadedGameweeks, total: totalGameweeks })}
           </Text>
         </XStack>
         <XStack gap={6} flexWrap="wrap">
@@ -134,7 +137,7 @@ export function ReplayControls({
             letterSpacing={1.4}
             color="$colorSubtle"
           >
-            Jump to GW
+            {t('replay.jump_to_gw')}
           </Text>
           <Text fontFamily="$mono" fontSize={11} color="$colorMuted">
             {state.startGw}–{state.endGw}
@@ -146,7 +149,7 @@ export function ReplayControls({
           max={state.endGw}
           step={1}
           value={state.gw}
-          aria-label="Jump to gameweek"
+          aria-label={t('replay.seek_aria_label')}
           data-testid="replay-seek"
           onChange={(e) => onSeek(Number(e.target.value))}
           style={{ width: '100%' }}

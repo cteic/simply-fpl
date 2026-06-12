@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { planner } from '@simplyfpl/features';
 import type { PlannerGridCell } from '@simplyfpl/features/planner';
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
@@ -40,7 +41,7 @@ export function PlannerView() {
   if (!hydrated) {
     return (
       <PageShell>
-        <PageHeader title="Transfer Planner" meta="Loading…" />
+        <PageHeader title={t('planner.title')} meta={t('planner.loading_meta')} />
       </PageShell>
     );
   }
@@ -93,23 +94,25 @@ function RealPlannerView({ entryId }: { entryId: number }) {
     <PageShell>
       <PageHeader
         tone="stadium"
-        title="Transfer Planner"
-        meta={isLoading ? 'Loading…' : `Your XI · GW${currentGw ?? '—'}–${(currentGw ?? 0) + 4}`}
+        title={t('planner.title')}
+        meta={
+          isLoading
+            ? t('planner.loading_meta')
+            : t('planner.team_gw_range', { from: currentGw ?? '—', to: (currentGw ?? 0) + 4 })
+        }
       />
 
       {isLoading || uiCells.length === 0 ? (
         <Card paddingHorizontal={20} paddingVertical={20} marginBottom={20}>
           <Text fontFamily="$body" fontSize={13} color="$colorSubtle">
-            {isLoading
-              ? 'Loading fixtures and your XI…'
-              : 'No fixture data yet for the next 5 GWs.'}
+            {isLoading ? t('planner.loading_fixtures') : t('planner.no_fixtures')}
           </Text>
         </Card>
       ) : (
         <PlannerGrid cells={uiCells} />
       )}
 
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL&apos;s official data.</FNote>
+      <FNote>{t('planner.fdr_note')}</FNote>
     </PageShell>
   );
 }
@@ -117,13 +120,12 @@ function RealPlannerView({ entryId }: { entryId: number }) {
 function NoTeamView() {
   return (
     <PageShell>
-      <PageHeader title="Transfer Planner" meta="Enter your FPL team ID to start" />
+      <PageHeader title={t('planner.title')} meta={t('planner.no_team_meta')} />
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
-        <SectionHeader title="Link your FPL team" />
+        <SectionHeader title={t('planner.link_team')} />
         <YStack gap={10} marginTop={4}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            We need your FPL team ID to load your XI and compute their fixture difficulty across the
-            next 5 gameweeks.
+            {t('planner.link_body')}
           </Text>
           <XStack>
             <Button
@@ -133,12 +135,12 @@ function NoTeamView() {
                 window.location.href = '/';
               }}
             >
-              Enter team ID
+              {t('common.enter_team_id')}
             </Button>
           </XStack>
         </YStack>
       </Card>
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL&apos;s official data.</FNote>
+      <FNote>{t('planner.fdr_note')}</FNote>
     </PageShell>
   );
 }

@@ -9,6 +9,7 @@
     { "path": "./packages/ui/tsconfig.json" },
     { "path": "./packages/features/tsconfig.json" },
     { "path": "./packages/utils/tsconfig.json" },
-    { "path": "./packages/types/tsconfig.json" }
+    { "path": "./packages/types/tsconfig.json" },
+    { "path": "./packages/i18n/tsconfig.json" }
   ]
 }

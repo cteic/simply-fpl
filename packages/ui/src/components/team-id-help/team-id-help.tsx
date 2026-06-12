@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { Text, XStack, YStack } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 type TeamIdHelpTone = 'default' | 'inverse';
 
 export const TEAM_ID_HELP_LABEL = 'How do I find my team ID?';
@@ -171,7 +173,7 @@ export function TeamIdHelpView({ tone, open, onToggle }: TeamIdHelpViewProps) {
               {TEAM_ID_HELP_EXAMPLE.suffix}
             </Text>
             <Text fontFamily="$body" fontSize={11} color={palette.urlMuted}>
-              That number is your team ID.
+              {t('team_id_help.that_number')}
             </Text>
           </YStack>
 
@@ -185,7 +187,7 @@ export function TeamIdHelpView({ tone, open, onToggle }: TeamIdHelpViewProps) {
             cursor="pointer"
             hoverStyle={{ opacity: 0.8 }}
           >
-            Open the FPL site →
+            {t('team_id_help.open_fpl')}
           </Text>
         </YStack>
       ) : null}

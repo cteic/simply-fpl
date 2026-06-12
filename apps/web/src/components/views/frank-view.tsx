@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { auth } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Card,
   FNote,
@@ -80,10 +81,10 @@ function AskFrankForm() {
     return (
       <Card paddingHorizontal={16} paddingVertical={20} alignItems="center" marginBottom={20}>
         <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color" marginBottom={6}>
-          Ask Frank anything
+          {t('frank.ask_title')}
         </Text>
         <Text fontFamily="$body" fontSize={12} color="$colorMuted" textAlign="center">
-          On-demand questions are an Ultimate feature. Upgrade to unlock.
+          {t('frank.ask_upgrade_body')}
         </Text>
       </Card>
     );
@@ -104,14 +105,14 @@ function AskFrankForm() {
       });
       if (!res.ok) {
         const body = (await res.json()) as { error?: string };
-        setError(body.error ?? 'Something went wrong');
+        setError(body.error ?? t('frank.ask_error_generic'));
         return;
       }
       const data = (await res.json()) as { answer: string };
       setAnswer(data.answer);
       setQuestion('');
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('frank.ask_error_network'));
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +128,7 @@ function AskFrankForm() {
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Should I captain Salah or Haaland this week?"
+            placeholder={t('frank.ask_placeholder')}
             rows={3}
             disabled={isLoading}
             style={{
@@ -159,7 +160,7 @@ function AskFrankForm() {
               alignSelf: 'flex-end',
             }}
           >
-            {isLoading ? 'Asking Frank…' : 'Ask Frank'}
+            {isLoading ? t('frank.ask_loading') : t('frank.ask_submit')}
           </button>
           {error ? (
             <Text fontFamily="$body" fontSize={12} color="$negative">
@@ -198,16 +199,12 @@ export function FrankView() {
 
   return (
     <PageShell>
-      <PageHeader
-        tone="stadium"
-        title={title}
-        meta="Your AI FPL coach · Updated weekly after the deadline"
-      />
+      <PageHeader tone="stadium" title={title} meta={t('frank.page_meta')} />
 
       {isLoading ? (
         <Card paddingHorizontal={16} paddingVertical={28} alignItems="center" marginBottom={20}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-            Loading Frank's advice…
+            {t('frank.loading')}
           </Text>
         </Card>
       ) : null}
@@ -215,7 +212,7 @@ export function FrankView() {
       {!isLoading && isError ? (
         <Card paddingHorizontal={16} paddingVertical={28} alignItems="center" marginBottom={20}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-            Frank's advice isn't ready yet. Check back after the next deadline.
+            {t('frank.error_not_ready')}
           </Text>
         </Card>
       ) : null}
@@ -224,7 +221,7 @@ export function FrankView() {
         <>
           {data.chipNote ? (
             <>
-              <SectionHeader title="Chip watch" />
+              <SectionHeader title={t('frank.chip_watch')} />
               <Card marginBottom={20}>
                 <YStack paddingHorizontal={16} paddingVertical={14}>
                   <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
@@ -235,7 +232,7 @@ export function FrankView() {
             </>
           ) : null}
 
-          <SectionHeader title={`Captain picks · GW${data.gameweek}`} />
+          <SectionHeader title={t('frank.captain_picks', { gameweek: data.gameweek })} />
           <Card marginBottom={20}>
             {data.captainCandidates.map((c, i) => (
               <CandidateRow
@@ -248,7 +245,7 @@ export function FrankView() {
             ))}
           </Card>
 
-          <SectionHeader title="Transfer targets" />
+          <SectionHeader title={t('frank.transfer_targets')} />
           <Card marginBottom={20}>
             {data.transferTargets.map((c, i) => (
               <CandidateRow
@@ -265,10 +262,7 @@ export function FrankView() {
 
       {FEATURE_FRANK_ONDEMAND ? <AskFrankForm /> : null}
 
-      <FNote>
-        Frank is an AI coach powered by Claude. Advice is generated weekly and may not reflect
-        late-breaking news. Always verify player availability before finalising your team.
-      </FNote>
+      <FNote>{t('frank.disclaimer')}</FNote>
     </PageShell>
   );
 }

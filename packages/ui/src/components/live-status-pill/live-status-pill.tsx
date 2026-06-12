@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 /**
  * LiveStatusPill
  * --------------
@@ -205,7 +207,7 @@ export function LiveStatusPill({
       {hasRank ? (
         <>
           <DividerSm />
-          <MetaLabel>Rank</MetaLabel>
+          <MetaLabel>{t('live_status_pill.rank')}</MetaLabel>
           <RankValue data-testid="live-status-pill-rank">{rank.toLocaleString()}</RankValue>
           {showMove ? (
             <Move move={dir}>
@@ -219,7 +221,7 @@ export function LiveStatusPill({
       {hasTeam ? (
         <HideSm>
           <Divider />
-          <MetaLabel>Team</MetaLabel>
+          <MetaLabel>{t('live_status_pill.team')}</MetaLabel>
           <TeamValue>{teamId}</TeamValue>
         </HideSm>
       ) : null}
@@ -237,7 +239,13 @@ export function LiveStatusPill({
   const deselectControl =
     hasTeam && onDeselect ? (
       <DeselectButton
-        render={<button type="button" title="Deselect team" aria-label="Deselect team" />}
+        render={
+          <button
+            type="button"
+            title={t('live_status_pill.deselect')}
+            aria-label={t('live_status_pill.deselect')}
+          />
+        }
         onPress={onDeselect}
       >
         <svg width={9} height={9} viewBox="0 0 9 9" fill="none" aria-hidden="true">
