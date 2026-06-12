@@ -81,6 +81,7 @@ interface PlayerProps {
   ownershipPercent?: number | undefined;
   ownershipPartial?: boolean;
   accentColor?: string | undefined;
+  onWhatIf?: () => void;
 }
 
 export function Player({
@@ -96,6 +97,7 @@ export function Player({
   ownershipPercent,
   ownershipPartial = false,
   accentColor,
+  onWhatIf,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
   return (
@@ -118,6 +120,23 @@ export function Player({
           {ownershipPartial ? '~' : ''}
           {ownershipPercent.toFixed(1)}%
         </Ownership>
+      ) : null}
+      {onWhatIf && !bench ? (
+        <Text
+          render="button"
+          role="button"
+          fontFamily="$body"
+          fontSize={8}
+          fontWeight="600"
+          letterSpacing={0.2}
+          color="$brand"
+          cursor="pointer"
+          textAlign="center"
+          hoverStyle={{ color: '$brandHover' }}
+          onPress={onWhatIf}
+        >
+          What if?
+        </Text>
       ) : null}
     </Wrap>
   );
