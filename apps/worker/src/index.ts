@@ -7,6 +7,9 @@ import { handleFixturesSlim } from './fixtures';
 import { FRANK_WEEKLY_CRON, handleFrankWeekly, runFrankWeekly } from './frank/weekly-cache';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
+import { runCaptainScoredCheck } from './notify/captain-scored';
+import { runDeadlineReminder } from './notify/deadline-reminder';
+import { dispatchNotification } from './notify/dispatch';
 import { buildFplPassthroughTarget } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
 import { RIVALS_WARM_CRON, runRivalsWarm } from './rivals-warm';
@@ -39,9 +42,14 @@ export interface Env {
   GIT_SHA?: string;
   ENVIRONMENT?: string;
   VS_DEBUG_TOKEN?: string;
+  VAPID_PUBLIC_KEY?: string;
+  VAPID_PRIVATE_KEY?: string;
+  VAPID_SUBJECT?: string;
+  NOTIFY_DISPATCH_SECRET?: string;
 }
 
 const VS_COMPARISON_CRON = '0 6 * * 1';
+const DEADLINE_REMINDER_CRON = '30 17 * * *';
 
 const FPL_HOST = 'https://fantasy.premierleague.com';
 const FPL_ORIGIN = `${FPL_HOST}/api`;
@@ -271,6 +279,52 @@ export default {
       return handleCohortAggregates(env, Number(cohortMatch[1]), request.method);
     }
 
+    if (
+      request.method === 'POST' &&
+      (url.pathname === '/notify/dispatch' || url.pathname === '/notify/dispatch/')
+    ) {
+      const secret = request.headers.get('X-Dispatch-Secret');
+      if (!env.NOTIFY_DISPATCH_SECRET || secret !== env.NOTIFY_DISPATCH_SECRET) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      let body: unknown;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      if (!body || typeof body !== 'object') {
+        return new Response(JSON.stringify({ error: 'Invalid body' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      const b = body as Record<string, unknown>;
+      const event = b['event'];
+      const userIds = Array.isArray(b['user_ids']) ? (b['user_ids'] as string[]) : undefined;
+      const payload = b['payload'];
+      if (typeof event !== 'string' || !payload || typeof payload !== 'object') {
+        return new Response(JSON.stringify({ error: 'Missing event or payload' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      const result = await dispatchNotification(env, {
+        event: event as Parameters<typeof dispatchNotification>[1]['event'],
+        ...(userIds !== undefined ? { userIds } : {}),
+        payload: payload as Parameters<typeof dispatchNotification>[1]['payload'],
+      });
+      return new Response(JSON.stringify(result), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405 });
     }
@@ -438,11 +492,16 @@ export default {
       await runFrankWeekly(env).catch(() => undefined);
       return;
     }
+    if (event.cron === DEADLINE_REMINDER_CRON) {
+      await runDeadlineReminder(env).catch(() => undefined);
+      return;
+    }
     if (event.cron === RIVALS_WARM_CRON) {
       ctx.waitUntil(runRivalsWarm(env, ctx).catch(() => undefined));
       return;
     }
     await warmPricesCache(env, ctx).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
+    await runCaptainScoredCheck(env).catch(() => undefined);
   },
 };

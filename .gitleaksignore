@@ -1,0 +1,10 @@
+# Allowlist of false-positive fingerprints from gitleaks scans.
+# Format: <commit-sha>:<file>:<rule-id>:<line>
+#
+# Each entry must include the actual commit SHA where the line was first
+# introduced — not a placeholder. To add a new entry, copy the
+# `Fingerprint:` line printed in the gitleaks CI output verbatim.
+
+# Test fixture VAPID PUBLIC key for the web-push opt-in flow (not a secret —
+# VAPID public keys are designed to be embedded in the client bundle).
+bc5d044f0591af318d6ce38510397972b02c8395:packages/features/src/push/use-notifications-opt-in.spec.ts:generic-api-key:8
