@@ -78,7 +78,8 @@ export function SettingsView() {
         return;
       }
       const data = (await res.json()) as { url: string };
-      router.push(data.url);
+      // Stripe customer portal is an external URL; bypass typed-routes.
+      window.location.href = data.url;
     } catch {
       setPortalError('Network error. Please try again.');
     } finally {
