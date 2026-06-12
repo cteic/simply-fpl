@@ -10,7 +10,6 @@ Feature: vs-livefpl visual regression
     Given the Worker returns deterministic FPL fixtures
     And the Worker returns deterministic vs-livefpl speed comparison data
 
-  @fixme
   Scenario: vs-livefpl page renders with stub speed data
     Given no team is saved in storage
     When I visit the vs-livefpl page
