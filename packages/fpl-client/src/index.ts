@@ -1,4 +1,6 @@
 export { createFplClient, fplClient } from './client';
+export { computeDefConProgress, computeSeasonDefConRate } from './defcon';
+export type { SeasonDefConRate } from './defcon';
 export {
   buildLiveLeagueTable,
   calculateLivePoints,
