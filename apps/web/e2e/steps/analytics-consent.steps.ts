@@ -20,11 +20,6 @@ Given('the ph_consent cookie is already set to {string}', async ({ page }, value
   ]);
 });
 
-When('I visit the home page', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForLoadState('domcontentloaded');
-});
-
 When('I visit the home page again', async ({ page }) => {
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
