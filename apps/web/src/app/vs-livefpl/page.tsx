@@ -22,6 +22,6 @@ export const metadata: Metadata = {
 };
 
 export default async function VsLivefplPage() {
-  const snapshot = await fetchVsData();
-  return <VsLivefplView snapshot={snapshot} />;
+  const { snapshot, isFallback } = await fetchVsData();
+  return <VsLivefplView snapshot={snapshot} isFallback={isFallback} />;
 }
