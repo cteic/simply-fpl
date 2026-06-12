@@ -25,11 +25,14 @@ export interface UseNotificationsOptInReturn {
 
 const DEFAULT_PREFS: NotificationPrefs = { deadlineReminder: true, captainScored: true };
 
-export function urlBase64ToUint8Array(base64String: string): Uint8Array {
+export function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const raw = atob(base64);
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+  const buffer = new ArrayBuffer(raw.length);
+  const view = new Uint8Array(buffer);
+  for (let i = 0; i < raw.length; i += 1) view[i] = raw.charCodeAt(i);
+  return view;
 }
 
 function isSupported(): boolean {

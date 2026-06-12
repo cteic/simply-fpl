@@ -64,7 +64,7 @@ export function NotificationsSettings({
             Get notified when your captain scores and 30 minutes before the transfer deadline.
           </Text>
           <XStack>
-            <Button tone="primary" size="md" onPress={onSubscribe} disabled={isLoading}>
+            <Button tone="primary" size="md" onPress={isLoading ? () => {} : onSubscribe}>
               {isLoading ? 'Enabling…' : 'Enable notifications'}
             </Button>
           </XStack>
@@ -84,8 +84,8 @@ export function NotificationsSettings({
             onToggle={(v) => onTogglePref('captainScored', v)}
           />
           <XStack>
-            <Button tone="ghost" size="md" onPress={onUnsubscribe} disabled={isLoading}>
-              Disable notifications
+            <Button tone="ghost" size="md" onPress={isLoading ? () => {} : onUnsubscribe}>
+              {isLoading ? 'Disabling…' : 'Disable notifications'}
             </Button>
           </XStack>
         </YStack>
@@ -117,12 +117,7 @@ function PrefToggle({ label, description, enabled, onToggle }: PrefToggleProps) 
           {description}
         </Text>
       </YStack>
-      <Button
-        tone="ghost"
-        size="sm"
-        onPress={() => onToggle(!enabled)}
-        style={{ minWidth: 48, opacity: enabled ? 1 : 0.5 }}
-      >
+      <Button tone="ghost" size="sm" onPress={() => onToggle(!enabled)}>
         {enabled ? 'On' : 'Off'}
       </Button>
     </XStack>
