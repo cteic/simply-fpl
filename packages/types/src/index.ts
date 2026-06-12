@@ -294,3 +294,4 @@ export interface ComparisonSnapshot {
 
 export * from './db';
 export * from './frank';
+export * from './notifications';

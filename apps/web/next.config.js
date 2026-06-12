@@ -11,6 +11,7 @@ const CSP = [
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
+  "worker-src 'self'",
 ].join('; ');
 
 const nextConfig = {

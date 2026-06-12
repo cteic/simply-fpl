@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { auth, subscriptions, theme as themeFeature } from '@simplyfpl/features';
+import { auth, push, subscriptions, theme as themeFeature } from '@simplyfpl/features';
 import {
   Button,
   Card,
+  NotificationsSettings,
   PageHeader,
   PageShell,
   SectionHeader,
@@ -17,9 +18,12 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
+import { FEATURE_WEB_PUSH, VAPID_PUBLIC_KEY } from '@/lib/feature-flags';
+
 const { useAuth } = auth;
 const { isPro } = subscriptions;
 const { useThemeMode } = themeFeature;
+const { useNotificationsOptIn } = push;
 
 function TierChip({ tier }: { tier: string }) {
   if (tier === 'free') return null;
@@ -45,6 +49,7 @@ export function SettingsView() {
   const router = useRouter();
   const { session, user, tier, isLoading, signOut } = useAuth();
   const { theme: activeTheme, setTheme } = useThemeMode();
+  const notifications = useNotificationsOptIn({ vapidPublicKey: VAPID_PUBLIC_KEY });
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
@@ -169,6 +174,31 @@ export function SettingsView() {
           </XStack>
         </YStack>
       </Card>
+
+      {FEATURE_WEB_PUSH ? (
+        <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
+          <SectionHeader title="Notifications" />
+          <YStack gap={12} marginTop={8}>
+            <NotificationsSettings
+              isPro={isPro(tier)}
+              permission={notifications.permission}
+              isSubscribed={notifications.isSubscribed}
+              isLoading={notifications.isLoading}
+              prefs={notifications.prefs}
+              error={notifications.error}
+              onSubscribe={() => {
+                notifications.subscribe();
+              }}
+              onUnsubscribe={() => {
+                notifications.unsubscribe();
+              }}
+              onTogglePref={(key, value) => {
+                notifications.updatePrefs({ [key]: value });
+              }}
+            />
+          </YStack>
+        </Card>
+      ) : null}
     </PageShell>
   );
 }
