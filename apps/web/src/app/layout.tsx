@@ -1,5 +1,6 @@
 import { DM_Mono, DM_Sans } from 'next/font/google';
 
+import { AppFooter } from '@/components/app-footer';
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { StaleDataBanner } from '@/components/stale-data-banner';
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <NavBar />
             <StaleDataBanner />
             {children}
+            <AppFooter />
           </Providers>
         </TamaguiClientProvider>
         {cfBeaconToken ? (
