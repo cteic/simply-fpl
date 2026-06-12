@@ -98,7 +98,7 @@ export function CohortTable({ rows, footer }: CohortTableProps) {
             <HeaderCell>Overall</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Legendary</HeaderCell>
+            <HeaderCell>Top 1k</HeaderCell>
           </YStack>
         </HeaderRow>
         {rows.map((row, idx) => {
