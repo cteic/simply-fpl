@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { auth } from '@simplyfpl/features';
 
-import { PostHogPageview, PostHogProvider } from '@/components/posthog-provider';
+import { PostHogProvider } from '@/components/posthog-provider';
 import { getSupabaseClient } from '@/lib/supabase';
 
 const { AuthProvider } = auth;
@@ -29,10 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider client={supabase}>
-        <PostHogProvider>
-          <PostHogPageview />
-          {children}
-        </PostHogProvider>
+        <PostHogProvider>{children}</PostHogProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
