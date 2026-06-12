@@ -104,7 +104,6 @@ function PlanCard({ tier, title, features, options, currentTier }: PlanCardProps
   const [selected, setSelected] = useState<BillingCycle>('monthly');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const isUltimate = tier === 'ultimate';
   const isOwned = currentTier === tier || (tier === 'pro' && currentTier === 'ultimate');
@@ -130,7 +129,8 @@ function PlanCard({ tier, title, features, options, currentTier }: PlanCardProps
       }
 
       const data = (await res.json()) as { url: string };
-      router.push(data.url);
+      // Stripe checkout is an external URL; bypass typed-routes.
+      window.location.href = data.url;
     } catch {
       setError('Network error. Please try again.');
     } finally {
