@@ -12,6 +12,9 @@ const FEATURE_FRANK_ONDEMAND_SERVER = process.env['FEATURE_FRANK_ONDEMAND'] === 
 const FRANK_MODEL = 'claude-haiku-4-5-20251001';
 const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 
+const FRANK_QUOTA_SOFT = 50;
+const FRANK_QUOTA_HARD = 80;
+
 export const runtime = 'edge';
 
 interface AskBody {
@@ -22,6 +25,28 @@ function isAskBody(value: unknown): value is AskBody {
   return (
     typeof value === 'object' && value !== null && typeof (value as AskBody).question === 'string'
   );
+}
+
+interface FrankJsonResponse {
+  advice: string;
+  supporting_data?: { player_id?: number; gw?: number };
+  follow_up_question?: string;
+}
+
+function parseFrankJson(raw: string): FrankJsonResponse | null {
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      typeof (parsed as FrankJsonResponse).advice === 'string'
+    ) {
+      return parsed as FrankJsonResponse;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -40,12 +65,31 @@ export async function POST(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('tier')
+    .select('tier, fpl_entry_id')
     .eq('id', user.id)
     .maybeSingle();
 
   if (!profile || profile.tier !== 'ultimate') {
     return NextResponse.json({ error: 'Ultimate tier required' }, { status: 402 });
+  }
+
+  const startOfMonth = new Date();
+  startOfMonth.setUTCDate(1);
+  startOfMonth.setUTCHours(0, 0, 0, 0);
+
+  const { count: monthlyCount } = await supabase
+    .from('frank_queries')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('created_at', startOfMonth.toISOString());
+
+  const used = monthlyCount ?? 0;
+
+  if (used >= FRANK_QUOTA_HARD) {
+    return NextResponse.json(
+      { error: 'Monthly quota reached', used, limit: FRANK_QUOTA_HARD },
+      { status: 429 }
+    );
   }
 
   let body: unknown;
@@ -62,19 +106,36 @@ export async function POST(request: NextRequest) {
   const question = body.question.trim().slice(0, 500);
 
   let weeklyContext = '';
-  try {
-    const weeklyRes = await fetch(`${API_BASE_URL}/frank/weekly`);
-    if (weeklyRes.ok) {
-      const weekly = (await weeklyRes.json()) as FrankWeeklyPayload;
+  let teamContext = '';
+
+  const [weeklyRes, snapshotRes] = await Promise.allSettled([
+    fetch(`${API_BASE_URL}/frank/weekly`),
+    profile.fpl_entry_id
+      ? fetch(`${API_BASE_URL}/snapshot/entry/${profile.fpl_entry_id}`)
+      : Promise.resolve(null),
+  ]);
+
+  if (weeklyRes.status === 'fulfilled' && weeklyRes.value?.ok) {
+    try {
+      const weekly = (await weeklyRes.value.json()) as FrankWeeklyPayload;
       weeklyContext = JSON.stringify({
         gameweek: weekly.gameweek,
         captainCandidates: weekly.captainCandidates,
         transferTargets: weekly.transferTargets,
         chipNote: weekly.chipNote,
       });
+    } catch {
+      // best-effort
     }
-  } catch {
-    // weekly context is best-effort
+  }
+
+  if (snapshotRes.status === 'fulfilled' && snapshotRes.value !== null && snapshotRes.value?.ok) {
+    try {
+      const snapshot = (await snapshotRes.value.json()) as unknown;
+      teamContext = JSON.stringify(snapshot);
+    } catch {
+      // best-effort
+    }
   }
 
   const apiKey = process.env['ANTHROPIC_API_KEY'];
@@ -84,21 +145,24 @@ export async function POST(request: NextRequest) {
 
   const client = new Anthropic({ apiKey });
 
+  const contextText = [
+    weeklyContext ? `Weekly FPL context: ${weeklyContext}` : '',
+    teamContext ? `User's current team: ${teamContext}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
   const systemParts: Anthropic.TextBlockParam[] = [
     {
       type: 'text',
-      text:
-        'You are Frank, an AI FPL (Fantasy Premier League) coach. ' +
-        "Answer the user's question concisely and helpfully. " +
-        'Be specific: reference players, teams, fixtures, and prices where relevant. ' +
-        'Keep your answer under 150 words.',
+      text: 'You are Frank, a concise data-driven FPL coach answering one user question about their team. Output JSON: { advice, supporting_data: { player_id?, gw? }, follow_up_question? }. Stay terse — max 200 words.',
     },
   ];
 
-  if (weeklyContext) {
+  if (contextText) {
     systemParts.push({
       type: 'text',
-      text: `This week's FPL context: ${weeklyContext}`,
+      text: contextText,
       cache_control: { type: 'ephemeral' },
     });
   }
@@ -110,17 +174,21 @@ export async function POST(request: NextRequest) {
     messages: [{ role: 'user', content: question }],
   });
 
-  const answer = message.content
+  const rawText = message.content
     .filter((block): block is Anthropic.TextBlock => block.type === 'text')
     .map((block: Anthropic.TextBlock) => block.text)
     .join('');
+
+  const parsed = parseFrankJson(rawText);
+  const advice = parsed?.advice ?? rawText;
+  const responsePayload: FrankJsonResponse = parsed ?? { advice: rawText };
 
   const admin = getSupabaseAdminClient();
   try {
     await admin.from('frank_queries').insert({
       user_id: user.id,
       question,
-      response: { answer },
+      response: responsePayload,
       model: FRANK_MODEL,
       tokens_in: message.usage.input_tokens,
       tokens_out: message.usage.output_tokens,
@@ -129,5 +197,11 @@ export async function POST(request: NextRequest) {
     // log to frank_queries is best-effort; don't fail the response
   }
 
-  return NextResponse.json({ answer });
+  return NextResponse.json({
+    advice,
+    follow_up_question: parsed?.follow_up_question ?? null,
+    used: used + 1,
+    softCap: FRANK_QUOTA_SOFT,
+    hardCap: FRANK_QUOTA_HARD,
+  });
 }
