@@ -10,7 +10,12 @@ import { handleLeagueSummary } from './leagues';
 import { buildFplPassthroughTarget } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
-import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
+import {
+  handleVsData,
+  handleVsDebugMeasure,
+  handleVsScreenshot,
+  handleVsTimedFetch,
+} from './vs/routes';
 import { runComparison } from './vs/scheduled';
 
 export { LiveGwDO } from './live-gw-do';
@@ -310,6 +315,10 @@ export default {
 
     if (url.pathname === '/vs/debug-measure' || url.pathname === '/vs/debug-measure/') {
       return handleVsDebugMeasure(env, request);
+    }
+
+    if (url.pathname === '/vs/timed-fetch' || url.pathname === '/vs/timed-fetch/') {
+      return handleVsTimedFetch(env, request);
     }
 
     const snapshotMatch = url.pathname.match(/^\/snapshot\/entry\/(\d+)\/?$/);
