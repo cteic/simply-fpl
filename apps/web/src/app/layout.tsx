@@ -1,5 +1,6 @@
 import { DM_Mono, DM_Sans } from 'next/font/google';
 
+import { AppFooter } from '@/components/app-footer';
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { ServiceWorkerInitializer } from '@/components/service-worker-initializer';
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <StaleDataBanner />
             {FEATURE_WEB_PUSH ? <ServiceWorkerInitializer /> : null}
             {children}
+            <AppFooter />
           </Providers>
         </TamaguiClientProvider>
         {cfBeaconToken ? (
