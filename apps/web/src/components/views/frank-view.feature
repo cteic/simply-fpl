@@ -25,3 +25,23 @@ Feature: Frank AI coach view
     Given the Frank weekly cache returns a 404
     When the user visits the Frank page
     Then they see the empty state message
+
+  Scenario: Ultimate user asks Frank and receives a response
+    Given the Frank weekly cache returns GW10 advice
+    And the user is on the ultimate tier with 0 queries this month
+    And the FEATURE_FRANK_ONDEMAND flag is on
+    When the user submits the question "Should I captain Salah this week?"
+    Then they receive an advice response from Frank
+    And the quota used updates to 1
+
+  Scenario: Ultimate user at soft cap sees a warning
+    Given the user is on the ultimate tier with 50 queries this month
+    And the FEATURE_FRANK_ONDEMAND flag is on
+    When the user views the Ask Frank form
+    Then they see a soft cap warning indicating 50 of 80 questions used
+
+  Scenario: Free user sees upgrade CTA linking to /upgrade
+    Given the user is on the free tier
+    And the FEATURE_FRANK_ONDEMAND flag is on
+    When the user views the Ask Frank form
+    Then they see a CTA that links to /upgrade
