@@ -27,6 +27,13 @@ describe('selectRivalEntryIds', () => {
     expect(userStanding?.entry).toBe(3);
   });
 
+  it('returns the whole league for a 12-member league', () => {
+    const standings = Array.from({ length: 12 }, (_, i) => makeStanding(200 + i, i + 1));
+    const { rivalEntryIds, isWholeLeague } = selectRivalEntryIds(standings, 206);
+    expect(isWholeLeague).toBe(true);
+    expect(rivalEntryIds).toHaveLength(11);
+  });
+
   it('returns 2 above + 2 below by default when league exceeds the small threshold', () => {
     const standings = Array.from({ length: 20 }, (_, i) => makeStanding(100 + i, i + 1));
     const { rivalEntryIds, isWholeLeague, userStanding } = selectRivalEntryIds(standings, 109);
@@ -67,7 +74,7 @@ describe('selectRivalEntryIds', () => {
     expect(rivalEntryIds).toEqual([108, 110, 111, 112]);
   });
 
-  it('SMALL_LEAGUE_THRESHOLD is 8', () => {
-    expect(SMALL_LEAGUE_THRESHOLD).toBe(8);
+  it('SMALL_LEAGUE_THRESHOLD is 19', () => {
+    expect(SMALL_LEAGUE_THRESHOLD).toBe(19);
   });
 });

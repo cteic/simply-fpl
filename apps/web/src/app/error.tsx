@@ -2,16 +2,37 @@
 
 import { useEffect } from 'react';
 
+import posthog from 'posthog-js';
+
 import { Button, FNote, PageHeader, PageShell, Text, YStack } from '@simplyfpl/ui';
+
+import { sanitizePath } from '@/lib/analytics';
 
 interface ErrorBoundaryProps {
   error: Error & { digest?: string };
   reset: () => void;
 }
 
+// Strips numeric segments from error messages so FPL entry/league IDs don't
+// appear in PostHog exceptions.
+function sanitizeMessage(message: string): string {
+  return message.replace(/\b\d{4,}\b/g, ':id');
+}
+
 export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   useEffect(() => {
     console.error('App error boundary:', error);
+
+    if (posthog.__loaded) {
+      posthog.captureException(error, {
+        properties: {
+          component: 'AppErrorBoundary',
+          message_hash: sanitizeMessage(error.message ?? ''),
+          path: sanitizePath(window.location.pathname),
+          digest: error.digest ?? null,
+        },
+      });
+    }
   }, [error]);
 
   return (
