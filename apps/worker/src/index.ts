@@ -9,6 +9,7 @@ import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from '.
 import { handleLeagueSummary } from './leagues';
 import { buildFplPassthroughTarget } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
+import { RIVALS_WARM_CRON, runRivalsWarm } from './rivals-warm';
 import { handleEntrySnapshot } from './snapshot';
 import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './vs/routes';
 import { runComparison } from './vs/scheduled';
@@ -426,6 +427,10 @@ export default {
     }
     if (event.cron === FRANK_WEEKLY_CRON) {
       await runFrankWeekly(env).catch(() => undefined);
+      return;
+    }
+    if (event.cron === RIVALS_WARM_CRON) {
+      ctx.waitUntil(runRivalsWarm(env, ctx).catch(() => undefined));
       return;
     }
     await warmPricesCache(env, ctx).catch(() => undefined);
