@@ -86,6 +86,8 @@ function makeLive(specs: PlayerSpec[]): FplLiveGameweek {
         bonus: 0,
         bps: 0,
         total_points: spec.points,
+        clearances_blocks_interceptions: 0,
+        tackles: 0,
       },
       explain: [],
     })),

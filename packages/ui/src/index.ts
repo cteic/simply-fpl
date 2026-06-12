@@ -11,6 +11,7 @@ export {
 } from './tamagui-primitives';
 
 export * from './components/ad-slot';
+export * from './components/defcon-bar';
 export * from './components/analytics-consent-banner';
 export * from './components/bench-divider';
 export * from './components/button';

@@ -113,6 +113,11 @@ const Prob = styled(Text, {
   } as const,
 });
 
+interface DefConMiniBar {
+  percentage: number;
+  breakdown?: string;
+}
+
 interface PriceRowProps {
   index: number;
   name: string;
@@ -122,6 +127,7 @@ interface PriceRowProps {
   probability: number;
   last?: boolean;
   accentColor?: string | undefined;
+  defconBar?: DefConMiniBar | undefined;
 }
 
 export function PriceRow({
@@ -133,6 +139,7 @@ export function PriceRow({
   probability,
   last,
   accentColor,
+  defconBar,
 }: PriceRowProps) {
   const arrow = flow === 'rise' ? '↑' : '↓';
   return (
@@ -144,6 +151,21 @@ export function PriceRow({
           <Name>{name}</Name>
         </XStack>
         <Club>{club}</Club>
+        {defconBar ? (
+          <YStack
+            marginTop={4}
+            aria-label={defconBar.breakdown ?? `${Math.round(defconBar.percentage)}% CBIT/90`}
+          >
+            <Track>
+              <YStack
+                height="100%"
+                borderRadius={2}
+                backgroundColor="$colorSubtle"
+                width={`${Math.max(0, Math.min(100, defconBar.percentage))}%`}
+              />
+            </Track>
+          </YStack>
+        ) : null}
       </Info>
       <Bar>
         <Track>
