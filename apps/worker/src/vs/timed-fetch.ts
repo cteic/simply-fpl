@@ -53,8 +53,12 @@ interface RateLimitRecord {
 
 function isRateLimitRecord(value: unknown): value is RateLimitRecord {
   if (typeof value !== 'object' || value === null) return false;
-  const rec = value as Record<string, unknown>;
-  return typeof rec.count === 'number' && typeof rec.windowStart === 'number';
+  return (
+    'count' in value &&
+    typeof value.count === 'number' &&
+    'windowStart' in value &&
+    typeof value.windowStart === 'number'
+  );
 }
 
 async function checkRateLimit(
