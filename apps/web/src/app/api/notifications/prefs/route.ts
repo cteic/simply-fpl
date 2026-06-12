@@ -65,15 +65,20 @@ export async function PUT(request: NextRequest) {
   }
 
   const updates = body as Record<string, unknown>;
-  const safeUpdate: Record<string, unknown> = {
+  const safeUpdate: {
+    user_id: string;
+    updated_at: string;
+    deadline_reminder?: boolean;
+    captain_scored?: boolean;
+  } = {
     user_id: user.id,
     updated_at: new Date().toISOString(),
   };
 
   if (typeof updates['deadline_reminder'] === 'boolean')
-    safeUpdate['deadline_reminder'] = updates['deadline_reminder'];
+    safeUpdate.deadline_reminder = updates['deadline_reminder'];
   if (typeof updates['captain_scored'] === 'boolean')
-    safeUpdate['captain_scored'] = updates['captain_scored'];
+    safeUpdate.captain_scored = updates['captain_scored'];
 
   const admin = getSupabaseAdminClient();
   const { error } = await admin
