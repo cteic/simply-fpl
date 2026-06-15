@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
-import { rivals } from '@simplyfpl/features';
+import { auth, leagues as leagueFeatures, rivals, subscriptions } from '@simplyfpl/features';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import type {
   FplBootstrapStatic,
@@ -17,9 +17,12 @@ import {
   Card,
   DifferentialsPanel,
   FNote,
+  LeagueSwitcher,
   PageHeader,
   PageShell,
+  ProBanner,
   RivalCell,
+  RivalsWindowSelector,
   SectionHeader,
   Text,
   XStack,
@@ -30,7 +33,19 @@ import type { DifferentialPlayer } from '@simplyfpl/ui';
 import { useFlipAnimation } from '@/hooks/use-flip-animation';
 import { useBootstrap, useClassicLeague, useEntryPicks, useLiveGameweek } from '@/queries/fpl';
 
-const { computeDifferentials, computeRivalsBoard, selectRivalEntryIds, useRivalPicks } = rivals;
+const {
+  computeDifferentials,
+  computeRivalsBoard,
+  selectRivalEntryIds,
+  useRivalPicks,
+  windowSizeToSelectOptions,
+  useRivalsWindowSize,
+  getVisibleLeagues,
+  WINDOW_OPTIONS,
+} = rivals;
+const { useTier } = subscriptions;
+const { useTrackedLeagues } = leagueFeatures;
+const { useAuth } = auth;
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
@@ -113,15 +128,24 @@ interface RivalsInnerProps {
 }
 
 export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
+  const router = useRouter();
+  const { isPro } = useTier();
+  const { user } = useAuth();
+  const { leagues: allLeagues } = useTrackedLeagues();
+  const visibleLeagues = useMemo(() => getVisibleLeagues(allLeagues, isPro), [allLeagues, isPro]);
+  const hasHiddenLeagues = !isPro && allLeagues.length > 1;
+  const [windowSize, setWindowSize] = useRivalsWindowSize(user?.id ?? null, isPro);
+
   const { data: league, isLoading: leagueLoading, error: leagueError } = useClassicLeague(leagueId);
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const { data: liveGw } = useLiveGameweek(currentGw);
 
   const standings: FplLeagueStanding[] = league?.standings.results ?? [];
+  const selectOptions = useMemo(() => windowSizeToSelectOptions(windowSize), [windowSize]);
   const { rivalEntryIds, userStanding, isWholeLeague } = useMemo(
-    () => selectRivalEntryIds(standings, userEntryId),
-    [standings, userEntryId]
+    () => selectRivalEntryIds(standings, userEntryId, selectOptions),
+    [standings, userEntryId, selectOptions]
   );
 
   const allEntryIds = useMemo(() => {
@@ -135,6 +159,15 @@ export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
 
   const userPicks: FplEntryGameweekPicks | undefined =
     picksMap.get(userEntryId) ?? userPicksFromHook;
+
+  function handleLeagueSelect(id: number) {
+    router.push(`/rivals/${String(id)}`);
+  }
+
+  function handleWindowSizeChange(size: number) {
+    const coerced = size as (typeof WINDOW_OPTIONS)[number];
+    setWindowSize(coerced);
+  }
 
   if (leagueLoading) {
     return (
@@ -176,6 +209,7 @@ export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
       leagueSize={standings.length}
       isWholeLeague={isWholeLeague}
       userEntryId={userEntryId}
+      activeLeagueId={leagueId}
       userStanding={userStanding}
       standings={standings}
       rivalEntryIds={rivalEntryIds}
@@ -185,6 +219,13 @@ export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
       liveGw={liveGw ?? null}
       bootstrap={bootstrap ?? null}
       currentGw={currentGw}
+      isPro={isPro}
+      visibleLeagueIds={visibleLeagues.map((l) => l.league_id)}
+      hasHiddenLeagues={hasHiddenLeagues}
+      windowSize={windowSize}
+      windowOptions={WINDOW_OPTIONS}
+      onWindowSizeChange={handleWindowSizeChange}
+      onLeagueSelect={handleLeagueSelect}
     />
   );
 }
@@ -194,6 +235,7 @@ interface RivalsBoardProps {
   leagueSize: number;
   isWholeLeague: boolean;
   userEntryId: number;
+  activeLeagueId: number;
   userStanding: FplLeagueStanding;
   standings: FplLeagueStanding[];
   rivalEntryIds: number[];
@@ -203,6 +245,13 @@ interface RivalsBoardProps {
   liveGw: FplLiveGameweek | null;
   bootstrap: FplBootstrapStatic | null;
   currentGw: number | null;
+  isPro: boolean;
+  visibleLeagueIds: number[];
+  hasHiddenLeagues: boolean;
+  windowSize: number;
+  windowOptions: readonly number[];
+  onWindowSizeChange: (size: number) => void;
+  onLeagueSelect: (leagueId: number) => void;
 }
 
 function RivalsBoardSection({
@@ -210,6 +259,7 @@ function RivalsBoardSection({
   leagueSize,
   isWholeLeague,
   userEntryId,
+  activeLeagueId,
   userStanding,
   standings,
   rivalEntryIds,
@@ -219,6 +269,13 @@ function RivalsBoardSection({
   liveGw,
   bootstrap,
   currentGw,
+  isPro,
+  visibleLeagueIds,
+  hasHiddenLeagues,
+  windowSize,
+  windowOptions,
+  onWindowSizeChange,
+  onLeagueSelect,
 }: RivalsBoardProps) {
   const standingsByEntry = useMemo(() => {
     const map = new Map<number, FplLeagueStanding>();
@@ -277,7 +334,6 @@ function RivalsBoardSection({
 
   const orderedRows = useMemo(() => {
     const rowByEntry = new Map(board.map((r) => [r.entryId, r]));
-    // When live data is available, sort by live points (board order); fall back to league rank.
     const orderedIds = board.length > 0 ? board.map((r) => r.entryId) : includedEntryIds;
     return orderedIds.flatMap((entryId) => {
       const standing = standingsByEntry.get(entryId);
@@ -329,9 +385,46 @@ function RivalsBoardSection({
     return playerLookup.get(cap.element)?.web_name ?? null;
   }
 
+  const showLeagueSwitcher = visibleLeagueIds.length > 1;
+
   return (
     <PageShell>
       <PageHeader tone="stadium" title="Rivals" meta={meta} />
+
+      {showLeagueSwitcher || hasHiddenLeagues ? (
+        <YStack marginBottom={12}>
+          {showLeagueSwitcher ? (
+            <LeagueSwitcher
+              leagueIds={visibleLeagueIds}
+              activeLeagueId={activeLeagueId}
+              onSelect={onLeagueSelect}
+            />
+          ) : null}
+          {hasHiddenLeagues ? (
+            <ProBanner
+              title="Track multiple leagues"
+              body="You have more than one mini-league tracked. Upgrade to switch between them."
+              ctaLabel="Upgrade"
+              onPress={() => {
+                window.location.href = '/upgrade';
+              }}
+            />
+          ) : null}
+        </YStack>
+      ) : null}
+
+      {isPro ? (
+        <XStack alignItems="center" gap={8} marginBottom={12}>
+          <Text fontFamily="$body" fontSize="$4" color="$colorSubtle">
+            Window
+          </Text>
+          <RivalsWindowSelector
+            options={windowOptions}
+            selected={windowSize}
+            onSelect={onWindowSizeChange}
+          />
+        </XStack>
+      ) : null}
 
       {!ready ? (
         <Card paddingHorizontal={16} paddingVertical={14} marginBottom={16}>
