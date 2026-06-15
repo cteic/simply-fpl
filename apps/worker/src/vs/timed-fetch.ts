@@ -61,7 +61,7 @@ function isRateLimitRecord(value: unknown): value is RateLimitRecord {
   );
 }
 
-async function checkRateLimit(
+export async function checkRateLimit(
   kv: KvStore,
   ip: string,
   now: number

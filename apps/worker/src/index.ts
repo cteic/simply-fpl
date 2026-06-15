@@ -10,7 +10,7 @@ import { handleLeagueSummary } from './leagues';
 import { runCaptainScoredCheck } from './notify/captain-scored';
 import { runDeadlineReminder } from './notify/deadline-reminder';
 import { dispatchNotification } from './notify/dispatch';
-import { buildFplPassthroughTarget } from './passthrough';
+import { buildFplPassthroughTarget, matchFplRoute } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
 import { RIVALS_WARM_CRON, runRivalsWarm } from './rivals-warm';
 import { handleEntrySnapshot } from './snapshot';
@@ -21,6 +21,7 @@ import {
   handleVsTimedFetch,
 } from './vs/routes';
 import { runComparison } from './vs/scheduled';
+import { checkRateLimit } from './vs/timed-fetch';
 
 export { LiveGwDO } from './live-gw-do';
 
@@ -51,6 +52,10 @@ export interface Env {
 const VS_COMPARISON_CRON = '0 6 * * 1';
 const DEADLINE_REMINDER_CRON = '30 17 * * *';
 
+const PUBLIC_RATE_LIMIT = 120;
+const STATUS_RATE_LIMIT = 10;
+const RL_KEY_PREFIX = 'rl:';
+
 const FPL_HOST = 'https://fantasy.premierleague.com';
 const FPL_ORIGIN = `${FPL_HOST}/api`;
 const FPL_CDN_ORIGIN = `${FPL_HOST}/dist/img/shirts/standard`;
@@ -60,6 +65,24 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+async function enforceRateLimit(env: Env, ip: string, limit: number): Promise<Response | null> {
+  const check = await checkRateLimit(env.FPL_CACHE, `${RL_KEY_PREFIX}${limit}:${ip}`, Date.now());
+  if (!check.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'rate_limited', retryAfterSeconds: check.retryAfterSeconds }),
+      {
+        status: 429,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'Retry-After': String(check.retryAfterSeconds),
+        },
+      }
+    );
+  }
+  return null;
+}
 
 // Route → cache TTL mapping (seconds)
 function getTtl(pathname: string): number {
@@ -274,6 +297,11 @@ export default {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
+    const clientIp =
+      request.headers.get('CF-Connecting-IP') ??
+      request.headers.get('X-Forwarded-For') ??
+      '0.0.0.0';
+
     const cohortMatch = url.pathname.match(/^\/cohorts\/gw(\d+)\/aggregates\.json$/);
     if (cohortMatch && cohortMatch[1] && (request.method === 'GET' || request.method === 'HEAD')) {
       return handleCohortAggregates(env, Number(cohortMatch[1]), request.method);
@@ -331,6 +359,8 @@ export default {
 
     // Route: /status → health check (uptime monitor target)
     if (url.pathname === '/status' || url.pathname === '/status/') {
+      const rlStatus = await enforceRateLimit(env, clientIp, STATUS_RATE_LIMIT);
+      if (rlStatus) return rlStatus;
       return handleStatus(env);
     }
 
@@ -467,6 +497,16 @@ export default {
     }
 
     const fplPath = fplMatch[1];
+    if (!matchFplRoute(fplPath)) {
+      return new Response(JSON.stringify({ error: 'Not found', path: url.pathname }), {
+        status: 404,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const rlFpl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+    if (rlFpl) return rlFpl;
+
     const { upstreamUrl, cacheKey } = buildFplPassthroughTarget(FPL_ORIGIN, fplPath, url.search);
     const ttl = getTtl(fplPath);
 
