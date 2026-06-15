@@ -40,6 +40,10 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
   const themeName = resolveThemeName(useThemeName());
   if (tone === 'stadium') {
     const surface = featureSurfaceStyle(themeName, 'panel');
+    // Quiet has a light surface (no dark gradient), so hard-coded white text
+    // is invisible. Stadium + Bold both render onto a dark gradient.
+    const titleColor = themeName === 'quiet' ? '$color' : '#FFFFFF';
+    const metaColor = themeName === 'quiet' ? '$colorMuted' : 'rgba(255,255,255,0.72)';
     return (
       <YStack
         borderRadius={14}
@@ -60,7 +64,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
                 fontSize="$13"
                 fontWeight="600"
                 letterSpacing="$2"
-                color="#FFFFFF"
+                color={titleColor}
               >
                 {title}
               </Text>
@@ -72,7 +76,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
                 fontFamily="$body"
                 fontSize="$4"
                 letterSpacing="$6"
-                color="rgba(255,255,255,0.72)"
+                color={metaColor}
                 marginTop={5}
               >
                 {meta}
