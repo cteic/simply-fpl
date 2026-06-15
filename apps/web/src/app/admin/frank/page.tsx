@@ -18,33 +18,37 @@ interface MonthlyRow {
 }
 
 async function getMonthlyStats(): Promise<MonthlyRow[]> {
-  const admin = getSupabaseAdminClient();
-  const startOfMonth = new Date();
-  startOfMonth.setUTCDate(1);
-  startOfMonth.setUTCHours(0, 0, 0, 0);
+  try {
+    const admin = getSupabaseAdminClient();
+    const startOfMonth = new Date();
+    startOfMonth.setUTCDate(1);
+    startOfMonth.setUTCHours(0, 0, 0, 0);
 
-  const { data } = await admin
-    .from('frank_queries')
-    .select('user_id, tokens_in, tokens_out')
-    .gte('created_at', startOfMonth.toISOString());
+    const { data } = await admin
+      .from('frank_queries')
+      .select('user_id, tokens_in, tokens_out')
+      .gte('created_at', startOfMonth.toISOString());
 
-  if (!data) return [];
+    if (!data) return [];
 
-  const byUser = new Map<string, MonthlyRow>();
-  for (const row of data) {
-    const existing = byUser.get(row.user_id) ?? {
-      user_id: row.user_id,
-      query_count: 0,
-      tokens_in_total: 0,
-      tokens_out_total: 0,
-    };
-    existing.query_count += 1;
-    existing.tokens_in_total += row.tokens_in ?? 0;
-    existing.tokens_out_total += row.tokens_out ?? 0;
-    byUser.set(row.user_id, existing);
+    const byUser = new Map<string, MonthlyRow>();
+    for (const row of data) {
+      const existing = byUser.get(row.user_id) ?? {
+        user_id: row.user_id,
+        query_count: 0,
+        tokens_in_total: 0,
+        tokens_out_total: 0,
+      };
+      existing.query_count += 1;
+      existing.tokens_in_total += row.tokens_in ?? 0;
+      existing.tokens_out_total += row.tokens_out ?? 0;
+      byUser.set(row.user_id, existing);
+    }
+
+    return [...byUser.values()].sort((a, b) => b.query_count - a.query_count);
+  } catch {
+    return [];
   }
-
-  return [...byUser.values()].sort((a, b) => b.query_count - a.query_count);
 }
 
 export default async function AdminFrankPage() {
