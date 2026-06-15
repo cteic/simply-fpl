@@ -34,6 +34,8 @@ function makeElement(id: number, bps: number, opts: { bonus?: number } = {}): Fp
       bonus: opts.bonus ?? 0,
       bps,
       total_points: 0,
+      clearances_blocks_interceptions: 0,
+      tackles: 0,
     },
     explain: [{ fixture: 1, stats: [] }],
   };

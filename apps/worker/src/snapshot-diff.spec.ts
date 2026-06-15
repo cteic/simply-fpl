@@ -19,6 +19,8 @@ function makeElement(id: number, overrides: Partial<FplLiveElement['stats']> = {
       bonus: 0,
       bps: 0,
       total_points: 0,
+      clearances_blocks_interceptions: 0,
+      tackles: 0,
       ...overrides,
     },
     explain: [],

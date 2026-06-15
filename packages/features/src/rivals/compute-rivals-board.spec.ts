@@ -74,6 +74,8 @@ function makeLive(pts: Record<number, number>): FplLiveGameweek {
         bonus: 0,
         bps: 0,
         total_points,
+        clearances_blocks_interceptions: 0,
+        tackles: 0,
       },
       explain: [],
     })),
