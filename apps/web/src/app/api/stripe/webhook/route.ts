@@ -29,10 +29,14 @@ function tierFromPriceId(priceId: string, env: ReturnType<typeof getStripeEnv>):
   return null;
 }
 
-async function markProcessed(eventId: string): Promise<boolean> {
+type MarkResult = 'ok' | 'duplicate' | 'error';
+
+async function markProcessed(eventId: string): Promise<MarkResult> {
   const admin = getSupabaseAdminClient();
   const { error } = await admin.from('stripe_events').insert({ id: eventId });
-  return !error;
+  if (!error) return 'ok';
+  if (error.code === '23505') return 'duplicate';
+  return 'error';
 }
 
 async function setProfileTier(
@@ -49,7 +53,20 @@ async function setProfileTier(
   } = { tier };
   if (customerId) update.stripe_customer_id = customerId;
   if (subscriptionId !== undefined) update.stripe_subscription_id = subscriptionId;
-  await admin.from('profiles').update(update).eq('id', userId);
+  const { error } = await admin.from('profiles').update(update).eq('id', userId);
+  if (error) throw new Error(`profiles update failed: ${error.message}`);
+}
+
+async function revertTierToFree(customerId: string) {
+  const admin = getSupabaseAdminClient();
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+  if (!profile) return;
+  const { error } = await admin.from('profiles').update({ tier: 'free' }).eq('id', profile.id);
+  if (error) throw new Error(`profiles revert failed: ${error.message}`);
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
@@ -105,10 +122,29 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
   if (!profile) return;
 
-  await admin
+  const { error } = await admin
     .from('profiles')
     .update({ tier: 'free', stripe_subscription_id: null })
     .eq('id', profile.id);
+  if (error) throw new Error(`profiles update failed: ${error.message}`);
+}
+
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  const customerId = typeof charge.customer === 'string' ? charge.customer : null;
+  if (!customerId) return;
+  await revertTierToFree(customerId);
+}
+
+async function handleDisputeCreated(dispute: Stripe.Dispute) {
+  let customerId: string | null = null;
+  if (typeof dispute.charge === 'string') {
+    const charge = await getStripe().charges.retrieve(dispute.charge);
+    customerId = typeof charge.customer === 'string' ? charge.customer : null;
+  } else {
+    customerId = typeof dispute.charge.customer === 'string' ? dispute.charge.customer : null;
+  }
+  if (!customerId) return;
+  await revertTierToFree(customerId);
 }
 
 export async function POST(request: NextRequest) {
@@ -127,11 +163,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
   }
 
-  const processed = await markProcessed(event.id);
-  if (!processed) {
-    return NextResponse.json({ received: true });
-  }
-
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -146,11 +177,27 @@ export async function POST(request: NextRequest) {
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
 
+      case 'charge.refunded':
+        await handleChargeRefunded(event.data.object);
+        break;
+
+      case 'charge.dispute.created':
+        await handleDisputeCreated(event.data.object);
+        break;
+
       default:
         break;
     }
   } catch {
     return NextResponse.json({ error: 'Handler error' }, { status: 500 });
+  }
+
+  const result = await markProcessed(event.id);
+  if (result === 'duplicate') {
+    return NextResponse.json({ received: true });
+  }
+  if (result === 'error') {
+    return NextResponse.json({ error: 'Failed to record event' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
