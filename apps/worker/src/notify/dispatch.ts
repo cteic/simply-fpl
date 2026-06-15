@@ -26,6 +26,12 @@ interface SupabaseLogInsert {
   sent_at: string;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidUuid(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
 function serviceRoleHeaders(serviceRole: string): Record<string, string> {
   return {
     apikey: serviceRole,
@@ -61,7 +67,9 @@ async function fetchTargetSubscriptions(
 
   let prefsUrl = `${env.SUPABASE_URL}/rest/v1/notification_prefs?select=user_id&${prefField}=eq.true`;
   if (userIds && userIds.length > 0) {
-    prefsUrl += `&user_id=in.(${userIds.join(',')})`;
+    if (!userIds.every(isValidUuid)) return [];
+    const encoded = userIds.map(encodeURIComponent).join(',');
+    prefsUrl += `&user_id=in.(${encoded})`;
   }
 
   const prefsRes = await fetch(prefsUrl, { headers });

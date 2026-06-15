@@ -4,6 +4,8 @@ import type { Env } from '../index';
 import { buildDeepLink } from './deep-links';
 import { dispatchNotification } from './dispatch';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const CAPTAIN_DEDUP_TTL_S = 86400 * 2;
 
 interface ProUserWithEntry {
@@ -82,7 +84,7 @@ export async function runCaptainScoredCheck(env: Env): Promise<void> {
 
   const liveByElement = new Map(liveGw.elements.map((el) => [el.id, el]));
 
-  const users = await fetchProUsersWithCaptainPref(env);
+  const users = (await fetchProUsersWithCaptainPref(env)).filter((u) => UUID_RE.test(u.user_id));
   if (users.length === 0) return;
 
   for (const user of users) {
