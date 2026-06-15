@@ -1,6 +1,6 @@
 {
   "gw": 21,
-  "builtAt": "2026-06-03T01:36:33.098Z",
+  "builtAt": "2026-06-15T11:38:36.415Z",
   "binSize": 5,
   "cohorts": {
     "top_10k": {
@@ -199,6 +199,91 @@
       ]
     },
     "legendary": {
+      "sampleSize": 1000,
+      "min": 34,
+      "max": 91,
+      "mean": 58.4,
+      "median": 59,
+      "percentiles": {
+        "p1": 39,
+        "p5": 44,
+        "p10": 47,
+        "p25": 53,
+        "p50": 59,
+        "p75": 64,
+        "p90": 69,
+        "p95": 73,
+        "p99": 78
+      },
+      "histogram": [
+        {
+          "min": 30,
+          "max": 35,
+          "count": 1
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 10
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 42
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 99
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 168
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 214
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 239
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 133
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 64
+        },
+        {
+          "min": 75,
+          "max": 80,
+          "count": 22
+        },
+        {
+          "min": 80,
+          "max": 85,
+          "count": 6
+        },
+        {
+          "min": 85,
+          "max": 90,
+          "count": 1
+        },
+        {
+          "min": 90,
+          "max": 95,
+          "count": 1
+        }
+      ]
+    },
+    "top_1k": {
       "sampleSize": 1000,
       "min": 34,
       "max": 91,
