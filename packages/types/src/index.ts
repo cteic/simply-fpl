@@ -14,6 +14,9 @@ export interface FplPlayer {
   transfers_out_event: number;
   chance_of_playing_next_round: number | null;
   news: string;
+  minutes?: number;
+  clearances_blocks_interceptions?: number;
+  tackles?: number;
 }
 
 export interface FplTeam {
@@ -50,6 +53,17 @@ export interface FplElementType {
   singular_name_short: string;
 }
 
+// DefCon (defensive contribution) bonus progress for a player in the current GW
+export interface DefConProgress {
+  eligible: boolean;
+  current: number;
+  threshold: number;
+  percentage: number;
+  awarded: boolean;
+  cbi: number;
+  tackles: number;
+}
+
 // Live gameweek types
 export interface FplLiveElement {
   id: number;
@@ -65,6 +79,8 @@ export interface FplLiveElement {
     bonus: number;
     bps: number;
     total_points: number;
+    clearances_blocks_interceptions: number;
+    tackles: number;
   };
   explain: FplExplain[];
 }

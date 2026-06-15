@@ -60,6 +60,8 @@ function makeFrame(ts: string, points: Record<number, number>): RecordingRow {
           bonus: 0,
           bps: 0,
           total_points: points[player.id] ?? 0,
+          clearances_blocks_interceptions: 0,
+          tackles: 0,
         },
         explain: [],
       })),
