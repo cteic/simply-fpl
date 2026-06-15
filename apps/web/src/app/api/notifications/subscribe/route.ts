@@ -43,6 +43,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing or invalid subscription fields' }, { status: 400 });
   }
 
+  let parsedEndpoint: URL;
+  try {
+    parsedEndpoint = new URL(endpoint);
+  } catch {
+    return NextResponse.json({ error: 'Invalid endpoint URL' }, { status: 400 });
+  }
+  const ALLOWED_PUSH_HOSTS =
+    /^(.+\.googleapis\.com|.+\.push\.services\.mozilla\.com|.+\.push\.apple\.com)$/;
+  if (parsedEndpoint.protocol !== 'https:' || !ALLOWED_PUSH_HOSTS.test(parsedEndpoint.hostname)) {
+    return NextResponse.json({ error: 'Endpoint host not allowed' }, { status: 400 });
+  }
+
   const admin = getSupabaseAdminClient();
   const { error } = await admin.from('push_subscriptions').upsert(
     {
