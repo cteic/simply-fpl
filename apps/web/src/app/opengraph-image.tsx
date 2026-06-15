@@ -1,21 +1,33 @@
 import { ImageResponse } from 'next/og';
 
+import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
+
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'SimplyFPL — Fastest live-rank companion for Fantasy Premier League';
 
+const FONT_TIMEOUT_MS = 3000;
+
 export default async function OpenGraphImage() {
-  const [dmMono, dmSans] = await Promise.all([
-    fetch(
-      new URL('https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2')
-    ).then((res) => res.arrayBuffer()),
-    fetch(
+  const [dmMonoResult, dmSansResult] = await Promise.all([
+    fetchWithTimeout(
+      new URL('https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2'),
+      FONT_TIMEOUT_MS
+    ),
+    fetchWithTimeout(
       new URL(
         'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAop0.woff2'
-      )
-    ).then((res) => res.arrayBuffer()),
+      ),
+      FONT_TIMEOUT_MS
+    ),
   ]);
+
+  const fonts: { name: string; data: ArrayBuffer; style: 'normal'; weight: 500 }[] = [];
+  if (dmMonoResult.ok)
+    fonts.push({ name: 'DM Mono', data: dmMonoResult.data, style: 'normal', weight: 500 });
+  if (dmSansResult.ok)
+    fonts.push({ name: 'DM Sans', data: dmSansResult.data, style: 'normal', weight: 500 });
 
   return new ImageResponse(
     <div
@@ -59,10 +71,7 @@ export default async function OpenGraphImage() {
     </div>,
     {
       ...size,
-      fonts: [
-        { name: 'DM Mono', data: dmMono, style: 'normal', weight: 500 },
-        { name: 'DM Sans', data: dmSans, style: 'normal', weight: 500 },
-      ],
+      fonts,
     }
   );
 }
