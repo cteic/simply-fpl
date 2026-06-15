@@ -2,8 +2,8 @@ Feature: Home cohort comparison table
 
   The home live-rank view shows a cohort comparison once live aggregates
   exist, comparing the manager's score against the Top 10k / Overall /
-  Legendary tiers. Until aggregates exist it shows a "coming soon"
-  placeholder rather than a wall of empty cells.
+  Top 1k tiers. While aggregates are being fetched it shows a skeleton;
+  if the worker 404s or is unreachable it shows "Cohort data unavailable".
 
   Background:
     Given the Worker returns deterministic FPL fixtures
@@ -15,8 +15,9 @@ Feature: Home cohort comparison table
     Then no page error should have occurred
     And the cohort table compares my score against each tier
 
-  Scenario: Cohort comparison shows a coming-soon placeholder without aggregates
+  Scenario: Cohort comparison shows an unavailable message without aggregates
     Given a team id is saved in storage
+    And the Worker returns 404 for the cohort aggregates endpoint
     When I visit the home page
     Then no page error should have occurred
-    And the cohort comparison shows a coming-soon placeholder
+    And the cohort comparison shows a data unavailable message
