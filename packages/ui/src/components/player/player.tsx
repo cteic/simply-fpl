@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { DefConBar } from '../defcon-bar';
+import type { DefConBarProps } from '../defcon-bar';
 import { PBadge } from '../pbadge';
 import { Shirt } from '../shirt';
 import type { ShirtKind } from '../shirt';
@@ -81,6 +83,7 @@ interface PlayerProps {
   ownershipPercent?: number | undefined;
   ownershipPartial?: boolean;
   accentColor?: string | undefined;
+  defcon?: DefConBarProps | undefined;
   onWhatIf?: () => void;
 }
 
@@ -97,6 +100,7 @@ export function Player({
   ownershipPercent,
   ownershipPartial = false,
   accentColor,
+  defcon,
   onWhatIf,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
@@ -120,6 +124,15 @@ export function Player({
           {ownershipPartial ? '~' : ''}
           {ownershipPercent.toFixed(1)}%
         </Ownership>
+      ) : null}
+      {defcon ? (
+        <DefConBar
+          current={defcon.current}
+          threshold={defcon.threshold}
+          percentage={defcon.percentage}
+          awarded={defcon.awarded}
+          {...(defcon.breakdown !== undefined ? { breakdown: defcon.breakdown } : {})}
+        />
       ) : null}
       {onWhatIf && !bench ? (
         <Text

@@ -50,6 +50,10 @@ function interpolateLiveElement(final: FplLiveElement, progress: number): FplLiv
       total_points: Math.round(
         final.stats.total_points * progress + (bonusVisible ? 0 : -final.stats.bonus * progress)
       ),
+      clearances_blocks_interceptions: Math.round(
+        final.stats.clearances_blocks_interceptions * progress
+      ),
+      tackles: Math.round(final.stats.tackles * progress),
     },
     explain: final.explain,
   };

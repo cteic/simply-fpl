@@ -10,6 +10,7 @@ import { cohorts, liveBattle, liveRank, whatIf } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
+  computeDefConProgress,
   computeRankDetails,
   getClubColor,
   getKitUrl,
@@ -156,6 +157,22 @@ function rowsForFormation(
         bonusInfo && bonusInfo.provisional && bonusInfo.bonus > 0 ? ` · +${bonusInfo.bonus}b?` : '';
       const detail = tbp ? `${teamShort} · TBP` : `${teamShort}${provisionalBonusLabel}`;
       const ownershipPercent = player ? Number.parseFloat(player.selected_by_percent) : undefined;
+      const defconProgress =
+        player && live
+          ? computeDefConProgress(player.element_type, {
+              clearances_blocks_interceptions: live.stats.clearances_blocks_interceptions,
+              tackles: live.stats.tackles,
+            })
+          : null;
+      const defcon = defconProgress?.eligible
+        ? {
+            current: defconProgress.current,
+            threshold: defconProgress.threshold,
+            percentage: defconProgress.percentage,
+            awarded: defconProgress.awarded,
+            breakdown: `CBI: ${defconProgress.cbi}, T: ${defconProgress.tackles} = ${defconProgress.current}/${defconProgress.threshold}${defconProgress.awarded ? ' ✓' : ''}`,
+          }
+        : undefined;
       return {
         key: pick.element,
         name,
@@ -171,6 +188,7 @@ function rowsForFormation(
           ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
             ? ownershipPercent
             : undefined,
+        defcon,
       };
     });
   }
@@ -219,6 +237,7 @@ function benchPlayers(
           ownershipPercent !== undefined && Number.isFinite(ownershipPercent)
             ? ownershipPercent
             : undefined,
+        defcon: undefined,
       };
     });
 }
@@ -430,6 +449,21 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const pitchRows = ready ? rowsForFormation(picks, bootstrap, liveGw, bonusMap) : [];
   const bench = ready ? benchPlayers(picks, bootstrap, liveGw) : [];
 
+  const defconGwPoints = ready
+    ? picks.picks
+        .filter((p) => p.position <= 11)
+        .reduce((sum, p) => {
+          const player = bootstrap.elements.find((e) => e.id === p.element);
+          const live = liveGw.elements.find((e) => e.id === p.element);
+          if (!player || !live) return sum;
+          const progress = computeDefConProgress(player.element_type, {
+            clearances_blocks_interceptions: live.stats.clearances_blocks_interceptions,
+            tackles: live.stats.tackles,
+          });
+          return sum + (progress.awarded ? 2 : 0);
+        }, 0)
+    : 0;
+
   const top10kPayload = aggregates?.tiers.top_10k;
   const top10kOwnership = useMemo(
     () => (top10kPayload ? aggregateToOwnershipMap(top10kPayload) : undefined),
@@ -605,6 +639,17 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       whatIfButton:
         ready && captainPick ? () => openWhatIf('captain', captainPick.element) : undefined,
     },
+    ...(ready && defconGwPoints > 0
+      ? [
+          {
+            label: 'DefCon',
+            value: String(defconGwPoints),
+            tick: defconGwPoints,
+            sub: 'def contribution pts',
+            accent: '$positive',
+          },
+        ]
+      : []),
   ];
 
   if (snapshotError) {
@@ -982,6 +1027,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                           ownershipPercent={own.ownershipPercent}
                           ownershipPartial={own.ownershipPartial}
                           accentColor={p.accentColor}
+                          defcon={p.defcon}
                           onWhatIf={() =>
                             openWhatIf(isCaptainPlayer ? 'captain' : 'transfer', p.key)
                           }

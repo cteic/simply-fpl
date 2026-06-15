@@ -1,7 +1,7 @@
 'use client';
 
 import { BenchDivider, Pitch, PitchRow, Player } from '@simplyfpl/ui';
-import type { BadgeTone, ShirtKind } from '@simplyfpl/ui';
+import type { BadgeTone, DefConBarProps, ShirtKind } from '@simplyfpl/ui';
 
 export interface LivePitchPlayer {
   key: number;
@@ -14,6 +14,7 @@ export interface LivePitchPlayer {
   kitUrl2x: string | undefined;
   ownershipPercent: number | undefined;
   accentColor: string | undefined;
+  defcon: DefConBarProps | undefined;
 }
 
 interface LivePitchProps {
@@ -41,6 +42,7 @@ export function LivePitch({ teamName, formation, label, rows, bench }: LivePitch
               kitUrl2x={p.kitUrl2x}
               ownershipPercent={p.ownershipPercent}
               accentColor={p.accentColor}
+              defcon={p.defcon}
             />
           ))}
         </PitchRow>
