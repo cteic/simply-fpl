@@ -6,6 +6,9 @@
 //
 // Cohorts:
 //   - top_10k    : top 10000 of overall league 314 (paginated, 50 per page).
+//   - top_100k   : random sample (default 1000) of league 314 entries within
+//     the top 100,000. Standings pagination takes ~17 min, picks fetch scales
+//     with --sample. Append-mode safe.
 //   - overall    : random sample of 5000 entries with overall rank 500k-1.5M.
 //   - legendary  : TODO — verify the correct public league ID. Until then we
 //     proxy via top 1000 of league 314 page 1.
@@ -18,6 +21,7 @@
 //   node scripts/scrape-cohort-picks.mjs --gw=36
 //   node scripts/scrape-cohort-picks.mjs --gw=36 --cohort=top_10k --max=1000
 //   node scripts/scrape-cohort-picks.mjs --gw=36 --base=http://localhost:8787
+//   node scripts/scrape-cohort-picks.mjs --gw=36 --cohort=top_100k --sample=1000 --append
 import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import { setTimeout as sleep } from 'node:timers/promises';
 
@@ -26,6 +30,8 @@ const GW = Number(args.gw ?? 36);
 const BASE_URL = String(args.base ?? 'https://worker.simply-fpl.workers.dev');
 const COHORT_FILTER = args.cohort ? String(args.cohort) : null;
 const MAX_PER_COHORT = args.max ? Number(args.max) : null;
+const SAMPLE_OVERRIDE = args.sample ? Number(args.sample) : null;
+const APPEND_MODE = args.append === 'true' || args.append === '1' || args.append === '';
 const UA = 'SimplyFPL-CohortScrape/0.1 (research; github.com/pete-watters/simply-fpl)';
 const OUT_DIR = `var/cohorts/gw${GW}`;
 const OUT_FILE = `${OUT_DIR}/picks.jsonl`;
@@ -37,6 +43,11 @@ const COHORT_CONFIG = {
   top_10k: {
     leagueId: 314,
     maxEntries: 10000,
+  },
+  top_100k: {
+    leagueId: 314,
+    maxEntries: 100000,
+    sampleSize: 1000,
   },
   overall: {
     rankFloor: 500_000,
@@ -157,10 +168,22 @@ function parseArgs(argv) {
   return out;
 }
 
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
-  await writeFile(OUT_FILE, '');
-  log(`scraping cohort picks → ${OUT_FILE}`);
+  if (!APPEND_MODE) {
+    await writeFile(OUT_FILE, '');
+    log(`truncated → ${OUT_FILE}`);
+  } else {
+    log(`appending to → ${OUT_FILE}`);
+  }
 
   if (!COHORT_FILTER || COHORT_FILTER === 'top_10k') {
     const cfg = COHORT_CONFIG.top_10k;
@@ -168,6 +191,17 @@ async function main() {
     const ids = await collectLeagueEntryIds(cfg.leagueId, cfg.maxEntries);
     const n = await scrapeCohort('top_10k', ids);
     log(`top_10k: wrote ${n} entries`);
+  }
+
+  if (!COHORT_FILTER || COHORT_FILTER === 'top_100k') {
+    const cfg = COHORT_CONFIG.top_100k;
+    const sample = SAMPLE_OVERRIDE ?? cfg.sampleSize;
+    log(`top_100k: paginating ${cfg.maxEntries} from league ${cfg.leagueId} → sampling ${sample}`);
+    const pool = await collectLeagueEntryIds(cfg.leagueId, cfg.maxEntries);
+    log(`top_100k: pool of ${pool.length} entry IDs collected; shuffling + slicing to ${sample}`);
+    const ids = shuffle(pool.slice()).slice(0, sample);
+    const n = await scrapeCohort('top_100k', ids);
+    log(`top_100k: wrote ${n} entries`);
   }
 
   if (!COHORT_FILTER || COHORT_FILTER === 'overall') {
