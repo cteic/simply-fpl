@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 
 import { useThemeName } from 'tamagui';
 
-import { cohorts, liveBattle, liveRank } from '@simplyfpl/features';
+import { cohorts, liveBattle, liveRank, whatIf } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
@@ -41,15 +41,17 @@ import {
   PitchRow,
   Player,
   SectionHeader,
+  SkeletonCohortTable,
   SkeletonLiveRank,
   Text,
+  WhatIfPanel,
   XStack,
   YStack,
   colors,
   featureSurfaceStyle,
   resolveThemeName,
 } from '@simplyfpl/ui';
-import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
+import type { BadgeTone, CohortTableRow, ShirtKind, WhatIfCandidateOption } from '@simplyfpl/ui';
 
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import type { CohortAggregates } from '@/queries/cohort-aggregates';
@@ -328,10 +330,20 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
   const cohortGw = dataOverride ? null : currentGw;
-  const liveAggregates = useCohortAggregates(cohortGw);
+  const {
+    data: liveAggregates,
+    isLoading: cohortLoading,
+    isUnavailable: cohortUnavailable,
+  } = useCohortAggregates(cohortGw);
   const aggregates = dataOverride ? dataOverride.aggregates : liveAggregates;
+  const showCohortLoading = !dataOverride && cohortLoading;
+  const showCohortUnavailable = !dataOverride && cohortUnavailable;
   const [ownershipMode, setOwnershipMode] = useState<OwnershipMode>('global');
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
+  const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const [whatIfFromId, setWhatIfFromId] = useState<number | null>(null);
+  const [whatIfType, setWhatIfType] = useState<'captain' | 'transfer'>('captain');
+  const [whatIfTransferSearch, setWhatIfTransferSearch] = useState('');
   const liveGwQuery = useLiveSnapshot(dataOverride ? null : currentGw);
   const liveGw = dataOverride ? dataOverride.liveGw : liveGwQuery.data;
   const fixturesQuery = useFixtures(dataOverride ? null : currentGw);
@@ -344,6 +356,69 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       ? predictBonusPoints(liveGw, fixtures, bootstrap)
       : new Map<number, BonusPrediction>();
   const livePoints = ready ? calculateLivePoints(picks, liveGw, bootstrap, bonusMap) : 0;
+  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
+  const whatIfSim = whatIf.useWhatIfSimulation({
+    picks: ready ? picks : null,
+    liveGw: ready ? liveGw : null,
+    bootstrap: ready ? bootstrap : null,
+    preGwRank: ready ? (entry.summary_overall_rank ?? 0) : 0,
+    currentLivePoints: livePoints,
+    avgEntryScore,
+  });
+
+  const captainSwapCandidates = useMemo<WhatIfCandidateOption[]>(() => {
+    if (!ready) return [];
+    return picks.picks
+      .filter((p) => p.position <= 11 && !p.is_captain)
+      .map((p) => {
+        const player = bootstrap.elements.find((e) => e.id === p.element);
+        const live = liveGw.elements.find((e) => e.id === p.element);
+        return {
+          id: p.element,
+          name: player?.web_name ?? '?',
+          livePoints: live?.stats.total_points ?? 0,
+        };
+      })
+      .sort((a, b) => b.livePoints - a.livePoints);
+  }, [ready, picks, bootstrap, liveGw]);
+
+  const transferCandidates = useMemo<WhatIfCandidateOption[]>(() => {
+    if (!ready || whatIfFromId === null) return [];
+    const fromPlayer = bootstrap.elements.find((e) => e.id === whatIfFromId);
+    if (!fromPlayer) return [];
+    const position = fromPlayer.element_type;
+    const positionShort = ['', 'GK', 'DEF', 'MID', 'FWD'][position] ?? '';
+    const existingIds = new Set(picks.picks.map((p) => p.element));
+    return bootstrap.elements
+      .filter((e) => e.element_type === position && !existingIds.has(e.id))
+      .map((e) => {
+        const live = liveGw.elements.find((le) => le.id === e.id);
+        return {
+          id: e.id,
+          name: e.web_name,
+          livePoints: live?.stats.total_points ?? 0,
+          positionShort,
+        };
+      })
+      .sort((a, b) => b.livePoints - a.livePoints)
+      .slice(0, 40);
+  }, [ready, bootstrap, liveGw, picks, whatIfFromId]);
+
+  const whatIfCandidates = whatIfType === 'captain' ? captainSwapCandidates : transferCandidates;
+
+  function openWhatIf(type: 'captain' | 'transfer', fromId: number) {
+    setWhatIfType(type);
+    setWhatIfFromId(fromId);
+    setWhatIfOpen(true);
+    setWhatIfTransferSearch('');
+    whatIfSim.reset();
+  }
+
+  function closeWhatIf() {
+    setWhatIfOpen(false);
+    setWhatIfFromId(null);
+    whatIfSim.reset();
+  }
   const battle =
     ready && fixtures
       ? computeLiveBattle({ yourPicks: picks, bootstrap, liveGw, fixtures, bonusMap })
@@ -354,7 +429,6 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
   const preGwRank = entry?.summary_overall_rank ?? 0;
-  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
   const rankDetails = ready
     ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
     : null;
@@ -496,6 +570,9 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
         ]
       : [];
   const hasCohortData = cohortRows.length > 0;
+  const cohortFallbackText = showCohortUnavailable
+    ? 'Cohort data unavailable'
+    : 'Cohort comparison loads once your gameweek is active.';
 
   const benchPoints = bench.reduce((sum, p) => sum + (Number(p.badge) || 0), 0);
 
@@ -553,7 +630,15 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
           },
         ]
       : []),
-    { label: 'Captain', value: captainName, tick: null, sub: captainSub, accent: '$negative' },
+    {
+      label: 'Captain',
+      value: captainName,
+      tick: null,
+      sub: captainSub,
+      accent: '$negative',
+      whatIfButton:
+        ready && captainPick ? () => openWhatIf('captain', captainPick.element) : undefined,
+    },
     ...(ready && defconGwPoints > 0
       ? [
           {
@@ -838,21 +923,38 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                 <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={6}>
                   {tile.sub}
                 </Text>
+                {'whatIfButton' in tile && tile.whatIfButton ? (
+                  <Text
+                    render="button"
+                    role="button"
+                    fontFamily="$body"
+                    fontSize={9.5}
+                    fontWeight="600"
+                    color="$brand"
+                    cursor="pointer"
+                    marginTop={6}
+                    hoverStyle={{ color: '$brandHover' }}
+                    onPress={tile.whatIfButton}
+                  >
+                    What if?
+                  </Text>
+                ) : null}
               </YStack>
             ))}
           </XStack>
 
           <Card paddingHorizontal={20} paddingVertical={16} gap={8}>
             <SectionHeader title="Cohort comparison" />
-            {hasCohortData ? (
+            {showCohortLoading && <SkeletonCohortTable />}
+            {!showCohortLoading && hasCohortData && (
               <CohortTable
                 rows={cohortRows}
                 footer="Live cohort data refreshes every 60s · more breakdowns coming soon"
               />
-            ) : (
+            )}
+            {!showCohortLoading && !hasCohortData && (
               <Text fontFamily="$body" fontSize={12.5} color="$colorMuted" lineHeight={18}>
-                Cohort comparison is coming soon — live Top 10k, Overall and Legendary benchmarks
-                land this week.
+                {cohortFallbackText}
               </Text>
             )}
           </Card>
@@ -910,6 +1012,8 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                   <PitchRow key={`row-${i}`}>
                     {row.map((p) => {
                       const own = ownershipFor(p.key, p.ownershipPercent);
+                      const isCaptainPlayer =
+                        picks.picks.find((pk) => pk.element === p.key)?.is_captain ?? false;
                       return (
                         <Player
                           key={p.key}
@@ -924,6 +1028,9 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                           ownershipPartial={own.ownershipPartial}
                           accentColor={p.accentColor}
                           defcon={p.defcon}
+                          onWhatIf={() =>
+                            openWhatIf(isCaptainPlayer ? 'captain' : 'transfer', p.key)
+                          }
                         />
                       );
                     })}
@@ -972,6 +1079,27 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
               </Text>
             ) : null}
           </Pitch>
+          {whatIfOpen && ready ? (
+            <WhatIfPanel
+              type={whatIfType}
+              candidates={whatIfCandidates}
+              activeId={whatIfSim.activeSwap?.to ?? null}
+              simulatedPoints={whatIfSim.result?.newLivePoints ?? null}
+              deltaPoints={whatIfSim.result?.deltaPoints ?? null}
+              deltaRank={whatIfSim.result?.deltaRank ?? null}
+              transferSearch={whatIfType === 'transfer' ? whatIfTransferSearch : undefined}
+              onTransferSearchChange={
+                whatIfType === 'transfer' ? setWhatIfTransferSearch : undefined
+              }
+              onSelectCandidate={(id) => {
+                if (whatIfFromId !== null) {
+                  whatIfSim.simulate({ type: whatIfType, from: whatIfFromId, to: id });
+                }
+              }}
+              onReset={whatIfSim.reset}
+              onClose={closeWhatIf}
+            />
+          ) : null}
         </YStack>
       </XStack>
 

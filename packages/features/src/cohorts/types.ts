@@ -20,3 +20,8 @@ export interface CohortSnapshotPayload {
   entries_sampled: number;
   avg_event_points: number;
 }
+
+export interface CohortAggregates {
+  gw: number;
+  tiers: Partial<Record<CohortTier, CohortSnapshotPayload>>;
+}

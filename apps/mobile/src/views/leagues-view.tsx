@@ -7,6 +7,7 @@ import {
   Card,
   FNote,
   FilterButton,
+  PageHeader,
   SectionHeader,
   Text,
   XStack,
@@ -29,7 +30,12 @@ export function LeaguesView() {
 
   if (entryId === null) {
     return (
-      <Screen>
+      <Screen topInset>
+        <PageHeader
+          tone="stadium"
+          title="My Leagues"
+          meta="Enter your FPL team ID to see your leagues"
+        />
         <Card paddingHorizontal={20} paddingVertical={20}>
           <SectionHeader title="Link your FPL team" />
           <Text fontFamily="$body" fontSize={13} color="$colorMuted" marginTop={4}>
@@ -60,15 +66,14 @@ function EntryLeagues({ entryId }: EntryLeaguesProps) {
   const activeId = activeLeagueId ?? classicLeagues[0]?.id ?? null;
 
   return (
-    <Screen>
-      <YStack>
-        <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
-          My Leagues
-        </Text>
-        <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={4}>
-          {entry ? `Team ${entryId} · ${entry.name}` : `Team ${entryId} · Live standings`}
-        </Text>
-      </YStack>
+    <Screen topInset>
+      <PageHeader
+        tone="stadium"
+        title="My Leagues"
+        meta={
+          entry ? `Team ${entryId} · ${entry.name}` : `Team ${entryId} · Live mini-league standings`
+        }
+      />
 
       {isLoading ? (
         <Card paddingHorizontal={16} paddingVertical={13}>
