@@ -13,7 +13,9 @@ const WEB_DIR = join(REPO_ROOT, 'apps', 'web');
 const NEXT_DIR = join(WEB_DIR, '.next');
 
 const BUDGETS = {
-  '/': 185 * 1024,
+  // CI measurement runs ~3-5 kB higher than local because of CF-specific
+  // transforms; budget is set against the CI number with ~5 kB headroom.
+  '/': 190 * 1024,
   '/h2h': 165 * 1024,
 };
 
