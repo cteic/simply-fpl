@@ -206,7 +206,7 @@ importers:
         version: 22.2.0(@types/node@25.9.2)
       tamagui:
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+        version: 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
       '@amiceli/vitest-cucumber':
         specifier: 4.7.0
@@ -412,6 +412,9 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
+      expo-linear-gradient:
+        specifier: ~14.0.2
+        version: 14.0.2(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
       react-native-svg:
         specifier: 15.8.0
         version: 15.8.0(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
@@ -2949,7 +2952,7 @@ packages:
       {
         integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==,
       }
-    engines: { node: '>=0.10.0' }
+    engines: { '0': node >=0.10.0 }
 
   '@expo/cli@0.22.28':
     resolution:
@@ -16079,6 +16082,11 @@ snapshots:
     dependencies:
       react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)
 
+  '@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))':
+    dependencies:
+      react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
+    optional: true
+
   '@expo/osascript@2.4.2':
     dependencies:
       '@expo/spawn-async': 1.7.2
@@ -16189,6 +16197,11 @@ snapshots:
       '@floating-ui/core': 1.7.5
       react: 19.2.5
       react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
+
+  '@floating-ui/react-native@0.10.9(react@19.2.5)':
+    dependencies:
+      '@floating-ui/core': 1.7.5
+      react: 19.2.5
 
   '@floating-ui/utils@0.2.11': {}
 
@@ -17647,6 +17660,18 @@ snapshots:
       - react-dom
       - react-native
 
+  '@tamagui/context-menu@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/create-menu': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-callback-ref': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
   '@tamagui/core@2.0.0-rc.42(react-dom@19.2.5(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tamagui/helpers': 2.0.0-rc.42(react@18.3.1)
@@ -17719,6 +17744,32 @@ snapshots:
       '@tamagui/native': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
       '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@tamagui/portal': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/remove-scroll': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/roving-focus': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/text': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-callback-ref': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-direction': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
+  '@tamagui/create-menu@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/animate': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/animate-presence': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/collection': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/dismissable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/focus-guard': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/focus-scope': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/image': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/native': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/portal': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/remove-scroll': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/roving-focus': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -17848,6 +17899,16 @@ snapshots:
     dependencies:
       '@floating-ui/react-dom': 2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@floating-ui/react-native': 0.10.9(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-event': 2.0.0-rc.42(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
+  '@tamagui/floating@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@floating-ui/react-native': 0.10.9(react@19.2.5)
       '@tamagui/use-event': 2.0.0-rc.42(react@19.2.5)
       react: 19.2.5
     transitivePeerDependencies:
@@ -18211,6 +18272,20 @@ snapshots:
       - react-dom
       - react-native
 
+  '@tamagui/menu@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/create-menu': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/helpers': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
   '@tamagui/native@2.0.0-rc.42(react@18.3.1)':
     dependencies:
       react: 18.3.1
@@ -18303,6 +18378,33 @@ snapshots:
       - react-dom
       - react-native
 
+  '@tamagui/popover@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/adapt': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/animate': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/animate-presence': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/compose-refs': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/constants': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/dismissable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/floating': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/focus-scope': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/helpers': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/polyfill-dev': 2.0.0-rc.42
+      '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/portal': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/remove-scroll': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/scroll-view': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/sheet': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/z-index-stack': 2.0.0-rc.42(react@19.2.5)
+      react: 19.2.5
+      react-freeze: 1.0.4(react@19.2.5)
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
   '@tamagui/popper@2.0.0-rc.42(react-dom@19.2.5(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tamagui/compose-refs': 2.0.0-rc.42(react@18.3.1)
@@ -18324,6 +18426,21 @@ snapshots:
       '@tamagui/constants': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/floating': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/start-transition': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
+  '@tamagui/popper@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/compose-refs': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/constants': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/floating': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/start-transition': 2.0.0-rc.42(react@19.2.5)
@@ -18598,6 +18715,38 @@ snapshots:
       '@tamagui/create-context': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/dismissable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/floating': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@tamagui/focus-scope': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/focusable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/helpers': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/list-item': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/native': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/portal': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/remove-scroll': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/separator': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/sheet': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/text': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-debounce': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-event': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-previous': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/z-index-stack': 2.0.0-rc.42(react@19.2.5)
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+    transitivePeerDependencies:
+      - react-native
+
+  '@tamagui/select@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/adapt': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/animate-presence': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/compose-refs': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/constants': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/create-context': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/dismissable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/floating': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/focus-scope': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/focusable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -19138,6 +19287,25 @@ snapshots:
       '@tamagui/polyfill-dev': 2.0.0-rc.42
       '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
       '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/text': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
+  '@tamagui/tooltip@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@tamagui/compose-refs': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/create-context': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/floating': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/helpers': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/polyfill-dev': 2.0.0-rc.42
+      '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/text': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
@@ -21282,6 +21450,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  expo-asset@11.0.5(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5):
+    dependencies:
+      '@expo/image-utils': 0.6.5
+      expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      expo-constants: 17.0.8(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))
+      invariant: 2.2.4
+      md5-file: 3.2.3
+      react: 19.2.5
+      react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
+    transitivePeerDependencies:
+      - supports-color
+
   expo-constants@17.0.8(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)):
     dependencies:
       '@expo/config': 10.0.11
@@ -21291,10 +21471,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  expo-constants@17.0.8(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)):
+    dependencies:
+      '@expo/config': 10.0.11
+      '@expo/env': 0.4.2
+      expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
+    transitivePeerDependencies:
+      - supports-color
+
   expo-file-system@18.0.12(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)):
     dependencies:
       expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1)
       react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)
+      web-streams-polyfill: 3.3.3
+
+  expo-file-system@18.0.12(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)):
+    dependencies:
+      expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
       web-streams-polyfill: 3.3.3
 
   expo-font@13.0.4(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1))(react@18.3.1):
@@ -21303,16 +21498,33 @@ snapshots:
       fontfaceobserver: 2.3.0
       react: 18.3.1
 
+  expo-font@13.0.4(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react@19.2.5):
+    dependencies:
+      expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      fontfaceobserver: 2.3.0
+      react: 19.2.5
+
   expo-keep-awake@14.0.3(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:
       expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1)
       react: 18.3.1
+
+  expo-keep-awake@14.0.3(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react@19.2.5):
+    dependencies:
+      expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
 
   expo-linear-gradient@14.0.2(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1):
     dependencies:
       expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)
+
+  expo-linear-gradient@14.0.2(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5):
+    dependencies:
+      expo: 52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
+      react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
 
   expo-linking@7.0.5(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -21399,6 +21611,41 @@ snapshots:
       whatwg-url-without-unicode: 8.0.0-3
     optionalDependencies:
       '@expo/metro-runtime': 4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@18.3.1))
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - babel-plugin-react-compiler
+      - bufferutil
+      - encoding
+      - graphql
+      - react-compiler-runtime
+      - supports-color
+      - utf-8-validate
+
+  expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      '@expo/cli': 0.22.28(graphql@16.14.0)
+      '@expo/config': 10.0.11
+      '@expo/config-plugins': 9.0.17
+      '@expo/fingerprint': 0.11.11
+      '@expo/metro-config': 0.19.12
+      '@expo/vector-icons': 14.0.4
+      babel-preset-expo: 12.0.12(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))
+      expo-asset: 11.0.5(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      expo-constants: 17.0.8(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))
+      expo-file-system: 18.0.12(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))
+      expo-font: 13.0.4(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react@19.2.5)
+      expo-keep-awake: 14.0.3(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)))(graphql@16.14.0)(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react@19.2.5)
+      expo-modules-autolinking: 2.0.8
+      expo-modules-core: 2.2.3
+      fbemitter: 3.0.0
+      react: 19.2.5
+      react-native: 0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
+      web-streams-polyfill: 3.3.3
+      whatwg-url-without-unicode: 8.0.0-3
+    optionalDependencies:
+      '@expo/metro-runtime': 4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/preset-env'
@@ -24475,6 +24722,76 @@ snapshots:
       '@tamagui/toast': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/toggle-group': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/tooltip': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-debounce': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-force-update': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/use-window-dimensions': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/visually-hidden': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/z-index-stack': 2.0.0-rc.42(react@19.2.5)
+      react: 19.2.5
+    transitivePeerDependencies:
+      - react-dom
+      - react-native
+
+  tamagui@2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+    dependencies:
+      '@tamagui/accordion': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/adapt': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/alert-dialog': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/animate': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/animate-presence': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/avatar': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/button': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/card': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/checkbox': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/collapsible': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/compose-refs': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/constants': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/context-menu': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/create-context': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/create-menu': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/dialog': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/element': 2.0.0-rc.42(react@19.2.5)
+      '@tamagui/elements': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/fake-react-native': 2.0.0-rc.42
+      '@tamagui/focusable': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/font-size': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/form': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/get-button-sized': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/get-font-sized': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/group': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/helpers-tamagui': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/image': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/input': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/label': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/linear-gradient': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/list-item': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/menu': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/polyfill-dev': 2.0.0-rc.42
+      '@tamagui/popover': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/popper': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/portal': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/progress': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/radio-group': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/react-native-media-driver': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/scroll-view': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/select': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/separator': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/shapes': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/sheet': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/slider': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/spacer': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/spinner': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/switch': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/tabs': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/text': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/theme': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/toast': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/toggle-group': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tamagui/tooltip': 2.0.0-rc.42(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/use-debounce': 2.0.0-rc.42(react@19.2.5)
       '@tamagui/use-force-update': 2.0.0-rc.42(react@19.2.5)
