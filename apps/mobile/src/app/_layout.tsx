@@ -82,7 +82,7 @@ export default function RootLayout() {
               />
               <Tabs.Screen
                 name="leagues"
-                options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues' }}
+                options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues', headerShown: false }}
               />
               <Tabs.Screen name="h2h" options={{ title: 'Head to Head', tabBarLabel: 'H2H' }} />
               <Tabs.Screen
