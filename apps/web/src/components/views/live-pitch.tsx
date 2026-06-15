@@ -15,6 +15,7 @@ export interface LivePitchPlayer {
   ownershipPercent: number | undefined;
   accentColor: string | undefined;
   defcon: DefConBarProps | undefined;
+  isCaptain: boolean;
 }
 
 interface LivePitchProps {
