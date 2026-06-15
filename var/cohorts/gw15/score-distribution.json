@@ -1,6 +1,6 @@
 {
   "gw": 15,
-  "builtAt": "2026-06-02T21:14:14.193Z",
+  "builtAt": "2026-06-15T11:38:35.966Z",
   "binSize": 5,
   "cohorts": {
     "top_10k": {
@@ -249,6 +249,106 @@
       ]
     },
     "legendary": {
+      "sampleSize": 1000,
+      "min": 32,
+      "max": 109,
+      "mean": 61.8,
+      "median": 61,
+      "percentiles": {
+        "p1": 38,
+        "p5": 45,
+        "p10": 49,
+        "p25": 55,
+        "p50": 61,
+        "p75": 68,
+        "p90": 75,
+        "p95": 80,
+        "p99": 88
+      },
+      "histogram": [
+        {
+          "min": 30,
+          "max": 35,
+          "count": 2
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 12
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 30
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 67
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 113
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 183
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 229
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 149
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 106
+        },
+        {
+          "min": 75,
+          "max": 80,
+          "count": 51
+        },
+        {
+          "min": 80,
+          "max": 85,
+          "count": 36
+        },
+        {
+          "min": 85,
+          "max": 90,
+          "count": 16
+        },
+        {
+          "min": 90,
+          "max": 95,
+          "count": 3
+        },
+        {
+          "min": 95,
+          "max": 100,
+          "count": 2
+        },
+        {
+          "min": 100,
+          "max": 105,
+          "count": 0
+        },
+        {
+          "min": 105,
+          "max": 110,
+          "count": 1
+        }
+      ]
+    },
+    "top_1k": {
       "sampleSize": 1000,
       "min": 32,
       "max": 109,

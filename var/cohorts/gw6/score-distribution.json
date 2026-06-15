@@ -1,6 +1,6 @@
 {
   "gw": 6,
-  "builtAt": "2026-06-02T14:17:34.247Z",
+  "builtAt": "2026-06-15T11:38:35.288Z",
   "binSize": 5,
   "cohorts": {
     "top_10k": {
@@ -229,6 +229,106 @@
       ]
     },
     "legendary": {
+      "sampleSize": 1000,
+      "min": 26,
+      "max": 104,
+      "mean": 72.7,
+      "median": 72,
+      "percentiles": {
+        "p1": 50,
+        "p5": 55,
+        "p10": 59,
+        "p25": 68,
+        "p50": 72,
+        "p75": 79,
+        "p90": 86,
+        "p95": 89,
+        "p99": 95
+      },
+      "histogram": [
+        {
+          "min": 25,
+          "max": 30,
+          "count": 1
+        },
+        {
+          "min": 30,
+          "max": 35,
+          "count": 0
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 0
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 2
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 7
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 37
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 66
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 66
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 202
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 208
+        },
+        {
+          "min": 75,
+          "max": 80,
+          "count": 163
+        },
+        {
+          "min": 80,
+          "max": 85,
+          "count": 104
+        },
+        {
+          "min": 85,
+          "max": 90,
+          "count": 101
+        },
+        {
+          "min": 90,
+          "max": 95,
+          "count": 30
+        },
+        {
+          "min": 95,
+          "max": 100,
+          "count": 11
+        },
+        {
+          "min": 100,
+          "max": 105,
+          "count": 2
+        }
+      ]
+    },
+    "top_1k": {
       "sampleSize": 1000,
       "min": 26,
       "max": 104,
