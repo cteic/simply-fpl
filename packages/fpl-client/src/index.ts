@@ -33,6 +33,8 @@ export { getClubColor } from './club-colors';
 export { predictBonusPoints } from './bonus-points';
 export type { BonusPrediction } from './bonus-points';
 export { applyAutosubs } from './autosubs';
+export { simulateWhatIf } from './what-if-simulator';
+export type { WhatIfResult, WhatIfSwap, WhatIfSwapType } from './what-if-simulator';
 export {
   buildSamples,
   buildSamplesForEntry,
