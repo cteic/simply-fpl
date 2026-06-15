@@ -148,7 +148,7 @@ export function ThreatsView() {
 
   const { data: bootstrap } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
-  const aggregates = useCohortAggregates(currentGw);
+  const { data: aggregates } = useCohortAggregates(currentGw);
   const cohort = aggregates?.tiers.top_10k;
   const { data: yourPicks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
   const { data: liveGw } = useLiveGameweek(currentGw);

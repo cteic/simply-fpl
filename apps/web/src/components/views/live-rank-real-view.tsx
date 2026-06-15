@@ -40,6 +40,7 @@ import {
   PitchRow,
   Player,
   SectionHeader,
+  SkeletonCohortTable,
   SkeletonLiveRank,
   Text,
   WhatIfPanel,
@@ -310,8 +311,14 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
   const cohortGw = dataOverride ? null : currentGw;
-  const liveAggregates = useCohortAggregates(cohortGw);
+  const {
+    data: liveAggregates,
+    isLoading: cohortLoading,
+    isUnavailable: cohortUnavailable,
+  } = useCohortAggregates(cohortGw);
   const aggregates = dataOverride ? dataOverride.aggregates : liveAggregates;
+  const showCohortLoading = !dataOverride && cohortLoading;
+  const showCohortUnavailable = !dataOverride && cohortUnavailable;
   const [ownershipMode, setOwnershipMode] = useState<OwnershipMode>('global');
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
   const [whatIfOpen, setWhatIfOpen] = useState(false);
@@ -529,6 +536,9 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
         ]
       : [];
   const hasCohortData = cohortRows.length > 0;
+  const cohortFallbackText = showCohortUnavailable
+    ? 'Cohort data unavailable'
+    : 'Cohort comparison loads once your gameweek is active.';
 
   const benchPoints = bench.reduce((sum, p) => sum + (Number(p.badge) || 0), 0);
 
@@ -890,15 +900,16 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
 
           <Card paddingHorizontal={20} paddingVertical={16} gap={8}>
             <SectionHeader title="Cohort comparison" />
-            {hasCohortData ? (
+            {showCohortLoading && <SkeletonCohortTable />}
+            {!showCohortLoading && hasCohortData && (
               <CohortTable
                 rows={cohortRows}
                 footer="Live cohort data refreshes every 60s · more breakdowns coming soon"
               />
-            ) : (
+            )}
+            {!showCohortLoading && !hasCohortData && (
               <Text fontFamily="$body" fontSize={12.5} color="$colorMuted" lineHeight={18}>
-                Cohort comparison is coming soon — live Top 10k, Overall and Legendary benchmarks
-                land this week.
+                {cohortFallbackText}
               </Text>
             )}
           </Card>
