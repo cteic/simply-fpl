@@ -84,6 +84,7 @@ interface PlayerProps {
   ownershipPartial?: boolean;
   accentColor?: string | undefined;
   defcon?: DefConBarProps | undefined;
+  onWhatIf?: () => void;
 }
 
 export function Player({
@@ -100,6 +101,7 @@ export function Player({
   ownershipPartial = false,
   accentColor,
   defcon,
+  onWhatIf,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
   return (
@@ -131,6 +133,23 @@ export function Player({
           awarded={defcon.awarded}
           {...(defcon.breakdown !== undefined ? { breakdown: defcon.breakdown } : {})}
         />
+      ) : null}
+      {onWhatIf && !bench ? (
+        <Text
+          render="button"
+          role="button"
+          fontFamily="$body"
+          fontSize={8}
+          fontWeight="600"
+          letterSpacing={0.2}
+          color="$brand"
+          cursor="pointer"
+          textAlign="center"
+          hoverStyle={{ color: '$brandHover' }}
+          onPress={onWhatIf}
+        >
+          What if?
+        </Text>
       ) : null}
     </Wrap>
   );

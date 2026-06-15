@@ -1,6 +1,13 @@
 export { useCohortBenchmark } from './use-cohort-benchmark';
 export type { UseCohortBenchmarkResult } from './use-cohort-benchmark';
-export type { CohortPlayerStats, CohortSnapshotPayload, CohortTier } from './types';
+export { fetchCohortAggregates, useCohortAggregates } from './use-cohort-aggregates';
+export type { UseCohortAggregatesResult } from './use-cohort-aggregates';
+export type {
+  CohortAggregates,
+  CohortPlayerStats,
+  CohortSnapshotPayload,
+  CohortTier,
+} from './types';
 export {
   aggregateToOwnershipMap,
   aggregatesToOwnershipByTier,

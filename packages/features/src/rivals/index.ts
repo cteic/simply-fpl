@@ -10,3 +10,13 @@ export {
   selectRivalEntryIds,
 } from './select-rivals';
 export type { SelectRivalsOptions, SelectRivalsResult } from './select-rivals';
+export {
+  DEFAULT_WINDOW_SIZE,
+  WINDOW_OPTIONS,
+  readWindowSize,
+  useRivalsWindowSize,
+  windowSizeToSelectOptions,
+  writeWindowSize,
+} from './rivals-window';
+export type { WindowSize } from './rivals-window';
+export { getVisibleLeagues, getPrimaryLeague } from './multi-league';
