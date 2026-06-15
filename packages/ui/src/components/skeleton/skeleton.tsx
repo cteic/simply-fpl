@@ -89,6 +89,50 @@ export function SkeletonPrices({ rows = 6 }: SkeletonRowsProps) {
   );
 }
 
+export function SkeletonCohortTable() {
+  const headerWidths = [20, 16, 28, 32, 24];
+  const rowLabelWidths = [40, 72, 64, 56];
+  return (
+    <YStack borderTopWidth={1} borderBottomWidth={1} borderColor="$border">
+      <XStack
+        paddingHorizontal={12}
+        paddingVertical={10}
+        borderBottomWidth={1}
+        borderBottomColor="$border"
+        alignItems="center"
+      >
+        <YStack flex={1.4}>
+          <Skeleton width={headerWidths[0]} height={8} />
+        </YStack>
+        {headerWidths.slice(1).map((w, i) => (
+          <YStack key={i} flex={1} alignItems="flex-end">
+            <Skeleton width={w} height={8} />
+          </YStack>
+        ))}
+      </XStack>
+      {rowLabelWidths.map((labelWidth, i) => (
+        <XStack
+          key={i}
+          paddingHorizontal={12}
+          paddingVertical={10}
+          borderBottomWidth={i < rowLabelWidths.length - 1 ? 1 : 0}
+          borderBottomColor="$border"
+          alignItems="center"
+        >
+          <YStack flex={1.4}>
+            <Skeleton width={labelWidth} height={10} />
+          </YStack>
+          {[24, 28, 28, 28].map((w, j) => (
+            <YStack key={j} flex={1} alignItems="flex-end">
+              <Skeleton width={w} height={10} />
+            </YStack>
+          ))}
+        </XStack>
+      ))}
+    </YStack>
+  );
+}
+
 export function SkeletonLiveRank() {
   return (
     <YStack gap={16}>
