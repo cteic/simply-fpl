@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import type { Mock } from 'vitest';
 import { expect, vi } from 'vitest';
 
 const feature = await loadFeature('./webhook.feature');
@@ -32,10 +33,11 @@ function makeSubscription(overrides: Record<string, unknown> = {}) {
   };
 }
 
-let mockStripeConstructEventAsync: ReturnType<typeof vi.fn>;
-let mockSupabaseInsert: ReturnType<typeof vi.fn>;
-let mockSupabaseUpdate: ReturnType<typeof vi.fn>;
-let mockSupabaseSelect: ReturnType<typeof vi.fn>;
+type AnyMock = Mock<(...args: unknown[]) => unknown>;
+let mockStripeConstructEventAsync: AnyMock;
+let mockSupabaseInsert: AnyMock;
+let mockSupabaseUpdate: AnyMock;
+let mockSupabaseSelect: AnyMock;
 let processedEventIds: Set<string>;
 
 vi.mock('@/lib/stripe', () => ({
