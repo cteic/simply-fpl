@@ -1,0 +1,46 @@
+{
+  "gw": 19,
+  "builtAt": "2026-06-16T09:39:14.763Z",
+  "cohorts": {
+    "top_10k": {
+      "sampleSize": 2500,
+      "score": 43.3,
+      "playersPlayed": null,
+      "budgetPlayed": null,
+      "captainPoints": null
+    },
+    "overall": {
+      "sampleSize": 2500,
+      "score": 41,
+      "playersPlayed": null,
+      "budgetPlayed": null,
+      "captainPoints": null
+    },
+    "legendary": {
+      "sampleSize": 1000,
+      "score": 43.6,
+      "playersPlayed": null,
+      "budgetPlayed": null,
+      "captainPoints": null
+    },
+    "top_1k": {
+      "sampleSize": 1000,
+      "score": 43.6,
+      "playersPlayed": null,
+      "budgetPlayed": null,
+      "captainPoints": null
+    },
+    "top_100k": {
+      "sampleSize": 1000,
+      "score": 44.3,
+      "playersPlayed": null,
+      "budgetPlayed": null,
+      "captainPoints": null
+    }
+  },
+  "todo": [
+    "playersPlayed: needs bootstrap + live to count picks with minutes>0",
+    "budgetPlayed: needs bootstrap.elements[].now_cost summed for the XI",
+    "captainPoints: needs live event_points for captained element"
+  ]
+}

@@ -270,7 +270,7 @@ export interface ScoreDistribution {
   histogram: ScoreHistogramBin[];
 }
 
-export type RankDistributionCohort = 'overall' | 'top_10k' | 'legendary';
+export type RankDistributionCohort = 'overall' | 'top_100k' | 'top_10k' | 'top_1k' | 'legendary';
 
 export interface RankDistribution extends ScoreDistribution {
   gw: number;
@@ -279,6 +279,8 @@ export interface RankDistribution extends ScoreDistribution {
 
 export interface ScoreDistributionFileCohorts {
   top_10k?: ScoreDistribution;
+  top_1k?: ScoreDistribution;
+  top_100k?: ScoreDistribution;
   overall?: ScoreDistribution;
   legendary?: ScoreDistribution;
 }
