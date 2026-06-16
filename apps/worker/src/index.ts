@@ -6,6 +6,7 @@ import { handleCohortAggregates } from './cohort/serve';
 import { handleFixturesSlim } from './fixtures';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
+import { checkRateLimit } from './lib/rate-limit';
 import { buildFplPassthroughTarget, matchFplRoute } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
@@ -43,6 +44,35 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+const PUBLIC_RATE_LIMIT = 60;
+const STATUS_RATE_LIMIT = 10;
+const RL_WINDOW_SECS = 60;
+const RL_KEY_PREFIX = 'rl:';
+
+async function enforceRateLimit(env: Env, ip: string, limit: number): Promise<Response | null> {
+  const check = await checkRateLimit(
+    env.FPL_CACHE,
+    `${RL_KEY_PREFIX}${limit}:${ip}`,
+    limit,
+    RL_WINDOW_SECS,
+    Date.now()
+  );
+  if (!check.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'rate_limited', retryAfterSeconds: check.retryAfterSeconds }),
+      {
+        status: 429,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'Retry-After': String(check.retryAfterSeconds),
+        },
+      }
+    );
+  }
+  return null;
+}
 
 // Route → cache TTL mapping (seconds)
 function getTtl(pathname: string): number {
@@ -257,8 +287,15 @@ export default {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
+    const clientIp =
+      request.headers.get('CF-Connecting-IP') ??
+      request.headers.get('X-Forwarded-For') ??
+      '0.0.0.0';
+
     const cohortMatch = url.pathname.match(/^\/cohorts\/gw(\d+)\/aggregates\.json$/);
     if (cohortMatch && cohortMatch[1] && (request.method === 'GET' || request.method === 'HEAD')) {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       return handleCohortAggregates(env, Number(cohortMatch[1]), request.method);
     }
 
@@ -267,7 +304,10 @@ export default {
     }
 
     // Route: /status → health check (uptime monitor target)
+    // Lower limit: status forces a KV write + live upstream probe on every call
     if (url.pathname === '/status' || url.pathname === '/status/') {
+      const rl = await enforceRateLimit(env, clientIp, STATUS_RATE_LIMIT);
+      if (rl) return rl;
       return handleStatus(env);
     }
 
@@ -291,6 +331,8 @@ export default {
 
     // Route: /kits/* → FPL kit image proxy
     if (url.pathname.startsWith('/kits/')) {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       return handleKit(ctx, url.pathname);
     }
 
@@ -311,6 +353,8 @@ export default {
 
     const snapshotMatch = url.pathname.match(/^\/snapshot\/entry\/(\d+)\/?$/);
     if (snapshotMatch && snapshotMatch[1]) {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       const entryId = Number(snapshotMatch[1]);
       const result = await handleEntrySnapshot(env, ctx, entryId);
       return new Response(JSON.stringify(result.body), {
@@ -322,6 +366,8 @@ export default {
     // Route: /fpl/prices → slim, server-side-computed price-change predictions.
     // Returns ~5KB instead of shipping the full 200KB bootstrap to the client.
     if (url.pathname === '/fpl/prices' || url.pathname === '/fpl/prices/') {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       const result = await handlePrices(env, ctx);
       return new Response(JSON.stringify(result.body), {
         status: result.status,
@@ -339,6 +385,8 @@ export default {
       url.pathname === '/fpl/bootstrap-static-slim' ||
       url.pathname === '/fpl/bootstrap-static-slim/'
     ) {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       const result = await handleBootstrapSlim(env, ctx);
       return new Response(JSON.stringify(result.body), {
         status: result.status,
@@ -353,6 +401,8 @@ export default {
     // Route: /fpl/fixtures-slim[?event=N] → fixtures with the per-fixture stats
     // blob dropped (~90% smaller gzipped). Optional ?event filters to one GW.
     if (url.pathname === '/fpl/fixtures-slim' || url.pathname === '/fpl/fixtures-slim/') {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       const eventParam = url.searchParams.get('event');
       const eventId =
         eventParam !== null && /^\d+$/.test(eventParam) ? Number(eventParam) : undefined;
@@ -371,6 +421,8 @@ export default {
     // the new_entries block and league metadata stripped.
     const leagueSummaryMatch = url.pathname.match(/^\/fpl\/leagues\/(\d+)\/summary\/?$/);
     if (leagueSummaryMatch && leagueSummaryMatch[1]) {
+      const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rl) return rl;
       const leagueId = Number(leagueSummaryMatch[1]);
       const pageParam = url.searchParams.get('page');
       const page = pageParam !== null && /^\d+$/.test(pageParam) ? Number(pageParam) : 1;
@@ -401,6 +453,8 @@ export default {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
+    const rlFpl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+    if (rlFpl) return rlFpl;
     const { upstreamUrl, cacheKey } = buildFplPassthroughTarget(FPL_ORIGIN, fplPath, url.search);
     const ttl = getTtl(fplPath);
 
