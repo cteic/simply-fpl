@@ -24,6 +24,8 @@ var/cohorts/*
 var/cohorts/gw*/*
 !var/cohorts/gw*/score-distribution.json
 !var/cohorts/gw*/scores.json
+!var/cohorts/gw*/aggregates.json
+!var/cohorts/gw*/picks.jsonl
 
 # Playwright
 test-results
