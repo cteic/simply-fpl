@@ -6,6 +6,11 @@ import type {
 } from '@simplyfpl/types';
 
 import type { BonusPrediction } from './bonus-points';
+import {
+  estimateLiveRankFromDistribution,
+  hasDistribution,
+  loadDistribution,
+} from './estimate-rank';
 
 /**
  * Calculate live points for a set of picks against live gameweek data.
@@ -159,6 +164,41 @@ export function estimateLiveRank(
   return { liveRank, movement, direction };
 }
 
+export const APPROX_TOTAL_FPL_ENTRIES = 11_000_000;
+
+export interface EstimateLiveRankSmartOptions {
+  totalEntries?: number;
+}
+
+/**
+ * Distribution-aware live-rank estimator. When a captured `overall` score
+ * distribution exists for `gw`, it positions the live score on the empirical
+ * CDF and maps the resulting percentile to a rank in [1, totalEntries].
+ * Falls back to the flat-700 heuristic (`estimateLiveRank`) when no
+ * distribution is captured yet — keeps future gameweeks working before the
+ * scrape lands.
+ */
+export function estimateLiveRankSmart(
+  gw: number,
+  preGwRank: number,
+  livePoints: number,
+  avgEntryScore: number,
+  opts: EstimateLiveRankSmartOptions = {}
+): LiveRankEstimate {
+  if (!hasDistribution(gw, 'overall')) {
+    return estimateLiveRank(preGwRank, livePoints, avgEntryScore);
+  }
+  const distribution = loadDistribution(gw, 'overall');
+  const totalEntries = opts.totalEntries ?? APPROX_TOTAL_FPL_ENTRIES;
+  const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
+    preGwRank,
+    livePoints,
+    distribution,
+    totalEntries
+  );
+  return { liveRank, movement, direction };
+}
+
 export interface RankDetails {
   oldRank: number;
   preSubsRank: number;
@@ -170,11 +210,18 @@ export function computeRankDetails(
   preGwRank: number,
   livePoints: number,
   postSubsPoints: number,
-  avgEntryScore: number
+  avgEntryScore: number,
+  gw?: number
 ): RankDetails | null {
   if (preGwRank <= 0) return null;
-  const preSubs = estimateLiveRank(preGwRank, livePoints, avgEntryScore);
-  const postSubs = estimateLiveRank(preGwRank, postSubsPoints, avgEntryScore);
+  const preSubs =
+    gw !== undefined
+      ? estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore)
+      : estimateLiveRank(preGwRank, livePoints, avgEntryScore);
+  const postSubs =
+    gw !== undefined
+      ? estimateLiveRankSmart(gw, preGwRank, postSubsPoints, avgEntryScore)
+      : estimateLiveRank(preGwRank, postSubsPoints, avgEntryScore);
   return {
     oldRank: preGwRank,
     preSubsRank: preSubs.liveRank,

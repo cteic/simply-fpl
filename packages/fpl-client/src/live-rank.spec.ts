@@ -1,5 +1,5 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type {
   FplBootstrapStatic,
@@ -9,10 +9,12 @@ import type {
 } from '@simplyfpl/types';
 
 import {
+  APPROX_TOTAL_FPL_ENTRIES,
   buildLiveLeagueTable,
   calculateLivePoints,
   computeRankDetails,
   estimateLiveRank,
+  estimateLiveRankSmart,
   formatTimeRemaining,
   getCurrentGameweek,
   getNextDeadline,
@@ -573,5 +575,53 @@ describeFeature(feature, ({ Scenario }) => {
     Then('there are no rank details', () => {
       expect(details).toBeNull();
     });
+  });
+});
+
+describe('estimateLiveRankSmart', () => {
+  it('uses the captured distribution when one exists for the gw', () => {
+    const flat = estimateLiveRank(5_000_000, 75, 50);
+    const smart = estimateLiveRankSmart(1, 5_000_000, 75, 50);
+    expect(smart.liveRank).not.toBe(flat.liveRank);
+    expect(smart.liveRank).toBeGreaterThanOrEqual(1);
+    expect(smart.liveRank).toBeLessThanOrEqual(APPROX_TOTAL_FPL_ENTRIES);
+  });
+
+  it('falls back to flat-700 when no distribution exists for the gw', () => {
+    const flat = estimateLiveRank(100_000, 50, 30);
+    const smart = estimateLiveRankSmart(999, 100_000, 50, 30);
+    expect(smart).toEqual(flat);
+  });
+
+  it('a higher score yields a better (smaller) rank for the same pre-gw rank', () => {
+    const lowScore = estimateLiveRankSmart(1, 5_000_000, 40, 50);
+    const highScore = estimateLiveRankSmart(1, 5_000_000, 90, 50);
+    expect(highScore.liveRank).toBeLessThan(lowScore.liveRank);
+  });
+
+  it('respects a totalEntries override', () => {
+    const small = estimateLiveRankSmart(1, 50_000, 70, 50, { totalEntries: 100_000 });
+    const large = estimateLiveRankSmart(1, 5_000_000, 70, 50, { totalEntries: 10_000_000 });
+    expect(small.liveRank).toBeLessThanOrEqual(100_000);
+    expect(large.liveRank).toBeLessThanOrEqual(10_000_000);
+    expect(large.liveRank).toBeGreaterThan(small.liveRank);
+  });
+});
+
+describe('computeRankDetails with gw arg', () => {
+  it('uses the smart estimator when gw points at a captured distribution', () => {
+    const flat = computeRankDetails(2_000_000, 75, 80, 50);
+    const smart = computeRankDetails(2_000_000, 75, 80, 50, 1);
+    expect(smart).not.toBeNull();
+    expect(flat).not.toBeNull();
+    if (smart && flat) {
+      expect(smart.preSubsRank).not.toBe(flat.preSubsRank);
+    }
+  });
+
+  it('omitting gw keeps the original flat-700 behavior', () => {
+    const result = computeRankDetails(100_000, 50, 58, 30);
+    expect(result?.preSubsRank).toBe(86_000);
+    expect(result?.postSubsRank).toBe(80_400);
   });
 });
