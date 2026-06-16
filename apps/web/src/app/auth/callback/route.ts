@@ -13,7 +13,12 @@ export async function GET(request: NextRequest) {
   }
 
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/leagues';
+  const rawNext = searchParams.get('next') ?? '/leagues';
+  const sanitized = rawNext.replace(/[\x00-\x1f\x7f]/g, '');
+  const next =
+    sanitized.startsWith('/') && !sanitized.startsWith('//') && !sanitized.startsWith('/\\')
+      ? sanitized
+      : '/leagues';
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
