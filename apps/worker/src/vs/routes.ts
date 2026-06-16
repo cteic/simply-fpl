@@ -60,12 +60,12 @@ export async function handleVsScreenshot(
 }
 
 export interface DebugMeasureEnv extends MeasureEnv {
-  ENVIRONMENT?: string;
   VS_DEBUG_TOKEN?: string;
 }
 
+const MEASURE_ALLOWED_HOSTNAMES = new Set(['simplyfpl.com', 'livefpl.net']);
+
 function debugAllowed(env: DebugMeasureEnv, request: Request): boolean {
-  if (env.ENVIRONMENT && env.ENVIRONMENT !== 'production') return true;
   const expected = env.VS_DEBUG_TOKEN;
   if (!expected) return false;
   return request.headers.get('x-vs-debug') === expected;
@@ -86,6 +86,21 @@ export async function handleVsDebugMeasure(
   const selector = url.searchParams.get('selector') ?? 'body';
   if (!target) {
     return new Response(JSON.stringify({ error: 'missing ?url=' }), {
+      status: 400,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+  let parsedTarget: URL;
+  try {
+    parsedTarget = new URL(target);
+  } catch {
+    return new Response(JSON.stringify({ error: 'invalid ?url=' }), {
+      status: 400,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+  if (parsedTarget.protocol !== 'https:' || !MEASURE_ALLOWED_HOSTNAMES.has(parsedTarget.hostname)) {
+    return new Response(JSON.stringify({ error: 'url not allowed' }), {
       status: 400,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });
