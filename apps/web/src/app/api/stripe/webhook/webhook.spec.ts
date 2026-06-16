@@ -38,6 +38,9 @@ function makeCharge(overrides: Record<string, unknown> = {}) {
     id: FAKE_CHARGE_ID,
     object: 'charge',
     customer: FAKE_CUSTOMER_ID,
+    refunded: true,
+    amount: 999,
+    amount_refunded: 999,
     ...overrides,
   };
 }
@@ -310,7 +313,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   );
 
   Scenario(
-    'non-duplicate DB error on idempotency insert returns 5xx',
+    'transient DB error on idempotency insert after successful handler returns 200',
     ({ Given, When, Then, And }) => {
       let response: Response | null = null;
 
@@ -333,38 +336,65 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
         response = await POST(req);
       });
 
-      Then('the response status is 500', () => {
-        expect(response?.status).toBe(500);
+      Then('the response status is 200', () => {
+        expect(response?.status).toBe(200);
       });
     }
   );
 
-  Scenario('charge.refunded reverts the user to the free tier', ({ Given, When, Then }) => {
-    let updatedData: Record<string, unknown> | null = null;
+  Scenario(
+    'charge.refunded with a full refund reverts the user to the free tier',
+    ({ Given, When, Then }) => {
+      let updatedData: Record<string, unknown> | null = null;
 
-    Given('an existing Pro subscriber with a refunded charge', () => {
-      const event = {
-        id: FAKE_EVENT_ID,
-        type: 'charge.refunded',
-        data: { object: makeCharge() },
-      };
-      mockStripeConstructEventAsync.mockResolvedValue(event);
-      mockSupabaseUpdate = vi.fn().mockImplementation((data: Record<string, unknown>) => {
-        updatedData = data;
-        return { eq: () => Promise.resolve({ error: null }) };
+      Given('an existing Pro subscriber with a fully refunded charge', () => {
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'charge.refunded',
+          data: { object: makeCharge({ refunded: true, amount: 999, amount_refunded: 999 }) },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+        mockSupabaseUpdate = vi.fn().mockImplementation((data: Record<string, unknown>) => {
+          updatedData = data;
+          return { eq: () => Promise.resolve({ error: null }) };
+        });
       });
-    });
 
-    When('the webhook receives charge.refunded', async () => {
-      const { POST } = await import('./route');
-      const req = makeRequest('{}');
-      await POST(req);
-    });
+      When('the webhook receives charge.refunded', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        await POST(req);
+      });
 
-    Then("the user's profile tier becomes 'free'", () => {
-      expect(updatedData?.['tier']).toBe('free');
-    });
-  });
+      Then("the user's profile tier becomes 'free'", () => {
+        expect(updatedData?.['tier']).toBe('free');
+      });
+    }
+  );
+
+  Scenario(
+    "charge.refunded with a partial refund does not revert the user's tier",
+    ({ Given, When, Then }) => {
+      Given('an existing Pro subscriber with a partially refunded charge', () => {
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'charge.refunded',
+          data: { object: makeCharge({ refunded: false, amount: 999, amount_refunded: 499 }) },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+      });
+
+      When('the webhook receives charge.refunded', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        await POST(req);
+      });
+
+      Then('the profiles table is not updated', () => {
+        expect(mockSupabaseUpdate).not.toHaveBeenCalled();
+      });
+    }
+  );
 
   Scenario('charge.dispute.created reverts the user to the free tier', ({ Given, When, Then }) => {
     let updatedData: Record<string, unknown> | null = null;
