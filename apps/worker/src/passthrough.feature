@@ -21,3 +21,20 @@ Feature: Generic /fpl/* passthrough preserves the query string
     When the worker builds a passthrough target for path "/bootstrap-static/" and search ""
     Then the upstream URL is "https://fantasy.premierleague.com/api/bootstrap-static/"
     And the cache key is "fpl:/bootstrap-static/"
+
+  Scenario: unknown params are stripped from cache key and upstream URL
+    Given the FPL origin is "https://fantasy.premierleague.com/api"
+    When the worker builds a passthrough target for path "/leagues-classic/314/standings/" and search "?page_standings=2&junk=x"
+    Then the upstream URL is "https://fantasy.premierleague.com/api/leagues-classic/314/standings/?page_standings=2"
+    And the cache key is "fpl:/leagues-classic/314/standings/?page_standings=2"
+
+  Scenario: unknown FPL path is rejected by the allow-list
+    Given the FPL origin is "https://fantasy.premierleague.com/api"
+    When the worker checks whether path "/unknown-endpoint/" is in the allow-list
+    Then matchFplRoute returns null
+
+  Scenario: unknown params on a no-param route are stripped
+    Given the FPL origin is "https://fantasy.premierleague.com/api"
+    When the worker builds a passthrough target for path "/bootstrap-static/" and search "?injected=1&other=2"
+    Then the upstream URL is "https://fantasy.premierleague.com/api/bootstrap-static/"
+    And the cache key is "fpl:/bootstrap-static/"
