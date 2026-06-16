@@ -4,6 +4,8 @@ import type { NextRequest } from 'next/server';
 import { FEATURE_AUTH } from '@/lib/feature-flags';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
+import { sanitizeNextParam } from './next-param';
+
 export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
@@ -13,12 +15,7 @@ export async function GET(request: NextRequest) {
   }
 
   const code = searchParams.get('code');
-  const rawNext = searchParams.get('next') ?? '/leagues';
-  const sanitized = rawNext.replace(/[\x00-\x1f\x7f]/g, '');
-  const next =
-    sanitized.startsWith('/') && !sanitized.startsWith('//') && !sanitized.startsWith('/\\')
-      ? sanitized
-      : '/leagues';
+  const next = sanitizeNextParam(searchParams.get('next'));
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
