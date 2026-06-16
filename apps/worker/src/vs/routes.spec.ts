@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { handleVsData, handleVsDebugMeasure, handleVsScreenshot } from './routes';
+import {
+  type DebugMeasureEnv,
+  handleVsData,
+  handleVsDebugMeasure,
+  handleVsScreenshot,
+} from './routes';
 import { type VsEnv } from './scheduled';
 
 function makeBucket(
@@ -86,23 +91,25 @@ describe('handleVsScreenshot', () => {
   });
 });
 
+function makeDebugEnv(token?: string): DebugMeasureEnv {
+  return {
+    BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
+    ...(token !== undefined ? { VS_DEBUG_TOKEN: token } : {}),
+  };
+}
+
 describe('handleVsDebugMeasure', () => {
   it('returns 403 when VS_DEBUG_TOKEN is not configured', async () => {
-    const env = { BROWSER: { fetch: vi.fn() } as unknown as Fetcher };
     const res = await handleVsDebugMeasure(
-      env,
+      makeDebugEnv(),
       new Request('https://w.example/vs/debug-measure?url=https://simplyfpl.com/')
     );
     expect(res.status).toBe(403);
   });
 
   it('returns 403 when token header is wrong', async () => {
-    const env = {
-      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
-      VS_DEBUG_TOKEN: 'secret',
-    };
     const res = await handleVsDebugMeasure(
-      env,
+      makeDebugEnv('secret'),
       new Request('https://w.example/vs/debug-measure?url=https://simplyfpl.com/', {
         headers: { 'x-vs-debug': 'wrong' },
       })
@@ -111,33 +118,24 @@ describe('handleVsDebugMeasure', () => {
   });
 
   it('returns 403 in all environments when token is absent', async () => {
-    const env = { BROWSER: { fetch: vi.fn() } as unknown as Fetcher };
     const res = await handleVsDebugMeasure(
-      env,
+      makeDebugEnv(),
       new Request('https://w.example/vs/debug-measure?url=https://simplyfpl.com/')
     );
     expect(res.status).toBe(403);
   });
 
   it('returns 400 when authorised but ?url= is missing', async () => {
-    const env = {
-      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
-      VS_DEBUG_TOKEN: 'secret',
-    };
     const res = await handleVsDebugMeasure(
-      env,
+      makeDebugEnv('secret'),
       new Request('https://w.example/vs/debug-measure', { headers: { 'x-vs-debug': 'secret' } })
     );
     expect(res.status).toBe(400);
   });
 
   it('returns 400 when ?url= uses http:// (invalid scheme)', async () => {
-    const env = {
-      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
-      VS_DEBUG_TOKEN: 'secret',
-    };
     const res = await handleVsDebugMeasure(
-      env,
+      makeDebugEnv('secret'),
       new Request('https://w.example/vs/debug-measure?url=http://simplyfpl.com/', {
         headers: { 'x-vs-debug': 'secret' },
       })
@@ -148,10 +146,7 @@ describe('handleVsDebugMeasure', () => {
   });
 
   it('returns 400 when ?url= hostname is not in the allow-list', async () => {
-    const env = {
-      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
-      VS_DEBUG_TOKEN: 'secret',
-    };
+    const env = makeDebugEnv('secret');
     const res = await handleVsDebugMeasure(
       env,
       new Request('https://w.example/vs/debug-measure?url=https://evil.com/', {
