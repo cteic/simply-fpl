@@ -29,9 +29,7 @@ const nextConfig = {
     '@tamagui/shorthands',
     '@tamagui/themes',
   ],
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
   async headers() {
     return [
       {
