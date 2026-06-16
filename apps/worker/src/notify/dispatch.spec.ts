@@ -19,7 +19,7 @@ vi.mock('web-push', () => ({
 
 const SUB_1 = {
   id: 'sub-1',
-  user_id: 'user-1',
+  user_id: '11111111-1111-4111-8111-111111111111',
   endpoint: 'https://push.example.com/endpoint/1',
   p256dh: 'p256dh-1',
   auth_key: 'auth-1',
@@ -28,7 +28,7 @@ const SUB_1 = {
 
 const SUB_2 = {
   id: 'sub-2',
-  user_id: 'user-2',
+  user_id: '22222222-2222-4222-8222-222222222222',
   endpoint: 'https://push.example.com/endpoint/2',
   p256dh: 'p256dh-2',
   auth_key: 'auth-2',
@@ -116,7 +116,13 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
 
     Given('VAPID keys are configured', () => undefined);
     And('2 users have deadline_reminder enabled in notification_prefs', () => {
-      setupFetchMock([{ user_id: 'user-1' }, { user_id: 'user-2' }], [SUB_1, SUB_2]);
+      setupFetchMock(
+        [
+          { user_id: '11111111-1111-4111-8111-111111111111' },
+          { user_id: '22222222-2222-4222-8222-222222222222' },
+        ],
+        [SUB_1, SUB_2]
+      );
     });
     And('both users have a web push subscription', () => undefined);
 
@@ -169,7 +175,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
 
     Given('VAPID keys are configured', () => undefined);
     And('1 user has deadline_reminder enabled', () => {
-      setupFetchMock([{ user_id: 'user-1' }], [SUB_1]);
+      setupFetchMock([{ user_id: '11111111-1111-4111-8111-111111111111' }], [SUB_1]);
     });
     And('that user has a stale push subscription', () => undefined);
 
@@ -220,7 +226,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
 
     Given('VAPID keys are configured', () => undefined);
     And('3 users have deadline_reminder enabled', () => {
-      setupFetchMock([{ user_id: 'user-1' }], [SUB_1]);
+      setupFetchMock([{ user_id: '11111111-1111-4111-8111-111111111111' }], [SUB_1]);
     });
     And('all 3 have push subscriptions', () => undefined);
 
@@ -229,7 +235,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       async () => {
         result = await dispatchNotification(makeEnv(), {
           event: 'deadline_reminder',
-          userIds: ['user-1'],
+          userIds: ['11111111-1111-4111-8111-111111111111'],
           payload: DEADLINE_PAYLOAD,
         });
       }
