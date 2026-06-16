@@ -33,16 +33,21 @@ Feature: Stripe webhook handler
     Then the response status is 500
     And no idempotency record is written for the event
 
-  Scenario: non-duplicate DB error on idempotency insert returns 5xx
+  Scenario: transient DB error on idempotency insert after successful handler returns 200
     Given a valid Stripe checkout.session.completed event for Pro Monthly
     And the stripe_events insert will fail with a transient error
     When the webhook handler processes the event
-    Then the response status is 500
+    Then the response status is 200
 
-  Scenario: charge.refunded reverts the user to the free tier
-    Given an existing Pro subscriber with a refunded charge
+  Scenario: charge.refunded with a full refund reverts the user to the free tier
+    Given an existing Pro subscriber with a fully refunded charge
     When the webhook receives charge.refunded
     Then the user's profile tier becomes 'free'
+
+  Scenario: charge.refunded with a partial refund does not revert the user's tier
+    Given an existing Pro subscriber with a partially refunded charge
+    When the webhook receives charge.refunded
+    Then the profiles table is not updated
 
   Scenario: charge.dispute.created reverts the user to the free tier
     Given an existing Pro subscriber with a dispute on their charge
