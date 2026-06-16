@@ -7,6 +7,7 @@ import { handleFixturesSlim } from './fixtures';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
 import { checkRateLimit } from './lib/rate-limit';
+import { dispatchNotification, isValidUuid } from './notify/dispatch';
 import { buildFplPassthroughTarget, matchFplRoute } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
 import { handleEntrySnapshot } from './snapshot';
@@ -31,6 +32,10 @@ export interface Env {
   GIT_SHA?: string;
   ENVIRONMENT?: string;
   VS_DEBUG_TOKEN?: string;
+  VAPID_PUBLIC_KEY?: string;
+  VAPID_PRIVATE_KEY?: string;
+  VAPID_SUBJECT?: string;
+  NOTIFY_DISPATCH_SECRET?: string;
 }
 
 const VS_COMPARISON_CRON = '0 6 * * 1';
@@ -297,6 +302,65 @@ export default {
       const rl = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
       if (rl) return rl;
       return handleCohortAggregates(env, Number(cohortMatch[1]), request.method);
+    }
+
+    if (
+      request.method === 'POST' &&
+      (url.pathname === '/notify/dispatch' || url.pathname === '/notify/dispatch/')
+    ) {
+      const secret = request.headers.get('X-Dispatch-Secret');
+      if (!env.NOTIFY_DISPATCH_SECRET || secret !== env.NOTIFY_DISPATCH_SECRET) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      let body: unknown;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      if (!body || typeof body !== 'object') {
+        return new Response(JSON.stringify({ error: 'Invalid body' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      const b = body as Record<string, unknown>;
+      const event = b['event'];
+      const rawUserIds = Array.isArray(b['user_ids']) ? (b['user_ids'] as unknown[]) : undefined;
+      const payload = b['payload'];
+      if (typeof event !== 'string' || !payload || typeof payload !== 'object') {
+        return new Response(JSON.stringify({ error: 'Missing event or payload' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      if (rawUserIds !== undefined) {
+        const invalid = rawUserIds.some((id) => typeof id !== 'string' || !isValidUuid(id));
+        if (invalid) {
+          return new Response(
+            JSON.stringify({ error: 'Invalid user_ids: each must be a valid UUID' }),
+            {
+              status: 400,
+              headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      }
+      const userIds = rawUserIds as string[] | undefined;
+      const result = await dispatchNotification(env, {
+        event: event as Parameters<typeof dispatchNotification>[1]['event'],
+        ...(userIds !== undefined ? { userIds } : {}),
+        payload: payload as Parameters<typeof dispatchNotification>[1]['payload'],
+      });
+      return new Response(JSON.stringify(result), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
     }
 
     if (request.method !== 'GET') {

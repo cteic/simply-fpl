@@ -255,3 +255,28 @@ export interface ScoreDistribution {
 }
 
 export * from './db';
+
+export type NotificationEvent =
+  | 'deadline_reminder'
+  | 'captain_scored'
+  | 'bonus_confirmed'
+  | 'price_drop'
+  | 'rank_swing';
+
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth_key: string;
+}
+
+export interface PushPayload {
+  v: 1;
+  type: NotificationEvent;
+  title: string;
+  body: string;
+  url: string;
+  id: string;
+  tag?: string;
+}
