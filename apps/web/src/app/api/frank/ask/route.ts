@@ -14,7 +14,8 @@ const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 
 const FRANK_QUOTA_SOFT = 50;
 const FRANK_QUOTA_HARD = 80;
-const TEAM_CONTEXT_MAX_CHARS = 8000;
+const TEAM_CONTEXT_MAX_CHARS = 4000;
+const FRANK_PARSE_ERROR = 'Frank had trouble formatting that answer — try rephrasing';
 
 export const runtime = 'edge';
 
@@ -213,8 +214,8 @@ export async function POST(request: NextRequest) {
     .join('');
 
   const parsed = parseFrankJson(rawText);
-  const advice = parsed?.advice ?? rawText;
-  const responsePayload: FrankJsonResponse = parsed ?? { advice: rawText };
+  const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
+  const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
 
   const admin = getSupabaseAdminClient();
   try {
