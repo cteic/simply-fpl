@@ -436,7 +436,13 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       : livePoints;
   const preGwRank = entry?.summary_overall_rank ?? 0;
   const rankDetails = ready
-    ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
+    ? computeRankDetails(
+        preGwRank,
+        livePoints,
+        postSubsPoints,
+        avgEntryScore,
+        currentGw ?? undefined
+      )
     : null;
   const autosubsApply = postSubsPoints !== livePoints;
   const showPostSubs = autosubsApply && subsMode === 'post';

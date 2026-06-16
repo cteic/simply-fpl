@@ -2,16 +2,23 @@ export { createFplClient, fplClient } from './client';
 export { computeDefConProgress, computeSeasonDefConRate } from './defcon';
 export type { SeasonDefConRate } from './defcon';
 export {
+  APPROX_TOTAL_FPL_ENTRIES,
   buildLiveLeagueTable,
   calculateLivePoints,
   computeRankDetails,
   estimateLiveRank,
+  estimateLiveRankSmart,
   formatTimeRemaining,
   getCurrentGameweek,
   getNextDeadline,
   getNextGameweek,
 } from './live-rank';
-export type { LiveRankEstimate, NextDeadline, RankDetails } from './live-rank';
+export type {
+  EstimateLiveRankSmartOptions,
+  LiveRankEstimate,
+  NextDeadline,
+  RankDetails,
+} from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
 export { computeScoreDistribution } from './score-distribution';
 export type { ScoreDistributionOptions } from './score-distribution';

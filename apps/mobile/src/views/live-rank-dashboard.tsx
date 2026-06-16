@@ -271,7 +271,13 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
   const rankDetails =
     ready && entry
-      ? computeRankDetails(preGwRank, livePoints, postSubsPoints, avgEntryScore)
+      ? computeRankDetails(
+          preGwRank,
+          livePoints,
+          postSubsPoints,
+          avgEntryScore,
+          currentGw ?? undefined
+        )
       : null;
   const autosubsApply = postSubsPoints !== livePoints;
   const showPostSubs = autosubsApply && subsMode === 'post';

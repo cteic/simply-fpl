@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
   calculateLivePoints,
-  estimateLiveRank,
+  estimateLiveRankSmart,
   fplClient,
   predictBonusPoints,
 } from '@simplyfpl/fpl-client';
@@ -37,7 +37,7 @@ export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankE
   const bonusMap = predictBonusPoints(liveGw, fixtures, bootstrap);
   const livePoints = calculateLivePoints(picks, liveGw, bootstrap, bonusMap);
   const avgEntryScore = bootstrap.events.find((e) => e.id === gw)?.average_entry_score ?? 0;
-  return estimateLiveRank(preGwRank, livePoints, avgEntryScore);
+  return estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore);
 }
 
 export interface UseLiveRankEstimateResult {
