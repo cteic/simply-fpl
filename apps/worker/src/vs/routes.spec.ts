@@ -99,12 +99,18 @@ describe('handleVsDebugMeasure', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 400 in non-prod when url query is missing', async () => {
+  it('returns 400 when authorised but url query is missing', async () => {
     const env = {
       BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
       ENVIRONMENT: 'development',
+      VS_DEBUG_TOKEN: 'test-token',
     };
-    const res = await handleVsDebugMeasure(env, new Request('https://w.example/vs/debug-measure'));
+    const res = await handleVsDebugMeasure(
+      env,
+      new Request('https://w.example/vs/debug-measure', {
+        headers: { 'x-vs-debug': 'test-token' },
+      })
+    );
     expect(res.status).toBe(400);
   });
 });
