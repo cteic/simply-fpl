@@ -1,5 +1,7 @@
 import type { BrowserWorker } from '@cloudflare/puppeteer';
 
+import type { NotificationEvent } from '@simplyfpl/types';
+
 import { handleBootstrapSlim } from './bootstrap';
 import { runScheduled } from './cohort/cohort';
 import { handleCohortAggregates } from './cohort/serve';
@@ -49,6 +51,22 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+const DISPATCH_EVENTS = new Set<string>([
+  'deadline_reminder',
+  'captain_scored',
+  'bonus_confirmed',
+  'price_drop',
+  'rank_swing',
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isDispatchEvent(value: string): value is NotificationEvent {
+  return DISPATCH_EVENTS.has(value);
+}
 
 const PUBLIC_RATE_LIMIT = 60;
 const STATUS_RATE_LIMIT = 10;
@@ -324,25 +342,40 @@ export default {
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         });
       }
-      if (!body || typeof body !== 'object') {
+      if (!isRecord(body)) {
         return new Response(JSON.stringify({ error: 'Invalid body' }), {
           status: 400,
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         });
       }
-      const b = body as Record<string, unknown>;
-      const event = b['event'];
-      const rawUserIds = Array.isArray(b['user_ids']) ? (b['user_ids'] as unknown[]) : undefined;
-      const payload = b['payload'];
-      if (typeof event !== 'string' || !payload || typeof payload !== 'object') {
-        return new Response(JSON.stringify({ error: 'Missing event or payload' }), {
+      const event = body['event'];
+      const rawPayload = body['payload'];
+      const rawUserIds = body['user_ids'];
+      if (typeof event !== 'string' || !isDispatchEvent(event) || !isRecord(rawPayload)) {
+        return new Response(JSON.stringify({ error: 'Missing or invalid event or payload' }), {
           status: 400,
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         });
       }
+      const rawTitle = rawPayload['title'];
+      const rawBody = rawPayload['body'];
+      const rawUrl = rawPayload['url'];
+      if (
+        typeof rawTitle !== 'string' ||
+        typeof rawBody !== 'string' ||
+        typeof rawUrl !== 'string'
+      ) {
+        return new Response(JSON.stringify({ error: 'Missing payload fields' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+      let userIds: string[] | undefined;
       if (rawUserIds !== undefined) {
-        const invalid = rawUserIds.some((id) => typeof id !== 'string' || !isValidUuid(id));
-        if (invalid) {
+        if (
+          !Array.isArray(rawUserIds) ||
+          !rawUserIds.every((id): id is string => typeof id === 'string' && isValidUuid(id))
+        ) {
           return new Response(
             JSON.stringify({ error: 'Invalid user_ids: each must be a valid UUID' }),
             {
@@ -351,12 +384,19 @@ export default {
             }
           );
         }
+        userIds = rawUserIds;
       }
-      const userIds = rawUserIds as string[] | undefined;
+      const tag = typeof rawPayload['tag'] === 'string' ? rawPayload['tag'] : undefined;
       const result = await dispatchNotification(env, {
-        event: event as Parameters<typeof dispatchNotification>[1]['event'],
+        event,
         ...(userIds !== undefined ? { userIds } : {}),
-        payload: payload as Parameters<typeof dispatchNotification>[1]['payload'],
+        payload: {
+          type: event,
+          title: rawTitle,
+          body: rawBody,
+          url: rawUrl,
+          ...(tag !== undefined ? { tag } : {}),
+        },
       });
       return new Response(JSON.stringify(result), {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
