@@ -8,6 +8,10 @@ export const runtime = 'edge';
 
 export const ALLOWED_PUSH_HOSTS = ['googleapis.com', 'mozilla.com', 'apple.com'] as const;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export function isAllowedEndpoint(endpoint: string): boolean {
   let parsed: URL;
   try {
@@ -38,17 +42,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
   }
 
-  if (
-    typeof body !== 'object' ||
-    body === null ||
-    typeof (body as Record<string, unknown>)['endpoint'] !== 'string' ||
-    typeof (body as Record<string, unknown>)['p256dh'] !== 'string' ||
-    typeof (body as Record<string, unknown>)['auth'] !== 'string'
-  ) {
+  if (!isRecord(body)) {
     return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
   }
 
-  const { endpoint, p256dh, auth } = body as { endpoint: string; p256dh: string; auth: string };
+  const endpoint = body['endpoint'];
+  const p256dh = body['p256dh'];
+  const auth = body['auth'];
+
+  if (typeof endpoint !== 'string' || typeof p256dh !== 'string' || typeof auth !== 'string') {
+    return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
+  }
 
   if (!isAllowedEndpoint(endpoint)) {
     return NextResponse.json({ error: 'endpoint_not_allowed' }, { status: 400 });
