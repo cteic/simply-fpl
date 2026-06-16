@@ -87,24 +87,79 @@ describe('handleVsScreenshot', () => {
 });
 
 describe('handleVsDebugMeasure', () => {
-  it('returns 403 in production without the debug token header', async () => {
-    const env = {
-      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
-      ENVIRONMENT: 'production',
-    };
+  it('returns 403 when VS_DEBUG_TOKEN is not configured', async () => {
+    const env = { BROWSER: { fetch: vi.fn() } as unknown as Fetcher };
     const res = await handleVsDebugMeasure(
       env,
-      new Request('https://w.example/vs/debug-measure?url=https://x.example/')
+      new Request('https://w.example/vs/debug-measure?url=https://simplyfpl.com/')
     );
     expect(res.status).toBe(403);
   });
 
-  it('returns 400 in non-prod when url query is missing', async () => {
+  it('returns 403 when token header is wrong', async () => {
     const env = {
       BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
-      ENVIRONMENT: 'development',
+      VS_DEBUG_TOKEN: 'secret',
     };
-    const res = await handleVsDebugMeasure(env, new Request('https://w.example/vs/debug-measure'));
+    const res = await handleVsDebugMeasure(
+      env,
+      new Request('https://w.example/vs/debug-measure?url=https://simplyfpl.com/', {
+        headers: { 'x-vs-debug': 'wrong' },
+      })
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 403 in all environments when token is absent', async () => {
+    const env = { BROWSER: { fetch: vi.fn() } as unknown as Fetcher };
+    const res = await handleVsDebugMeasure(
+      env,
+      new Request('https://w.example/vs/debug-measure?url=https://simplyfpl.com/')
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 400 when authorised but ?url= is missing', async () => {
+    const env = {
+      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
+      VS_DEBUG_TOKEN: 'secret',
+    };
+    const res = await handleVsDebugMeasure(
+      env,
+      new Request('https://w.example/vs/debug-measure', { headers: { 'x-vs-debug': 'secret' } })
+    );
     expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when ?url= uses http:// (invalid scheme)', async () => {
+    const env = {
+      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
+      VS_DEBUG_TOKEN: 'secret',
+    };
+    const res = await handleVsDebugMeasure(
+      env,
+      new Request('https://w.example/vs/debug-measure?url=http://simplyfpl.com/', {
+        headers: { 'x-vs-debug': 'secret' },
+      })
+    );
+    expect(res.status).toBe(400);
+    const body: unknown = await res.json();
+    expect(body).toMatchObject({ error: 'url not allowed' });
+  });
+
+  it('returns 400 when ?url= hostname is not in the allow-list', async () => {
+    const env = {
+      BROWSER: { fetch: vi.fn() } as unknown as Fetcher,
+      VS_DEBUG_TOKEN: 'secret',
+    };
+    const res = await handleVsDebugMeasure(
+      env,
+      new Request('https://w.example/vs/debug-measure?url=https://evil.com/', {
+        headers: { 'x-vs-debug': 'secret' },
+      })
+    );
+    expect(res.status).toBe(400);
+    const body: unknown = await res.json();
+    expect(body).toMatchObject({ error: 'url not allowed' });
   });
 });
