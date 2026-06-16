@@ -130,12 +130,15 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handleChargeRefunded(charge: Stripe.Charge) {
+  // partial refunds leave the tier unchanged; only a full refund triggers a downgrade
+  if (!charge.refunded) return;
   const customerId = typeof charge.customer === 'string' ? charge.customer : null;
   if (!customerId) return;
   await revertTierToFree(customerId);
 }
 
 async function handleDisputeCreated(dispute: Stripe.Dispute) {
+  // preemptive revoke on dispute — downgrade immediately rather than waiting for outcome
   let customerId: string | null = null;
   if (typeof dispute.charge === 'string') {
     const charge = await getStripe().charges.retrieve(dispute.charge);
@@ -197,7 +200,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   }
   if (result === 'error') {
-    return NextResponse.json({ error: 'Failed to record event' }, { status: 500 });
+    // handler already ran — at-least-once: column-update is idempotent on retry, so return 2xx
+    console.error(`[stripe-webhook] failed to record event ${event.id} — handler already ran`);
+    return NextResponse.json({ received: true });
   }
 
   return NextResponse.json({ received: true });
