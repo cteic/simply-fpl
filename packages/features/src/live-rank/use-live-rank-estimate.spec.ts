@@ -119,11 +119,37 @@ function buildInput(): LiveRankEstimateInput {
   };
 }
 
+function withGw(input: LiveRankEstimateInput, gw: number): LiveRankEstimateInput {
+  const event = input.bootstrap.events[0];
+  if (!event) return input;
+  return {
+    ...input,
+    gw,
+    bootstrap: {
+      ...input.bootstrap,
+      events: [{ ...event, id: gw }],
+    },
+    picks: { ...input.picks, entry_history: { ...input.picks.entry_history, event: gw } },
+  };
+}
+
 describe('computeLiveRankEstimate', () => {
-  it('derives the live rank from pre-GW rank, live points and the GW average', () => {
+  it('falls back to flat-700 when no captured distribution exists for the gw', () => {
     // 10 starters @ 5 + captain 5*2 = 60 net points; average 50 -> +10 -> +7000 places.
-    const estimate = computeLiveRankEstimate(buildInput());
+    const estimate = computeLiveRankEstimate(withGw(buildInput(), 999));
     expect(estimate).toEqual({ liveRank: 993_000, movement: 7000, direction: 'up' });
+  });
+
+  it('uses the captured distribution when one exists for the gw', () => {
+    // gw=7 has a captured `overall` distribution; the result diverges from
+    // the flat-700 baseline (993_000) — it's clamped against ~11M entries.
+    const estimate = computeLiveRankEstimate(buildInput());
+    expect(estimate).not.toBeNull();
+    if (estimate) {
+      expect(estimate.liveRank).not.toBe(993_000);
+      expect(estimate.liveRank).toBeGreaterThanOrEqual(1);
+      expect(estimate.liveRank).toBeLessThanOrEqual(11_000_000);
+    }
   });
 
   it('returns identical values for the nav-bar pill and the live-rank page (no desync)', () => {
