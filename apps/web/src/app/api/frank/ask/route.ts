@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 import Anthropic from '@anthropic-ai/sdk';
 
-import type { FrankWeeklyPayload } from '@simplyfpl/types';
+import type { FplEntrySnapshot, FrankWeeklyPayload } from '@simplyfpl/types';
 
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
@@ -14,6 +14,7 @@ const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 
 const FRANK_QUOTA_SOFT = 50;
 const FRANK_QUOTA_HARD = 80;
+const TEAM_CONTEXT_MAX_CHARS = 8000;
 
 export const runtime = 'edge';
 
@@ -47,6 +48,38 @@ function parseFrankJson(raw: string): FrankJsonResponse | null {
   } catch {
     return null;
   }
+}
+
+function isFplEntrySnapshot(value: unknown): value is FplEntrySnapshot {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'gw' in value &&
+    typeof (value as FplEntrySnapshot).gw === 'number'
+  );
+}
+
+function projectSnapshot(raw: unknown): string {
+  if (!isFplEntrySnapshot(raw)) return '';
+  const projected = {
+    gw: raw.gw,
+    picks: raw.picks
+      ? {
+          active_chip: raw.picks.active_chip,
+          entry_history: raw.picks.entry_history,
+          picks: raw.picks.picks,
+        }
+      : null,
+    entry: raw.entry
+      ? {
+          summary_overall_rank: raw.entry.summary_overall_rank,
+          summary_overall_points: raw.entry.summary_overall_points,
+          summary_event_rank: raw.entry.summary_event_rank,
+          summary_event_points: raw.entry.summary_event_points,
+        }
+      : null,
+  };
+  return JSON.stringify(projected).slice(0, TEAM_CONTEXT_MAX_CHARS);
 }
 
 export async function POST(request: NextRequest) {
@@ -131,8 +164,8 @@ export async function POST(request: NextRequest) {
 
   if (snapshotRes.status === 'fulfilled' && snapshotRes.value !== null && snapshotRes.value?.ok) {
     try {
-      const snapshot = (await snapshotRes.value.json()) as unknown;
-      teamContext = JSON.stringify(snapshot);
+      const snapshot: unknown = await snapshotRes.value.json();
+      teamContext = projectSnapshot(snapshot);
     } catch {
       // best-effort
     }

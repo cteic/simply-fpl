@@ -9,6 +9,7 @@ const feature = await loadFeature('./webhook.feature');
 const FAKE_USER_ID = 'user-abc-123';
 const FAKE_CUSTOMER_ID = 'cus_test123';
 const FAKE_SUBSCRIPTION_ID = 'sub_test456';
+const FAKE_CHARGE_ID = 'ch_test789';
 const FAKE_EVENT_ID = 'evt_test789';
 const FAKE_PRO_MONTHLY_PRICE = 'price_pro_monthly_test';
 
@@ -33,17 +34,41 @@ function makeSubscription(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function makeCharge(overrides: Record<string, unknown> = {}) {
+  return {
+    id: FAKE_CHARGE_ID,
+    object: 'charge',
+    customer: FAKE_CUSTOMER_ID,
+    ...overrides,
+  };
+}
+
+function makeDispute(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'dp_test001',
+    object: 'dispute',
+    charge: FAKE_CHARGE_ID,
+    ...overrides,
+  };
+}
+
 type AnyMock = Mock<(...args: unknown[]) => unknown>;
 let mockStripeConstructEventAsync: AnyMock;
+let mockStripeChargesRetrieve: AnyMock;
 let mockSupabaseInsert: AnyMock;
 let mockSupabaseUpdate: AnyMock;
 let mockSupabaseSelect: AnyMock;
 let processedEventIds: Set<string>;
+let mockUpdateError: { message: string } | null;
+let mockInsertTransientError: boolean;
 
 vi.mock('@/lib/stripe', () => ({
   getStripe: () => ({
     webhooks: {
       constructEventAsync: (...args: unknown[]) => mockStripeConstructEventAsync(...args),
+    },
+    charges: {
+      retrieve: (...args: unknown[]) => mockStripeChargesRetrieve(...args),
     },
   }),
 }));
@@ -70,6 +95,9 @@ vi.mock('@/lib/supabase-admin', () => ({
             if (processedEventIds.has(id)) {
               return Promise.resolve({ error: { code: '23505' } });
             }
+            if (mockInsertTransientError) {
+              return Promise.resolve({ error: { code: '08006', message: 'connection failure' } });
+            }
             processedEventIds.add(id);
             return mockSupabaseInsert(id);
           },
@@ -80,7 +108,7 @@ vi.mock('@/lib/supabase-admin', () => ({
         update: (data: unknown) => ({
           eq: (_col: string, _val: string) => {
             mockSupabaseUpdate(data);
-            return Promise.resolve({ error: null });
+            return Promise.resolve({ error: mockUpdateError });
           },
         }),
         select: (_cols: string) => ({
@@ -103,7 +131,10 @@ function makeRequest(body: string, sig = 'stripe-sig-mock') {
 describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     processedEventIds = new Set();
+    mockUpdateError = null;
+    mockInsertTransientError = false;
     mockStripeConstructEventAsync = vi.fn();
+    mockStripeChargesRetrieve = vi.fn().mockResolvedValue(makeCharge());
     mockSupabaseInsert = vi.fn().mockResolvedValue({ error: null });
     mockSupabaseUpdate = vi.fn();
     mockSupabaseSelect = vi.fn().mockResolvedValue({ data: { id: FAKE_USER_ID }, error: null });
@@ -219,25 +250,149 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     }
   );
 
-  Scenario('duplicate event ID is silently ignored', ({ Given, When, Then }) => {
-    Given('the stripe_events table already contains the event ID', () => {
-      processedEventIds.add(FAKE_EVENT_ID);
+  Scenario(
+    'duplicate event returns 200 after handlers re-run idempotently',
+    ({ Given, When, Then }) => {
+      let response: Response | null = null;
+
+      Given('the stripe_events table already contains the event ID', () => {
+        processedEventIds.add(FAKE_EVENT_ID);
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'checkout.session.completed',
+          data: { object: makeCheckoutSession() },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+      });
+
+      When('the webhook handler processes the same event again', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        response = await POST(req);
+      });
+
+      Then('the response status is 200', () => {
+        expect(response?.status).toBe(200);
+      });
+    }
+  );
+
+  Scenario(
+    'handler DB write failure returns 5xx so Stripe retries',
+    ({ Given, When, Then, And }) => {
+      let response: Response | null = null;
+
+      Given('a valid Stripe checkout.session.completed event for Pro Monthly', () => {
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'checkout.session.completed',
+          data: { object: makeCheckoutSession() },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+      });
+
+      And('the profiles update will fail with a DB error', () => {
+        mockUpdateError = { message: 'connection timeout' };
+      });
+
+      When('the webhook handler processes the event', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        response = await POST(req);
+      });
+
+      Then('the response status is 500', () => {
+        expect(response?.status).toBe(500);
+      });
+
+      And('no idempotency record is written for the event', () => {
+        expect(processedEventIds.has(FAKE_EVENT_ID)).toBe(false);
+      });
+    }
+  );
+
+  Scenario(
+    'non-duplicate DB error on idempotency insert returns 5xx',
+    ({ Given, When, Then, And }) => {
+      let response: Response | null = null;
+
+      Given('a valid Stripe checkout.session.completed event for Pro Monthly', () => {
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'checkout.session.completed',
+          data: { object: makeCheckoutSession() },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+      });
+
+      And('the stripe_events insert will fail with a transient error', () => {
+        mockInsertTransientError = true;
+      });
+
+      When('the webhook handler processes the event', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        response = await POST(req);
+      });
+
+      Then('the response status is 500', () => {
+        expect(response?.status).toBe(500);
+      });
+    }
+  );
+
+  Scenario('charge.refunded reverts the user to the free tier', ({ Given, When, Then }) => {
+    let updatedData: Record<string, unknown> | null = null;
+
+    Given('an existing Pro subscriber with a refunded charge', () => {
       const event = {
         id: FAKE_EVENT_ID,
-        type: 'checkout.session.completed',
-        data: { object: makeCheckoutSession() },
+        type: 'charge.refunded',
+        data: { object: makeCharge() },
       };
       mockStripeConstructEventAsync.mockResolvedValue(event);
+      mockSupabaseUpdate = vi.fn().mockImplementation((data: Record<string, unknown>) => {
+        updatedData = data;
+        return { eq: () => Promise.resolve({ error: null }) };
+      });
     });
 
-    When('the webhook handler processes the same event again', async () => {
+    When('the webhook receives charge.refunded', async () => {
       const { POST } = await import('./route');
       const req = makeRequest('{}');
       await POST(req);
     });
 
-    Then('the profile tier is not updated a second time', () => {
-      expect(mockSupabaseUpdate).not.toHaveBeenCalled();
+    Then("the user's profile tier becomes 'free'", () => {
+      expect(updatedData?.['tier']).toBe('free');
+    });
+  });
+
+  Scenario('charge.dispute.created reverts the user to the free tier', ({ Given, When, Then }) => {
+    let updatedData: Record<string, unknown> | null = null;
+
+    Given('an existing Pro subscriber with a dispute on their charge', () => {
+      const event = {
+        id: FAKE_EVENT_ID,
+        type: 'charge.dispute.created',
+        data: { object: makeDispute() },
+      };
+      mockStripeConstructEventAsync.mockResolvedValue(event);
+      mockStripeChargesRetrieve = vi.fn().mockResolvedValue(makeCharge());
+      mockSupabaseUpdate = vi.fn().mockImplementation((data: Record<string, unknown>) => {
+        updatedData = data;
+        return { eq: () => Promise.resolve({ error: null }) };
+      });
+    });
+
+    When('the webhook receives charge.dispute.created', async () => {
+      const { POST } = await import('./route');
+      const req = makeRequest('{}');
+      await POST(req);
+    });
+
+    Then("the user's profile tier becomes 'free'", () => {
+      expect(updatedData?.['tier']).toBe('free');
     });
   });
 });
