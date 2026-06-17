@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 
+import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
+
 import { OG_SIZE } from './og-config';
 
 export const runtime = 'edge';
@@ -19,6 +21,8 @@ const COLORS = {
 const DM_MONO_URL = 'https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2';
 const DM_SANS_URL =
   'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAop0.woff2';
+// TODO: bundle DM Mono + DM Sans as local woff2 assets to eliminate this runtime network dep
+const FONT_TIMEOUT_MS = 3000;
 
 function clip(value: string, max: number): string {
   if (value.length <= max) return value;
@@ -34,10 +38,18 @@ export async function GET(request: NextRequest) {
     ? 'Live FPL rank · simplyfpl.com'
     : 'Fastest live-rank companion for Fantasy Premier League';
 
-  const [dmMono, dmSans] = await Promise.all([
-    fetch(new URL(DM_MONO_URL)).then((res) => res.arrayBuffer()),
-    fetch(new URL(DM_SANS_URL)).then((res) => res.arrayBuffer()),
+  const [dmMonoResult, dmSansResult] = await Promise.all([
+    fetchWithTimeout(new URL(DM_MONO_URL), FONT_TIMEOUT_MS),
+    fetchWithTimeout(new URL(DM_SANS_URL), FONT_TIMEOUT_MS),
   ]);
+
+  const fonts: { name: string; data: ArrayBuffer; style: 'normal'; weight: 500 | 700 }[] = [];
+  if (dmMonoResult.ok)
+    fonts.push({ name: 'DM Mono', data: dmMonoResult.data, style: 'normal', weight: 500 });
+  if (dmSansResult.ok) {
+    fonts.push({ name: 'DM Sans', data: dmSansResult.data, style: 'normal', weight: 500 });
+    fonts.push({ name: 'DM Sans', data: dmSansResult.data, style: 'normal', weight: 700 });
+  }
 
   return new ImageResponse(
     <div
@@ -165,11 +177,7 @@ export async function GET(request: NextRequest) {
     {
       ...SIZE,
       headers: { 'Cache-Control': 'public, max-age=600, s-maxage=3600' },
-      fonts: [
-        { name: 'DM Mono', data: dmMono, style: 'normal', weight: 500 },
-        { name: 'DM Sans', data: dmSans, style: 'normal', weight: 500 },
-        { name: 'DM Sans', data: dmSans, style: 'normal', weight: 700 },
-      ],
+      fonts,
     }
   );
 }
