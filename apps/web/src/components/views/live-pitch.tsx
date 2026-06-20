@@ -1,6 +1,6 @@
 'use client';
 
-import { BenchDivider, Pitch, PitchRow, Player } from '@simplyfpl/ui';
+import { BenchDivider, Pitch, PitchField, PitchRow, Player } from '@simplyfpl/ui';
 import type { BadgeTone, DefConBarProps, ShirtKind } from '@simplyfpl/ui';
 
 export interface LivePitchPlayer {
@@ -29,30 +29,10 @@ interface LivePitchProps {
 export function LivePitch({ teamName, formation, label, rows, bench }: LivePitchProps) {
   return (
     <Pitch teamName={teamName} formation={formation} label={label}>
-      {rows.map((row, i) => (
-        <PitchRow key={`row-${i}`}>
-          {row.map((p) => (
-            <Player
-              key={p.key}
-              name={p.name}
-              detail={p.detail}
-              position={p.position}
-              badge={p.badge}
-              badgeTone={p.badgeTone}
-              kitUrl={p.kitUrl}
-              kitUrl2x={p.kitUrl2x}
-              ownershipPercent={p.ownershipPercent}
-              accentColor={p.accentColor}
-              defcon={p.defcon}
-            />
-          ))}
-        </PitchRow>
-      ))}
-      {bench.length > 0 ? (
-        <>
-          <BenchDivider />
-          <PitchRow>
-            {bench.map((p) => (
+      <PitchField>
+        {rows.map((row, i) => (
+          <PitchRow key={`row-${i}`}>
+            {row.map((p) => (
               <Player
                 key={p.key}
                 name={p.name}
@@ -64,12 +44,36 @@ export function LivePitch({ teamName, formation, label, rows, bench }: LivePitch
                 kitUrl2x={p.kitUrl2x}
                 ownershipPercent={p.ownershipPercent}
                 accentColor={p.accentColor}
-                bench
+                defcon={p.defcon}
+                onPitch
               />
             ))}
           </PitchRow>
-        </>
-      ) : null}
+        ))}
+        {bench.length > 0 ? (
+          <>
+            <BenchDivider onPitch />
+            <PitchRow>
+              {bench.map((p) => (
+                <Player
+                  key={p.key}
+                  name={p.name}
+                  detail={p.detail}
+                  position={p.position}
+                  badge={p.badge}
+                  badgeTone={p.badgeTone}
+                  kitUrl={p.kitUrl}
+                  kitUrl2x={p.kitUrl2x}
+                  ownershipPercent={p.ownershipPercent}
+                  accentColor={p.accentColor}
+                  onPitch
+                  bench
+                />
+              ))}
+            </PitchRow>
+          </>
+        ) : null}
+      </PitchField>
     </Pitch>
   );
 }
