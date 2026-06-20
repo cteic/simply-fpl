@@ -28,7 +28,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
-    "test:unit": "vitest run --passWithNoTests"
+    "test:unit": "vitest run --passWithNoTests",
+    "test:simulator": "vitest run src/live-rank/cohort-simulator.spec.ts"
   },
   "dependencies": {
     "@simplyfpl/fpl-client": "workspace:*",
