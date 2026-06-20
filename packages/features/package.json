@@ -16,6 +16,7 @@
     "./h2h": "./src/h2h/index.ts",
     "./rivals": "./src/rivals/index.ts",
     "./subscriptions": "./src/subscriptions/index.ts",
+    "./subscriptions/entitlement": "./src/subscriptions/entitlement.ts",
     "./cohorts": "./src/cohorts/index.ts",
     "./threats": "./src/threats/index.ts",
     "./live-battle": "./src/live-battle/index.ts",

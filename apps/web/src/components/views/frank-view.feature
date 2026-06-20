@@ -45,3 +45,22 @@ Feature: Frank AI coach view
     And the FEATURE_FRANK_ONDEMAND flag is on
     When the user views the Ask Frank form
     Then they see a CTA that links to /upgrade
+
+  Scenario: Free tier is served Frank from the weekly cache
+    Given Frank access is resolved for the free tier
+    Then Frank is served from the weekly-cache source
+    And on-demand questions are not available
+
+  Scenario: Pro tier is served Frank from the weekly cache
+    Given Frank access is resolved for the pro tier
+    Then Frank is served from the weekly-cache source
+    And on-demand questions are not available
+
+  Scenario: Ultimate tier asks Frank live
+    Given Frank access is resolved for the ultimate tier
+    Then Frank is served from the live source
+    And on-demand questions are available
+
+  Scenario: Gated free or pro user is shown an upgrade affordance to Ultimate
+    Given Frank access is resolved for the free tier
+    Then the upgrade affordance points to the ultimate tier
