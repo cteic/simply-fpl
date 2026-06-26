@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { useThemeName } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
@@ -52,7 +53,7 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
     setError(null);
     const id = parseEntryId(input);
     if (!id) {
-      setError('Enter a numeric FPL team ID or paste an FPL team URL.');
+      setError(t('home_search.input_error'));
       return;
     }
     setSavedEntryId(id);
@@ -68,15 +69,14 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
       <PageHeader
         tone="stadium"
         title={<Logo size="lg" tone={logoTone} />}
-        meta="Live FPL companion · GW30"
+        meta={t('home_search.meta')}
       />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
-        <SectionHeader title="Find your team" />
+        <SectionHeader title={t('home_search.section_find')} />
         <YStack gap={10} marginTop={4}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Enter your FPL team ID or paste your team URL to see your live rank, gameweek points,
-            and pitch.
+            {t('home_search.description')}
           </Text>
           <XStack gap={10}>
             <Input
@@ -84,12 +84,12 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
               value={input}
               onChangeText={setInput}
               onSubmitEditing={handleSubmit}
-              placeholder="e.g. 1234567 or fantasy.premierleague.com/entry/1234567/event/30"
+              placeholder={t('home_search.input_placeholder')}
               borderColor="$borderStrong"
               backgroundColor="$background"
             />
             <Button tone="primary" size="md" onPress={handleSubmit}>
-              View Live Rank
+              {t('home_search.cta')}
             </Button>
           </XStack>
           {error ? (
@@ -101,24 +101,24 @@ export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="What you get" />
+        <SectionHeader title={t('home_search.section_features')} />
         <YStack gap={6} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Live rank that updates every 60 seconds during gameweeks
+            {t('home_search.feature_live_rank')}
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Mini-league standings with live captain and bench points
+            {t('home_search.feature_leagues')}
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Head-to-head comparison against any rival in your leagues
+            {t('home_search.feature_h2h')}
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Free, no sign-up needed — just paste your team ID
+            {t('home_search.feature_free')}
           </Text>
         </YStack>
       </Card>
 
-      <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
+      <FNote>{t('common.disclaimer')}</FNote>
     </PageShell>
   );
 }

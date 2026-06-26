@@ -19,7 +19,7 @@
     "dev:worker": "turbo run dev --filter=@simplyfpl/worker",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint && node scripts/check-hardcoded-strings.mjs",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test:unit",
