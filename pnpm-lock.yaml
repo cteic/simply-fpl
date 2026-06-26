@@ -167,6 +167,9 @@ importers:
       '@simplyfpl/fpl-client':
         specifier: workspace:*
         version: link:../../packages/fpl-client
+      '@simplyfpl/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@simplyfpl/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -337,6 +340,25 @@ importers:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@25.9.1)(lightningcss@1.27.0)(msw@2.14.6(@types/node@25.9.1)(typescript@5.9.3))(terser@5.48.0)
 
+  packages/i18n:
+    dependencies:
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.2.5
+    devDependencies:
+      '@simplyfpl/tsconfig-config':
+        specifier: workspace:*
+        version: link:../tsconfig-config
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@25.9.1)(lightningcss@1.27.0)(msw@2.14.6(@types/node@25.9.1)(typescript@5.9.3))(terser@5.48.0)
+
   packages/prettier-config:
     devDependencies:
       '@trivago/prettier-plugin-sort-imports':
@@ -359,6 +381,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@simplyfpl/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@simplyfpl/types':
         specifier: workspace:*
         version: link:../types

@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 
 import { rivals } from '@simplyfpl/features';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -57,9 +58,9 @@ export function RivalsView() {
   if (leagueId === null) {
     return (
       <PageShell>
-        <PageHeader title="Rivals" meta="Invalid league ID in URL" />
+        <PageHeader title={t('rivals.title')} meta={t('rivals.meta_invalid_id')} />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          The URL needs a positive integer league ID, like <code>/rivals/123456</code>.
+          {t('rivals.invalid_id_body')}
         </Text>
       </PageShell>
     );
@@ -68,7 +69,7 @@ export function RivalsView() {
   if (!hydrated) {
     return (
       <PageShell>
-        <PageHeader title="Rivals" meta="Loading…" />
+        <PageHeader title={t('rivals.title')} meta={t('common.loading')} />
       </PageShell>
     );
   }
@@ -83,11 +84,11 @@ export function RivalsView() {
 function NoTeamView() {
   return (
     <PageShell>
-      <PageHeader title="Rivals" meta="Tell us your team ID to see your rivals" />
+      <PageHeader title={t('rivals.title')} meta={t('rivals.meta_no_team')} />
       <Card paddingHorizontal={20} paddingVertical={20}>
         <YStack gap={10}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            We pull the closest managers from your mini-league once we know your team ID.
+            {t('rivals.no_team_body')}
           </Text>
           <XStack>
             <Button
@@ -97,7 +98,7 @@ function NoTeamView() {
                 window.location.href = '/';
               }}
             >
-              Enter team ID
+              {t('common.cta_enter_team_id')}
             </Button>
           </XStack>
         </YStack>
@@ -138,7 +139,7 @@ export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
   if (leagueLoading) {
     return (
       <PageShell>
-        <PageHeader title="Rivals" meta="Loading league…" />
+        <PageHeader title={t('rivals.title')} meta={t('rivals.meta_loading_league')} />
       </PageShell>
     );
   }
@@ -146,10 +147,10 @@ export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
   if (leagueError || !league) {
     return (
       <PageShell>
-        <PageHeader title="Rivals" meta={`League ${leagueId}`} />
+        <PageHeader title={t('rivals.title')} meta={`League ${leagueId}`} />
         <Card paddingHorizontal={16} paddingVertical={14}>
           <Text fontFamily="$body" fontSize={13} color="$danger">
-            Couldn&apos;t load this league. Double-check the league ID.
+            {t('rivals.load_error')}
           </Text>
         </Card>
       </PageShell>
@@ -159,10 +160,10 @@ export function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
   if (userStanding === null) {
     return (
       <PageShell>
-        <PageHeader title="Rivals" meta={league.league.name} />
+        <PageHeader title={t('rivals.title')} meta={league.league.name} />
         <Card paddingHorizontal={16} paddingVertical={14}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Team {userEntryId} isn&apos;t in this league. Pick a league you&apos;ve joined.
+            {t('rivals.not_in_league', { entryId: userEntryId })}
           </Text>
         </Card>
       </PageShell>
@@ -325,12 +326,12 @@ function RivalsBoardSection({
 
   return (
     <PageShell>
-      <PageHeader tone="stadium" title="Rivals" meta={meta} />
+      <PageHeader tone="stadium" title={t('rivals.title')} meta={meta} />
 
       {!ready ? (
         <Card paddingHorizontal={16} paddingVertical={14} marginBottom={16}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-            Loading live data…
+            {t('rivals.loading_live')}
           </Text>
         </Card>
       ) : null}
@@ -339,7 +340,7 @@ function RivalsBoardSection({
         {orderedRows.length === 0 ? (
           <Card paddingHorizontal={16} paddingVertical={14}>
             <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-              No rival data yet — picks are still loading.
+              {t('rivals.no_rival_data')}
             </Text>
           </Card>
         ) : (
@@ -388,17 +389,15 @@ function RivalsBoardSection({
       ) : (
         <YStack marginBottom={20}>
           <Card paddingHorizontal={16} paddingVertical={14}>
-            <SectionHeader title="Differentials" />
+            <SectionHeader title={t('differentials.section_title')} />
             <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={6}>
-              {rivalAbove
-                ? 'Loading rival picks…'
-                : "You're top of the rivals window — no manager above to compare against."}
+              {rivalAbove ? t('rivals.loading_rival_picks') : t('rivals.top_of_window')}
             </Text>
           </Card>
         </YStack>
       )}
 
-      <FNote>Live GW points refresh every 60s. Bonus shown is provisional until confirmed.</FNote>
+      <FNote>{t('rivals.fnote')}</FNote>
     </PageShell>
   );
 }

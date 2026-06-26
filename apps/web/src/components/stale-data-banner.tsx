@@ -1,5 +1,6 @@
 'use client';
 
+import { t } from '@simplyfpl/i18n';
 import { Text, XStack } from '@simplyfpl/ui';
 
 import { useBootstrapStatus } from '@/queries/fpl';
@@ -23,7 +24,7 @@ export function StaleDataBanner() {
       $sm={{ paddingHorizontal: 16 }}
     >
       <Text fontFamily="$body" fontSize={11.5} fontWeight="500" color="$warning" textAlign="center">
-        Live updates paused — showing last data
+        {t('stale_data.message')}
       </Text>
     </XStack>
   );
