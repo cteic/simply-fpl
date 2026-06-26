@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@simplyfpl/features": "workspace:*",
+    "@simplyfpl/i18n": "workspace:*",
     "@simplyfpl/fpl-client": "workspace:*",
     "@simplyfpl/types": "workspace:*",
     "@simplyfpl/ui": "workspace:*",

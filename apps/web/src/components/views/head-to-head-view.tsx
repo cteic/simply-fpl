@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
+import { t } from '@simplyfpl/i18n';
 import { PageHeader, PageShell, Text } from '@simplyfpl/ui';
 
 const HeadToHeadInner = dynamic(() => import('./head-to-head-inner'), {
   ssr: false,
   loading: () => (
     <PageShell>
-      <PageHeader title="Head to Head" meta="Loading…" />
+      <PageHeader title={t('h2h.title')} meta={t('common.loading')} />
     </PageShell>
   ),
 });
@@ -50,7 +51,7 @@ export function HeadToHeadView() {
   if (!resolved) {
     return (
       <PageShell>
-        <PageHeader title="Head to Head" meta="Loading…" />
+        <PageHeader title={t('h2h.title')} meta={t('common.loading')} />
       </PageShell>
     );
   }
@@ -58,10 +59,9 @@ export function HeadToHeadView() {
   if (ids === null) {
     return (
       <PageShell>
-        <PageHeader title="Head to Head" meta="Invalid team IDs in URL" />
+        <PageHeader title={t('h2h.title')} meta={t('h2h.meta_invalid')} />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          The URL needs two different positive integer team IDs, like
-          <code> /h2h/123456/789012</code>.
+          {t('h2h.invalid_body')}
         </Text>
       </PageShell>
     );

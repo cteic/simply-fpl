@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 import { Card } from '../card';
 import { SectionHeader } from '../section-header';
 
@@ -170,27 +172,27 @@ export function DifferentialsPanel({
   return (
     <Wrap>
       <Head>
-        <SectionHeader title="Differentials" />
+        <SectionHeader title={t('differentials.section_title')} />
         <SubTitle>vs {rivalLabel}</SubTitle>
       </Head>
       <Cols>
         <Col>
-          <ColHead>You have</ColHead>
-          <DiffList players={yoursOnly} empty="No unique picks vs this rival." />
+          <ColHead>{t('differentials.yours_header')}</ColHead>
+          <DiffList players={yoursOnly} empty={t('differentials.empty')} />
         </Col>
         <Col last>
-          <ColHead>They have</ColHead>
-          <DiffList players={theirsOnly} empty="No unique picks vs this rival." />
+          <ColHead>{t('differentials.theirs_header')}</ColHead>
+          <DiffList players={theirsOnly} empty={t('differentials.empty')} />
         </Col>
       </Cols>
       <CapCard>
         <YStack>
-          <CapLabel>Captaincy</CapLabel>
+          <CapLabel>{t('differentials.captaincy_label')}</CapLabel>
           <CapValue>
             {captain.yoursName ?? '—'} vs {captain.theirsName ?? '—'}
           </CapValue>
         </YStack>
-        {captain.same ? <CapSameBadge>Same captain</CapSameBadge> : null}
+        {captain.same ? <CapSameBadge>{t('differentials.same_captain')}</CapSameBadge> : null}
       </CapCard>
     </Wrap>
   );
