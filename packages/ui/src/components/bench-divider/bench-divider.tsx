@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const Row = styled(XStack, {
   alignItems: 'center',
   gap: 10,
@@ -27,7 +29,7 @@ export function BenchDivider() {
   return (
     <Row>
       <Line />
-      <Label>Bench</Label>
+      <Label>{t('pitch.bench_divider')}</Label>
       <Line />
     </Row>
   );
