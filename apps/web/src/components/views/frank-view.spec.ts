@@ -1,7 +1,9 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
-import type { FrankWeeklyPayload } from '@simplyfpl/types';
+import { resolveFrankAccess } from '@simplyfpl/features/frank';
+import type { FrankAccess } from '@simplyfpl/features/frank';
+import type { FrankWeeklyPayload, Tier } from '@simplyfpl/types';
 
 const feature = await loadFeature('./frank-view.feature');
 
@@ -242,4 +244,68 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       expect(upgradePath).toBe('/upgrade');
     });
   });
+
+  Scenario('Free tier is served Frank from the weekly cache', ({ Given, Then, And }) => {
+    let access: FrankAccess;
+
+    Given('Frank access is resolved for the free tier', () => {
+      access = resolveFrankAccess('free');
+    });
+
+    Then('Frank is served from the weekly-cache source', () => {
+      expect(access.source).toBe('weekly-cache');
+    });
+
+    And('on-demand questions are not available', () => {
+      expect(access.canAskOnDemand).toBe(false);
+    });
+  });
+
+  Scenario('Pro tier is served Frank from the weekly cache', ({ Given, Then, And }) => {
+    let access: FrankAccess;
+
+    Given('Frank access is resolved for the pro tier', () => {
+      access = resolveFrankAccess('pro');
+    });
+
+    Then('Frank is served from the weekly-cache source', () => {
+      expect(access.source).toBe('weekly-cache');
+    });
+
+    And('on-demand questions are not available', () => {
+      expect(access.canAskOnDemand).toBe(false);
+    });
+  });
+
+  Scenario('Ultimate tier asks Frank live', ({ Given, Then, And }) => {
+    let access: FrankAccess;
+
+    Given('Frank access is resolved for the ultimate tier', () => {
+      access = resolveFrankAccess('ultimate');
+    });
+
+    Then('Frank is served from the live source', () => {
+      expect(access.source).toBe('live');
+    });
+
+    And('on-demand questions are available', () => {
+      expect(access.canAskOnDemand).toBe(true);
+    });
+  });
+
+  Scenario(
+    'Gated free or pro user is shown an upgrade affordance to Ultimate',
+    ({ Given, Then }) => {
+      let access: FrankAccess;
+
+      Given('Frank access is resolved for the free tier', () => {
+        access = resolveFrankAccess('free');
+      });
+
+      Then('the upgrade affordance points to the ultimate tier', () => {
+        const upgradeTo: Tier | null = access.upgradeTo;
+        expect(upgradeTo).toBe('ultimate');
+      });
+    }
+  );
 });

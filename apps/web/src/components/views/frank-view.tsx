@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { auth, subscriptions } from '@simplyfpl/features';
+import { auth, frank } from '@simplyfpl/features';
 import {
   Card,
   FNote,
@@ -22,7 +22,9 @@ import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
 import { useFrankHistory, useFrankQuota, useFrankWeekly } from '@/queries/frank';
 
 const { useAuth } = auth;
-const { isUltimate } = subscriptions;
+const { resolveFrankAccess } = frank;
+
+const TIER_LABELS = { free: 'Free', pro: 'Pro', ultimate: 'Ultimate' } as const;
 
 interface CandidateRowProps {
   name: string;
@@ -95,7 +97,10 @@ function AskFrankForm() {
   const { data: quota, refetch: refetchQuota } = useFrankQuota(client, userId);
   const { data: history, refetch: refetchHistory } = useFrankHistory(client, userId);
 
-  if (!isUltimate(tier)) {
+  const access = resolveFrankAccess(tier);
+
+  if (!access.canAskOnDemand) {
+    const upgradeLabel = TIER_LABELS[access.upgradeTo ?? 'ultimate'];
     return (
       <Card paddingHorizontal={16} paddingVertical={20} alignItems="center" marginBottom={20}>
         <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color" marginBottom={6}>
@@ -108,7 +113,8 @@ function AskFrankForm() {
           textAlign="center"
           marginBottom={10}
         >
-          On-demand questions are an Ultimate feature.
+          On-demand questions are an {upgradeLabel} feature. Your weekly advice above is included on
+          every plan.
         </Text>
         <Text
           fontFamily="$body"
@@ -118,7 +124,7 @@ function AskFrankForm() {
           cursor="pointer"
           onPress={() => router.push('/upgrade')}
         >
-          Upgrade to Ultimate for on-demand AI queries
+          Upgrade to {upgradeLabel} for on-demand AI queries
         </Text>
       </Card>
     );
