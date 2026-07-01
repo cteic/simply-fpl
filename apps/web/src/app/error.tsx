@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import posthog from 'posthog-js';
 
+import { t } from '@simplyfpl/i18n';
 import { Button, FNote, PageHeader, PageShell, Text, YStack } from '@simplyfpl/ui';
 
 import { sanitizePath } from '@/lib/analytics';
@@ -37,10 +38,10 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
 
   return (
     <PageShell>
-      <PageHeader title="Something went wrong" meta="An unexpected error occurred" />
+      <PageHeader title={t('error.title')} meta={t('error.meta')} />
       <YStack gap={12} marginBottom={20}>
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          We hit an error rendering this page. Try again, or head back to the home page.
+          {t('error.body')}
         </Text>
         {error.message ? (
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
@@ -49,11 +50,11 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
         ) : null}
         <YStack alignItems="flex-start">
           <Button tone="primary" size="md" onPress={reset}>
-            Try again
+            {t('error.cta_retry')}
           </Button>
         </YStack>
       </YStack>
-      <FNote>If this keeps happening, please refresh or come back in a few minutes.</FNote>
+      <FNote>{t('error.fnote')}</FNote>
     </PageShell>
   );
 }

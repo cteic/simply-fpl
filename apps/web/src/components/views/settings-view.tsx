@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth, push, subscriptions, theme as themeFeature } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
+  FNote,
   NotificationsSettings,
   PageHeader,
   PageShell,
@@ -62,7 +64,7 @@ export function SettingsView() {
   if (isLoading || !session) {
     return (
       <PageShell>
-        <PageHeader title="Settings" meta="Loading…" />
+        <PageHeader title={t('settings.title')} meta={t('common.loading')} />
       </PageShell>
     );
   }
@@ -92,21 +94,21 @@ export function SettingsView() {
     }
   }
 
-  let planLabel = 'Free';
-  if (tier === 'ultimate') planLabel = 'Ultimate';
-  else if (tier === 'pro') planLabel = 'Pro';
+  let planLabel = t('settings.plan_free');
+  if (tier === 'ultimate') planLabel = t('settings.plan_ultimate');
+  else if (tier === 'pro') planLabel = t('settings.plan_pro');
 
   return (
     <PageShell>
-      <PageHeader tone="stadium" title="Settings" meta={user?.email ?? ''} />
+      <PageHeader tone="stadium" title={t('settings.title')} meta={user?.email ?? ''} />
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Account" />
+        <SectionHeader title={t('settings.section_account')} />
         <YStack gap={10} marginTop={8}>
-          <Row label="Email" value={user?.email ?? '—'} />
+          <Row label={t('settings.label_email')} value={user?.email ?? '—'} />
           <XStack justifyContent="space-between" alignItems="center">
             <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-              Plan
+              {t('settings.label_plan')}
             </Text>
             <XStack gap={8} alignItems="center">
               <Text fontFamily="$body" fontSize={13} color="$color">
@@ -120,7 +122,7 @@ export function SettingsView() {
           {tier === 'free' ? (
             <XStack>
               <Button tone="primary" size="md" onPress={() => router.push('/upgrade')}>
-                Upgrade to Pro or Ultimate
+                {t('settings.cta_upgrade')}
               </Button>
             </XStack>
           ) : null}
@@ -133,7 +135,7 @@ export function SettingsView() {
                   if (!portalLoading) void handleManageSubscription();
                 }}
               >
-                {portalLoading ? 'Opening…' : 'Manage subscription'}
+                {portalLoading ? t('settings.cta_opening') : t('settings.cta_manage_subscription')}
               </Button>
             </XStack>
           ) : null}
@@ -146,20 +148,20 @@ export function SettingsView() {
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Appearance" />
+        <SectionHeader title={t('settings.section_appearance')} />
         <YStack gap={12} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Choose how SimplyFPL looks. Your choice is saved on this device and applies everywhere.
+            {t('settings.appearance_description')}
           </Text>
           <ThemePicker value={activeTheme} onSelect={setTheme} />
         </YStack>
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="Session" />
+        <SectionHeader title={t('settings.section_session')} />
         <YStack gap={10} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Signing out will end your session on this device. Your tracked leagues stay saved.
+            {t('settings.session_description')}
           </Text>
           <XStack>
             <Button
@@ -169,7 +171,7 @@ export function SettingsView() {
                 void handleSignOut();
               }}
             >
-              Sign out
+              {t('settings.cta_sign_out')}
             </Button>
           </XStack>
         </YStack>
@@ -177,7 +179,7 @@ export function SettingsView() {
 
       {FEATURE_WEB_PUSH ? (
         <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-          <SectionHeader title="Notifications" />
+          <SectionHeader title={t('settings.section_notifications')} />
           <YStack gap={12} marginTop={8}>
             <NotificationsSettings
               isPro={isPro(tier)}
@@ -199,6 +201,8 @@ export function SettingsView() {
           </YStack>
         </Card>
       ) : null}
+
+      <FNote>{t('settings.fnote')}</FNote>
     </PageShell>
   );
 }
