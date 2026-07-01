@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 
-import { formatPrice, getClubColor } from '@simplyfpl/fpl-client';
+import { computeSeasonDefConRate, formatPrice, getClubColor } from '@simplyfpl/fpl-client';
+import type { FplPlayer } from '@simplyfpl/types';
 import {
   Card,
   FNote,
   FilterButton,
+  PageHeader,
   PriceRow,
   SkeletonPrices,
   Text,
@@ -13,7 +15,7 @@ import {
 } from '@simplyfpl/ui';
 
 import { Screen } from '@/components/screen';
-import { usePrices } from '@/queries/fpl';
+import { useBootstrap, usePrices } from '@/queries/fpl';
 
 const FILTERS = ['All', 'Risers', 'Fallers', 'GK', 'DEF', 'MID', 'FWD'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -27,12 +29,26 @@ const POSITION_BY_ELEMENT_TYPE: Record<number, Filter | undefined> = {
 
 export function PricesView() {
   const { data: prices, isLoading, isError } = usePrices();
+  const { data: bootstrap } = useBootstrap();
   const [filter, setFilter] = useState<Filter>('All');
+
+  const bootstrapById = useMemo(() => {
+    if (!bootstrap) return new Map<number, FplPlayer>();
+    return new Map(bootstrap.elements.map((e) => [e.id, e]));
+  }, [bootstrap]);
 
   const rows = useMemo(() => {
     if (!prices) return [];
     return prices.changes.map((change) => {
       const positionLabel = POSITION_BY_ELEMENT_TYPE[change.element_type] ?? 'MID';
+      const player = bootstrapById.get(change.id);
+      const defconRate = player ? computeSeasonDefConRate(change.element_type, player) : null;
+      const defconBar = defconRate?.eligible
+        ? {
+            percentage: defconRate.percentage,
+            breakdown: `${defconRate.cbitPer90.toFixed(1)} CBIT/90 vs ${defconRate.threshold} threshold`,
+          }
+        : undefined;
       return {
         id: change.id,
         name: change.web_name,
@@ -42,9 +58,10 @@ export function PricesView() {
         value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
         probability: Math.round(change.probability * 100),
         position: positionLabel,
+        defconBar,
       };
     });
-  }, [prices]);
+  }, [prices, bootstrapById]);
 
   const visibleRows = useMemo(
     () =>
@@ -58,15 +75,12 @@ export function PricesView() {
   );
 
   return (
-    <Screen>
-      <YStack>
-        <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
-          Price Changes
-        </Text>
-        <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={4}>
-          Predictions update daily at midnight · Based on net transfers
-        </Text>
-      </YStack>
+    <Screen topInset>
+      <PageHeader
+        tone="stadium"
+        title="Price Changes"
+        meta="Predictions update daily at midnight · Based on net transfers"
+      />
 
       <XStack gap={8} flexWrap="wrap">
         {FILTERS.map((f) => (
@@ -105,6 +119,7 @@ export function PricesView() {
                 value={row.value}
                 probability={row.probability}
                 accentColor={row.accentColor}
+                defconBar={row.defconBar}
                 last={i === visibleRows.length - 1}
               />
             ))
