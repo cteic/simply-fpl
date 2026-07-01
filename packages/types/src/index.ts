@@ -310,6 +310,33 @@ export interface ComparisonSnapshot {
   sites: ComparisonSiteEntry[];
 }
 
+// Detailed league / rivals table row (presentational contract for #113)
+export interface DetailedLeagueCaptain {
+  name: string;
+  points: number;
+  multiplier: number; // 2 = (C), 3 = (TC)
+}
+
+export interface DetailedLeagueRowData {
+  position: number;
+  managerName: string;
+  teamName: string;
+  entryId: number;
+  overallRank: number | null;
+  gwPoints: number; // gross GW points, before any transfer hit
+  transferHits: number; // points cost of hits this GW (positive, e.g. 4)
+  totalPoints: number;
+  captain: DetailedLeagueCaptain | null;
+  benchPointsWasted: number;
+  activeChip: string | null;
+  transfersOut: string[];
+  transfersIn: string[];
+  playersPlayed: number;
+  playersTotal: number;
+  rankMovement?: number; // positive = climbed, negative = dropped
+  isYou?: boolean;
+}
+
 export * from './db';
 export * from './frank';
 export * from './notifications';
