@@ -91,7 +91,7 @@ export default function RootLayout() {
               />
               <Tabs.Screen
                 name="prices"
-                options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
+                options={{ title: 'Price Changes', tabBarLabel: 'Prices', headerShown: false }}
               />
               <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
               <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
