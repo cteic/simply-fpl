@@ -14,6 +14,11 @@ const Line = styled(YStack, {
   flex: 1,
   height: 1,
   backgroundColor: '$border',
+  variants: {
+    onPitch: {
+      true: { backgroundColor: '$overlay4' },
+    },
+  } as const,
 });
 
 const Label = styled(Text, {
@@ -23,14 +28,23 @@ const Label = styled(Text, {
   textTransform: 'uppercase',
   letterSpacing: '$10',
   color: '$colorSubtle',
+  variants: {
+    onPitch: {
+      true: { color: '$inverseMuted' },
+    },
+  } as const,
 });
 
-export function BenchDivider() {
+interface BenchDividerProps {
+  onPitch?: boolean;
+}
+
+export function BenchDivider({ onPitch = false }: BenchDividerProps) {
   return (
     <Row>
-      <Line />
-      <Label>{t('pitch.bench_divider')}</Label>
-      <Line />
+      <Line onPitch={onPitch} />
+      <Label onPitch={onPitch}>{t('pitch.bench_divider')}</Label>
+      <Line onPitch={onPitch} />
     </Row>
   );
 }
