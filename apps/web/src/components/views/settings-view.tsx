@@ -200,6 +200,7 @@ export function SettingsView() {
               isSubscribed={notifications.isSubscribed}
               isLoading={notifications.isLoading}
               prefs={notifications.prefs}
+              leagueAlerts={notifications.leagueAlerts}
               error={notifications.error}
               onSubscribe={() => {
                 notifications.subscribe();
@@ -209,6 +210,12 @@ export function SettingsView() {
               }}
               onTogglePref={(key, value) => {
                 notifications.updatePrefs({ [key]: value });
+              }}
+              onAddLeagueAlert={(rule) => {
+                notifications.addLeagueAlert(rule);
+              }}
+              onRemoveLeagueAlert={(leagueId) => {
+                notifications.removeLeagueAlert(leagueId);
               }}
             />
           </YStack>

@@ -130,6 +130,11 @@ export interface Database {
           price_drop: boolean;
           rank_swing: boolean;
           rank_swing_threshold: number;
+          goal_scored: boolean;
+          assist: boolean;
+          red_card: boolean;
+          quiet_hours_start: number | null;
+          quiet_hours_end: number | null;
           updated_at: string;
         };
         Insert: {
@@ -140,6 +145,11 @@ export interface Database {
           price_drop?: boolean;
           rank_swing?: boolean;
           rank_swing_threshold?: number;
+          goal_scored?: boolean;
+          assist?: boolean;
+          red_card?: boolean;
+          quiet_hours_start?: number | null;
+          quiet_hours_end?: number | null;
           updated_at?: string;
         };
         Update: {
@@ -149,7 +159,34 @@ export interface Database {
           price_drop?: boolean;
           rank_swing?: boolean;
           rank_swing_threshold?: number;
+          goal_scored?: boolean;
+          assist?: boolean;
+          red_card?: boolean;
+          quiet_hours_start?: number | null;
+          quiet_hours_end?: number | null;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      league_rank_alert_subs: {
+        Row: {
+          id: string;
+          user_id: string;
+          league_id: number;
+          top_n: number | null;
+          swing_n: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          league_id: number;
+          top_n?: number | null;
+          swing_n?: number | null;
+        };
+        Update: {
+          top_n?: number | null;
+          swing_n?: number | null;
         };
         Relationships: [];
       };
