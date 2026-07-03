@@ -6,3 +6,5 @@ export { featureSurfaceStyle, resolveThemeName } from './surfaces';
 export type { FeatureSurfaceStyle, FeatureSurfaceVariant } from './surfaces';
 export { THEME_OPTIONS } from './theme-options';
 export type { ThemeOption } from './theme-options';
+export { MOTION_DURATIONS, MOTION_EASINGS, easeOutQuart, shouldPulse } from './motion';
+export type { MotionDuration, MotionEasing } from './motion';
