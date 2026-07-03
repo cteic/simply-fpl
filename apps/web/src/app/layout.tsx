@@ -7,6 +7,7 @@ import { ServiceWorkerInitializer } from '@/components/service-worker-initialize
 import { StaleDataBanner } from '@/components/stale-data-banner';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
 import { FEATURE_WEB_PUSH } from '@/lib/feature-flags';
+import { detectServerLocale } from '@/lib/locale-detection';
 import { rootMetadata } from '@/lib/metadata';
 
 import '../../public/tamagui.css';
@@ -28,14 +29,19 @@ const dmMono = DM_Mono({
   display: 'optional',
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cfBeaconToken = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;
+  const initialLocale = await detectServerLocale();
 
   return (
-    <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`} suppressHydrationWarning>
+    <html
+      lang={initialLocale}
+      className={`${dmSans.variable} ${dmMono.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <TamaguiClientProvider>
-          <Providers>
+          <Providers initialLocale={initialLocale}>
             <NavBar />
             <StaleDataBanner />
             {FEATURE_WEB_PUSH ? <ServiceWorkerInitializer /> : null}
