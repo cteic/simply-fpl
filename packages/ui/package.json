@@ -18,10 +18,10 @@
   "dependencies": {
     "@simplyfpl/i18n": "workspace:*",
     "@simplyfpl/types": "workspace:*",
-    "@tamagui/animations-react-native": "2.0.0-rc.42",
-    "@tamagui/shorthands": "2.0.0-rc.42",
-    "@tamagui/themes": "2.0.0-rc.42",
-    "tamagui": "2.0.0-rc.42"
+    "@tamagui/animations-react-native": "2.4.0",
+    "@tamagui/shorthands": "2.4.0",
+    "@tamagui/themes": "2.4.0",
+    "tamagui": "2.4.0"
   },
   "peerDependencies": {
     "expo-linear-gradient": "*",
