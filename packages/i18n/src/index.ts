@@ -1,5 +1,5 @@
 export type { TranslationKey } from './translate';
-export { LOCALE_TRANSLATIONS, t } from './translate';
+export { isLocaleLoaded, loadLocale, registerLocale, t } from './translate';
 
 export type { SupportedLocale } from './locale-registry';
 export {

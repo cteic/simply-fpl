@@ -6,27 +6,27 @@ Feature: Locale infrastructure
     Then the result is "Loading…"
 
   Scenario: French translation is returned for a known key
-    Given the locale is set to "fr"
+    Given the "fr" locale is loaded and set
     When I translate "common.loading"
     Then the result is "Chargement…"
 
   Scenario: German translation is returned for a known key
-    Given the locale is set to "de"
+    Given the "de" locale is loaded and set
     When I translate "common.loading"
     Then the result is "Laden…"
 
   Scenario: Spanish translation is returned for a known key
-    Given the locale is set to "es"
+    Given the "es" locale is loaded and set
     When I translate "common.loading"
     Then the result is "Cargando…"
 
   Scenario: Missing key in a locale falls back to English
-    Given the locale is set to "fr"
+    Given the "fr" locale is loaded and set
     When I translate a key that exists only in English
     Then the English value is returned
 
   Scenario: Interpolation variables are substituted in translated strings
-    Given the locale is set to "fr"
+    Given the "fr" locale is loaded and set
     When I translate "rivals.not_in_league" with entryId "42"
     Then the result contains "42"
 
