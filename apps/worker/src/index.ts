@@ -4,6 +4,7 @@ import { handleBootstrapSlim } from './bootstrap';
 import { runScheduled } from './cohort/cohort';
 import { handleCohortAggregates } from './cohort/serve';
 import { handleFixturesSlim } from './fixtures';
+import { handleFrankAskCacheGet, handleFrankAskCachePut } from './frank/ask-cache';
 import { FRANK_WEEKLY_CRON, handleFrankWeekly, runFrankWeekly } from './frank/weekly-cache';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
@@ -49,6 +50,7 @@ export interface Env {
   VAPID_PRIVATE_KEY?: string;
   VAPID_SUBJECT?: string;
   NOTIFY_DISPATCH_SECRET?: string;
+  FRANK_CACHE_WRITE_SECRET?: string;
 }
 
 const VS_COMPARISON_CRON = '0 6 * * 1';
@@ -310,6 +312,14 @@ export default {
     }
 
     if (
+      request.method === 'PUT' &&
+      (url.pathname === '/frank/ask-cache' || url.pathname === '/frank/ask-cache/')
+    ) {
+      const key = url.searchParams.get('key') ?? '';
+      return handleFrankAskCachePut(env, key, request);
+    }
+
+    if (
       request.method === 'POST' &&
       (url.pathname === '/notify/dispatch' || url.pathname === '/notify/dispatch/')
     ) {
@@ -484,6 +494,12 @@ export default {
           'X-Cache': result.cache,
         },
       });
+    }
+
+    // Route: /frank/ask-cache → on-demand question KV cache
+    if (url.pathname === '/frank/ask-cache' || url.pathname === '/frank/ask-cache/') {
+      const key = url.searchParams.get('key') ?? '';
+      return handleFrankAskCacheGet(env, key);
     }
 
     // Route: /frank/weekly → cached AI weekly advice

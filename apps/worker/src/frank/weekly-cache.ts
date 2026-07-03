@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-import type { FplBootstrapStatic, FrankWeeklyPayload } from '@simplyfpl/types';
+import { predictPriceChanges } from '@simplyfpl/fpl-client';
+import type { FplBootstrapStatic, FplFixture, FrankWeeklyPayload } from '@simplyfpl/types';
 
 export interface FrankEnv {
   FPL_CACHE: KVNamespace;
@@ -24,11 +25,45 @@ export function frankWeeklyCacheKey(gameweek: number): string {
 }
 
 const BOOTSTRAP_CACHE_KEY = 'fpl:/bootstrap-static/';
+const FIXTURES_CACHE_KEY = 'fpl:/fixtures/';
 
-function buildContextBlock(bootstrap: FplBootstrapStatic): string {
+async function fetchFixturesFromKv(env: FrankEnv): Promise<FplFixture[] | null> {
+  const cached = await env.FPL_CACHE.get(FIXTURES_CACHE_KEY, 'text');
+  if (!cached) return null;
+  try {
+    const parsed = JSON.parse(cached) as unknown;
+    return Array.isArray(parsed) ? (parsed as FplFixture[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+function buildContextBlock(bootstrap: FplBootstrapStatic, fixtures: FplFixture[] | null): string {
   const currentGw =
     bootstrap.events.find((e) => e.is_current) ?? bootstrap.events.find((e) => e.is_next);
   const gwId = currentGw?.id ?? 0;
+
+  const fdrMap = new Map<number, number[]>();
+  if (fixtures) {
+    const nextGws = [gwId + 1, gwId + 2, gwId + 3];
+    for (const gw of nextGws) {
+      for (const f of fixtures.filter((fix) => fix.event === gw)) {
+        const hArr = fdrMap.get(f.team_h) ?? [];
+        hArr.push(f.team_h_difficulty);
+        fdrMap.set(f.team_h, hArr);
+        const aArr = fdrMap.get(f.team_a) ?? [];
+        aArr.push(f.team_a_difficulty);
+        fdrMap.set(f.team_a, aArr);
+      }
+    }
+  }
+
+  const priceDir = new Map<number, 'rise' | 'fall'>();
+  for (const change of predictPriceChanges(bootstrap)) {
+    if (change.direction !== 'none') {
+      priceDir.set(change.player.id, change.direction === 'fall' ? 'fall' : 'rise');
+    }
+  }
 
   const topPlayers = bootstrap.elements
     .filter((p) => p.chance_of_playing_next_round !== 0)
@@ -36,6 +71,8 @@ function buildContextBlock(bootstrap: FplBootstrapStatic): string {
     .slice(0, 60)
     .map((p) => {
       const team = bootstrap.teams.find((t) => t.id === p.team);
+      const fdr = fdrMap.get(p.team) ?? [];
+      const dir = priceDir.get(p.id);
       return {
         id: p.id,
         name: p.web_name,
@@ -47,6 +84,8 @@ function buildContextBlock(bootstrap: FplBootstrapStatic): string {
         transfers_in: p.transfers_in_event,
         transfers_out: p.transfers_out_event,
         news: p.news || null,
+        next_fdr: fdr.length > 0 ? fdr.slice(0, 3) : undefined,
+        price_dir: dir ?? undefined,
       };
     });
 
@@ -106,7 +145,8 @@ export async function runFrankWeekly(env: FrankEnv): Promise<void> {
     bootstrap.events.find((e) => e.is_current) ?? bootstrap.events.find((e) => e.is_next);
   const gwId = currentGw?.id ?? 0;
 
-  const contextJson = buildContextBlock(bootstrap);
+  const fixtures = await fetchFixturesFromKv(env);
+  const contextJson = buildContextBlock(bootstrap, fixtures);
   const prompt = buildPrompt(gwId);
 
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
