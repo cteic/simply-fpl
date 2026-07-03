@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth, push, subscriptions, theme as themeFeature } from '@simplyfpl/features';
-import { t } from '@simplyfpl/i18n';
+import { useLocale, useTranslation } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
   FNote,
+  LocaleSwitcher,
   NotificationsSettings,
   PageHeader,
   PageShell,
@@ -54,6 +55,8 @@ export function SettingsView() {
   const notifications = useNotificationsOptIn({ vapidPublicKey: VAPID_PUBLIC_KEY });
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const { locale, setLocale } = useLocale();
 
   useEffect(() => {
     if (!isLoading && !session) {
@@ -154,6 +157,16 @@ export function SettingsView() {
             {t('settings.appearance_description')}
           </Text>
           <ThemePicker value={activeTheme} onSelect={setTheme} />
+        </YStack>
+      </Card>
+
+      <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
+        <SectionHeader title={t('settings.section_language')} />
+        <YStack gap={12} marginTop={8}>
+          <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+            {t('settings.language_description')}
+          </Text>
+          <LocaleSwitcher value={locale} onSelect={setLocale} />
         </YStack>
       </Card>
 

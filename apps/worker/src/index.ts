@@ -4,9 +4,11 @@ import { handleBootstrapSlim } from './bootstrap';
 import { runScheduled } from './cohort/cohort';
 import { handleCohortAggregates } from './cohort/serve';
 import { handleFixturesSlim } from './fixtures';
+import { handleFrankAskCacheGet, handleFrankAskCachePut } from './frank/ask-cache';
 import { FRANK_WEEKLY_CRON, handleFrankWeekly, runFrankWeekly } from './frank/weekly-cache';
 import { GW38_CAPTURE_CRON, GW38_CAPTURE_GW, isWithinGw38CaptureWindow } from './gw38-capture';
 import { handleLeagueSummary } from './leagues';
+import { handleEntryNews, handleNewsTeams, warmNewsCache } from './news';
 import { runCaptainScoredCheck } from './notify/captain-scored';
 import { runDeadlineReminder } from './notify/deadline-reminder';
 import { dispatchNotification } from './notify/dispatch';
@@ -51,6 +53,7 @@ export interface Env {
   VAPID_PRIVATE_KEY?: string;
   VAPID_SUBJECT?: string;
   NOTIFY_DISPATCH_SECRET?: string;
+  FRANK_CACHE_WRITE_SECRET?: string;
 }
 
 const VS_COMPARISON_CRON = '0 6 * * 1';
@@ -312,6 +315,14 @@ export default {
     }
 
     if (
+      request.method === 'PUT' &&
+      (url.pathname === '/frank/ask-cache' || url.pathname === '/frank/ask-cache/')
+    ) {
+      const key = url.searchParams.get('key') ?? '';
+      return handleFrankAskCachePut(env, key, request);
+    }
+
+    if (
       request.method === 'POST' &&
       (url.pathname === '/notify/dispatch' || url.pathname === '/notify/dispatch/')
     ) {
@@ -422,6 +433,36 @@ export default {
       });
     }
 
+    // Route: /news/teams → collated player injury/suspension news per club
+    if (url.pathname === '/news/teams' || url.pathname === '/news/teams/') {
+      const result = await handleNewsTeams(env, ctx);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
+    // Route: /news/entry/:id → news filtered to that entry's current squad
+    const entryNewsMatch = url.pathname.match(/^\/news\/entry\/(\d+)\/?$/);
+    if (entryNewsMatch && entryNewsMatch[1]) {
+      const rlNews = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rlNews) return rlNews;
+      const entryId = Number(entryNewsMatch[1]);
+      const result = await handleEntryNews(env, ctx, entryId);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
     // Route: /fpl/prices → slim, server-side-computed price-change predictions.
     // Returns ~5KB instead of shipping the full 200KB bootstrap to the client.
     if (url.pathname === '/fpl/prices' || url.pathname === '/fpl/prices/') {
@@ -488,6 +529,12 @@ export default {
       });
     }
 
+    // Route: /frank/ask-cache → on-demand question KV cache
+    if (url.pathname === '/frank/ask-cache' || url.pathname === '/frank/ask-cache/') {
+      const key = url.searchParams.get('key') ?? '';
+      return handleFrankAskCacheGet(env, key);
+    }
+
     // Route: /frank/weekly → cached AI weekly advice
     if (url.pathname === '/frank/weekly' || url.pathname === '/frank/weekly/') {
       return handleFrankWeekly(env);
@@ -547,6 +594,7 @@ export default {
       return;
     }
     await warmPricesCache(env, ctx).catch(() => undefined);
+    await warmNewsCache(env).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
     await runCaptainScoredCheck(env).catch(() => undefined);
     await runPlayerEventsCheck(env).catch(() => undefined);
