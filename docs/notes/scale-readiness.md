@@ -24,24 +24,24 @@ Sources: [CF KV pricing](https://developers.cloudflare.com/kv/platform/pricing/)
 
 ### Cloudflare Workers
 
-| Dimension | Free | Paid (Bundled) | Notes |
-|---|---|---|---|
-| Requests/day | 100k | 10M/mo included, $0.50/M after | Auto-scales; no concurrency cap |
-| CPU time/request | 10 ms | 30 ms | Use Unbound billing for longer tasks |
-| Memory/invocation | 128 MB | 128 MB | Shared across all in-flight sub-requests |
-| Subrequests/request | 50 | 50 | Includes KV ops; snapshot handler uses ~6 |
+| Dimension           | Free   | Paid (Bundled)                 | Notes                                     |
+| ------------------- | ------ | ------------------------------ | ----------------------------------------- |
+| Requests/day        | 100k   | 10M/mo included, $0.50/M after | Auto-scales; no concurrency cap           |
+| CPU time/request    | 10 ms  | 30 ms                          | Use Unbound billing for longer tasks      |
+| Memory/invocation   | 128 MB | 128 MB                         | Shared across all in-flight sub-requests  |
+| Subrequests/request | 50     | 50                             | Includes KV ops; snapshot handler uses ~6 |
 
 ### Cloudflare KV
 
-| Dimension | Free | Paid |
-|---|---|---|
-| Reads/day | 100k | 10M/mo included → $0.50/M |
-| Writes/day | 1k | 1M/mo included → $5/M |
-| Storage | 1 GB | $0.50/GB/month |
-| Value max size | 25 MB | 25 MB |
-| Key max size | 512 bytes | 512 bytes |
-| Min TTL for expirationTtl | 60 s | 60 s |
-| Consistency | Eventual (~60 s global lag) | Eventual |
+| Dimension                 | Free                        | Paid                      |
+| ------------------------- | --------------------------- | ------------------------- |
+| Reads/day                 | 100k                        | 10M/mo included → $0.50/M |
+| Writes/day                | 1k                          | 1M/mo included → $5/M     |
+| Storage                   | 1 GB                        | $0.50/GB/month            |
+| Value max size            | 25 MB                       | 25 MB                     |
+| Key max size              | 512 bytes                   | 512 bytes                 |
+| Min TTL for expirationTtl | 60 s                        | 60 s                      |
+| Consistency               | Eventual (~60 s global lag) | Eventual                  |
 
 **KV cost at 1M daily users** (worst-case, all making one passthrough request each):
 
@@ -53,16 +53,17 @@ This is the hidden KV cost pressure; see hardening item #5.
 
 ### Cloudflare Durable Objects (SQLite)
 
-| Dimension | Limit | Notes |
-|---|---|---|
-| Memory per instance | 128 MB | Shared: snapshot JSON + all WS bookkeeping |
-| SQLite storage | ~1 GB practical | No hard published cap |
-| Alarm accuracy | ~1 s | One alarm slot per DO; current code is fine |
-| WebSocket connections | No hard platform cap | Constrained by 128 MB; code caps at 5,000 |
-| Billing: requests | $0.15/M | WS messages billed at 20:1 ratio |
-| Billing: compute | $12.50/M GB-s | Duration while CPU is active |
+| Dimension             | Limit                | Notes                                       |
+| --------------------- | -------------------- | ------------------------------------------- |
+| Memory per instance   | 128 MB               | Shared: snapshot JSON + all WS bookkeeping  |
+| SQLite storage        | ~1 GB practical      | No hard published cap                       |
+| Alarm accuracy        | ~1 s                 | One alarm slot per DO; current code is fine |
+| WebSocket connections | No hard platform cap | Constrained by 128 MB; code caps at 5,000   |
+| Billing: requests     | $0.15/M              | WS messages billed at 20:1 ratio            |
+| Billing: compute      | $12.50/M GB-s        | Duration while CPU is active                |
 
 **WebSocket memory estimate** at `MAX_CONNECTIONS = 5,000`:
+
 - FPL live GW payload ≈ 700 players × ~300 bytes = ~210 KB in DO storage
 - Hibernating WebSocket overhead: ~1 KB/socket × 5,000 = ~5 MB
 - Total per DO instance: ≈ 15–30 MB well within 128 MB
@@ -71,13 +72,14 @@ The code cap of 5,000 means a single `gw:N` DO can serve 5,000 concurrent WebSoc
 
 ### Supabase
 
-| Tier | MAU | DB size | Direct connections | Cost |
-|---|---|---|---|---|
-| Free | **50k** | 500 MB | 60 | $0 |
-| Pro | 100k included (+$0.00325/MAU) | 8 GB (+$0.125/GB) | 200 | $25/mo |
-| Team | Scaled | Larger | 500+ | $599/mo |
+| Tier | MAU                           | DB size           | Direct connections | Cost    |
+| ---- | ----------------------------- | ----------------- | ------------------ | ------- |
+| Free | **50k**                       | 500 MB            | 60                 | $0      |
+| Pro  | 100k included (+$0.00325/MAU) | 8 GB (+$0.125/GB) | 200                | $25/mo  |
+| Team | Scaled                        | Larger            | 500+               | $599/mo |
 
 Additional free-tier gotchas:
+
 - Project **pauses after 1 week of inactivity** (not relevant post-launch, but blocks dev branch testing)
 - No automated backups on free tier
 - Realtime connections: 200 (free), higher on Pro
@@ -86,23 +88,24 @@ Additional free-tier gotchas:
 
 ### Anthropic (Haiku 4.5)
 
-| | Per million tokens |
-|---|---|
-| Input | $1.00 |
-| Output | $5.00 |
-| Batch API | 50% discount |
-| Prompt cache (cached read) | ~90% off |
+|                            | Per million tokens |
+| -------------------------- | ------------------ |
+| Input                      | $1.00              |
+| Output                     | $5.00              |
+| Batch API                  | 50% discount       |
+| Prompt cache (cached read) | ~90% off           |
 
 **Frank on-demand cost per ask:**
+
 - Input: ~1,700 tokens (system instruction ~200 + weekly context ~500 + team snapshot ≤4,000 chars ≈ ~1,000 tokens)
 - Output: max 512 tokens
 - Cost: (1,700 × $1 + 512 × $5) / 1,000,000 ≈ **$0.004/ask**
 
-| Scenario | Asks/month | Monthly cost |
-|---|---|---|
-| 1k active Ultimate users × 80 asks | 80k | $320 |
-| 10k active Ultimate users × 80 asks | 800k | $3,200 |
-| 100k active Ultimate users × 80 asks | 8M | **$32,000** |
+| Scenario                             | Asks/month | Monthly cost |
+| ------------------------------------ | ---------- | ------------ |
+| 1k active Ultimate users × 80 asks   | 80k        | $320         |
+| 10k active Ultimate users × 80 asks  | 800k       | $3,200       |
+| 100k active Ultimate users × 80 asks | 8M         | **$32,000**  |
 
 There is no global daily budget cap or kill-switch in the application today. A viral day is the existential risk.
 
@@ -143,6 +146,7 @@ Even if the cap is removed: one DO instance holds 128 MB of memory. With hiberna
 **File:** `apps/web/src/app/api/frank/ask/route.ts:130`
 
 Per-user hard quota (80/month) is the only guard. There is no:
+
 - Global daily budget counter
 - KV kill-switch flag to disable on-demand Frank globally
 - Anthropic Console spend limit set
@@ -150,6 +154,7 @@ Per-user hard quota (80/month) is the only guard. There is no:
 A viral moment (feature goes viral on Twitter/Reddit, many new Ultimate users sign up and immediately ask Frank) can drain an unset Anthropic budget. At worst-case 100k active Ultimate users × 80 asks × $0.004 = **$32,000/month**.
 
 **Fixes needed (two-layer defence):**
+
 1. Set a hard spend limit in the Anthropic Console now (manual, takes 2 minutes).
 2. Add a KV-backed daily Anthropic call counter + `FRANK_KILL_SWITCH` KV key check at the top of `POST /api/frank/ask`. If the daily counter exceeds a configured threshold (`FRANK_DAILY_HARD` env var), return 503 with a `"Frank is resting"` message. Counter resets at UTC midnight.
 
@@ -162,6 +167,7 @@ A viral moment (feature goes viral on Twitter/Reddit, many new Ultimate users si
 **File:** `apps/web/src/app/api/frank/ask/route.ts:123-135`
 
 The current quota check is:
+
 1. `SELECT COUNT(*) FROM frank_queries WHERE user_id = ? AND created_at >= start_of_month`
 2. if count ≥ 80, reject
 3. make Anthropic API call
@@ -200,6 +206,7 @@ This returns **every row** in `user_leagues` with no `LIMIT`. With 1M users each
 At 10k leagues × 50 entries = 500k FPL picks requests per hour — well beyond what FPL allows. The query itself would time out or exhaust the Worker's 30 ms CPU budget long before then.
 
 **Fix needed:**
+
 - Cap the result with `&limit=500` and cycle through pages between cron ticks (cursor-based pagination in KV).
 - Or narrow to recently-active leagues: `WHERE updated_at > now() - interval '7 days'`.
 - Rate-gate the actual FPL fetches (already 1 `Promise.allSettled` per league — add a concurrency limiter).
@@ -225,10 +232,12 @@ When a cached key expires, all concurrent requests that arrive in the same insta
 **File:** `apps/worker/src/index.ts`
 
 The `enforceRateLimit` call only gates:
+
 - `/status` (10/min/IP)
 - `/fpl/*` passthrough (120/min/IP)
 
 The following endpoints have **no rate limiting**:
+
 - `/frank/weekly` — KV read only, low individual cost, but hammerable for free
 - `/fpl/prices` — triggers bootstrap re-fetch + price computation on cache miss
 - `/fpl/bootstrap-static-slim` — re-fetches FPL on miss
@@ -262,18 +271,18 @@ This is an existing Cloudflare limitation (no compare-and-set on alarm); not wor
 
 ## Upgrade triggers
 
-| Threshold | Action | Where |
-|---|---|---|
-| **Before launch** | Set Anthropic Console spend limit ($50/day to start) | console.anthropic.com → Settings → Billing |
-| **Before launch** | Add Frank kill-switch KV flag (code PR) | Issue #TBD |
-| **Before launch** | Add rate limit to all worker endpoints (code PR) | Issue #TBD |
-| **Before launch** | Set Cloudflare spend alert ($50/month) | dash.cloudflare.com → Billing |
-| **Before launch** | Set Supabase budget alert ($30/month) | app.supabase.com → Billing |
-| **5k concurrent live users** | Enable DO WebSocket sharding (code must exist first) | deploy config |
-| **10k MAU** | Upgrade Supabase to Pro ($25/mo) | app.supabase.com → Settings → Billing |
-| **50k MAU** | Plan Supabase Team ($599/mo) or self-hosted Postgres | migration planning |
-| **$100/month Anthropic** | Tighten per-user Frank quota or require paid tier | config change |
-| **100M KV reads/month** | Review KV cost (~$45/mo overage); consider CDN caching layer | dash.cloudflare.com |
+| Threshold                    | Action                                                       | Where                                      |
+| ---------------------------- | ------------------------------------------------------------ | ------------------------------------------ |
+| **Before launch**            | Set Anthropic Console spend limit ($50/day to start)         | console.anthropic.com → Settings → Billing |
+| **Before launch**            | Add Frank kill-switch KV flag (code PR)                      | Issue #TBD                                 |
+| **Before launch**            | Add rate limit to all worker endpoints (code PR)             | Issue #TBD                                 |
+| **Before launch**            | Set Cloudflare spend alert ($50/month)                       | dash.cloudflare.com → Billing              |
+| **Before launch**            | Set Supabase budget alert ($30/month)                        | app.supabase.com → Billing                 |
+| **5k concurrent live users** | Enable DO WebSocket sharding (code must exist first)         | deploy config                              |
+| **10k MAU**                  | Upgrade Supabase to Pro ($25/mo)                             | app.supabase.com → Settings → Billing      |
+| **50k MAU**                  | Plan Supabase Team ($599/mo) or self-hosted Postgres         | migration planning                         |
+| **$100/month Anthropic**     | Tighten per-user Frank quota or require paid tier            | config change                              |
+| **100M KV reads/month**      | Review KV cost (~$45/mo overage); consider CDN caching layer | dash.cloudflare.com                        |
 
 ---
 
