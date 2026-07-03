@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { h2h } from '@simplyfpl/features';
+import { ads, h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
 import {
@@ -30,6 +30,7 @@ interface InnerProps {
 }
 
 export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
+  const adFree = ads.useAdFree();
   const { data: bootstrap, isError: bootstrapError } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const {
@@ -109,7 +110,7 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
 
       <PitchPair you={you} them={them} />
 
-      <AdSlot placement="h2h-below-fold" minHeight={250} />
+      <AdSlot placement="h2h-below-fold" minHeight={250} adFree={adFree} />
 
       <DifferentialBlock
         title={`Only ${you.managerName || 'you'} have`}
