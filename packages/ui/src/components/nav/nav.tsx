@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 
 import { Text, XStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 import { Button } from '../button';
 import { Logo } from '../logo';
 
@@ -131,7 +133,7 @@ export function Nav({
             <HideOnMobile>
               {isSignedIn ? (
                 <Button tone="ghost" size="md" onPress={onSignOut}>
-                  Sign out
+                  {t('nav.sign_out')}
                 </Button>
               ) : (
                 <Button
@@ -141,7 +143,7 @@ export function Nav({
                     window.location.href = signInHref;
                   }}
                 >
-                  Sign in
+                  {t('nav.sign_in')}
                 </Button>
               )}
             </HideOnMobile>

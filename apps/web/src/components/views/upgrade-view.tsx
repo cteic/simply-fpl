@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
@@ -246,20 +247,16 @@ export function UpgradeView() {
   if (isLoading) {
     return (
       <PageShell>
-        <PageHeader tone="stadium" title="Upgrade" meta="Choose a plan" />
+        <PageHeader tone="stadium" title={t('upgrade.title')} meta={t('upgrade.loading_meta')} />
       </PageShell>
     );
   }
 
   return (
     <PageShell>
-      <PageHeader
-        tone="stadium"
-        title="Upgrade"
-        meta="Unlock Pro or Ultimate to get the most out of SimplyFPL"
-      />
+      <PageHeader tone="stadium" title={t('upgrade.title')} meta={t('upgrade.page_meta')} />
 
-      <SectionHeader title="Choose your plan" />
+      <SectionHeader title={t('upgrade.section_title')} />
 
       <XStack gap={16} marginTop={8} marginBottom={20} flexWrap="wrap">
         <PlanCard
@@ -278,9 +275,7 @@ export function UpgradeView() {
         />
       </XStack>
 
-      <FNote>
-        Payments are processed by Stripe. Cancel or change plan any time from your account settings.
-      </FNote>
+      <FNote>{t('upgrade.fnote')}</FNote>
     </PageShell>
   );
 }

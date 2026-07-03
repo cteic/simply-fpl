@@ -2,6 +2,8 @@
 
 import { Text, XStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const Bar = styled(XStack, {
   backgroundColor: '$color',
   paddingHorizontal: 28,
@@ -35,8 +37,8 @@ const Message = styled(Text, {
 export function DemoBanner() {
   return (
     <Bar>
-      <Badge>Preview</Badge>
-      <Message>This is a design demo of SimplyFPL — data is illustrative.</Message>
+      <Badge>{t('demo_banner.badge')}</Badge>
+      <Message>{t('demo_banner.message')}</Message>
     </Bar>
   );
 }

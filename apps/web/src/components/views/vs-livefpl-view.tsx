@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { t } from '@simplyfpl/i18n';
 import type { ComparisonSiteEntry, ComparisonSnapshot } from '@simplyfpl/types';
 import {
   Card,
@@ -48,7 +49,7 @@ function ScreenshotPair({ week, sites }: ScreenshotPairProps) {
 
   return (
     <YStack gap={12}>
-      <SectionHeader title="Screenshots" />
+      <SectionHeader title={t('vs_livefpl.screenshots_title')} />
       <XStack gap={16} flexWrap="wrap">
         {visible.map((site) => (
           <YStack key={site.slug} flexGrow={1} flexBasis={280} gap={8}>
@@ -95,21 +96,21 @@ function MetricCards({ a, b }: MetricCardsProps) {
     <XStack gap={16} flexWrap="wrap">
       <Card flexGrow={1} flexBasis={240} padding={20}>
         <SpeedMetricBar
-          label="Time to first data"
+          label={t('vs_livefpl.metric_ttfd')}
           a={{ label: a.label, value: aTime, formattedValue: formatMs(a.timeToFirstData) }}
           b={{ label: b.label, value: bTime, formattedValue: formatMs(b.timeToFirstData) }}
         />
       </Card>
       <Card flexGrow={1} flexBasis={240} padding={20}>
         <SpeedMetricBar
-          label="Page weight (first load)"
+          label={t('vs_livefpl.metric_page_weight')}
           a={{ label: a.label, value: a.totalBytes, formattedValue: formatBytes(a.totalBytes) }}
           b={{ label: b.label, value: b.totalBytes, formattedValue: formatBytes(b.totalBytes) }}
         />
       </Card>
       <Card flexGrow={1} flexBasis={240} padding={20}>
         <SpeedMetricBar
-          label="Third-party requests"
+          label={t('vs_livefpl.metric_third_party')}
           a={{
             label: a.label,
             value: a.thirdPartyCount,
@@ -151,7 +152,7 @@ export function VsLivefplView({ snapshot, isFallback = false }: VsLivefplViewPro
 
   return (
     <PageShell>
-      <PageHeader title="SimplyFPL vs livefpl.net" meta={metaText} />
+      <PageHeader title={t('vs_livefpl.title')} meta={metaText} />
 
       {snapshot !== null && simplyfpl !== undefined && livefpl !== undefined ? (
         <YStack gap={32}>
@@ -159,7 +160,7 @@ export function VsLivefplView({ snapshot, isFallback = false }: VsLivefplViewPro
           <ScreenshotPair week={snapshot.week} sites={snapshot.sites} />
           <VsTimedFetchWidget />
           <YStack gap={12}>
-            <SectionHeader title="Methodology" />
+            <SectionHeader title={t('vs_livefpl.methodology_title')} />
             <Card padding={20}>
               <YStack gap={10}>
                 <Text fontFamily="$body" fontSize={13} lineHeight={20} color="$colorMuted">

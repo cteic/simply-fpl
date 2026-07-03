@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { Text, XStack, YStack } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 type TeamIdHelpTone = 'default' | 'inverse';
 
 export const TEAM_ID_HELP_LABEL = 'How do I find my team ID?';
@@ -111,7 +113,7 @@ export function TeamIdHelpView({ tone, open, onToggle }: TeamIdHelpViewProps) {
           color={palette.trigger}
           hoverStyle={{ color: palette.triggerHover }}
         >
-          {TEAM_ID_HELP_LABEL}
+          {t('team_id_help.label')}
         </Text>
       </XStack>
 
@@ -164,14 +166,14 @@ export function TeamIdHelpView({ tone, open, onToggle }: TeamIdHelpViewProps) {
             alignItems="flex-start"
           >
             <Text fontFamily="$mono" fontSize={12} lineHeight={18} color={palette.urlMuted}>
-              {TEAM_ID_HELP_EXAMPLE.prefix}
+              {t('team_id_help.example_prefix')}
               <Text fontFamily="$mono" fontSize={12} fontWeight="500" color={palette.accent}>
-                {TEAM_ID_HELP_EXAMPLE.id}
+                {t('team_id_help.example_id')}
               </Text>
-              {TEAM_ID_HELP_EXAMPLE.suffix}
+              {t('team_id_help.example_suffix')}
             </Text>
             <Text fontFamily="$body" fontSize={11} color={palette.urlMuted}>
-              That number is your team ID.
+              {t('team_id_help.id_note')}
             </Text>
           </YStack>
 
@@ -185,7 +187,7 @@ export function TeamIdHelpView({ tone, open, onToggle }: TeamIdHelpViewProps) {
             cursor="pointer"
             hoverStyle={{ opacity: 0.8 }}
           >
-            Open the FPL site →
+            {t('team_id_help.open_fpl')}
           </Text>
         </YStack>
       ) : null}

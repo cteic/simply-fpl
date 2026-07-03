@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server';
 
 import Anthropic from '@anthropic-ai/sdk';
 
+import { resolveFrankAccess } from '@simplyfpl/features/frank';
+import { resolveTier } from '@simplyfpl/features/subscriptions/entitlement';
 import type { FplEntrySnapshot, FrankWeeklyPayload } from '@simplyfpl/types';
 
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
@@ -103,8 +105,14 @@ export async function POST(request: NextRequest) {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile || profile.tier !== 'ultimate') {
-    return NextResponse.json({ error: 'Ultimate tier required' }, { status: 402 });
+  const tier = resolveTier({ tier: profile?.tier ?? null });
+  const access = resolveFrankAccess(tier);
+
+  if (!access.canAskOnDemand) {
+    return NextResponse.json(
+      { error: 'Ultimate tier required', tier, upgradeTo: access.upgradeTo },
+      { status: 402 }
+    );
   }
 
   const startOfMonth = new Date();
@@ -144,7 +152,7 @@ export async function POST(request: NextRequest) {
 
   const [weeklyRes, snapshotRes] = await Promise.allSettled([
     fetch(`${API_BASE_URL}/frank/weekly`),
-    profile.fpl_entry_id
+    profile?.fpl_entry_id
       ? fetch(`${API_BASE_URL}/snapshot/entry/${profile.fpl_entry_id}`)
       : Promise.resolve(null),
   ]);

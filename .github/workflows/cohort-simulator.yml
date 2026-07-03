@@ -1,0 +1,29 @@
+name: Cohort Simulator
+
+on:
+  pull_request:
+    paths:
+      - 'packages/features/src/live-rank/**'
+      - 'packages/features/src/cohorts/**'
+      - 'packages/fpl-client/src/live-rank.ts'
+      - 'packages/fpl-client/src/simulator/**'
+      - 'var/recordings/gw*/**'
+      - 'scripts/generate-recording.mjs'
+      - '.github/workflows/cohort-simulator.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @simplyfpl/features test:simulator

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
+import { t } from '@simplyfpl/i18n';
 import { Card, SectionHeader, SpeedMetricBar, Text, XStack, YStack } from '@simplyfpl/ui';
 
 const API_BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
@@ -136,7 +137,7 @@ export function VsTimedFetchWidget() {
 
   return (
     <YStack gap={12}>
-      <SectionHeader title="Test it yourself" />
+      <SectionHeader title={t('vs_livefpl.test_title')} />
       <Card padding={20}>
         <YStack gap={16}>
           {state.status === 'idle' && (
@@ -176,7 +177,7 @@ export function VsTimedFetchWidget() {
           {state.status === 'done' && (
             <YStack gap={16}>
               <SpeedMetricBar
-                label="Network response time (5-run average from your location)"
+                label={t('vs_livefpl.test_label')}
                 a={{
                   label: 'SimplyFPL',
                   value: state.simplyfplMs,

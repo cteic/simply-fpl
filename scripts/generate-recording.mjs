@@ -103,6 +103,111 @@ const TEST_TEAM = {
   ],
 };
 
+const POOL_SEED_36 = 20260513;
+const PRE_GW_RANK_36 = 52_140;
+const TOTAL_MANAGERS_36 = 10_850_000;
+const BASE_TS_36 = Date.parse('2026-05-13T18:30:00.000Z');
+
+const SAMPLE_SQUAD_36 = [
+  { id: 1, elementType: 1, strength: 150 },
+  { id: 2, elementType: 2, strength: 170 },
+  { id: 3, elementType: 2, strength: 140 },
+  { id: 4, elementType: 3, strength: 300 },
+  { id: 5, elementType: 3, strength: 160 },
+  { id: 6, elementType: 3, strength: 210 },
+  { id: 7, elementType: 2, strength: 188 },
+  { id: 8, elementType: 1, strength: 162 },
+  { id: 9, elementType: 4, strength: 320 },
+  { id: 10, elementType: 3, strength: 176 },
+  { id: 11, elementType: 3, strength: 198 },
+  { id: 12, elementType: 4, strength: 204 },
+  { id: 13, elementType: 4, strength: 150 },
+  { id: 14, elementType: 2, strength: 128 },
+  { id: 15, elementType: 2, strength: 158 },
+];
+
+const PLAYER_GW_36 = {
+  1: { final: 2, start: 0, end: 95 },
+  2: { final: 6, start: 0, end: 95 },
+  3: { final: 1, start: 0, end: 95 },
+  4: { final: 9, start: 0, end: 95 },
+  5: { final: 2, start: 0, end: 95 },
+  6: { final: 5, start: 30, end: 125 },
+  7: { final: 6, start: 0, end: 95 },
+  8: { final: 2, start: 60, end: 155 },
+  9: { final: 13, start: 15, end: 110 },
+  10: { final: 2, start: 0, end: 95 },
+  11: { final: 8, start: 45, end: 140 },
+  12: { final: 6, start: 15, end: 110 },
+  13: { final: 2, start: 30, end: 125 },
+  14: { final: 1, start: 30, end: 125 },
+  15: { final: 6, start: 0, end: 95 },
+};
+
+const TEST_TEAM_36 = {
+  active_chip: null,
+  automatic_subs: [],
+  entry_history: {
+    event: 36,
+    points: 0,
+    total_points: 2089,
+    rank: 0,
+    rank_sort: 0,
+    overall_rank: PRE_GW_RANK_36,
+    event_transfers: 0,
+    event_transfers_cost: 0,
+    points_on_bench: 0,
+  },
+  picks: [
+    { element: 1, position: 1, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 2, position: 2, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 7, position: 3, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 15, position: 4, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 4, position: 5, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 6, position: 6, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 11, position: 7, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 10, position: 8, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 9, position: 9, multiplier: 2, is_captain: true, is_vice_captain: false },
+    { element: 12, position: 10, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 13, position: 11, multiplier: 1, is_captain: false, is_vice_captain: false },
+    { element: 8, position: 12, multiplier: 0, is_captain: false, is_vice_captain: false },
+    { element: 3, position: 13, multiplier: 0, is_captain: false, is_vice_captain: false },
+    { element: 14, position: 14, multiplier: 0, is_captain: false, is_vice_captain: false },
+    { element: 5, position: 15, multiplier: 0, is_captain: false, is_vice_captain: false },
+  ],
+};
+
+const GW_CONFIGS = {
+  37: {
+    poolSeed: POOL_SEED,
+    poolSize: POOL_SIZE,
+    preGwRank: PRE_GW_RANK,
+    totalManagers: TOTAL_MANAGERS,
+    frameStepMin: FRAME_STEP_MIN,
+    frameCount: FRAME_COUNT,
+    baseTs: BASE_TS,
+    squad: SAMPLE_SQUAD,
+    playerGw: PLAYER_GW,
+    testTeam: TEST_TEAM,
+    source: 'deterministic sample over the 15 committed bootstrap players',
+    outDir: null,
+  },
+  36: {
+    poolSeed: POOL_SEED_36,
+    poolSize: POOL_SIZE,
+    preGwRank: PRE_GW_RANK_36,
+    totalManagers: TOTAL_MANAGERS_36,
+    frameStepMin: FRAME_STEP_MIN,
+    frameCount: FRAME_COUNT,
+    baseTs: BASE_TS_36,
+    squad: SAMPLE_SQUAD_36,
+    playerGw: PLAYER_GW_36,
+    testTeam: TEST_TEAM_36,
+    source: 'deterministic sample over the 15 synthetic gw36 bootstrap players',
+    outDir: 'var/recordings/gw36',
+  },
+};
+
 const FORMATIONS = [
   { formation: { def: 3, mid: 4, fwd: 3 }, weight: 6 },
   { formation: { def: 3, mid: 5, fwd: 2 }, weight: 5 },
@@ -320,13 +425,13 @@ function emptyStats(totalPoints, minutes) {
   };
 }
 
-function buildSampleRecording(gw) {
+function buildSampleRecording(gw, config) {
   const rows = [];
-  for (let frame = 0; frame < FRAME_COUNT; frame++) {
-    const elapsedMin = frame * FRAME_STEP_MIN;
-    const ts = new Date(BASE_TS + elapsedMin * 60_000).toISOString();
-    const elements = SAMPLE_SQUAD.map((player) => {
-      const playerGw = PLAYER_GW[player.id];
+  for (let frame = 0; frame < config.frameCount; frame++) {
+    const elapsedMin = frame * config.frameStepMin;
+    const ts = new Date(config.baseTs + elapsedMin * 60_000).toISOString();
+    const elements = config.squad.map((player) => {
+      const playerGw = config.playerGw[player.id];
       return {
         id: player.id,
         stats: emptyStats(pointsAt(playerGw, elapsedMin), minutesAt(playerGw, elapsedMin)),
@@ -423,10 +528,10 @@ async function writeBundle(outDir, files) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const gw = Number(args.gw ?? 37);
-  const defaultOut = resolve(
-    ROOT,
-    `packages/features/src/live-rank/__fixtures__/simulator/gw${gw}`
-  );
+  const config = GW_CONFIGS[gw];
+  const defaultOut = config?.outDir
+    ? resolve(ROOT, config.outDir)
+    : resolve(ROOT, `packages/features/src/live-rank/__fixtures__/simulator/gw${gw}`);
   const outDir = resolve(ROOT, args.out ?? defaultOut);
 
   if (args.in) {
@@ -453,28 +558,30 @@ async function main() {
     return;
   }
 
+  if (!config) throw new Error(`no generator config for gw${gw}`);
+
   log(`building deterministic sample bundle for gw${gw}`);
-  const rows = buildSampleRecording(gw);
+  const rows = buildSampleRecording(gw, config);
   const distribution = buildManagerPool({
     gw,
-    seed: POOL_SEED,
-    size: POOL_SIZE,
-    squad: SAMPLE_SQUAD,
+    seed: config.poolSeed,
+    size: config.poolSize,
+    squad: config.squad,
   });
   const bootstrap = { elements: [], teams: [], events: [], element_types: [] };
   const curve = buildExpectedCurve({
     gw,
     rows,
-    testTeam: TEST_TEAM,
+    testTeam: config.testTeam,
     distribution,
     bootstrap,
-    preGwRank: PRE_GW_RANK,
-    totalManagers: TOTAL_MANAGERS,
+    preGwRank: config.preGwRank,
+    totalManagers: config.totalManagers,
   });
 
   await writeBundle(outDir, {
     'recording.jsonl': recordingToJsonl(rows),
-    'test-team.json': JSON.stringify(TEST_TEAM, null, 2) + '\n',
+    'test-team.json': JSON.stringify(config.testTeam, null, 2) + '\n',
     'manager-distribution.json': JSON.stringify(distribution, null, 2) + '\n',
     'expected-curve.json': JSON.stringify(curve, null, 2) + '\n',
     'meta.json':
@@ -482,11 +589,11 @@ async function main() {
         {
           gw,
           generatedBy: 'scripts/generate-recording.mjs',
-          source: 'deterministic sample over the 15 committed bootstrap players',
-          poolSeed: POOL_SEED,
-          poolSize: POOL_SIZE,
-          preGwRank: PRE_GW_RANK,
-          totalManagers: TOTAL_MANAGERS,
+          source: config.source,
+          poolSeed: config.poolSeed,
+          poolSize: config.poolSize,
+          preGwRank: config.preGwRank,
+          totalManagers: config.totalManagers,
           frames: rows.length,
           note: 'real cadence captures live in gitignored var/recordings/gw{N}/recording.jsonl; regenerate with --in once a capture is on disk',
         },
