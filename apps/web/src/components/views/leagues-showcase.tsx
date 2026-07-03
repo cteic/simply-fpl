@@ -204,7 +204,19 @@ function LeagueTabsBody({
 
   return (
     <YStack gap={14}>
-      <XStack gap={8} flexWrap="wrap" role="group" aria-label={t('leagues.aria_mini_leagues')}>
+      <XStack
+        gap={6}
+        flexWrap="wrap"
+        alignItems="center"
+        role="group"
+        aria-label={t('leagues.aria_mini_leagues')}
+        backgroundColor="$surface"
+        borderWidth={1}
+        borderColor="$border"
+        borderRadius="$7"
+        paddingHorizontal={6}
+        paddingVertical={6}
+      >
         {leagues.map((league) => (
           <FilterButton
             key={league.id}
@@ -218,7 +230,7 @@ function LeagueTabsBody({
       {activeId !== null ? (
         <YStack gap={12}>
           <XStack justifyContent="flex-end">
-            <Button tone="ghost" size="sm" onPress={() => router.push(`/rivals/${activeId}`)}>
+            <Button tone="primary" size="sm" onPress={() => router.push(`/rivals/${activeId}`)}>
               {t('leagues.cta_view_rivals')}
             </Button>
           </XStack>
