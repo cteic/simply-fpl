@@ -14,6 +14,7 @@ export interface FplPlayer {
   transfers_out_event: number;
   chance_of_playing_next_round: number | null;
   news: string;
+  status?: 'a' | 'd' | 'i' | 's' | 'n' | 'u';
   minutes?: number;
   clearances_blocks_interceptions?: number;
   tackles?: number;
@@ -340,3 +341,33 @@ export interface DetailedLeagueRowData {
 export * from './db';
 export * from './frank';
 export * from './notifications';
+
+export type PlayerNewsStatus = 'available' | 'doubt' | 'suspended' | 'injured' | 'unavailable';
+
+export interface PlayerNewsItem {
+  id: number;
+  web_name: string;
+  element_type: number;
+  team_id: number;
+  chance_of_playing_next_round: number | null;
+  news: string;
+  status: PlayerNewsStatus;
+}
+
+export interface TeamNewsGroup {
+  team_id: number;
+  team_name: string;
+  team_short_name: string;
+  players: PlayerNewsItem[];
+}
+
+export interface TeamNewsResponse {
+  generated_at: string;
+  teams: TeamNewsGroup[];
+}
+
+export interface EntryNewsResponse {
+  generated_at: string;
+  entry_id: number;
+  players: PlayerNewsItem[];
+}
