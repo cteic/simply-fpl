@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 
 import { computeSeasonDefConRate, formatPrice, getClubColor } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import type { FplPlayer } from '@simplyfpl/types';
 import {
   Card,
@@ -80,11 +81,7 @@ export function PricesView() {
 
   return (
     <PageShell>
-      <PageHeader
-        tone="stadium"
-        title="Price Changes"
-        meta="Predictions update daily at midnight · Based on net transfers"
-      />
+      <PageHeader tone="stadium" title={t('prices.title')} meta={t('prices.meta')} />
 
       <XStack gap={8} flexWrap="wrap" marginBottom={16}>
         {FILTERS.map((f) => (
@@ -119,7 +116,7 @@ export function PricesView() {
           {visibleRows.length === 0 ? (
             <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
               <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-                No price changes match this filter.
+                {t('prices.empty')}
               </Text>
             </YStack>
           ) : (
@@ -141,7 +138,7 @@ export function PricesView() {
         </Card>
       ) : null}
 
-      <FNote>Price predictions are estimates based on FPL transfer data. Not guaranteed.</FNote>
+      <FNote>{t('prices.fnote')}</FNote>
     </PageShell>
   );
 }

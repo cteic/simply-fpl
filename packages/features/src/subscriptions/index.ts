@@ -2,6 +2,8 @@ import type { Tier } from '@simplyfpl/types';
 
 import { useAuth } from '../auth/use-auth';
 
+export * from './entitlement';
+
 export function isPro(tier: Tier): boolean {
   return tier === 'pro' || tier === 'ultimate';
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
@@ -46,7 +47,7 @@ export function LeaguesShowcase() {
   if (isAuthLoading || !hydrated) {
     return (
       <PageShell>
-        <PageHeader title="My Leagues" meta="Loading…" />
+        <PageHeader title={t('leagues.title')} meta={t('common.loading')} />
         <SkeletonLeagueTable />
       </PageShell>
     );
@@ -73,9 +74,9 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
     <PageShell>
       <PageHeader
         tone="stadium"
-        title="My Leagues"
+        title={t('leagues.title')}
         meta={
-          entry ? `Team ${entryId} · ${entry.name}` : `Team ${entryId} · Live mini-league standings`
+          entry ? `Team ${entryId} · ${entry.name}` : t('leagues.meta_loading_team', { entryId })
         }
       />
 
@@ -91,7 +92,7 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
       {FEATURE_AUTH && !signedIn ? (
         <Card paddingHorizontal={20} paddingVertical={16} marginTop={20}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-            Sign in to keep your team ID across devices.
+            {t('leagues.sign_in_note')}
           </Text>
           <XStack marginTop={8}>
             <Button
@@ -101,13 +102,13 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
                 window.location.href = '/login';
               }}
             >
-              Sign in
+              {t('nav.sign_in')}
             </Button>
           </XStack>
         </Card>
       ) : null}
 
-      <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
+      <FNote>{t('common.disclaimer')}</FNote>
     </PageShell>
   );
 }
@@ -115,13 +116,13 @@ function EntryLeaguesView({ entryId, signedIn }: { entryId: number; signedIn: bo
 function NoTeamView({ signedIn }: { signedIn: boolean }) {
   return (
     <PageShell>
-      <PageHeader title="My Leagues" meta="Enter your FPL team ID to see your leagues" />
+      <PageHeader title={t('leagues.title')} meta={t('leagues.meta_no_team')} />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
-        <SectionHeader title="Link your FPL team" />
+        <SectionHeader title={t('leagues.section_link_team')} />
         <YStack gap={10} marginTop={4}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            We pull your live mini-league standings straight from FPL once we know your team ID.
+            {t('leagues.link_body')}
           </Text>
           <XStack gap={10}>
             <Button
@@ -131,7 +132,7 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
                 window.location.href = '/';
               }}
             >
-              Enter team ID
+              {t('common.cta_enter_team_id')}
             </Button>
             {FEATURE_AUTH && !signedIn ? (
               <Button
@@ -141,14 +142,14 @@ function NoTeamView({ signedIn }: { signedIn: boolean }) {
                   window.location.href = '/login';
                 }}
               >
-                Sign in
+                {t('nav.sign_in')}
               </Button>
             ) : null}
           </XStack>
         </YStack>
       </Card>
 
-      <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
+      <FNote>{t('common.disclaimer')}</FNote>
     </PageShell>
   );
 }
@@ -185,7 +186,7 @@ function LeagueTabsBody({
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
         <Text fontFamily="$body" fontSize={13} color="$danger">
-          Couldn't load this team. Check the team ID and try again.
+          {t('leagues.error_load_team')}
         </Text>
       </Card>
     );
@@ -195,7 +196,7 @@ function LeagueTabsBody({
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          No mini-leagues found for this team yet.
+          {t('leagues.empty_leagues')}
         </Text>
       </Card>
     );
@@ -203,7 +204,19 @@ function LeagueTabsBody({
 
   return (
     <YStack gap={14}>
-      <XStack gap={8} flexWrap="wrap" role="group" aria-label="Mini-leagues">
+      <XStack
+        gap={6}
+        flexWrap="wrap"
+        alignItems="center"
+        role="group"
+        aria-label={t('leagues.aria_mini_leagues')}
+        backgroundColor="$surface"
+        borderWidth={1}
+        borderColor="$border"
+        borderRadius="$7"
+        paddingHorizontal={6}
+        paddingVertical={6}
+      >
         {leagues.map((league) => (
           <FilterButton
             key={league.id}
@@ -217,8 +230,8 @@ function LeagueTabsBody({
       {activeId !== null ? (
         <YStack gap={12}>
           <XStack justifyContent="flex-end">
-            <Button tone="ghost" size="sm" onPress={() => router.push(`/rivals/${activeId}`)}>
-              View rivals →
+            <Button tone="primary" size="sm" onPress={() => router.push(`/rivals/${activeId}`)}>
+              {t('leagues.cta_view_rivals')}
             </Button>
           </XStack>
           <TrackedLeagueCard key={activeId} leagueId={activeId} myEntryId={myEntryId} />

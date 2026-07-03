@@ -104,6 +104,12 @@ vi.mock('@/lib/supabase-admin', () => ({
             processedEventIds.add(id);
             return mockSupabaseInsert(id);
           },
+          delete: () => ({
+            eq: (_col: string, id: string) => {
+              processedEventIds.delete(id);
+              return Promise.resolve({ error: null });
+            },
+          }),
         };
       }
       return {
@@ -254,8 +260,68 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   );
 
   Scenario(
-    'duplicate event returns 200 after handlers re-run idempotently',
+    'customer.subscription.updated with status canceled reverts the user to the free tier',
     ({ Given, When, Then }) => {
+      let updatedData: Record<string, unknown> | null = null;
+
+      Given('a customer.subscription.updated event with status canceled', () => {
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'customer.subscription.updated',
+          data: { object: makeSubscription({ status: 'canceled' }) },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+        mockSupabaseUpdate = vi.fn().mockImplementation((data: Record<string, unknown>) => {
+          updatedData = data;
+          return { eq: () => Promise.resolve({ error: null }) };
+        });
+      });
+
+      When('the webhook handler processes the event', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        await POST(req);
+      });
+
+      Then("the user's profile tier becomes 'free'", () => {
+        expect(updatedData?.['tier']).toBe('free');
+      });
+    }
+  );
+
+  Scenario(
+    'customer.subscription.updated with status active applies the price tier',
+    ({ Given, When, Then }) => {
+      let updatedData: Record<string, unknown> | null = null;
+
+      Given('a customer.subscription.updated event with status active for Pro Monthly', () => {
+        const event = {
+          id: FAKE_EVENT_ID,
+          type: 'customer.subscription.updated',
+          data: { object: makeSubscription({ status: 'active' }) },
+        };
+        mockStripeConstructEventAsync.mockResolvedValue(event);
+        mockSupabaseUpdate = vi.fn().mockImplementation((data: Record<string, unknown>) => {
+          updatedData = data;
+          return { eq: () => Promise.resolve({ error: null }) };
+        });
+      });
+
+      When('the webhook handler processes the event', async () => {
+        const { POST } = await import('./route');
+        const req = makeRequest('{}');
+        await POST(req);
+      });
+
+      Then("the user's profile tier becomes 'pro'", () => {
+        expect(updatedData?.['tier']).toBe('pro');
+      });
+    }
+  );
+
+  Scenario(
+    'duplicate event returns 200 without re-running handlers',
+    ({ Given, When, Then, And }) => {
       let response: Response | null = null;
 
       Given('the stripe_events table already contains the event ID', () => {
@@ -276,6 +342,10 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
 
       Then('the response status is 200', () => {
         expect(response?.status).toBe(200);
+      });
+
+      And('the profiles table is not updated', () => {
+        expect(mockSupabaseUpdate).not.toHaveBeenCalled();
       });
     }
   );
@@ -315,7 +385,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   );
 
   Scenario(
-    'transient DB error on idempotency insert after successful handler returns 200',
+    'transient DB error on the idempotency claim returns 500 without running handlers',
     ({ Given, When, Then, And }) => {
       let response: Response | null = null;
 
@@ -338,8 +408,12 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
         response = await POST(req);
       });
 
-      Then('the response status is 200', () => {
-        expect(response?.status).toBe(200);
+      Then('the response status is 500', () => {
+        expect(response?.status).toBe(500);
+      });
+
+      And('the profiles table is not updated', () => {
+        expect(mockSupabaseUpdate).not.toHaveBeenCalled();
       });
     }
   );

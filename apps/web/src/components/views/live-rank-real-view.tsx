@@ -7,7 +7,7 @@ import { useParams } from 'next/navigation';
 
 import { useThemeName } from 'tamagui';
 
-import { liveBattle, liveRank, whatIf } from '@simplyfpl/features';
+import { ads, liveBattle, liveRank, whatIf } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
@@ -39,6 +39,7 @@ import {
   SectionHeader,
   SkeletonCohortTable,
   SkeletonLiveRank,
+  StatTile,
   Text,
   XStack,
   YStack,
@@ -46,7 +47,13 @@ import {
   featureSurfaceStyle,
   resolveThemeName,
 } from '@simplyfpl/ui';
-import type { BadgeTone, CohortTableRow, ShirtKind, WhatIfCandidateOption } from '@simplyfpl/ui';
+import type {
+  BadgeTone,
+  CohortTableRow,
+  ShirtKind,
+  StatTileTone,
+  WhatIfCandidateOption,
+} from '@simplyfpl/ui';
 
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import type { CohortAggregates } from '@/queries/cohort-aggregates';
@@ -326,6 +333,7 @@ interface InnerProps {
 }
 
 function LiveRankInner({ entryId, dataOverride }: InnerProps) {
+  const adFree = ads.useAdFree();
   const heroSurface = featureSurfaceStyle(resolveThemeName(useThemeName()), 'panel');
   const queryEntryId = dataOverride ? null : entryId;
   const liveSnapshotQuery = useEntrySnapshot(queryEntryId);
@@ -565,27 +573,34 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
     gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
   }
 
-  const tiles = [
+  const tiles: {
+    label: string;
+    value: string;
+    tick: number | null;
+    sub: string;
+    tone: StatTileTone;
+    whatIfButton?: (() => void) | undefined;
+  }[] = [
     {
       label: 'GW Points',
       value: String(ready ? displayedPoints : '—'),
       tick: ready ? displayedPoints : null,
       sub: gwSub,
-      accent: '$positive',
+      tone: 'positive',
     },
     {
       label: 'Total Points',
       value: totalPointsLabel,
       tick: entry?.summary_overall_points ?? null,
       sub: 'overall',
-      accent: '$brand',
+      tone: 'brand',
     },
     {
       label: 'On Bench',
       value: String(ready ? benchPoints : '—'),
       tick: ready ? benchPoints : null,
       sub: 'autosubs ready',
-      accent: '$colorSubtle',
+      tone: 'neutral',
     },
     ...(showSafety
       ? [
@@ -594,7 +609,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
             value: safetyValue,
             tick: null,
             sub: 'green-arrow line',
-            accent: '$positive',
+            tone: 'positive' as const,
           },
         ]
       : []),
@@ -605,7 +620,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
             value: offTop10kValue,
             tick: null,
             sub: 'points behind',
-            accent: '$warning',
+            tone: 'warning' as const,
           },
         ]
       : []),
@@ -614,7 +629,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       value: captainName,
       tick: null,
       sub: captainSub,
-      accent: '$negative',
+      tone: 'negative',
       whatIfButton:
         ready && captainPick ? () => openWhatIf('captain', captainPick.element) : undefined,
     },
@@ -625,7 +640,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
             value: String(defconGwPoints),
             tick: defconGwPoints,
             sub: 'def contribution pts',
-            accent: '$positive',
+            tone: 'positive' as const,
           },
         ]
       : []),
@@ -852,57 +867,40 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
             </XStack>
           </YStack>
 
-          <AdSlot placement="rank-inline" minHeight={250} />
+          <AdSlot placement="rank-inline" minHeight={250} adFree={adFree} />
 
           <XStack gap={10} style={STAT_GRID_STYLE}>
             {tiles.map((tile) => (
-              <YStack
+              <StatTile
                 key={tile.label}
-                backgroundColor="$surface"
-                borderWidth={1}
-                borderColor="$border"
-                borderLeftWidth={3}
-                borderLeftColor={tile.accent}
-                borderRadius={8}
-                paddingHorizontal={16}
-                paddingVertical={14}
+                label={tile.label}
+                tone={tile.tone}
+                sub={tile.sub}
+                value={
+                  tile.tick !== null ? (
+                    <NumberTicker
+                      value={tile.tick}
+                      format={(n) => n.toLocaleString()}
+                      fontFamily="$mono"
+                      fontSize={26}
+                      lineHeight={28}
+                      fontWeight="400"
+                      color="$color"
+                    />
+                  ) : (
+                    <Text
+                      fontFamily="$mono"
+                      fontSize={26}
+                      lineHeight={28}
+                      fontWeight="400"
+                      color="$color"
+                    >
+                      {tile.value}
+                    </Text>
+                  )
+                }
               >
-                <Text
-                  fontFamily="$body"
-                  fontSize={9.5}
-                  fontWeight="600"
-                  textTransform="uppercase"
-                  letterSpacing={0.6}
-                  color="$colorSubtle"
-                  marginBottom={8}
-                >
-                  {tile.label}
-                </Text>
-                {tile.tick !== null ? (
-                  <NumberTicker
-                    value={tile.tick}
-                    format={(n) => n.toLocaleString()}
-                    fontFamily="$mono"
-                    fontSize={26}
-                    lineHeight={28}
-                    fontWeight="400"
-                    color="$color"
-                  />
-                ) : (
-                  <Text
-                    fontFamily="$mono"
-                    fontSize={26}
-                    lineHeight={28}
-                    fontWeight="400"
-                    color="$color"
-                  >
-                    {tile.value}
-                  </Text>
-                )}
-                <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={6}>
-                  {tile.sub}
-                </Text>
-                {'whatIfButton' in tile && tile.whatIfButton ? (
+                {tile.whatIfButton ? (
                   <Text
                     render="button"
                     role="button"
@@ -918,7 +916,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                     What if?
                   </Text>
                 ) : null}
-              </YStack>
+              </StatTile>
             ))}
           </XStack>
 

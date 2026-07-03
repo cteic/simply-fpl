@@ -1,0 +1,11 @@
+{
+  "gw": 36,
+  "generatedBy": "scripts/generate-recording.mjs",
+  "source": "deterministic sample over the 15 synthetic gw36 bootstrap players",
+  "poolSeed": 20260513,
+  "poolSize": 1000,
+  "preGwRank": 52140,
+  "totalManagers": 10850000,
+  "frames": 17,
+  "note": "real cadence captures live in gitignored var/recordings/gw{N}/recording.jsonl; regenerate with --in once a capture is on disk"
+}

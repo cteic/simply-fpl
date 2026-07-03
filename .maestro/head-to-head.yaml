@@ -1,0 +1,46 @@
+# Maestro E2E — Head to Head
+# Source feature: packages/features/src/h2h/compute-h2h.feature
+#
+# Device-run flow. See apps/mobile/README.md for how to run this against
+# an Expo dev build with mocked API responses.
+#
+# Mirrors scenario: "Score delta is positive when user outscores opponent"
+
+appId: com.simplyfpl.mobile
+---
+- launchApp:
+    clearState: true
+    env:
+      EXPO_PUBLIC_API_URL: 'http://10.0.2.2:8787'
+
+# When: user navigates to the H2H tab
+- tapOn:
+    id: 'tab-h2h'
+
+# Then: the "Pick two teams" form is visible
+- assertVisible: 'Pick two teams'
+
+# When: user enters their team ID
+- tapOn:
+    id: 'your-team-input'
+- inputText: '1234567'
+
+# And: user enters a rival's team ID
+- tapOn:
+    id: 'rival-team-input'
+- inputText: '7654321'
+
+# And: taps Compare
+- tapOn: 'Compare'
+
+# Then: the scoreboard card loads with both managers' names
+- assertVisible:
+    id: 'h2h-scoreboard'
+    timeout: 8000
+
+# And: the score delta badge is visible (ahead / behind / level)
+- assertVisible:
+    id: 'score-delta-badge'
+
+# And: "Both have" section shows shared players when applicable
+- assertVisible: 'Head to Head'

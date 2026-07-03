@@ -105,6 +105,48 @@ function makeSnapshot(totalPoints: number): FplLiveGameweek {
 
 const ORIGINAL_FETCH = globalThis.fetch;
 
+describe('LiveGwDO.fetch origin allowlist', () => {
+  function makeAtCapacityInstance(): LiveGwDO {
+    const storage = createFakeStorage();
+    const sockets = Array.from({ length: 5000 }, () => createFakeSocket());
+    const fakeState = {
+      storage,
+      getWebSockets: () => sockets as unknown as WebSocket[],
+      acceptWebSocket: () => {},
+    } as unknown as DurableObjectState;
+    return new LiveGwDO(fakeState, {
+      FPL_BASE_URL: 'https://fpl.example/api',
+      FPL_CACHE: createFakeKv() as unknown as KVNamespace,
+    });
+  }
+
+  function upgradeRequest(origin: string): Request {
+    return new Request('https://do.example/live/ws?gw=39', {
+      headers: { Upgrade: 'websocket', Origin: origin },
+    });
+  }
+
+  it('accepts the production origins past the allowlist', async () => {
+    for (const origin of ['https://simplyfpl.com', 'https://www.simplyfpl.com']) {
+      const doInstance = makeAtCapacityInstance();
+      const res = await doInstance.fetch(upgradeRequest(origin));
+      expect(res.status).toBe(503);
+    }
+  });
+
+  it('accepts preview-deployment origins past the allowlist', async () => {
+    const doInstance = makeAtCapacityInstance();
+    const res = await doInstance.fetch(upgradeRequest('https://abc123.simply-fpl.pages.dev'));
+    expect(res.status).toBe(503);
+  });
+
+  it('rejects unknown origins with 403', async () => {
+    const doInstance = makeAtCapacityInstance();
+    const res = await doInstance.fetch(upgradeRequest('https://evil.example'));
+    expect(res.status).toBe(403);
+  });
+});
+
 describe('LiveGwDO.alarm', () => {
   beforeEach(() => {
     globalThis.fetch = vi.fn();

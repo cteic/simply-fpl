@@ -11,6 +11,7 @@ import {
   Card,
   FNote,
   Input,
+  PageHeader,
   Pitch,
   PitchRow,
   Player,
@@ -52,21 +53,12 @@ export function HeadToHeadView() {
 
   if (yourEntryId === null || theirEntryId === null || yourEntryId === theirEntryId) {
     return (
-      <Screen>
-        <YStack>
-          <Text
-            fontFamily="$body"
-            fontSize={21}
-            fontWeight="600"
-            letterSpacing={-0.4}
-            color="$color"
-          >
-            Head to Head
-          </Text>
-          <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={4}>
-            Compare your live gameweek against any rival.
-          </Text>
-        </YStack>
+      <Screen topInset>
+        <PageHeader
+          tone="stadium"
+          title="Head to Head"
+          meta="Compare your live gameweek against any rival"
+        />
         <Card paddingHorizontal={20} paddingVertical={20}>
           <SectionHeader title="Pick two teams" />
           <YStack gap={10} marginTop={4}>
@@ -134,10 +126,8 @@ function HeadToHeadInner({
 
   if (yourLoading || theirLoading || !result) {
     return (
-      <Screen>
-        <Text fontFamily="$body" fontSize={13} color="$colorMuted" marginTop={40}>
-          Loading head-to-head…
-        </Text>
+      <Screen topInset>
+        <PageHeader tone="stadium" title="Head to Head" meta="Loading…" />
       </Screen>
     );
   }
@@ -145,15 +135,12 @@ function HeadToHeadInner({
   const { you, them, scoreDelta, differentialYou, differentialThem, commonPicks } = result;
 
   return (
-    <Screen>
-      <YStack>
-        <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
-          Head to Head
-        </Text>
-        <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={4}>
-          {`${you.managerName || you.teamName} vs ${them.managerName || them.teamName} · GW${currentGw ?? '—'}`}
-        </Text>
-      </YStack>
+    <Screen topInset>
+      <PageHeader
+        tone="stadium"
+        title="Head to Head"
+        meta={`${you.managerName || you.teamName} vs ${them.managerName || them.teamName} · GW${currentGw ?? '—'}`}
+      />
 
       <Scoreboard you={you} them={them} scoreDelta={scoreDelta} />
       <PitchSide side={you} label="You" />

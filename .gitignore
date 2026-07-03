@@ -26,6 +26,16 @@ var/cohorts/gw*/*
 !var/cohorts/gw*/scores.json
 !var/cohorts/gw*/aggregates.json
 !var/cohorts/gw*/picks.jsonl
+!var/recordings/
+var/recordings/*
+!var/recordings/gw*/
+var/recordings/gw*/*
+!var/recordings/gw*/README.md
+!var/recordings/gw*/manager-distribution.json
+!var/recordings/gw*/recording.jsonl
+!var/recordings/gw*/expected-curve.json
+!var/recordings/gw*/test-team.json
+!var/recordings/gw*/meta.json
 
 # Playwright
 test-results
@@ -42,3 +52,4 @@ apps/web/playwright-report
 
 # Claude Code per-machine settings (commands/ is tracked, settings.local.json is not)
 .claude/settings.local.json
+.claude/worktrees/

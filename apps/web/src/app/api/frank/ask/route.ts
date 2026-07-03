@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server';
 
 import Anthropic from '@anthropic-ai/sdk';
 
+import { resolveFrankAccess } from '@simplyfpl/features/frank';
+import { resolveTier } from '@simplyfpl/features/subscriptions/entitlement';
 import type { FplEntrySnapshot, FrankWeeklyPayload } from '@simplyfpl/types';
 
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
@@ -103,15 +105,23 @@ export async function POST(request: NextRequest) {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile || profile.tier !== 'ultimate') {
-    return NextResponse.json({ error: 'Ultimate tier required' }, { status: 402 });
+  const tier = resolveTier({ tier: profile?.tier ?? null });
+  const access = resolveFrankAccess(tier);
+
+  if (!access.canAskOnDemand) {
+    return NextResponse.json(
+      { error: 'Ultimate tier required', tier, upgradeTo: access.upgradeTo },
+      { status: 402 }
+    );
   }
 
   const startOfMonth = new Date();
   startOfMonth.setUTCDate(1);
   startOfMonth.setUTCHours(0, 0, 0, 0);
 
-  const { count: monthlyCount } = await supabase
+  const admin = getSupabaseAdminClient();
+
+  const { count: monthlyCount } = await admin
     .from('frank_queries')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
@@ -144,7 +154,7 @@ export async function POST(request: NextRequest) {
 
   const [weeklyRes, snapshotRes] = await Promise.allSettled([
     fetch(`${API_BASE_URL}/frank/weekly`),
-    profile.fpl_entry_id
+    profile?.fpl_entry_id
       ? fetch(`${API_BASE_URL}/snapshot/entry/${profile.fpl_entry_id}`)
       : Promise.resolve(null),
   ]);
@@ -201,12 +211,44 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const message = await client.messages.create({
-    model: FRANK_MODEL,
-    max_tokens: 512,
-    system: systemParts,
-    messages: [{ role: 'user', content: question }],
-  });
+  const { data: reservation, error: reservationError } = await admin
+    .from('frank_queries')
+    .insert({ user_id: user.id, question })
+    .select('id')
+    .single();
+
+  if (reservationError || !reservation) {
+    return NextResponse.json({ error: 'Quota reservation failed' }, { status: 500 });
+  }
+
+  const { count: reservedCount } = await admin
+    .from('frank_queries')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('created_at', startOfMonth.toISOString());
+
+  const usedWithReservation = reservedCount ?? used + 1;
+
+  if (usedWithReservation > FRANK_QUOTA_HARD) {
+    await admin.from('frank_queries').delete().eq('id', reservation.id);
+    return NextResponse.json(
+      { error: 'Monthly quota reached', used: usedWithReservation - 1, limit: FRANK_QUOTA_HARD },
+      { status: 429 }
+    );
+  }
+
+  let message: Anthropic.Message;
+  try {
+    message = await client.messages.create({
+      model: FRANK_MODEL,
+      max_tokens: 512,
+      system: systemParts,
+      messages: [{ role: 'user', content: question }],
+    });
+  } catch {
+    await admin.from('frank_queries').delete().eq('id', reservation.id);
+    return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
+  }
 
   const rawText = message.content
     .filter((block): block is Anthropic.TextBlock => block.type === 'text')
@@ -217,16 +259,16 @@ export async function POST(request: NextRequest) {
   const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
   const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
 
-  const admin = getSupabaseAdminClient();
   try {
-    await admin.from('frank_queries').insert({
-      user_id: user.id,
-      question,
-      response: responsePayload,
-      model: FRANK_MODEL,
-      tokens_in: message.usage.input_tokens,
-      tokens_out: message.usage.output_tokens,
-    });
+    await admin
+      .from('frank_queries')
+      .update({
+        response: responsePayload,
+        model: FRANK_MODEL,
+        tokens_in: message.usage.input_tokens,
+        tokens_out: message.usage.output_tokens,
+      })
+      .eq('id', reservation.id);
   } catch {
     // log to frank_queries is best-effort; don't fail the response
   }
@@ -234,7 +276,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     advice,
     follow_up_question: parsed?.follow_up_question ?? null,
-    used: used + 1,
+    used: usedWithReservation,
     softCap: FRANK_QUOTA_SOFT,
     hardCap: FRANK_QUOTA_HARD,
   });

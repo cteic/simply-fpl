@@ -2,11 +2,14 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const TableRoot = styled(YStack, {
   width: '100%',
-  borderTopWidth: 1,
-  borderBottomWidth: 1,
+  borderWidth: 1,
   borderColor: '$border',
+  borderRadius: '$6',
+  overflow: 'hidden',
 });
 
 const HeaderRow = styled(XStack, {
@@ -14,6 +17,7 @@ const HeaderRow = styled(XStack, {
   paddingVertical: 10,
   borderBottomWidth: 1,
   borderBottomColor: '$border',
+  backgroundColor: '$background',
   alignItems: 'center',
 });
 
@@ -24,6 +28,9 @@ const Row = styled(XStack, {
   borderBottomColor: '$border',
   alignItems: 'center',
   variants: {
+    even: {
+      true: { backgroundColor: '$background' },
+    },
     last: {
       true: { borderBottomWidth: 0 },
     },
@@ -37,6 +44,11 @@ const HeaderCell = styled(Text, {
   textTransform: 'uppercase',
   letterSpacing: '$10',
   color: '$colorSubtle',
+  variants: {
+    you: {
+      true: { color: '$brand' },
+    },
+  } as const,
 });
 
 const RowLabel = styled(Text, {
@@ -53,7 +65,7 @@ const NumberCell = styled(Text, {
   textAlign: 'right',
   variants: {
     look: {
-      you: { fontWeight: '600' },
+      you: { fontWeight: '600', color: '$brand' },
       muted: { color: '$colorMuted' },
     },
   } as const,
@@ -89,22 +101,22 @@ export function CohortTable({ rows, footer }: CohortTableProps) {
             <HeaderCell> </HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>You</HeaderCell>
+            <HeaderCell you>{t('shared.you')}</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Top 10k</HeaderCell>
+            <HeaderCell>{t('cohort.col_top10k')}</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Overall</HeaderCell>
+            <HeaderCell>{t('cohort.col_overall')}</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Top 1k</HeaderCell>
+            <HeaderCell>{t('cohort.col_top1k')}</HeaderCell>
           </YStack>
         </HeaderRow>
         {rows.map((row, idx) => {
           const isLast = idx === rows.length - 1;
           return (
-            <Row key={row.label} last={isLast}>
+            <Row key={row.label} last={isLast} even={idx % 2 === 1}>
               <YStack flex={1.4}>
                 <RowLabel>{row.label}</RowLabel>
               </YStack>

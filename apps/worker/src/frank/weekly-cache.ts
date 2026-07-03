@@ -11,8 +11,17 @@ export interface FrankEnv {
 
 export const FRANK_WEEKLY_CACHE_KEY = 'frank:weekly';
 export const FRANK_WEEKLY_CRON = '0 6 * * 2';
-const FRANK_WEEKLY_TTL_SECONDS = 7 * 24 * 60 * 60;
+// TTL exceeds the weekly cron interval so a missed run or a double/blank
+// gameweek can't open a gap: the previous week's advice stays served across the
+// boundary until the next run overwrites it.
+const FRANK_WEEKLY_TTL_SECONDS = 10 * 24 * 60 * 60;
 const FRANK_MODEL = 'claude-haiku-4-5-20251001';
+
+// Gameweek-scoped key so each week's advice is addressable independently; the
+// stable FRANK_WEEKLY_CACHE_KEY is the "latest" pointer the reader serves.
+export function frankWeeklyCacheKey(gameweek: number): string {
+  return `${FRANK_WEEKLY_CACHE_KEY}:gw${gameweek}`;
+}
 
 const BOOTSTRAP_CACHE_KEY = 'fpl:/bootstrap-static/';
 
@@ -135,9 +144,11 @@ export async function runFrankWeekly(env: FrankEnv): Promise<void> {
     chipNote: (parsed as FrankWeeklyPayload).chipNote ?? null,
   };
 
-  await env.FRANK_WEEKLY_CACHE.put(FRANK_WEEKLY_CACHE_KEY, JSON.stringify(payload), {
-    expirationTtl: FRANK_WEEKLY_TTL_SECONDS,
-  });
+  const serialized = JSON.stringify(payload);
+  const putOptions = { expirationTtl: FRANK_WEEKLY_TTL_SECONDS };
+
+  await env.FRANK_WEEKLY_CACHE.put(frankWeeklyCacheKey(gwId), serialized, putOptions);
+  await env.FRANK_WEEKLY_CACHE.put(FRANK_WEEKLY_CACHE_KEY, serialized, putOptions);
 }
 
 export async function handleFrankWeekly(env: FrankEnv): Promise<Response> {
