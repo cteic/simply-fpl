@@ -17,6 +17,8 @@ export interface DispatchResult {
 
 interface SupabasePrefRow {
   user_id: string;
+  quiet_hours_start: number | null;
+  quiet_hours_end: number | null;
 }
 
 interface SupabaseLogInsert {
@@ -52,20 +54,33 @@ function eventToPrefField(event: NotificationEvent): string {
       return 'price_drop';
     case 'rank_swing':
       return 'rank_swing';
+    case 'goal_scored':
+      return 'goal_scored';
+    case 'assist':
+      return 'assist';
+    case 'red_card':
+      return 'red_card';
   }
+}
+
+function isInQuietHours(utcHour: number, start: number | null, end: number | null): boolean {
+  if (start === null || end === null) return false;
+  if (start <= end) return utcHour >= start && utcHour < end;
+  return utcHour >= start || utcHour < end;
 }
 
 async function fetchTargetSubscriptions(
   env: Env,
   event: NotificationEvent,
-  userIds?: string[]
+  userIds?: string[],
+  nowUtcHour?: number
 ): Promise<PushSubscriptionRow[]> {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE) return [];
 
   const headers = serviceRoleHeaders(env.SUPABASE_SERVICE_ROLE);
   const prefField = eventToPrefField(event);
 
-  let prefsUrl = `${env.SUPABASE_URL}/rest/v1/notification_prefs?select=user_id&${prefField}=eq.true`;
+  let prefsUrl = `${env.SUPABASE_URL}/rest/v1/notification_prefs?select=user_id,quiet_hours_start,quiet_hours_end&${prefField}=eq.true`;
   if (userIds && userIds.length > 0) {
     if (!userIds.every(isValidUuid)) return [];
     const encoded = userIds.map(encodeURIComponent).join(',');
@@ -78,7 +93,13 @@ async function fetchTargetSubscriptions(
   const prefs: SupabasePrefRow[] = await prefsRes.json();
   if (prefs.length === 0) return [];
 
-  const targetIds = prefs.map((p) => p.user_id).join(',');
+  const hour = nowUtcHour ?? new Date().getUTCHours();
+  const activePrefs = prefs.filter(
+    (p) => !isInQuietHours(hour, p.quiet_hours_start, p.quiet_hours_end)
+  );
+  if (activePrefs.length === 0) return [];
+
+  const targetIds = activePrefs.map((p) => p.user_id).join(',');
   const subsRes = await fetch(
     `${env.SUPABASE_URL}/rest/v1/push_subscriptions?select=id,user_id,endpoint,p256dh,auth_key&platform=eq.web&user_id=in.(${targetIds})`,
     { headers }

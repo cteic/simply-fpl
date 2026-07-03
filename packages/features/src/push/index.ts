@@ -2,6 +2,7 @@ export { useServiceWorker } from './use-service-worker';
 export {
   urlBase64ToUint8Array,
   useNotificationsOptIn,
+  type LeagueAlertRule,
   type NotificationPermissionState,
   type NotificationPrefs,
   type UseNotificationsOptInOptions,

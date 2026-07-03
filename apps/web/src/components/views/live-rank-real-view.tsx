@@ -7,7 +7,7 @@ import { useParams } from 'next/navigation';
 
 import { useThemeName } from 'tamagui';
 
-import { liveBattle, liveRank, whatIf } from '@simplyfpl/features';
+import { ads, liveBattle, liveRank, whatIf } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
@@ -333,6 +333,7 @@ interface InnerProps {
 }
 
 function LiveRankInner({ entryId, dataOverride }: InnerProps) {
+  const adFree = ads.useAdFree();
   const heroSurface = featureSurfaceStyle(resolveThemeName(useThemeName()), 'panel');
   const queryEntryId = dataOverride ? null : entryId;
   const liveSnapshotQuery = useEntrySnapshot(queryEntryId);
@@ -866,7 +867,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
             </XStack>
           </YStack>
 
-          <AdSlot placement="rank-inline" minHeight={250} />
+          <AdSlot placement="rank-inline" minHeight={250} adFree={adFree} />
 
           <XStack gap={10} style={STAT_GRID_STYLE}>
             {tiles.map((tile) => (

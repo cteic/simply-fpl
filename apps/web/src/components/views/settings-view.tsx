@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth, push, subscriptions, theme as themeFeature } from '@simplyfpl/features';
-import { t } from '@simplyfpl/i18n';
+import { useLocale, useTranslation } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
   FNote,
+  LocaleSwitcher,
   NotificationsSettings,
   PageHeader,
   PageShell,
@@ -54,6 +55,8 @@ export function SettingsView() {
   const notifications = useNotificationsOptIn({ vapidPublicKey: VAPID_PUBLIC_KEY });
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const { locale, setLocale } = useLocale();
 
   useEffect(() => {
     if (!isLoading && !session) {
@@ -158,6 +161,16 @@ export function SettingsView() {
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
+        <SectionHeader title={t('settings.section_language')} />
+        <YStack gap={12} marginTop={8}>
+          <Text fontFamily="$body" fontSize={13} color="$colorMuted">
+            {t('settings.language_description')}
+          </Text>
+          <LocaleSwitcher value={locale} onSelect={setLocale} />
+        </YStack>
+      </Card>
+
+      <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
         <SectionHeader title={t('settings.section_session')} />
         <YStack gap={10} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
@@ -187,6 +200,7 @@ export function SettingsView() {
               isSubscribed={notifications.isSubscribed}
               isLoading={notifications.isLoading}
               prefs={notifications.prefs}
+              leagueAlerts={notifications.leagueAlerts}
               error={notifications.error}
               onSubscribe={() => {
                 notifications.subscribe();
@@ -196,6 +210,12 @@ export function SettingsView() {
               }}
               onTogglePref={(key, value) => {
                 notifications.updatePrefs({ [key]: value });
+              }}
+              onAddLeagueAlert={(rule) => {
+                notifications.addLeagueAlert(rule);
+              }}
+              onRemoveLeagueAlert={(leagueId) => {
+                notifications.removeLeagueAlert(leagueId);
               }}
             />
           </YStack>

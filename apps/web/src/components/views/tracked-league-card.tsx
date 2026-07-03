@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { ads } from '@simplyfpl/features';
 import { t } from '@simplyfpl/i18n';
 import { AdSlot, Button, Card, LeagueCard, LeagueTable, Text, XStack, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
@@ -16,6 +17,7 @@ interface TrackedLeagueCardProps {
 }
 
 export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProps) {
+  const adFree = ads.useAdFree();
   const { data, isLoading, error } = useClassicLeague(leagueId);
   const [expanded, setExpanded] = useState(false);
 
@@ -98,7 +100,7 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
           />
         ) : (
           <YStack key={idx} gap={6}>
-            <AdSlot placement="leagues-row" minHeight={120} />
+            <AdSlot placement="leagues-row" minHeight={120} adFree={adFree} />
             <Card>
               <LeagueTable rows={chunk} {...(onRowClick !== undefined ? { onRowClick } : {})} />
             </Card>
