@@ -1,11 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import type { LeagueAlertRule } from '@simplyfpl/types';
+
 export type NotificationPermissionState = 'default' | 'granted' | 'denied' | 'unsupported';
 
 export interface NotificationPrefs {
   deadlineReminder: boolean;
   captainScored: boolean;
+  bonusConfirmed: boolean;
+  goalScored: boolean;
+  assist: boolean;
+  redCard: boolean;
+  rankSwing: boolean;
+  rankSwingThreshold: number;
+  quietHoursStart: number | null;
+  quietHoursEnd: number | null;
 }
+
+export type { LeagueAlertRule };
 
 export interface UseNotificationsOptInOptions {
   vapidPublicKey: string;
@@ -17,13 +29,27 @@ export interface UseNotificationsOptInReturn {
   isSubscribed: boolean;
   isLoading: boolean;
   prefs: NotificationPrefs;
+  leagueAlerts: LeagueAlertRule[];
   error: string | null;
   subscribe: () => Promise<void>;
   unsubscribe: () => Promise<void>;
   updatePrefs: (updates: Partial<NotificationPrefs>) => Promise<void>;
+  addLeagueAlert: (rule: Omit<LeagueAlertRule, 'leagueName'>) => Promise<void>;
+  removeLeagueAlert: (leagueId: number) => Promise<void>;
 }
 
-const DEFAULT_PREFS: NotificationPrefs = { deadlineReminder: true, captainScored: true };
+const DEFAULT_PREFS: NotificationPrefs = {
+  deadlineReminder: true,
+  captainScored: true,
+  bonusConfirmed: false,
+  goalScored: true,
+  assist: true,
+  redCard: true,
+  rankSwing: false,
+  rankSwingThreshold: 5000,
+  quietHoursStart: null,
+  quietHoursEnd: null,
+};
 
 export function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -44,6 +70,41 @@ function isSupported(): boolean {
   );
 }
 
+function parsePrefsResponse(data: Record<string, unknown>): NotificationPrefs {
+  return {
+    deadlineReminder:
+      typeof data['deadline_reminder'] === 'boolean' ? data['deadline_reminder'] : true,
+    captainScored: typeof data['captain_scored'] === 'boolean' ? data['captain_scored'] : true,
+    bonusConfirmed: typeof data['bonus_confirmed'] === 'boolean' ? data['bonus_confirmed'] : false,
+    goalScored: typeof data['goal_scored'] === 'boolean' ? data['goal_scored'] : true,
+    assist: typeof data['assist'] === 'boolean' ? data['assist'] : true,
+    redCard: typeof data['red_card'] === 'boolean' ? data['red_card'] : true,
+    rankSwing: typeof data['rank_swing'] === 'boolean' ? data['rank_swing'] : false,
+    rankSwingThreshold:
+      typeof data['rank_swing_threshold'] === 'number' ? data['rank_swing_threshold'] : 5000,
+    quietHoursStart:
+      typeof data['quiet_hours_start'] === 'number' ? data['quiet_hours_start'] : null,
+    quietHoursEnd: typeof data['quiet_hours_end'] === 'number' ? data['quiet_hours_end'] : null,
+  };
+}
+
+function prefsToApiBody(updates: Partial<NotificationPrefs>): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  if (typeof updates.deadlineReminder === 'boolean')
+    body['deadline_reminder'] = updates.deadlineReminder;
+  if (typeof updates.captainScored === 'boolean') body['captain_scored'] = updates.captainScored;
+  if (typeof updates.bonusConfirmed === 'boolean') body['bonus_confirmed'] = updates.bonusConfirmed;
+  if (typeof updates.goalScored === 'boolean') body['goal_scored'] = updates.goalScored;
+  if (typeof updates.assist === 'boolean') body['assist'] = updates.assist;
+  if (typeof updates.redCard === 'boolean') body['red_card'] = updates.redCard;
+  if (typeof updates.rankSwing === 'boolean') body['rank_swing'] = updates.rankSwing;
+  if (typeof updates.rankSwingThreshold === 'number')
+    body['rank_swing_threshold'] = updates.rankSwingThreshold;
+  if ('quietHoursStart' in updates) body['quiet_hours_start'] = updates.quietHoursStart ?? null;
+  if ('quietHoursEnd' in updates) body['quiet_hours_end'] = updates.quietHoursEnd ?? null;
+  return body;
+}
+
 export function useNotificationsOptIn({
   vapidPublicKey,
   apiBase = '',
@@ -52,6 +113,7 @@ export function useNotificationsOptIn({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_PREFS);
+  const [leagueAlerts, setLeagueAlerts] = useState<LeagueAlertRule[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,12 +141,26 @@ export function useNotificationsOptIn({
       .then((r) => (r.ok ? r.json() : null))
       .then((data: unknown) => {
         if (!data || typeof data !== 'object') return;
-        const d = data as Record<string, unknown>;
-        setPrefs({
-          deadlineReminder:
-            typeof d['deadline_reminder'] === 'boolean' ? d['deadline_reminder'] : true,
-          captainScored: typeof d['captain_scored'] === 'boolean' ? d['captain_scored'] : true,
-        });
+        setPrefs(parsePrefsResponse(data as Record<string, unknown>));
+      })
+      .catch(() => undefined);
+
+    void fetch(`${apiBase}/api/notifications/league-alerts`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: unknown) => {
+        if (!Array.isArray(data)) return;
+        const rules: LeagueAlertRule[] = (
+          data as Array<{
+            league_id: number;
+            top_n: number | null;
+            swing_n: number | null;
+          }>
+        ).map((row) => ({
+          leagueId: row.league_id,
+          topN: row.top_n,
+          swingN: row.swing_n,
+        }));
+        setLeagueAlerts(rules);
       })
       .catch(() => undefined);
   }, [apiBase]);
@@ -156,18 +232,54 @@ export function useNotificationsOptIn({
       await fetch(`${apiBase}/api/notifications/prefs`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prefsToApiBody(updates)),
+      }).catch(() => undefined);
+    },
+    [apiBase]
+  );
+
+  const addLeagueAlert = useCallback(
+    async (rule: Omit<LeagueAlertRule, 'leagueName'>) => {
+      setLeagueAlerts((prev) => {
+        const filtered = prev.filter((r) => r.leagueId !== rule.leagueId);
+        return [...filtered, rule];
+      });
+      await fetch(`${apiBase}/api/notifications/league-alerts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...(typeof updates.deadlineReminder === 'boolean'
-            ? { deadline_reminder: updates.deadlineReminder }
-            : {}),
-          ...(typeof updates.captainScored === 'boolean'
-            ? { captain_scored: updates.captainScored }
-            : {}),
+          league_id: rule.leagueId,
+          top_n: rule.topN,
+          swing_n: rule.swingN,
         }),
       }).catch(() => undefined);
     },
     [apiBase]
   );
 
-  return { permission, isSubscribed, isLoading, prefs, error, subscribe, unsubscribe, updatePrefs };
+  const removeLeagueAlert = useCallback(
+    async (leagueId: number) => {
+      setLeagueAlerts((prev) => prev.filter((r) => r.leagueId !== leagueId));
+      await fetch(`${apiBase}/api/notifications/league-alerts`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ league_id: leagueId }),
+      }).catch(() => undefined);
+    },
+    [apiBase]
+  );
+
+  return {
+    permission,
+    isSubscribed,
+    isLoading,
+    prefs,
+    leagueAlerts,
+    error,
+    subscribe,
+    unsubscribe,
+    updatePrefs,
+    addLeagueAlert,
+    removeLeagueAlert,
+  };
 }

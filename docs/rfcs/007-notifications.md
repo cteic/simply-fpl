@@ -1,8 +1,8 @@
 # RFC 007 — Pro-tier Notifications (Web Push + Mobile Push)
 
-Status: Draft
+Status: In progress — PRs 1–5 merged; player-event + league-rank-alert + config UI shipped in #392
 Author: Pete
-Last updated: 2026-06-10
+Last updated: 2026-07-03
 Workstream slug: `notifications`
 Depends on: RFC 001 (live fan-out — supplies the live tick the price/captain/rank triggers ride on); soft overlap with the Stripe `is_pro` flag in `profiles` (`docs/supabase/001_initial_schema.sql:9`).
 
