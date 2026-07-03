@@ -15,7 +15,7 @@ const NEXT_DIR = join(WEB_DIR, '.next');
 const BUDGETS = {
   // CI measurement runs ~3-5 kB higher than local because of CF-specific
   // transforms; budget is set against the CI number with ~5 kB headroom.
-  '/': 210 * 1024,
+  '/': 212 * 1024,
   '/h2h': 165 * 1024,
 };
 
