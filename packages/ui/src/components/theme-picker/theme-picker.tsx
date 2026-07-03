@@ -2,6 +2,7 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
 import type { ThemeName } from '@simplyfpl/types';
 
 import { THEME_OPTIONS } from '../../theme';
@@ -36,7 +37,7 @@ interface ThemePickerProps {
 
 export function ThemePicker({ value, onSelect }: ThemePickerProps) {
   return (
-    <XStack role="radiogroup" aria-label="Theme" flexWrap="wrap" gap={12}>
+    <XStack role="radiogroup" aria-label={t('theme_picker.aria_label')} flexWrap="wrap" gap={12}>
       {THEME_OPTIONS.map((option) => {
         const selected = option.name === value;
         return (

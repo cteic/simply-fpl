@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { Text, XStack, YStack } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 import { Input } from '../input';
 
 export interface WhatIfCandidateOption {
@@ -145,7 +147,7 @@ export function WhatIfPanel({
           paddingHorizontal={10}
           paddingVertical={5}
           minHeight={30}
-          placeholder="Search by name…"
+          placeholder={t('what_if.search_placeholder')}
           value={transferSearch}
           onChangeText={onTransferSearchChange}
         />

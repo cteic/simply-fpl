@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const TableRoot = styled(YStack, {
   width: '100%',
 });
@@ -120,13 +122,13 @@ export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
           <HeaderCell>#</HeaderCell>
         </YStack>
         <YStack flex={1}>
-          <HeaderCell>Manager</HeaderCell>
+          <HeaderCell>{t('league_table.col_manager')}</HeaderCell>
         </YStack>
         <YStack width={50} alignItems="flex-end">
-          <HeaderCell>GW</HeaderCell>
+          <HeaderCell>{t('league_table.col_gw')}</HeaderCell>
         </YStack>
         <YStack width={70} alignItems="flex-end">
-          <HeaderCell>Pts</HeaderCell>
+          <HeaderCell>{t('shared.pts')}</HeaderCell>
         </YStack>
       </HeaderRow>
       {rows.map((row, idx) => {
@@ -151,7 +153,7 @@ export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
             <YStack flex={1}>
               <XStack alignItems="center">
                 <Manager>{row.managerName}</Manager>
-                {row.isYou ? <YouTag>You</YouTag> : null}
+                {row.isYou ? <YouTag>{t('shared.you')}</YouTag> : null}
               </XStack>
               {row.teamName ? <TeamName>{row.teamName}</TeamName> : null}
             </YStack>
