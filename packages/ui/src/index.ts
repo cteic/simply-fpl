@@ -49,6 +49,7 @@ export * from './components/pro-banner';
 export * from './components/progress-bar';
 export * from './components/pts-chip';
 export * from './components/league-switcher';
+export * from './components/locale-switcher';
 export * from './components/rival-cell';
 export * from './components/rivals-window-selector';
 export * from './components/section-header';
