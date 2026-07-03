@@ -3,9 +3,13 @@ import type { NextRequest } from 'next/server';
 
 import Anthropic from '@anthropic-ai/sdk';
 
-import { resolveFrankAccess } from '@simplyfpl/features/frank';
+import {
+  buildEnrichedContext,
+  computeFrankAskCacheKey,
+  resolveFrankAccess,
+} from '@simplyfpl/features/frank';
 import { resolveTier } from '@simplyfpl/features/subscriptions/entitlement';
-import type { FplEntrySnapshot, FrankWeeklyPayload } from '@simplyfpl/types';
+import type { FplEntrySnapshot, FplFixture, FrankWeeklyPayload } from '@simplyfpl/types';
 
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
@@ -13,10 +17,13 @@ import { getSupabaseServerClient } from '@/lib/supabase-server';
 const FEATURE_FRANK_ONDEMAND_SERVER = process.env['FEATURE_FRANK_ONDEMAND'] === 'true';
 const FRANK_MODEL = 'claude-haiku-4-5-20251001';
 const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
+const FRANK_CACHE_WRITE_SECRET = process.env['FRANK_CACHE_WRITE_SECRET'];
+const FRANK_DAILY_SPEND_CAP = process.env['FRANK_DAILY_SPEND_CAP_TOKENS']
+  ? Number(process.env['FRANK_DAILY_SPEND_CAP_TOKENS'])
+  : null;
 
 const FRANK_QUOTA_SOFT = 50;
 const FRANK_QUOTA_HARD = 80;
-const TEAM_CONTEXT_MAX_CHARS = 4000;
 const FRANK_PARSE_ERROR = 'Frank had trouble formatting that answer — try rephrasing';
 
 export const runtime = 'edge';
@@ -62,27 +69,16 @@ function isFplEntrySnapshot(value: unknown): value is FplEntrySnapshot {
   );
 }
 
-function projectSnapshot(raw: unknown): string {
-  if (!isFplEntrySnapshot(raw)) return '';
-  const projected = {
-    gw: raw.gw,
-    picks: raw.picks
-      ? {
-          active_chip: raw.picks.active_chip,
-          entry_history: raw.picks.entry_history,
-          picks: raw.picks.picks,
-        }
-      : null,
-    entry: raw.entry
-      ? {
-          summary_overall_rank: raw.entry.summary_overall_rank,
-          summary_overall_points: raw.entry.summary_overall_points,
-          summary_event_rank: raw.entry.summary_event_rank,
-          summary_event_points: raw.entry.summary_event_points,
-        }
-      : null,
-  };
-  return JSON.stringify(projected).slice(0, TEAM_CONTEXT_MAX_CHARS);
+interface SlimPricesPayload {
+  changes: Array<{ id: number; web_name: string; direction: 'rise' | 'fall'; probability: number }>;
+}
+
+function isSlimPricesPayload(value: unknown): value is SlimPricesPayload {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Array.isArray((value as SlimPricesPayload).changes)
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -149,14 +145,57 @@ export async function POST(request: NextRequest) {
 
   const question = body.question.trim().slice(0, 500);
 
-  let weeklyContext = '';
-  let teamContext = '';
+  let snapshot: FplEntrySnapshot | null = null;
+  if (profile?.fpl_entry_id) {
+    try {
+      const snapshotRes = await fetch(`${API_BASE_URL}/snapshot/entry/${profile.fpl_entry_id}`);
+      if (snapshotRes.ok) {
+        const raw: unknown = await snapshotRes.json();
+        if (isFplEntrySnapshot(raw)) {
+          snapshot = raw;
+        }
+      }
+    } catch {
+      // best-effort
+    }
+  }
 
-  const [weeklyRes, snapshotRes] = await Promise.allSettled([
+  const pickIds = snapshot?.picks?.picks.map((p) => p.element) ?? [];
+  const cacheKey = computeFrankAskCacheKey(question, pickIds);
+
+  try {
+    const cacheRes = await fetch(
+      `${API_BASE_URL}/frank/ask-cache?key=${encodeURIComponent(cacheKey)}`
+    );
+    if (cacheRes.ok) {
+      const cached: unknown = await cacheRes.json();
+      if (
+        typeof cached === 'object' &&
+        cached !== null &&
+        typeof (cached as FrankJsonResponse).advice === 'string'
+      ) {
+        const hit = cached as FrankJsonResponse;
+        return NextResponse.json({
+          advice: hit.advice,
+          follow_up_question: hit.follow_up_question ?? null,
+          used,
+          softCap: FRANK_QUOTA_SOFT,
+          hardCap: FRANK_QUOTA_HARD,
+        });
+      }
+    }
+  } catch {
+    // best-effort cache lookup
+  }
+
+  let weeklyContext = '';
+  let fixtures: FplFixture[] | null = null;
+  let priceChanges: SlimPricesPayload['changes'] | null = null;
+
+  const [weeklyRes, fixturesRes, pricesRes] = await Promise.allSettled([
     fetch(`${API_BASE_URL}/frank/weekly`),
-    profile?.fpl_entry_id
-      ? fetch(`${API_BASE_URL}/snapshot/entry/${profile.fpl_entry_id}`)
-      : Promise.resolve(null),
+    fetch(`${API_BASE_URL}/fpl/fixtures-slim`),
+    fetch(`${API_BASE_URL}/fpl/prices`),
   ]);
 
   if (weeklyRes.status === 'fulfilled' && weeklyRes.value?.ok) {
@@ -173,14 +212,59 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  if (snapshotRes.status === 'fulfilled' && snapshotRes.value !== null && snapshotRes.value?.ok) {
+  if (fixturesRes.status === 'fulfilled' && fixturesRes.value?.ok) {
     try {
-      const snapshot: unknown = await snapshotRes.value.json();
-      teamContext = projectSnapshot(snapshot);
+      const raw: unknown = await fixturesRes.value.json();
+      if (Array.isArray(raw)) {
+        fixtures = raw as FplFixture[];
+      }
     } catch {
       // best-effort
     }
   }
+
+  if (pricesRes.status === 'fulfilled' && pricesRes.value?.ok) {
+    try {
+      const raw: unknown = await pricesRes.value.json();
+      if (isSlimPricesPayload(raw)) {
+        priceChanges = raw.changes;
+      }
+    } catch {
+      // best-effort
+    }
+  }
+
+  if (FRANK_DAILY_SPEND_CAP !== null) {
+    const startOfDay = new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const { data: todayRows } = await admin
+      .from('frank_queries')
+      .select('tokens_in, tokens_out')
+      .gte('created_at', startOfDay.toISOString());
+    const todayTokens = (todayRows ?? []).reduce(
+      (sum: number, row: { tokens_in?: number | null; tokens_out?: number | null }) =>
+        sum + (row.tokens_in ?? 0) + (row.tokens_out ?? 0),
+      0
+    );
+    if (todayTokens >= FRANK_DAILY_SPEND_CAP) {
+      return NextResponse.json({
+        advice: weeklyContext
+          ? `Daily AI budget reached. This week's general advice: ${weeklyContext}`
+          : 'Daily AI budget reached. Please try again tomorrow.',
+        follow_up_question: null,
+        used,
+        softCap: FRANK_QUOTA_SOFT,
+        hardCap: FRANK_QUOTA_HARD,
+      });
+    }
+  }
+
+  const enrichedContext = buildEnrichedContext({
+    snapshot,
+    fixtures,
+    priceChanges,
+    currentGw: snapshot?.gw ?? 0,
+  });
 
   const apiKey = process.env['ANTHROPIC_API_KEY'];
   if (!apiKey) {
@@ -189,12 +273,10 @@ export async function POST(request: NextRequest) {
 
   const client = new Anthropic({ apiKey });
 
-  const contextText = [
-    weeklyContext ? `Weekly FPL context: ${weeklyContext}` : '',
-    teamContext ? `User's current team: ${teamContext}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n');
+  const contextParts: string[] = [];
+  if (weeklyContext) contextParts.push(`Weekly FPL context: ${weeklyContext}`);
+  if (enrichedContext) contextParts.push(`User's current team: ${enrichedContext}`);
+  const contextText = contextParts.join('\n\n');
 
   const systemParts: Anthropic.TextBlockParam[] = [
     {
@@ -258,6 +340,17 @@ export async function POST(request: NextRequest) {
   const parsed = parseFrankJson(rawText);
   const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
   const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
+
+  if (FRANK_CACHE_WRITE_SECRET) {
+    fetch(`${API_BASE_URL}/frank/ask-cache?key=${encodeURIComponent(cacheKey)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Frank-Cache-Secret': FRANK_CACHE_WRITE_SECRET,
+      },
+      body: JSON.stringify(responsePayload),
+    }).catch(() => undefined);
+  }
 
   try {
     await admin

@@ -1,5 +1,5 @@
 {
-  "extends": "@simplyfpl/tsconfig-config/tsconfig.base.json",
+  "extends": "@simplyfpl/tsconfig-config/tsconfig.react.json",
   "compilerOptions": {
     "outDir": "dist"
   },

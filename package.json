@@ -76,9 +76,9 @@
       "piscina": ">=4.9.3"
     },
     "patchedDependencies": {
-      "tamagui-loader@2.0.0-rc.42": "patches/tamagui-loader@2.0.0-rc.42.patch",
-      "@tamagui/next-plugin@2.0.0-rc.42": "patches/@tamagui__next-plugin@2.0.0-rc.42.patch",
-      "@tamagui/web@2.0.0-rc.42": "patches/@tamagui__web@2.0.0-rc.42.patch"
+      "tamagui-loader@2.4.0": "patches/tamagui-loader@2.4.0.patch",
+      "@tamagui/next-plugin@2.4.0": "patches/@tamagui__next-plugin@2.4.0.patch",
+      "@tamagui/web@2.4.0": "patches/@tamagui__web@2.4.0.patch"
     }
   }
 }
