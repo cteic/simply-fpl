@@ -876,6 +876,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                 label={tile.label}
                 tone={tile.tone}
                 sub={tile.sub}
+                pulseKey={tile.tick}
                 value={
                   tile.tick !== null ? (
                     <NumberTicker
