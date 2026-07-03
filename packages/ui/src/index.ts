@@ -64,3 +64,4 @@ export * from './components/team-pill';
 export * from './components/theme-picker';
 export * from './components/notifications-settings';
 export * from './components/what-if-panel';
+export * from './components/team-news-card';
