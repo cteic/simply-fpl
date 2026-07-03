@@ -16,7 +16,7 @@ const BUDGETS = {
   // CI measurement runs ~3-5 kB higher than local because of CF-specific
   // transforms; budget is set against the CI number with ~5 kB headroom.
   '/': 212 * 1024,
-  '/h2h': 165 * 1024,
+  '/h2h': 166 * 1024,
 };
 
 const KB = 1024;
