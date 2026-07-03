@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react';
 
 import { Text, XStack, YStack } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 import { Button } from '../button';
 
 interface AnalyticsConsentBannerProps {
@@ -51,7 +53,7 @@ export function AnalyticsConsentBanner({ onAccept, onDecline }: AnalyticsConsent
       ref={containerRef}
       role="dialog"
       aria-modal="false"
-      aria-label="Analytics consent"
+      aria-label={t('analytics_consent.aria_label')}
       aria-live="polite"
       style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999 }}
     >
@@ -68,15 +70,15 @@ export function AnalyticsConsentBanner({ onAccept, onDecline }: AnalyticsConsent
       >
         <YStack flex={1} gap={2}>
           <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
-            We use anonymous analytics to make SimplyFPL better. No personal data is sent.
+            {t('analytics_consent.body')}
           </Text>
         </YStack>
         <XStack gap={8} flexShrink={0}>
           <Button tone="ghost" size="sm" onPress={onDecline}>
-            Decline
+            {t('analytics_consent.cta_decline')}
           </Button>
           <Button tone="primary" size="sm" onPress={onAccept}>
-            Accept
+            {t('analytics_consent.cta_accept')}
           </Button>
         </XStack>
       </XStack>

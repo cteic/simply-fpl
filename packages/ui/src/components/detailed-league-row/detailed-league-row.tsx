@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
 import type { DetailedLeagueRowData } from '@simplyfpl/types';
 
 import { buildDetailedLeagueRowView, toggleExpanded } from './detailed-league-row-state';
@@ -188,7 +189,7 @@ export function DetailedLeagueRow({
         <YStack flex={1} minWidth={0}>
           <XStack alignItems="center" flexWrap="wrap">
             <Manager>{data.managerName}</Manager>
-            {view.highlighted ? <YouTag>You</YouTag> : null}
+            {view.highlighted ? <YouTag>{t('shared.you')}</YouTag> : null}
             {view.chipLabel ? <ChipPill>{view.chipLabel}</ChipPill> : null}
             {view.hitLabel ? <HitPill>{view.hitLabel}</HitPill> : null}
           </XStack>
@@ -202,13 +203,13 @@ export function DetailedLeagueRow({
         <Detail>
           {view.captainLabel ? (
             <DetailLine>
-              <DetailLabel>Cap</DetailLabel>
+              <DetailLabel>{t('shared.cap')}</DetailLabel>
               <DetailValue>{view.captainLabel}</DetailValue>
             </DetailLine>
           ) : null}
           {view.transferSummary ? (
             <DetailLine>
-              <DetailLabel>Transfers</DetailLabel>
+              <DetailLabel>{t('detailed_league_row.transfers_label')}</DetailLabel>
               <DetailValue look="subtle">out: {view.transferSummary.out}</DetailValue>
               <DetailValue>in: {view.transferSummary.in}</DetailValue>
               {view.transferSummary.hitLabel ? (
@@ -218,12 +219,12 @@ export function DetailedLeagueRow({
           ) : null}
           {view.benchWaste ? (
             <DetailLine>
-              <DetailLabel>Bench</DetailLabel>
+              <DetailLabel>{t('shared.bench')}</DetailLabel>
               <DetailValue look="amber">{view.benchWaste}</DetailValue>
             </DetailLine>
           ) : null}
           <DetailLine>
-            <DetailLabel>Played</DetailLabel>
+            <DetailLabel>{t('detailed_league_row.played_label')}</DetailLabel>
             <DetailValue look="muted">{view.playedLabel}</DetailValue>
           </DetailLine>
         </Detail>

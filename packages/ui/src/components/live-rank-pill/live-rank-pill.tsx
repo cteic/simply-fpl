@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Text, XStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const Pill = styled(XStack, {
   alignItems: 'center',
   gap: 7,
@@ -95,7 +97,7 @@ export function LiveRankPill({ rank, movement, direction, href }: LiveRankPillPr
         backgroundColor={dir === 'down' ? '$negative' : '$positive'}
         style={pulseKey > 0 ? PULSE_STYLE : undefined}
       />
-      <Label>Rank</Label>
+      <Label>{t('shared.rank')}</Label>
       <Value>{rank === null ? '—' : rank.toLocaleString()}</Value>
       {showMove ? (
         <Move move={dir}>
