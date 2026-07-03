@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { ads } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import { AdSlot, Button, Card, LeagueCard, LeagueTable, Text, XStack, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
 
@@ -15,6 +17,7 @@ interface TrackedLeagueCardProps {
 }
 
 export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProps) {
+  const adFree = ads.useAdFree();
   const { data, isLoading, error } = useClassicLeague(leagueId);
   const [expanded, setExpanded] = useState(false);
 
@@ -22,7 +25,7 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
     return (
       <Card paddingHorizontal={16} paddingVertical={13}>
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-          Loading league {leagueId}…
+          {t('league_card.loading', { leagueId })}
         </Text>
       </Card>
     );
@@ -33,7 +36,7 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
       <Card paddingHorizontal={16} paddingVertical={13}>
         <YStack gap={4}>
           <Text fontFamily="$body" fontSize={13} color="$danger">
-            Couldn't load league {leagueId}
+            {t('league_card.error', { leagueId })}
           </Text>
           <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
             {error instanceof Error ? error.message : 'Unknown error'}
@@ -51,7 +54,7 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
             {data.league.name}
           </Text>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-            No managers in this league yet.
+            {t('league_card.empty')}
           </Text>
         </YStack>
       </Card>
@@ -97,7 +100,7 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
           />
         ) : (
           <YStack key={idx} gap={6}>
-            <AdSlot placement="leagues-row" minHeight={120} />
+            <AdSlot placement="leagues-row" minHeight={120} adFree={adFree} />
             <Card>
               <LeagueTable rows={chunk} {...(onRowClick !== undefined ? { onRowClick } : {})} />
             </Card>
@@ -112,11 +115,13 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
             window.location.href = `/rivals/${leagueId}`;
           }}
         >
-          Rivals
+          {t('league_card.cta_rivals')}
         </Button>
         {totalRows > 10 ? (
           <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
-            {expanded ? 'Show top 10' : `Show all ${totalRows}`}
+            {expanded
+              ? t('league_card.show_top_10')
+              : t('league_card.show_all', { count: totalRows })}
           </Button>
         ) : null}
       </XStack>

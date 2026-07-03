@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { t } from '@simplyfpl/i18n';
 import type { LeagueAlertRule } from '@simplyfpl/types';
 
 import { Text, XStack, YStack } from '../../tamagui-primitives';
@@ -52,8 +53,7 @@ export function NotificationsSettings({
   if (!isPro) {
     return (
       <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-        Push notifications are a Pro feature. Upgrade to get notified when your captain scores and
-        before the transfer deadline.
+        {t('notifications.pro_only')}
       </Text>
     );
   }
@@ -61,7 +61,7 @@ export function NotificationsSettings({
   if (permission === 'unsupported') {
     return (
       <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-        Push notifications are not supported in this browser.
+        {t('notifications.not_supported')}
       </Text>
     );
   }
@@ -69,7 +69,7 @@ export function NotificationsSettings({
   if (permission === 'denied') {
     return (
       <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-        Notifications are blocked. Re-enable them in your browser settings, then reload.
+        {t('notifications.blocked')}
       </Text>
     );
   }
@@ -79,12 +79,11 @@ export function NotificationsSettings({
       {!isSubscribed ? (
         <YStack gap={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Get notified when your captain scores, your squad has events, or your league rank
-            changes — even when SimplyFPL is closed.
+            {t('notifications.subscribe_body')}
           </Text>
           <XStack>
             <Button tone="primary" size="md" onPress={isLoading ? () => {} : onSubscribe}>
-              {isLoading ? 'Enabling…' : 'Enable notifications'}
+              {isLoading ? t('notifications.cta_enabling') : t('notifications.cta_enable')}
             </Button>
           </XStack>
         </YStack>
@@ -92,8 +91,8 @@ export function NotificationsSettings({
         <YStack gap={16}>
           <SectionLabel>Deadline & results</SectionLabel>
           <PrefToggle
-            label="GW deadline reminder"
-            description="30 minutes before transfers lock"
+            label={t('notifications.label_deadline_reminder')}
+            description={t('notifications.label_deadline_desc')}
             enabled={prefs.deadlineReminder}
             onToggle={(v) => onTogglePref('deadlineReminder', v)}
           />
@@ -106,8 +105,8 @@ export function NotificationsSettings({
 
           <SectionLabel>Captain & squad events</SectionLabel>
           <PrefToggle
-            label="Captain scored"
-            description="When your captain starts scoring points"
+            label={t('notifications.label_captain_scored')}
+            description={t('notifications.label_captain_scored_desc')}
             enabled={prefs.captainScored}
             onToggle={(v) => onTogglePref('captainScored', v)}
           />
@@ -149,7 +148,7 @@ export function NotificationsSettings({
 
           <XStack marginTop={4}>
             <Button tone="ghost" size="md" onPress={isLoading ? () => {} : onUnsubscribe}>
-              {isLoading ? 'Disabling…' : 'Disable notifications'}
+              {isLoading ? t('notifications.cta_disabling') : t('notifications.cta_disable')}
             </Button>
           </XStack>
         </YStack>

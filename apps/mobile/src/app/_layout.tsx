@@ -84,14 +84,17 @@ export default function RootLayout() {
                 name="leagues"
                 options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues', headerShown: false }}
               />
-              <Tabs.Screen name="h2h" options={{ title: 'Head to Head', tabBarLabel: 'H2H' }} />
+              <Tabs.Screen
+                name="h2h"
+                options={{ title: 'Head to Head', tabBarLabel: 'H2H', headerShown: false }}
+              />
               <Tabs.Screen
                 name="planner"
                 options={{ title: 'Transfer Planner', tabBarLabel: 'Planner' }}
               />
               <Tabs.Screen
                 name="prices"
-                options={{ title: 'Price Changes', tabBarLabel: 'Prices' }}
+                options={{ title: 'Price Changes', tabBarLabel: 'Prices', headerShown: false }}
               />
               <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
               <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />

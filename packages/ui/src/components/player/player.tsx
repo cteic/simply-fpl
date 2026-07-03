@@ -84,6 +84,7 @@ interface PlayerProps {
   ownershipPartial?: boolean;
   accentColor?: string | undefined;
   defcon?: DefConBarProps | undefined;
+  onPitch?: boolean;
   onWhatIf?: () => void;
 }
 
@@ -101,26 +102,33 @@ export function Player({
   ownershipPartial = false,
   accentColor,
   defcon,
+  onPitch = false,
   onWhatIf,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
+  let nameColor: string | undefined;
+  if (onPitch) {
+    nameColor = bench ? '$inverseSoft' : '$inverse';
+  }
+  const detailColor = onPitch ? '$inverseMuted' : undefined;
+  const ownershipColor = onPitch ? '$inverseSoft' : undefined;
   return (
     <Wrap width={compact ? 56 : undefined}>
       <ShirtWrap bench={bench}>
         <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} size={compact ? 36 : 44} />
         {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
       </ShirtWrap>
-      <Name bench={bench} maxWidth={compact ? 54 : undefined}>
+      <Name bench={bench} maxWidth={compact ? 54 : undefined} color={nameColor}>
         {name}
       </Name>
       {detail ? (
         <XStack alignItems="center" justifyContent="center" gap={4}>
           {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
-          <Detail>{detail}</Detail>
+          <Detail color={detailColor}>{detail}</Detail>
         </XStack>
       ) : null}
       {ownershipPercent !== undefined && Number.isFinite(ownershipPercent) ? (
-        <Ownership partial={ownershipPartial}>
+        <Ownership partial={ownershipPartial} color={ownershipColor}>
           {ownershipPartial ? '~' : ''}
           {ownershipPercent.toFixed(1)}%
         </Ownership>
@@ -142,10 +150,10 @@ export function Player({
           fontSize={8}
           fontWeight="600"
           letterSpacing={0.2}
-          color="$brand"
+          color={onPitch ? '$stadiumAccent' : '$brand'}
           cursor="pointer"
           textAlign="center"
-          hoverStyle={{ color: '$brandHover' }}
+          hoverStyle={{ color: onPitch ? '$stadiumAccentStrong' : '$brandHover' }}
           onPress={onWhatIf}
         >
           What if?

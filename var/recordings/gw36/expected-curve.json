@@ -1,0 +1,127 @@
+{
+  "gw": 36,
+  "preGwRank": 52140,
+  "totalManagers": 10850000,
+  "officialEndRank": 41073,
+  "frames": [
+    {
+      "rowIndex": 0,
+      "elapsedSeconds": 0,
+      "myPoints": 0,
+      "avgScore": 0,
+      "expectedRank": 52140
+    },
+    {
+      "rowIndex": 1,
+      "elapsedSeconds": 600,
+      "myPoints": 4,
+      "avgScore": 3.6,
+      "expectedRank": 51860
+    },
+    {
+      "rowIndex": 2,
+      "elapsedSeconds": 1200,
+      "myPoints": 7,
+      "avgScore": 5.67,
+      "expectedRank": 51209
+    },
+    {
+      "rowIndex": 3,
+      "elapsedSeconds": 1800,
+      "myPoints": 16,
+      "avgScore": 13.26,
+      "expectedRank": 50222
+    },
+    {
+      "rowIndex": 4,
+      "elapsedSeconds": 2400,
+      "myPoints": 24,
+      "avgScore": 19.58,
+      "expectedRank": 49046
+    },
+    {
+      "rowIndex": 5,
+      "elapsedSeconds": 3000,
+      "myPoints": 29,
+      "avgScore": 23.48,
+      "expectedRank": 48276
+    },
+    {
+      "rowIndex": 6,
+      "elapsedSeconds": 3600,
+      "myPoints": 39,
+      "avgScore": 31.3,
+      "expectedRank": 46750
+    },
+    {
+      "rowIndex": 7,
+      "elapsedSeconds": 4200,
+      "myPoints": 45,
+      "avgScore": 35.23,
+      "expectedRank": 45301
+    },
+    {
+      "rowIndex": 8,
+      "elapsedSeconds": 4800,
+      "myPoints": 56,
+      "avgScore": 45.25,
+      "expectedRank": 44615
+    },
+    {
+      "rowIndex": 9,
+      "elapsedSeconds": 5400,
+      "myPoints": 64,
+      "avgScore": 52.05,
+      "expectedRank": 43775
+    },
+    {
+      "rowIndex": 10,
+      "elapsedSeconds": 6000,
+      "myPoints": 70,
+      "avgScore": 55.8,
+      "expectedRank": 42200
+    },
+    {
+      "rowIndex": 11,
+      "elapsedSeconds": 6600,
+      "myPoints": 74,
+      "avgScore": 58.33,
+      "expectedRank": 41171
+    },
+    {
+      "rowIndex": 12,
+      "elapsedSeconds": 7200,
+      "myPoints": 76,
+      "avgScore": 60.02,
+      "expectedRank": 40954
+    },
+    {
+      "rowIndex": 13,
+      "elapsedSeconds": 7800,
+      "myPoints": 77,
+      "avgScore": 60.84,
+      "expectedRank": 40828
+    },
+    {
+      "rowIndex": 14,
+      "elapsedSeconds": 8400,
+      "myPoints": 78,
+      "avgScore": 62.19,
+      "expectedRank": 41073
+    },
+    {
+      "rowIndex": 15,
+      "elapsedSeconds": 9000,
+      "myPoints": 78,
+      "avgScore": 62.19,
+      "expectedRank": 41073
+    },
+    {
+      "rowIndex": 16,
+      "elapsedSeconds": 9600,
+      "myPoints": 78,
+      "avgScore": 62.19,
+      "expectedRank": 41073
+    }
+  ]
+}

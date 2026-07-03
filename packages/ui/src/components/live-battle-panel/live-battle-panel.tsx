@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 import { Card } from '../card';
 import { DeltaChip } from '../delta-chip';
 import { SectionHeader } from '../section-header';
@@ -188,27 +190,31 @@ export function LiveBattlePanel({ gains, losses, totalImpact }: LiveBattlePanelP
   return (
     <Wrap>
       <Head>
-        <SectionHeader title="Live Battle" />
-        <SubTitle>Players moving your rank right now · currently playing</SubTitle>
+        <SectionHeader title={t('live_battle.section_title')} />
+        <SubTitle>{t('live_battle.subtitle')}</SubTitle>
       </Head>
       <Cols>
         <Col>
           <ColHead>
-            <ColHeadLabel tone="up">Gains</ColHeadLabel>
-            <ColHeadMeta>Pts</ColHeadMeta>
+            <ColHeadLabel tone="up">{t('live_battle.gains')}</ColHeadLabel>
+            <ColHeadMeta>{t('shared.pts')}</ColHeadMeta>
           </ColHead>
-          <BattleList rows={gains} empty="No live gains yet." columnTotal={gainsTotal} />
+          <BattleList rows={gains} empty={t('live_battle.empty_gains')} columnTotal={gainsTotal} />
         </Col>
         <Col last>
           <ColHead>
-            <ColHeadLabel tone="down">Losses</ColHeadLabel>
-            <ColHeadMeta>Pts</ColHeadMeta>
+            <ColHeadLabel tone="down">{t('live_battle.losses')}</ColHeadLabel>
+            <ColHeadMeta>{t('shared.pts')}</ColHeadMeta>
           </ColHead>
-          <BattleList rows={losses} empty="No live losses yet." columnTotal={lossesTotal} />
+          <BattleList
+            rows={losses}
+            empty={t('live_battle.empty_losses')}
+            columnTotal={lossesTotal}
+          />
         </Col>
       </Cols>
       <TotalRow>
-        <TotalLabel>Net vs field</TotalLabel>
+        <TotalLabel>{t('live_battle.net_vs_field')}</TotalLabel>
         <DeltaChip tone={toneFor(totalImpact)}>{formatImpact(totalImpact)}</DeltaChip>
       </TotalRow>
     </Wrap>
@@ -238,7 +244,7 @@ function BattleList({ rows, empty, columnTotal }: BattleListProps) {
         ))}
       </YStack>
       <ColTotalRow>
-        <TotalLabel>Total</TotalLabel>
+        <TotalLabel>{t('live_battle.total')}</TotalLabel>
         <DeltaChip tone={toneFor(columnTotal)}>{formatImpact(columnTotal)}</DeltaChip>
       </ColTotalRow>
     </YStack>

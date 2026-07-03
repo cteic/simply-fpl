@@ -8,6 +8,7 @@ import {
   BenchDivider,
   FilterButton,
   Pitch,
+  PitchField,
   PitchRow,
   Player,
   Text,
@@ -144,8 +145,9 @@ export function LivePitchColumn({
             ) : null}
           </YStack>
         ) : null}
-        {dataReady
-          ? pitchRows.map((row, i) => (
+        {dataReady ? (
+          <PitchField>
+            {pitchRows.map((row, i) => (
               <PitchRow key={`row-${i}`}>
                 {row.map((p) => {
                   const own = ownershipFor(p.key, p.ownershipPercent);
@@ -163,38 +165,41 @@ export function LivePitchColumn({
                       ownershipPartial={own.ownershipPartial}
                       accentColor={p.accentColor}
                       defcon={p.defcon}
+                      onPitch
                       onWhatIf={() => onWhatIf(p.isCaptain ? 'captain' : 'transfer', p.key)}
                     />
                   );
                 })}
               </PitchRow>
-            ))
-          : null}
-        {dataReady && bench.length > 0 ? (
-          <>
-            <BenchDivider />
-            <PitchRow>
-              {bench.map((p) => {
-                const own = ownershipFor(p.key, p.ownershipPercent);
-                return (
-                  <Player
-                    key={p.key}
-                    name={p.name}
-                    detail={p.detail}
-                    position={p.position}
-                    badge={p.badge}
-                    badgeTone={p.badgeTone}
-                    kitUrl={p.kitUrl}
-                    kitUrl2x={p.kitUrl2x}
-                    ownershipPercent={own.ownershipPercent}
-                    ownershipPartial={own.ownershipPartial}
-                    accentColor={p.accentColor}
-                    bench
-                  />
-                );
-              })}
-            </PitchRow>
-          </>
+            ))}
+            {bench.length > 0 ? (
+              <>
+                <BenchDivider onPitch />
+                <PitchRow>
+                  {bench.map((p) => {
+                    const own = ownershipFor(p.key, p.ownershipPercent);
+                    return (
+                      <Player
+                        key={p.key}
+                        name={p.name}
+                        detail={p.detail}
+                        position={p.position}
+                        badge={p.badge}
+                        badgeTone={p.badgeTone}
+                        kitUrl={p.kitUrl}
+                        kitUrl2x={p.kitUrl2x}
+                        ownershipPercent={own.ownershipPercent}
+                        ownershipPartial={own.ownershipPartial}
+                        accentColor={p.accentColor}
+                        onPitch
+                        bench
+                      />
+                    );
+                  })}
+                </PitchRow>
+              </>
+            ) : null}
+          </PitchField>
         ) : null}
         {dataReady && provisionalBonusTotal > 0 ? (
           <Text

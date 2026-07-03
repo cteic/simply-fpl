@@ -161,7 +161,7 @@ function setupFetchMock(
 ) {
   fetchMock = vi.fn((url: string, init?: RequestInit) => {
     const urlStr = String(url);
-    if (urlStr.includes('/notification_prefs') && urlStr.includes('goal_scored')) {
+    if (urlStr.includes('/notification_prefs') && urlStr.includes('or=(goal_scored')) {
       return Promise.resolve(
         new Response(
           includeUserInPlayerEventPrefs ? JSON.stringify([{ user_id: USER_ID }]) : '[]',
@@ -239,9 +239,14 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     let env: ReturnType<typeof makeEnv>;
 
     Given('a live tick where the captain scored 1 new goal this tick', () => {
+      const prevStats = JSON.stringify({
+        [String(PLAYER_A_ID)]: { goals: 0, assists: 0, red_cards: 0 },
+        [String(PLAYER_B_ID)]: { goals: 0, assists: 0, red_cards: 0 },
+      });
       const kvStore: Record<string, string> = {
         'fpl:/bootstrap-static/': makeBootstrap(GW_ID),
         [`fpl:/event/${GW_ID}/live/`]: makeLiveGw(1, 0),
+        [`notify:pstats:gw${GW_ID}`]: prevStats,
         [`fpl:/entry/${ENTRY_ID}/event/${GW_ID}/picks/`]: makePicks(PLAYER_A_ID),
       };
       env = makeEnv(kvStore);
@@ -306,7 +311,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     }
   );
 
-  Scenario('Already-notified goals are not re-sent', ({ Given, When, Then }) => {
+  Scenario('Already-notified goals are not re-sent', ({ Given, When, Then, And }) => {
     let env: ReturnType<typeof makeEnv>;
 
     Given('stored stats show the player already had 1 goal', () => {
@@ -323,6 +328,8 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       env = makeEnv(kvStore);
       setupFetchMock(makePrefsResponse({}));
     });
+
+    And('the live tick still shows 1 goal (no new goals this tick)', () => undefined);
 
     When('runPlayerEventsCheck is called', async () => {
       await runPlayerEventsCheck(env);
@@ -395,7 +402,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
 
   Scenario(
     'User with goal_scored disabled does not receive goal notifications',
-    ({ Given, When, Then }) => {
+    ({ Given, When, Then, And }) => {
       let env: ReturnType<typeof makeEnv>;
 
       Given('a live tick where a squad player scored a new goal', () => {
@@ -416,6 +423,8 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
         );
       });
 
+      And('the user has goal_scored disabled in notification_prefs', () => undefined);
+
       When('runPlayerEventsCheck is called', async () => {
         await runPlayerEventsCheck(env);
       });
@@ -428,7 +437,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
 
   Scenario(
     'First tick with no previous stats does not trigger notifications',
-    ({ Given, When, Then }) => {
+    ({ Given, When, Then, And }) => {
       let env: ReturnType<typeof makeEnv>;
 
       Given('no stored stats exist for the current gameweek', () => {
@@ -440,6 +449,8 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
         env = makeEnv(kvStore);
         setupFetchMock(makePrefsResponse({}));
       });
+
+      And('the live tick shows a player with 2 goals', () => undefined);
 
       When('runPlayerEventsCheck is called', async () => {
         await runPlayerEventsCheck(env);

@@ -21,6 +21,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
     "@simplyfpl/features": "workspace:*",
+    "@simplyfpl/i18n": "workspace:*",
     "@simplyfpl/fpl-client": "workspace:*",
     "@simplyfpl/types": "workspace:*",
     "@simplyfpl/ui": "workspace:*",

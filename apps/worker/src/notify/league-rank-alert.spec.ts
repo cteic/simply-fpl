@@ -205,7 +205,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 
-  Scenario('User falls out of top N', ({ Given, When, Then }) => {
+  Scenario('User falls out of top N', ({ Given, When, Then, And }) => {
     let env: ReturnType<typeof makeEnv>;
 
     Given('a user has a league alert sub with top_n of 3 for league 1234', () => {
@@ -219,6 +219,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       setupFetchMock([{ user_id: USER_ID, league_id: LEAGUE_ID, top_n: 3, swing_n: null }]);
     });
 
+    And('their current rank in league 1234 is 4 (outside top 3)', () => undefined);
+    And('the previously stored rank was 2 (inside top 3)', () => undefined);
+
     When('runLeagueRankAlertCheck is called', async () => {
       await runLeagueRankAlertCheck(env);
     });
@@ -231,7 +234,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 
-  Scenario('Rank change meets swing_n threshold', ({ Given, When, Then }) => {
+  Scenario('Rank change meets swing_n threshold', ({ Given, When, Then, And }) => {
     let env: ReturnType<typeof makeEnv>;
 
     Given('a user has a league alert sub with swing_n of 5 for league 1234', () => {
@@ -245,6 +248,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       setupFetchMock([{ user_id: USER_ID, league_id: LEAGUE_ID, top_n: null, swing_n: 5 }]);
     });
 
+    And('their current rank in league 1234 is 10', () => undefined);
+    And('the previously stored rank was 3', () => undefined);
+
     When('runLeagueRankAlertCheck is called', async () => {
       await runLeagueRankAlertCheck(env);
     });
@@ -254,7 +260,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 
-  Scenario('Rank change below swing_n threshold does not trigger', ({ Given, When, Then }) => {
+  Scenario('Rank change below swing_n threshold does not trigger', ({ Given, When, Then, And }) => {
     let env: ReturnType<typeof makeEnv>;
 
     Given('a user has a league alert sub with swing_n of 5 for league 1234', () => {
@@ -267,6 +273,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       env = makeEnv(kvStore);
       setupFetchMock([{ user_id: USER_ID, league_id: LEAGUE_ID, top_n: null, swing_n: 5 }]);
     });
+
+    And('their current rank in league 1234 is 10', () => undefined);
+    And('the previously stored rank was 9', () => undefined);
 
     When('runLeagueRankAlertCheck is called', async () => {
       await runLeagueRankAlertCheck(env);
@@ -291,6 +300,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       setupFetchMock([{ user_id: USER_ID, league_id: LEAGUE_ID, top_n: 3, swing_n: null }]);
     });
 
+    And('their current rank is 5 (outside top 3)', () => undefined);
+    And('the previously stored rank was 6 (also outside top 3)', () => undefined);
+
     When('runLeagueRankAlertCheck is called', async () => {
       await runLeagueRankAlertCheck(env);
     });
@@ -307,26 +319,31 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 
-  Scenario('User not in league standings page 1 is skipped gracefully', ({ Given, When, Then }) => {
-    let env: ReturnType<typeof makeEnv>;
+  Scenario(
+    'User not in league standings page 1 is skipped gracefully',
+    ({ Given, When, Then, And }) => {
+      let env: ReturnType<typeof makeEnv>;
 
-    Given('a user has a league alert sub for league 1234', () => {
-      const kvStore: Record<string, string> = {
-        'fpl:/bootstrap-static/': makeBootstrap(),
-        [`fpl:/leagues-classic/${LEAGUE_ID}/standings/`]: makeLeagueStandings(5, false),
-      };
-      env = makeEnv(kvStore);
-      setupFetchMock([{ user_id: USER_ID, league_id: LEAGUE_ID, top_n: 3, swing_n: null }]);
-    });
+      Given('a user has a league alert sub for league 1234', () => {
+        const kvStore: Record<string, string> = {
+          'fpl:/bootstrap-static/': makeBootstrap(),
+          [`fpl:/leagues-classic/${LEAGUE_ID}/standings/`]: makeLeagueStandings(5, false),
+        };
+        env = makeEnv(kvStore);
+        setupFetchMock([{ user_id: USER_ID, league_id: LEAGUE_ID, top_n: 3, swing_n: null }]);
+      });
 
-    When('runLeagueRankAlertCheck is called', async () => {
-      await runLeagueRankAlertCheck(env);
-    });
+      And('their fpl_entry_id does not appear in the first page of standings', () => undefined);
 
-    Then('no push is sent for that user', () => {
-      expect(mockSendNotification).not.toHaveBeenCalled();
-    });
-  });
+      When('runLeagueRankAlertCheck is called', async () => {
+        await runLeagueRankAlertCheck(env);
+      });
+
+      Then('no push is sent for that user', () => {
+        expect(mockSendNotification).not.toHaveBeenCalled();
+      });
+    }
+  );
 });
 
 describe('evaluateLeagueRankAlert unit tests', () => {
