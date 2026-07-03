@@ -24,7 +24,7 @@ export const LOCALE_LABELS: Record<SupportedLocale, string> = {
 };
 
 export function isSupportedLocale(value: unknown): value is SupportedLocale {
-  return SUPPORTED_LOCALES.includes(value as SupportedLocale);
+  return SUPPORTED_LOCALES.some((locale) => locale === value);
 }
 
 export function parseAcceptLanguage(header: string | null | undefined): SupportedLocale {
