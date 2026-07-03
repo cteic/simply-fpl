@@ -3,7 +3,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isSupportedLocale } from './locale-registry';
+import {
+  DEFAULT_LOCALE,
+  LOCALE_STORAGE_KEY,
+  isSupportedLocale,
+  parseAcceptLanguage,
+} from './locale-registry';
 import type { SupportedLocale } from './locale-registry';
 import type { TranslationKey } from './translate';
 import { t } from './translate';
@@ -29,7 +34,11 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
     if (typeof window === 'undefined') return;
     try {
       const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (isSupportedLocale(stored)) setLocaleState(stored);
+      if (isSupportedLocale(stored)) {
+        setLocaleState(stored);
+        return;
+      }
+      setLocaleState(parseAcceptLanguage(window.navigator.languages.join(',')));
     } catch {}
   }, []);
 
