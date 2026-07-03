@@ -39,6 +39,16 @@ async function markProcessed(eventId: string): Promise<MarkResult> {
   return 'error';
 }
 
+async function releaseClaim(eventId: string): Promise<void> {
+  const admin = getSupabaseAdminClient();
+  const { error } = await admin.from('stripe_events').delete().eq('id', eventId);
+  if (error) {
+    console.error(
+      `[stripe-webhook] failed to release claim for event ${eventId}: ${error.message}`
+    );
+  }
+}
+
 async function setProfileTier(
   admin: ReturnType<typeof getSupabaseAdminClient>,
   userId: string,
@@ -90,6 +100,15 @@ async function handleSubscriptionUpdated(
 ) {
   const customerId = typeof subscription.customer === 'string' ? subscription.customer : null;
   if (!customerId) return;
+
+  if (
+    subscription.status !== 'active' &&
+    subscription.status !== 'trialing' &&
+    subscription.status !== 'past_due'
+  ) {
+    await handleSubscriptionDeleted(subscription);
+    return;
+  }
 
   const priceId = subscription.items.data[0]?.price.id;
   if (!priceId) return;
@@ -166,6 +185,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
   }
 
+  const claim = await markProcessed(event.id);
+  if (claim === 'duplicate') {
+    return NextResponse.json({ received: true });
+  }
+  if (claim === 'error') {
+    return NextResponse.json({ error: 'Failed to record event' }, { status: 500 });
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -192,17 +219,8 @@ export async function POST(request: NextRequest) {
         break;
     }
   } catch {
+    await releaseClaim(event.id);
     return NextResponse.json({ error: 'Handler error' }, { status: 500 });
-  }
-
-  const result = await markProcessed(event.id);
-  if (result === 'duplicate') {
-    return NextResponse.json({ received: true });
-  }
-  if (result === 'error') {
-    // handler already ran — at-least-once: column-update is idempotent on retry, so return 2xx
-    console.error(`[stripe-webhook] failed to record event ${event.id} — handler already ran`);
-    return NextResponse.json({ received: true });
   }
 
   return NextResponse.json({ received: true });
