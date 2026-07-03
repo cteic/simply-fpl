@@ -1,32 +1,17 @@
-import type { ReactNode } from 'react';
+export type { TranslationKey } from './translate';
+export { isLocaleLoaded, loadLocale, registerLocale, t } from './translate';
 
-import enTranslations from './locales/en.json';
+export type { SupportedLocale } from './locale-registry';
+export {
+  DEFAULT_LOCALE,
+  LOCALE_LABELS,
+  LOCALE_STORAGE_KEY,
+  SUPPORTED_LOCALES,
+  isSupportedLocale,
+  parseAcceptLanguage,
+} from './locale-registry';
 
-export type TranslationKey = keyof typeof enTranslations;
-type Vars = Record<string, string | number>;
+export { formatDate, formatNumber, formatOrdinal, formatRelativeTime } from './format';
+export { toPseudoString } from './pseudo';
 
-function interpolate(template: string, vars: Vars): string {
-  let result = template;
-  for (const [k, v] of Object.entries(vars)) {
-    result = result.replaceAll(`{{${k}}}`, String(v));
-  }
-  return result;
-}
-
-export function t(key: TranslationKey, vars?: Vars): string {
-  const raw: string = enTranslations[key];
-  if (!vars) return raw;
-  return interpolate(raw, vars);
-}
-
-export function useTranslation(): { t: typeof t } {
-  return { t };
-}
-
-interface TranslationProviderProps {
-  children: ReactNode;
-}
-
-export function TranslationProvider({ children }: TranslationProviderProps): ReactNode {
-  return children;
-}
+export { LocaleProvider, TranslationProvider, useLocale, useTranslation } from './locale-context';
