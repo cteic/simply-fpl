@@ -38,6 +38,10 @@ Returns a `history` array with per-GW stats for each player, including the expec
 
 The FPL expected goals data has been available since 2022-23 and is confirmed present in the 2025-26 season. It is Opta-sourced underneath — FPL has an Opta data partnership — so the quality is legitimate.
 
+**Legal note on FPL API use:** The FPL API is undocumented and has no published developer ToS. Premier League data rights are controlled by Football DataCo, which has an exclusive official data partnership with Genius Sports through 2029. In practice, hundreds of FPL companion apps use the API without enforcement action; the risk for a paid SaaS is non-zero but widely accepted in the community. Obtain legal opinion before scaling aggressively.
+
+**Important:** The `/api/event/{gw}/live/` endpoint does **not** include in-play xG values — those are cumulative season totals in bootstrap-static only. Per-GW xG breakdowns come from `element-summary/{id}/history[]`, which is polled rather than live.
+
 ---
 
 ## Provider comparison
@@ -45,12 +49,12 @@ The FPL expected goals data has been available since 2022-23 and is confirmed pr
 | Provider | Monthly cost | Commercial display licence | Data freshness | PL xG/xA | Shot-level data | Notes |
 |---|---|---|---|---|---|---|
 | **FPL Official API** | Free | Implicit (public API, no ToS restriction on FPL companion apps) | Live GW refresh (60s) | ✅ Full xGI/xGC + per-90 + per-GW via element-summary | ❌ | Already integrated |
-| **Stats Perform / Opta** | Sales-led. Estimated £20k–£100k+/yr for direct contract (community reports, no published price). No self-serve tier. | Negotiated per contract; requires formal media/tech rights agreement | Real-time push (Opta Live) | ✅ Full event data | ✅ Full shot maps | Viable only post Series A. Requires account manager. |
+| **Stats Perform / Opta** | Sales-led. No published price. Startup range: est. $500–$2,000+/mo for a single-competition limited feed; full Opta F24 event data for PL: est. $10k–$30k+/yr. Pay-per-season models reportedly available. | Negotiated per contract; full commercial rights-holder licence — the only provider that definitively solves Football DataCo / Genius Sports licencing. | Real-time push (Opta F24, seconds-level) | ✅ Full event data (source behind FPL's own expected_goals fields) | ✅ Full shot maps | Viable only post meaningful revenue. Requires account manager. |
 | **API-Football** (api-sports.io) | $19/mo (7,500 req/day), $29/mo (75k/day), $39/mo (150k/day) | ⚠️ **Legally risky.** ToS (May 2025) states: "API-Football does not grant any commercial rights on sports competitions" and "the use of their data for… fantasy sports platforms… may require additional licenses from the relevant rights holders." User is responsible for obtaining rights-holder licences independently. | Live + ~30min lag on some fields | Inconsistent — xG not guaranteed for PL on all fixtures | ❌ | Cheap but the ToS is incompatible with a commercial fantasy app without additional PL/Premier League rights. Not recommended. |
-| **SportMonks** | €29/mo Starter (5 leagues), **€99/mo Growth (30 leagues, includes PL)**, €249/mo Pro (120 leagues). xG is an **Expected Metrics Add-on** starting at ~€24/mo for limited coverage; full PL xG realistically €50–€150/mo on top of base. Indicative total for PL + xG: **€123–€249/mo**. | ✅ Paid plans explicitly include fantasy sports and commercial display. No separate rights-holder licence required. | Live (push webhooks or polling); match-level stats typically available within minutes of full-time | ✅ xG, xA, xGA, PSxG | ✅ Shot locations available as part of xG add-on | Self-serve sign-up. EU-based pricing. Best-fit if shot maps are needed. |
+| **SportMonks** | €29/mo Starter (5 leagues), **€99/mo Growth (30 leagues, includes PL)**, €249/mo Pro (120 leagues). xG is a separate **Expected Metrics Add-on** with three tiers: Basic (~€19–€99/mo, 12hr post-match delay), Standard (end-of-match), Advanced (~€199–€399/mo, real-time live xG). For PL + end-of-match xG on Growth: indicative **€120–€160/mo** total. | ✅ Paid plans explicitly include fantasy sports and commercial display. No separate rights-holder licence required. | xG Basic: 12hr post-match. xG Standard: minutes after full-time. xG Advanced: live in-match. | ✅ xG, xA, PSxG (from 2024/25 PL season onwards) | ✅ Shot locations via xG endpoints | Self-serve sign-up. EU-based pricing. Best-fit if shot maps are needed. 14-day free trial. |
 | **football-data.org** | Free tier (basic, 10 req/min), €99/mo Advanced, €199/mo Pro | Terms ambiguous for commercial fantasy display; not marketed at fantasy apps | End of match; no live | ❌ xG "coming soon" as of Jan 2026 (not live as of Jul 2026) | ❌ | No xG yet. Not suitable. |
-| **StatsBomb Open Data** | Free | ❌ Non-commercial only (research/education). ToS prohibits use in commercial products. | Historical (past seasons only; no current 2025-26 PL) | ✅ (historical) | ✅ (historical) | Research reference only. Cannot be used in SimplyFPL. |
-| **StatsBomb Commercial** (via Hudl) | Sales-led. Enterprise contracts; no published pricing. Estimated comparable to Opta for live PL. | Negotiated per contract | Real-time | ✅ Full event data | ✅ Full shot maps | Same category as Opta — not viable pre-revenue. |
+| **StatsBomb Open Data** | Free | ❌ Non-commercial only (research/education). ToS prohibits commercial use. | Historical only — PL coverage limited to **2003/04** (Arsenal Invincibles, 38 matches) and **2015/16** (380 matches). No current or recent PL seasons. | ✅ (those two seasons only) | ✅ (StatsBomb 360 positional data for those seasons) | Research reference only. Cannot be used in SimplyFPL. |
+| **StatsBomb Commercial** (via Hudl) | Sales-led. No published pricing. Estimated five figures/yr for live PL. Post-match StatsBomb 360 data generated hours after full-time; live API available at higher cost. | Negotiated per contract | Post-match (hours); live API available | ✅ Best-in-class shot-level xG model | ✅ Full StatsBomb 360 | Same category as Opta — overkill for FPL use case, not viable pre-revenue. |
 
 ---
 
@@ -73,10 +77,10 @@ This data is Opta-sourced, live-season, and free. The gap versus direct Opta acc
 If shot maps or fixture-level xG breakdowns (e.g. individual chance quality) are wanted post-launch:
 
 - SportMonks Growth (€99/mo) covers PL plus 29 other leagues
-- Add the Expected Metrics add-on for PL xG/PSxG/shot locations: budget **€50/mo** as a working estimate (exact pricing self-serve at sign-up; varies by league count)
-- **Working budget: ~€149/mo**
+- Add the Expected Metrics Standard add-on (end-of-match xG, no live delay tolerated for a GW-wrap product): indicative **€24–€60/mo** for PL scope (exact price shown in MySportMonks dashboard at checkout)
+- **Working budget: ~€123–€160/mo**
 
-SportMonks is the only self-serve provider with explicit fantasy sports commercial licensing and live PL xG. It requires no sales process — sign up with a card.
+SportMonks is the only self-serve provider with explicit fantasy sports commercial licensing and current-season PL xG (available from 2024/25 onwards). No sales process — sign up with a card, add-ons managed in their dashboard. 14-day free trial available.
 
 **Actions Pete must take manually for Phase 2:**
 1. Sign up at sportmonks.com/football-api/plans-pricing — choose Growth plan
@@ -202,6 +206,6 @@ API key stays in Worker secrets — never exposed to the client. The entitlement
 - **API-Football**: Rejected. ToS explicitly states fantasy sports use requires additional rights-holder licences that API-Football itself does not provide. Cheap but not legal for this use case without a PL data licence we cannot obtain cheaply.
 - **football-data.org**: Rejected for now. No xG data available as of July 2026.
 - **StatsBomb Open**: Rejected. Non-commercial licence, no current PL data.
-- **Opta/Stats Perform direct**: Deferred indefinitely. Enterprise-only, multi-year contract, five-figure annual cost. Revisit at Series A or significant revenue.
+- **Opta/Stats Perform direct**: Deferred. No self-serve; startup range est. $500–$2k/mo for a limited feed. Full F24 event data is $10k–$30k+/yr. Pay-per-season models reportedly exist — worth a call when revenue allows. Only provider that cleanly solves Football DataCo rights (Genius Sports exclusive partnership runs through 2029).
 - **SportMonks**: Green-lit as the Phase 2 path if shot maps are wanted post-revenue. Self-serve, explicit fantasy sports commercial licensing.
 - **FPL API own fields**: Chosen for Phase 1. No cost, live, Opta-sourced, already partially typed in the codebase.
