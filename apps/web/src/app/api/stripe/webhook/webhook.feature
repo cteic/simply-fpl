@@ -21,10 +21,21 @@ Feature: Stripe webhook handler
     When the webhook receives customer.subscription.deleted
     Then the user's profile tier becomes 'free'
 
-  Scenario: duplicate event returns 200 after handlers re-run idempotently
+  Scenario: customer.subscription.updated with status canceled reverts the user to the free tier
+    Given a customer.subscription.updated event with status canceled
+    When the webhook handler processes the event
+    Then the user's profile tier becomes 'free'
+
+  Scenario: customer.subscription.updated with status active applies the price tier
+    Given a customer.subscription.updated event with status active for Pro Monthly
+    When the webhook handler processes the event
+    Then the user's profile tier becomes 'pro'
+
+  Scenario: duplicate event returns 200 without re-running handlers
     Given the stripe_events table already contains the event ID
     When the webhook handler processes the same event again
     Then the response status is 200
+    And the profiles table is not updated
 
   Scenario: handler DB write failure returns 5xx so Stripe retries
     Given a valid Stripe checkout.session.completed event for Pro Monthly
@@ -33,11 +44,12 @@ Feature: Stripe webhook handler
     Then the response status is 500
     And no idempotency record is written for the event
 
-  Scenario: transient DB error on idempotency insert after successful handler returns 200
+  Scenario: transient DB error on the idempotency claim returns 500 without running handlers
     Given a valid Stripe checkout.session.completed event for Pro Monthly
     And the stripe_events insert will fail with a transient error
     When the webhook handler processes the event
-    Then the response status is 200
+    Then the response status is 500
+    And the profiles table is not updated
 
   Scenario: charge.refunded with a full refund reverts the user to the free tier
     Given an existing Pro subscriber with a fully refunded charge
