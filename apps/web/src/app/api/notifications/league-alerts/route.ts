@@ -4,6 +4,8 @@ import type { NextRequest } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
+export const runtime = 'edge';
+
 export async function GET() {
   const supabase = await getSupabaseServerClient();
   const {

@@ -38,6 +38,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  captureGitInfo: { diff: false },
   webServer: {
     command: 'pnpm start',
     url: baseURL,
