@@ -2,6 +2,8 @@
 
 import { Text, XStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 type LogoVariant = 'wordmark' | 'mark' | 'lockup';
 type LogoSize = 'sm' | 'md' | 'lg';
 type LogoTone = 'default' | 'inverse' | 'stadium';
@@ -64,7 +66,7 @@ export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href
   const isAccentTone = tone === 'inverse' || tone === 'stadium';
   const wordColor = isAccentTone ? '#FFFFFF' : '#0F766E';
   const tldColor = isAccentTone ? '#34D399' : '#0F766E';
-  const linkProps = href ? { render: <a href={href} aria-label="SimplyFPL home" /> } : {};
+  const linkProps = href ? { render: <a href={href} aria-label={t('logo.aria_label')} /> } : {};
 
   if (variant === 'lockup') {
     const px = WORDMARK_SIZE[size];
