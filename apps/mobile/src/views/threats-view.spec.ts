@@ -4,7 +4,7 @@ import { expect } from 'vitest';
 import { filterThreatsByStatus } from '@simplyfpl/features/threats';
 import type { Threat } from '@simplyfpl/features/threats';
 
-const feature = await loadFeature('apps/mobile/src/views/threats-view.feature');
+const feature = await loadFeature('./threats-view.feature');
 
 function makeThreat(
   elementId: number,
