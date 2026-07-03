@@ -134,7 +134,7 @@ Even if the cap is removed: one DO instance holds 128 MB of memory. With hiberna
 
 **Fix needed:** Shard the DO by consistent-hash bucket: route users to `gw:N:shard:M` where M = hash(userId or IP) % SHARD_COUNT. The worker broadcasts a delta to all shards; each shard fans out to its socket subset. Alternatively, push the delta to KV and have each shard poll KV on alarm (simpler, but adds latency).
 
-**Issue filed:** #TBD (DO sharding)
+**Issue filed:** #413
 
 ---
 
@@ -153,7 +153,7 @@ A viral moment (feature goes viral on Twitter/Reddit, many new Ultimate users si
 1. Set a hard spend limit in the Anthropic Console now (manual, takes 2 minutes).
 2. Add a KV-backed daily Anthropic call counter + `FRANK_KILL_SWITCH` KV key check at the top of `POST /api/frank/ask`. If the daily counter exceeds a configured threshold (`FRANK_DAILY_HARD` env var), return 503 with a `"Frank is resting"` message. Counter resets at UTC midnight.
 
-**Issue filed:** #TBD (Frank kill-switch)
+**Issue filed:** #412
 
 ---
 
@@ -171,7 +171,7 @@ Steps 1 and 3 are not atomic. A user who fires two concurrent POST requests will
 
 **Fix needed:** Move the insert to a Supabase RPC/function that increments atomically (e.g. advisory lock or a `frank_quota` counter table with `FOR UPDATE`) or add a short-lived KV lock per user (`frank:lock:<user_id>`) for the duration of the Anthropic call.
 
-**Issue filed:** #TBD (quota race)
+**Issue filed:** #415
 
 ---
 
@@ -183,7 +183,7 @@ Rate-limit counters are stored in KV. KV has eventual consistency with up to ~60
 
 **Fix needed for high-value endpoints:** Use a Durable Object as the rate-limit store for strongly consistent counting. A single global `RateLimitDO` (or per-IP DO) provides read-after-write consistency that KV cannot. At moderate scale, Cloudflare's own [Rate Limiting product](https://developers.cloudflare.com/waf/rate-limiting-rules/) (WAF layer, no code required) is simpler and more robust.
 
-**Issue filed:** #TBD (rate limit correctness)
+**Issue filed:** #414 (also covers DO-based rate limiting for correctness)
 
 ---
 
@@ -204,7 +204,7 @@ At 10k leagues × 50 entries = 500k FPL picks requests per hour — well beyond 
 - Or narrow to recently-active leagues: `WHERE updated_at > now() - interval '7 days'`.
 - Rate-gate the actual FPL fetches (already 1 `Promise.allSettled` per league — add a concurrency limiter).
 
-**Issue filed:** #TBD (rivals-warm pagination)
+**Issue filed:** #417
 
 ---
 
@@ -216,7 +216,7 @@ When a cached key expires, all concurrent requests that arrive in the same insta
 
 **Fix needed:** Probabilistic early expiry ("XFetch" / jitter TTL) — before serving a key check if it expires within the next `JITTER_WINDOW_S` seconds; if so, refresh it in `waitUntil` before it actually expires. Alternatively, store a `X-Stale-While-Revalidate` marker in KV so stale data is served immediately and a background task refetches.
 
-**Issue filed:** #TBD (stampede)
+**Issue filed:** #416
 
 ---
 
@@ -238,7 +238,7 @@ The following endpoints have **no rate limiting**:
 
 An attacker can hammer `/snapshot/entry/:id` with rotating entry IDs, generating 3 uncached FPL requests per call with no limit.
 
-**Issue filed:** #TBD (missing rate limits)
+**Issue filed:** #414
 
 ---
 
