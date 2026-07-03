@@ -13,13 +13,13 @@ export async function GET() {
 
   const supabase = await getSupabaseServerClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     return NextResponse.json({ id: null });
   }
 
-  const id = await hashUserId(salt, session.user.id);
+  const id = await hashUserId(salt, user.id);
   return NextResponse.json({ id }, { headers: { 'Cache-Control': 'no-store, private' } });
 }
