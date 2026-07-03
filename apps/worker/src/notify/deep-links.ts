@@ -20,5 +20,11 @@ export function buildDeepLink(event: NotificationEvent, params?: Record<string, 
       return params?.['entryId']
         ? `${BASE_URL}/live/team/${params['entryId']}`
         : `${BASE_URL}/live`;
+    case 'goal_scored':
+    case 'assist':
+    case 'red_card':
+      return params?.['entryId']
+        ? `${BASE_URL}/live/team/${params['entryId']}`
+        : `${BASE_URL}/live`;
   }
 }
