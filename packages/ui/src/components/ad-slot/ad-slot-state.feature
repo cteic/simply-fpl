@@ -14,3 +14,13 @@ Feature: Ad slot state resolution
     Given NEXT_PUBLIC_FEATURE_ADS is "true"
     When resolveAdSlotState is called
     Then the state is "active"
+
+  Scenario: Paid user — slot is hidden even with ads flag on
+    Given NEXT_PUBLIC_FEATURE_ADS is "true"
+    When resolveAdSlotState is called with adFree true
+    Then the state is "hidden"
+
+  Scenario: Paid user — slot is hidden even with placeholders flag on
+    Given NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS is "true" and NEXT_PUBLIC_FEATURE_ADS is unset
+    When resolveAdSlotState is called with adFree true
+    Then the state is "hidden"

@@ -7,10 +7,11 @@ import { resolveAdSlotState } from './ad-slot-state';
 export interface AdSlotProps {
   placement: 'rank-inline' | 'leagues-row' | 'h2h-below-fold';
   minHeight: number;
+  adFree?: boolean;
 }
 
-export function AdSlot({ placement: _placement, minHeight }: AdSlotProps) {
-  const state = resolveAdSlotState();
+export function AdSlot({ placement: _placement, minHeight, adFree = false }: AdSlotProps) {
+  const state = resolveAdSlotState({ adFree });
 
   if (state === 'hidden') return null;
 
