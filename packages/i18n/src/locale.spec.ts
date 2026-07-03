@@ -3,7 +3,7 @@ import { expect } from 'vitest';
 
 import { DEFAULT_LOCALE, isSupportedLocale, parseAcceptLanguage } from './locale-registry';
 import type { SupportedLocale } from './locale-registry';
-import { t } from './translate';
+import { loadLocale, t } from './translate';
 import type { TranslationKey } from './translate';
 
 const feature = await loadFeature('./locale.feature');
@@ -44,8 +44,9 @@ describeFeature(feature, ({ Scenario }) => {
   });
 
   Scenario('French translation is returned for a known key', ({ Given, When, Then }) => {
-    Given('the locale is set to "fr"', () => {
+    Given('the "fr" locale is loaded and set', async () => {
       state.locale = 'fr';
+      await loadLocale('fr');
     });
     When('I translate "common.loading"', () => {
       state.result = t(SENTINEL_KEY, undefined, state.locale);
@@ -56,8 +57,9 @@ describeFeature(feature, ({ Scenario }) => {
   });
 
   Scenario('German translation is returned for a known key', ({ Given, When, Then }) => {
-    Given('the locale is set to "de"', () => {
+    Given('the "de" locale is loaded and set', async () => {
       state.locale = 'de';
+      await loadLocale('de');
     });
     When('I translate "common.loading"', () => {
       state.result = t(SENTINEL_KEY, undefined, state.locale);
@@ -68,8 +70,9 @@ describeFeature(feature, ({ Scenario }) => {
   });
 
   Scenario('Spanish translation is returned for a known key', ({ Given, When, Then }) => {
-    Given('the locale is set to "es"', () => {
+    Given('the "es" locale is loaded and set', async () => {
       state.locale = 'es';
+      await loadLocale('es');
     });
     When('I translate "common.loading"', () => {
       state.result = t(SENTINEL_KEY, undefined, state.locale);
@@ -81,8 +84,9 @@ describeFeature(feature, ({ Scenario }) => {
 
   Scenario('Missing key in a locale falls back to English', ({ Given, When, Then }) => {
     let fallbackResult = '';
-    Given('the locale is set to "fr"', () => {
+    Given('the "fr" locale is loaded and set', async () => {
       state.locale = 'fr';
+      await loadLocale('fr');
     });
     When('I translate a key that exists only in English', () => {
       fallbackResult = t(SENTINEL_KEY, undefined, state.locale);
@@ -98,8 +102,9 @@ describeFeature(feature, ({ Scenario }) => {
   Scenario(
     'Interpolation variables are substituted in translated strings',
     ({ Given, When, Then }) => {
-      Given('the locale is set to "fr"', () => {
+      Given('the "fr" locale is loaded and set', async () => {
         state.locale = 'fr';
+        await loadLocale('fr');
       });
       When('I translate "rivals.not_in_league" with entryId "42"', () => {
         state.result = t('rivals.not_in_league', { entryId: '42' }, state.locale);

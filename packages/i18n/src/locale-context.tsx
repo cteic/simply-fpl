@@ -11,7 +11,7 @@ import {
 } from './locale-registry';
 import type { SupportedLocale } from './locale-registry';
 import type { TranslationKey } from './translate';
-import { t } from './translate';
+import { loadLocale, t } from './translate';
 
 type Vars = Record<string, string | number>;
 
@@ -34,16 +34,15 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
     if (typeof window === 'undefined') return;
     try {
       const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (isSupportedLocale(stored)) {
-        setLocaleState(stored);
-        return;
-      }
-      setLocaleState(parseAcceptLanguage(window.navigator.languages.join(',')));
+      const detected = isSupportedLocale(stored)
+        ? stored
+        : parseAcceptLanguage(window.navigator.languages.join(','));
+      void loadLocale(detected).then(() => setLocaleState(detected));
     } catch {}
   }, []);
 
   const setLocale = useCallback((next: SupportedLocale) => {
-    setLocaleState(next);
+    void loadLocale(next).then(() => setLocaleState(next));
     try {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(LOCALE_STORAGE_KEY, next);

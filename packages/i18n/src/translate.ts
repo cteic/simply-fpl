@@ -1,19 +1,38 @@
 import type { SupportedLocale } from './locale-registry';
 import { DEFAULT_LOCALE } from './locale-registry';
-import deTranslations from './locales/de.json';
 import enTranslations from './locales/en.json';
-import esTranslations from './locales/es.json';
-import frTranslations from './locales/fr.json';
 
 export type TranslationKey = keyof typeof enTranslations;
 type Vars = Record<string, string | number>;
 
-export const LOCALE_TRANSLATIONS: Record<SupportedLocale, Record<string, string>> = {
+type LocaleDict = Record<string, string>;
+
+const loadedLocales: Partial<Record<SupportedLocale, LocaleDict>> = {
   en: enTranslations,
-  fr: frTranslations,
-  de: deTranslations,
-  es: esTranslations,
 };
+
+export function registerLocale(locale: SupportedLocale, dict: LocaleDict): void {
+  loadedLocales[locale] = dict;
+}
+
+export function isLocaleLoaded(locale: SupportedLocale): boolean {
+  return loadedLocales[locale] !== undefined;
+}
+
+export async function loadLocale(locale: SupportedLocale): Promise<void> {
+  if (loadedLocales[locale]) return;
+  if (locale === 'fr') {
+    registerLocale('fr', (await import('./locales/fr.json')).default);
+    return;
+  }
+  if (locale === 'de') {
+    registerLocale('de', (await import('./locales/de.json')).default);
+    return;
+  }
+  if (locale === 'es') {
+    registerLocale('es', (await import('./locales/es.json')).default);
+  }
+}
 
 function interpolate(template: string, vars: Vars): string {
   let result = template;
@@ -28,7 +47,7 @@ export function t(
   vars?: Vars,
   locale: SupportedLocale = DEFAULT_LOCALE
 ): string {
-  const dict = LOCALE_TRANSLATIONS[locale];
+  const dict = loadedLocales[locale] ?? enTranslations;
   const raw = dict[key] ?? enTranslations[key];
   if (!vars) return raw;
   return interpolate(raw, vars);
