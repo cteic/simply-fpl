@@ -1,9 +1,30 @@
 'use client';
 
-import { Select, YStack } from 'tamagui';
+import { Text, XStack, styled } from 'tamagui';
 
-import { LOCALE_LABELS, SUPPORTED_LOCALES } from '@simplyfpl/i18n';
+import { LOCALE_LABELS, SUPPORTED_LOCALES, t } from '@simplyfpl/i18n';
 import type { SupportedLocale } from '@simplyfpl/i18n';
+
+const Option = styled(XStack, {
+  alignItems: 'center',
+  borderWidth: 1,
+  borderRadius: 8,
+  paddingHorizontal: 12,
+  paddingVertical: 7,
+  cursor: 'pointer',
+  backgroundColor: '$surface',
+  borderColor: '$border',
+  hoverStyle: { borderColor: '$borderStrong' },
+  variants: {
+    selected: {
+      true: {
+        borderColor: '$brand',
+        backgroundColor: '$brandBg',
+        hoverStyle: { borderColor: '$brand' },
+      },
+    },
+  } as const,
+});
 
 interface LocaleSwitcherProps {
   value: SupportedLocale;
@@ -12,43 +33,32 @@ interface LocaleSwitcherProps {
 
 export function LocaleSwitcher({ value, onSelect }: LocaleSwitcherProps) {
   return (
-    <YStack>
-      <Select
-        value={value}
-        onValueChange={(next) => {
-          if (SUPPORTED_LOCALES.includes(next as SupportedLocale)) {
-            onSelect(next as SupportedLocale);
-          }
-        }}
-      >
-        <Select.Trigger
-          backgroundColor="$surface"
-          borderColor="$border"
-          borderWidth={1}
-          borderRadius={8}
-          paddingHorizontal={12}
-          paddingVertical={8}
-          minWidth={160}
-        >
-          <Select.Value fontFamily="$body" fontSize={13} color="$color" />
-        </Select.Trigger>
-
-        <Select.Content>
-          <Select.ScrollUpButton />
-          <Select.Viewport>
-            <Select.Group>
-              {SUPPORTED_LOCALES.map((code, index) => (
-                <Select.Item key={code} value={code} index={index}>
-                  <Select.ItemText fontFamily="$body" fontSize={13}>
-                    {LOCALE_LABELS[code]}
-                  </Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.Group>
-          </Select.Viewport>
-          <Select.ScrollDownButton />
-        </Select.Content>
-      </Select>
-    </YStack>
+    <XStack role="radiogroup" aria-label={t('settings.section_language')} flexWrap="wrap" gap={8}>
+      {SUPPORTED_LOCALES.map((code) => {
+        const selected = code === value;
+        return (
+          <Option
+            key={code}
+            render="button"
+            role="radio"
+            aria-checked={selected}
+            aria-label={LOCALE_LABELS[code]}
+            selected={selected}
+            onPress={() => {
+              onSelect(code);
+            }}
+          >
+            <Text
+              fontFamily="$body"
+              fontSize={13}
+              fontWeight={selected ? '600' : '400'}
+              color={selected ? '$brand' : '$color'}
+            >
+              {LOCALE_LABELS[code]}
+            </Text>
+          </Option>
+        );
+      })}
+    </XStack>
   );
 }
