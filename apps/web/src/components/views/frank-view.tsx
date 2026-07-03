@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { auth, frank } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Card,
   FNote,
@@ -177,7 +178,7 @@ function AskFrankForm() {
   return (
     <Card marginBottom={20}>
       <YStack paddingHorizontal={16} paddingTop={16} paddingBottom={4}>
-        <SectionHeader title="Ask Frank" />
+        <SectionHeader title={t('frank.ask_section_title')} />
       </YStack>
       <form onSubmit={(e) => void handleSubmit(e)}>
         <YStack paddingHorizontal={16} paddingBottom={16} gap={10}>
@@ -192,7 +193,7 @@ function AskFrankForm() {
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Should I captain Salah or Haaland this week?"
+              placeholder={t('frank.ask_placeholder')}
               rows={3}
               disabled={isLoading}
               style={{
@@ -332,11 +333,7 @@ export function FrankView() {
 
   return (
     <PageShell>
-      <PageHeader
-        tone="stadium"
-        title={title}
-        meta="Your AI FPL coach · Updated weekly after the deadline"
-      />
+      <PageHeader tone="stadium" title={title} meta={t('frank.page_meta')} />
 
       {isLoading ? (
         <Card paddingHorizontal={16} paddingVertical={28} alignItems="center" marginBottom={20}>
@@ -358,7 +355,7 @@ export function FrankView() {
         <>
           {data.chipNote ? (
             <>
-              <SectionHeader title="Chip watch" />
+              <SectionHeader title={t('frank.chip_watch_title')} />
               <Card marginBottom={20}>
                 <YStack paddingHorizontal={16} paddingVertical={14}>
                   <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
@@ -382,7 +379,7 @@ export function FrankView() {
             ))}
           </Card>
 
-          <SectionHeader title="Transfer targets" />
+          <SectionHeader title={t('frank.transfer_targets_title')} />
           <Card marginBottom={20}>
             {data.transferTargets.map((c, i) => (
               <CandidateRow

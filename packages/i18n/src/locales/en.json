@@ -166,5 +166,34 @@
   "team_id_help.example_id": "1234567",
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "That number is your team ID.",
-  "team_id_help.open_fpl": "Open the FPL site →"
+  "team_id_help.open_fpl": "Open the FPL site →",
+
+  "vs_livefpl.title": "SimplyFPL vs livefpl.net",
+  "vs_livefpl.error_title": "Could not load comparison",
+  "vs_livefpl.error_meta": "Speed data unavailable",
+  "vs_livefpl.loading_meta": "Loading comparison data…",
+  "vs_livefpl.screenshots_title": "Screenshots",
+  "vs_livefpl.metric_ttfd": "Time to first data",
+  "vs_livefpl.metric_page_weight": "Page weight (first load)",
+  "vs_livefpl.metric_third_party": "Third-party requests",
+  "vs_livefpl.methodology_title": "Methodology",
+  "vs_livefpl.test_title": "Test it yourself",
+  "vs_livefpl.test_label": "Network response time (5-run average from your location)",
+
+  "frank.ask_section_title": "Ask Frank",
+  "frank.ask_placeholder": "Should I captain Salah or Haaland this week?",
+  "frank.page_meta": "Your AI FPL coach · Updated weekly after the deadline",
+  "frank.chip_watch_title": "Chip watch",
+  "frank.transfer_targets_title": "Transfer targets",
+
+  "upgrade.title": "Upgrade",
+  "upgrade.loading_meta": "Choose a plan",
+  "upgrade.page_meta": "Unlock Pro or Ultimate to get the most out of SimplyFPL",
+  "upgrade.section_title": "Choose your plan",
+  "upgrade.fnote": "Payments are processed by Stripe. Cancel or change plan any time from your account settings.",
+
+  "rivals_section.loading_meta": "Loading your leagues…",
+  "rivals_section.empty_meta": "No mini-leagues found for this team",
+
+  "replay.seek_aria": "Jump to gameweek"
 }
