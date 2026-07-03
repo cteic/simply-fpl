@@ -63,3 +63,6 @@ export * from './components/team-pill';
 export * from './components/theme-picker';
 export * from './components/notifications-settings';
 export * from './components/what-if-panel';
+export { useReducedMotion } from './hooks/use-reduced-motion';
+export { usePulse } from './hooks/use-pulse';
+export type { PulseFrame } from './hooks/use-pulse';
