@@ -4,7 +4,8 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { auth, subscriptions } from '@simplyfpl/features';
+import { auth, frank } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Card,
   FNote,
@@ -22,7 +23,9 @@ import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
 import { useFrankHistory, useFrankQuota, useFrankWeekly } from '@/queries/frank';
 
 const { useAuth } = auth;
-const { isUltimate } = subscriptions;
+const { resolveFrankAccess } = frank;
+
+const TIER_LABELS = { free: 'Free', pro: 'Pro', ultimate: 'Ultimate' } as const;
 
 interface CandidateRowProps {
   name: string;
@@ -95,7 +98,10 @@ function AskFrankForm() {
   const { data: quota, refetch: refetchQuota } = useFrankQuota(client, userId);
   const { data: history, refetch: refetchHistory } = useFrankHistory(client, userId);
 
-  if (!isUltimate(tier)) {
+  const access = resolveFrankAccess(tier);
+
+  if (!access.canAskOnDemand) {
+    const upgradeLabel = TIER_LABELS[access.upgradeTo ?? 'ultimate'];
     return (
       <Card paddingHorizontal={16} paddingVertical={20} alignItems="center" marginBottom={20}>
         <Text fontFamily="$body" fontSize={13} fontWeight="600" color="$color" marginBottom={6}>
@@ -108,7 +114,8 @@ function AskFrankForm() {
           textAlign="center"
           marginBottom={10}
         >
-          On-demand questions are an Ultimate feature.
+          On-demand questions are an {upgradeLabel} feature. Your weekly advice above is included on
+          every plan.
         </Text>
         <Text
           fontFamily="$body"
@@ -118,7 +125,7 @@ function AskFrankForm() {
           cursor="pointer"
           onPress={() => router.push('/upgrade')}
         >
-          Upgrade to Ultimate for on-demand AI queries
+          Upgrade to {upgradeLabel} for on-demand AI queries
         </Text>
       </Card>
     );
@@ -171,7 +178,7 @@ function AskFrankForm() {
   return (
     <Card marginBottom={20}>
       <YStack paddingHorizontal={16} paddingTop={16} paddingBottom={4}>
-        <SectionHeader title="Ask Frank" />
+        <SectionHeader title={t('frank.ask_section_title')} />
       </YStack>
       <form onSubmit={(e) => void handleSubmit(e)}>
         <YStack paddingHorizontal={16} paddingBottom={16} gap={10}>
@@ -186,7 +193,7 @@ function AskFrankForm() {
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Should I captain Salah or Haaland this week?"
+              placeholder={t('frank.ask_placeholder')}
               rows={3}
               disabled={isLoading}
               style={{
@@ -326,11 +333,7 @@ export function FrankView() {
 
   return (
     <PageShell>
-      <PageHeader
-        tone="stadium"
-        title={title}
-        meta="Your AI FPL coach · Updated weekly after the deadline"
-      />
+      <PageHeader tone="stadium" title={title} meta={t('frank.page_meta')} />
 
       {isLoading ? (
         <Card paddingHorizontal={16} paddingVertical={28} alignItems="center" marginBottom={20}>
@@ -352,7 +355,7 @@ export function FrankView() {
         <>
           {data.chipNote ? (
             <>
-              <SectionHeader title="Chip watch" />
+              <SectionHeader title={t('frank.chip_watch_title')} />
               <Card marginBottom={20}>
                 <YStack paddingHorizontal={16} paddingVertical={14}>
                   <Text fontFamily="$body" fontSize={12} color="$colorMuted" lineHeight={18}>
@@ -376,7 +379,7 @@ export function FrankView() {
             ))}
           </Card>
 
-          <SectionHeader title="Transfer targets" />
+          <SectionHeader title={t('frank.transfer_targets_title')} />
           <Card marginBottom={20}>
             {data.transferTargets.map((c, i) => (
               <CandidateRow

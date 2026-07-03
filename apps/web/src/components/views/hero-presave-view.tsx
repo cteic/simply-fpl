@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useThemeName } from 'tamagui';
 
 import { fplClient } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import {
   Input,
   Logo,
@@ -21,22 +22,6 @@ import { setSavedEntryId } from '@/lib/saved-entry-id';
 
 import { lookupEntry, parseEntryId } from '../team-id-search';
 
-const HERO_COPY = {
-  eyebrow: 'Live FPL companion',
-  headlineLead: 'Feel every ',
-  headlineAccent: 'green arrow.',
-  subhead:
-    'Your live rank, mini-leagues and head-to-heads — pushed to your screen the second a goal lands. No refreshing, no spinner, no crashing when everyone piles in.',
-  ctaLabel: 'View live rank',
-  ctaLabelChecking: 'Checking…',
-  inputPlaceholder: 'Team ID or paste your FPL URL',
-  searchError: 'Enter a numeric FPL team ID or paste an FPL team URL.',
-  notFoundError: "We couldn't find a team with that ID. Double-check it and try again.",
-  networkError: "Couldn't reach the server — please try again in a moment.",
-  note: 'No sign-up needed — just paste your team ID.',
-  disclaimer: 'SimplyFPL is not affiliated with the Premier League or Fantasy Premier League.',
-};
-
 interface HeroFeature {
   title: string;
   body: string;
@@ -44,16 +29,16 @@ interface HeroFeature {
 
 const HERO_FEATURES: HeroFeature[] = [
   {
-    title: 'Real-time live rank',
-    body: 'A websocket pushes your rank the instant a goal lands. Stop hitting refresh.',
+    title: t('hero.feature_realtime_title'),
+    body: t('hero.feature_realtime_body'),
   },
   {
-    title: 'Never crashes under load',
-    body: 'Served from the edge — fast and up when everyone rushes in at once.',
+    title: t('hero.feature_reliable_title'),
+    body: t('hero.feature_reliable_body'),
   },
   {
-    title: 'Cohort & rivals insight',
-    body: 'See where you stand vs the top 10k and the rivals next to you in your leagues.',
+    title: t('hero.feature_cohort_title'),
+    body: t('hero.feature_cohort_body'),
   },
 ];
 
@@ -74,7 +59,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
     setError(null);
     const id = parseEntryId(input);
     if (!id) {
-      setError(HERO_COPY.searchError);
+      setError(t('hero.search_error'));
       return;
     }
 
@@ -83,11 +68,11 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
     setChecking(false);
 
     if (result.status === 'not-found') {
-      setError(HERO_COPY.notFoundError);
+      setError(t('hero.not_found_error'));
       return;
     }
     if (result.status === 'error') {
-      setError(HERO_COPY.networkError);
+      setError(t('hero.network_error'));
       return;
     }
 
@@ -138,7 +123,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           letterSpacing={2.4}
           color="#34D399"
         >
-          {HERO_COPY.eyebrow}
+          {t('hero.eyebrow')}
         </Text>
 
         <Text
@@ -151,8 +136,8 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           color="#FFFFFF"
           $sm={{ fontSize: 36, lineHeight: 38 }}
         >
-          {HERO_COPY.headlineLead}
-          <Text color="#34D399">{HERO_COPY.headlineAccent}</Text>
+          {t('hero.headline_lead')}
+          <Text color="#34D399">{t('hero.headline_accent')}</Text>
         </Text>
 
         <Text
@@ -163,7 +148,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           color="rgba(255,255,255,0.8)"
           maxWidth={520}
         >
-          {HERO_COPY.subhead}
+          {t('hero.subhead')}
         </Text>
 
         <YStack width="100%" maxWidth={520} gap={8} marginTop={8}>
@@ -176,7 +161,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               value={input}
               onChangeText={setInput}
               onSubmitEditing={handleSubmit}
-              placeholder={HERO_COPY.inputPlaceholder}
+              placeholder={t('hero.input_placeholder')}
               fontFamily="$mono"
               fontSize={15}
               backgroundColor="rgba(255,255,255,0.1)"
@@ -204,7 +189,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
               hoverStyle={{ backgroundColor: '#38E4A5' }}
               pressStyle={{ opacity: 0.85 }}
             >
-              {checking ? HERO_COPY.ctaLabelChecking : `${HERO_COPY.ctaLabel} →`}
+              {checking ? t('hero.cta_checking') : `${t('hero.cta')} →`}
             </Text>
           </XStack>
           {error ? (
@@ -215,7 +200,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
         </YStack>
 
         <Text fontFamily="$body" fontSize={13} color="rgba(255,255,255,0.55)" textAlign="center">
-          {HERO_COPY.note}
+          {t('hero.note')}
         </Text>
 
         <TeamIdHelp tone="inverse" />
@@ -252,7 +237,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
           textAlign="center"
           marginTop={16}
         >
-          {HERO_COPY.disclaimer}
+          {t('hero.disclaimer')}
         </Text>
       </YStack>
     </YStack>

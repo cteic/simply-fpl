@@ -20,6 +20,7 @@ export * from './components/cohort-table';
 export * from './components/deadline-pill';
 export * from './components/delta-chip';
 export * from './components/demo-banner';
+export * from './components/detailed-league-row';
 export * from './components/differentials-panel';
 export * from './components/fdr-badge';
 export * from './components/filter-button';

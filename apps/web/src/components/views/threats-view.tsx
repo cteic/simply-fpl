@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { threats as threatsNs } from '@simplyfpl/features';
 import type { Threat, ThreatPosition, ThreatStatusFilter } from '@simplyfpl/features/threats';
 import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import {
   Card,
   FNote,
@@ -26,11 +27,11 @@ import { useBootstrap, useEntryPicks, useFixtures, useLiveGameweek } from '@/que
 const { computeThreats, filterThreatsByStatus } = threatsNs;
 
 const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }> = [
-  { label: 'All', value: 'all' },
-  { label: 'Playing', value: 'playing' },
-  { label: 'To Play', value: 'to-play' },
-  { label: 'Played', value: 'played' },
-  { label: "Didn't Play", value: 'didnt-play' },
+  { label: t('threats.filter_all'), value: 'all' },
+  { label: t('threats.filter_playing'), value: 'playing' },
+  { label: t('threats.filter_to_play'), value: 'to-play' },
+  { label: t('threats.filter_played'), value: 'played' },
+  { label: t('threats.filter_didnt_play'), value: 'didnt-play' },
 ];
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
@@ -178,7 +179,7 @@ export function ThreatsView() {
     <PageShell>
       <PageHeader
         tone="stadium"
-        title="Threats"
+        title={t('threats.title')}
         meta={`${headline} · GW${currentGw ?? '—'} · Players nearby managers own that you don't`}
       />
 
@@ -196,12 +197,12 @@ export function ThreatsView() {
 
       <Card paddingHorizontal={0} paddingVertical={0} marginBottom={16}>
         <YStack paddingHorizontal={16} paddingTop={14} paddingBottom={8}>
-          <SectionHeader title={`Top threats (${visibleRows.length})`} />
+          <SectionHeader title={t('threats.section_top', { count: visibleRows.length })} />
         </YStack>
         {visibleRows.length === 0 ? (
           <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
             <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-              No threats match this filter.
+              {t('threats.empty')}
             </Text>
           </YStack>
         ) : (
@@ -213,11 +214,7 @@ export function ThreatsView() {
         )}
       </Card>
 
-      <FNote>
-        {cohort
-          ? 'Live cohort data refreshes every 60s while gameweeks are active.'
-          : 'Placeholder data — real threats landing once cohort aggregates are available.'}
-      </FNote>
+      <FNote>{cohort ? t('threats.fnote_live') : t('threats.fnote_placeholder')}</FNote>
     </PageShell>
   );
 }
