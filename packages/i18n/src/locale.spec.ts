@@ -28,7 +28,7 @@ function readStoredLocale(store: Map<string, string>): SupportedLocale {
   return DEFAULT_LOCALE;
 }
 
-const SENTINEL_KEY = 'common.loading' as TranslationKey;
+const SENTINEL_KEY: TranslationKey = 'common.loading';
 
 describeFeature(feature, ({ Scenario }) => {
   Scenario('English is returned when no locale is set', ({ Given, When, Then }) => {
