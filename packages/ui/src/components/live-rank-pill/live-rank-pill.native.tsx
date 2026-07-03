@@ -1,5 +1,7 @@
 import { Text, XStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const Pill = styled(XStack, {
   alignItems: 'center',
   gap: 6,
@@ -37,7 +39,7 @@ interface LiveRankPillProps {
 export function LiveRankPill({ rank, onPress }: LiveRankPillProps) {
   return (
     <Pill onPress={onPress}>
-      <Label>Rank</Label>
+      <Label>{t('shared.rank')}</Label>
       <Value>{rank === null ? '—' : rank.toLocaleString()}</Value>
     </Pill>
   );

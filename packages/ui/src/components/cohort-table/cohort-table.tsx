@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 const TableRoot = styled(YStack, {
   width: '100%',
   borderTopWidth: 1,
@@ -89,16 +91,16 @@ export function CohortTable({ rows, footer }: CohortTableProps) {
             <HeaderCell> </HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>You</HeaderCell>
+            <HeaderCell>{t('shared.you')}</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Top 10k</HeaderCell>
+            <HeaderCell>{t('cohort.col_top10k')}</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Overall</HeaderCell>
+            <HeaderCell>{t('cohort.col_overall')}</HeaderCell>
           </YStack>
           <YStack flex={1} alignItems="flex-end">
-            <HeaderCell>Top 1k</HeaderCell>
+            <HeaderCell>{t('cohort.col_top1k')}</HeaderCell>
           </YStack>
         </HeaderRow>
         {rows.map((row, idx) => {
