@@ -24,11 +24,13 @@ import { runComparison } from './vs/scheduled';
 import { checkRateLimit } from './vs/timed-fetch';
 
 export { LiveGwDO } from './live-gw-do';
+export { CohortLockDO } from './cohort/lock-do';
 
 export interface Env {
   FPL_CACHE: KVNamespace;
   FRANK_WEEKLY_CACHE: KVNamespace;
   LIVE_GW: DurableObjectNamespace;
+  COHORT_LOCK: DurableObjectNamespace;
   VS_BUCKET: R2Bucket;
   RECORDINGS_R2?: R2Bucket;
   BROWSER: BrowserWorker;
@@ -408,6 +410,8 @@ export default {
 
     const snapshotMatch = url.pathname.match(/^\/snapshot\/entry\/(\d+)\/?$/);
     if (snapshotMatch && snapshotMatch[1]) {
+      const rlSnapshot = await enforceRateLimit(env, clientIp, PUBLIC_RATE_LIMIT);
+      if (rlSnapshot) return rlSnapshot;
       const entryId = Number(snapshotMatch[1]);
       const result = await handleEntrySnapshot(env, ctx, entryId);
       return new Response(JSON.stringify(result.body), {
