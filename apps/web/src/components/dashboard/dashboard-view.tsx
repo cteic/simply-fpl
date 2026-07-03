@@ -2,7 +2,9 @@
 
 import { Suspense, lazy } from 'react';
 
-import { SkeletonLeagueTable, YStack } from '@simplyfpl/ui';
+import { SkeletonLeagueTable, TeamNewsCardSkeleton, YStack } from '@simplyfpl/ui';
+
+import { FEATURE_NEWS } from '@/lib/feature-flags';
 
 import { DashboardContainer, DashboardSection } from './dashboard-container';
 import { LiveRankSection } from './sections/live-rank-section';
@@ -13,11 +15,22 @@ const ThreatsSection = lazy(() =>
 const RivalsSection = lazy(() =>
   import('./sections/rivals-section').then((m) => ({ default: m.RivalsSection }))
 );
+const NewsSection = lazy(() =>
+  import('./sections/news-section').then((m) => ({ default: m.NewsSection }))
+);
 
 function SectionFallback() {
   return (
     <YStack paddingHorizontal={28} paddingVertical={32} $sm={{ paddingHorizontal: 16 }}>
       <SkeletonLeagueTable />
+    </YStack>
+  );
+}
+
+function NewsSectionFallback() {
+  return (
+    <YStack paddingHorizontal={28} paddingVertical={16} $sm={{ paddingHorizontal: 16 }}>
+      <TeamNewsCardSkeleton />
     </YStack>
   );
 }
@@ -38,7 +51,14 @@ export function DashboardView({ entryId }: DashboardViewProps) {
             <ThreatsSection />
           </Suspense>
         </DashboardSection>
-        <DashboardSection id="rivals" index={2}>
+        {FEATURE_NEWS && (
+          <DashboardSection id="news" index={2}>
+            <Suspense fallback={<NewsSectionFallback />}>
+              <NewsSection entryId={entryId} />
+            </Suspense>
+          </DashboardSection>
+        )}
+        <DashboardSection id="rivals" index={FEATURE_NEWS ? 3 : 2}>
           <Suspense fallback={<SectionFallback />}>
             <RivalsSection entryId={entryId} />
           </Suspense>
