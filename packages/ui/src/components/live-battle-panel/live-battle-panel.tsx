@@ -197,14 +197,14 @@ export function LiveBattlePanel({ gains, losses, totalImpact }: LiveBattlePanelP
         <Col>
           <ColHead>
             <ColHeadLabel tone="up">{t('live_battle.gains')}</ColHeadLabel>
-            <ColHeadMeta>Pts</ColHeadMeta>
+            <ColHeadMeta>{t('shared.pts')}</ColHeadMeta>
           </ColHead>
           <BattleList rows={gains} empty={t('live_battle.empty_gains')} columnTotal={gainsTotal} />
         </Col>
         <Col last>
           <ColHead>
             <ColHeadLabel tone="down">{t('live_battle.losses')}</ColHeadLabel>
-            <ColHeadMeta>Pts</ColHeadMeta>
+            <ColHeadMeta>{t('shared.pts')}</ColHeadMeta>
           </ColHead>
           <BattleList
             rows={losses}

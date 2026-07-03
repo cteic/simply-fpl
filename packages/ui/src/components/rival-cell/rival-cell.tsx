@@ -2,6 +2,8 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
+
 import { Card } from '../card';
 
 const Wrap = styled(Card, {
@@ -166,7 +168,7 @@ export function RivalCell({
         <YStack flex={1} minWidth={0}>
           <XStack alignItems="center" flexWrap="wrap">
             <Manager>{managerName}</Manager>
-            {isYou ? <YouTag>You</YouTag> : null}
+            {isYou ? <YouTag>{t('shared.you')}</YouTag> : null}
             {chip ? <ChipBadge>{chip}</ChipBadge> : null}
             {transferHits > 0 ? <HitBadge>-{transferHits}</HitBadge> : null}
           </XStack>
@@ -177,7 +179,7 @@ export function RivalCell({
       <MetaRow>
         {captainName ? (
           <XStack alignItems="center">
-            <MetaLabel>Cap</MetaLabel>
+            <MetaLabel>{t('shared.cap')}</MetaLabel>
             <MetaValue>
               {captainName}
               {captainSuffix}
@@ -188,7 +190,7 @@ export function RivalCell({
           </XStack>
         ) : null}
         <XStack alignItems="center">
-          <MetaLabel>Bench</MetaLabel>
+          <MetaLabel>{t('shared.bench')}</MetaLabel>
           <MetaValue>{benchPointsWasted}</MetaValue>
         </XStack>
       </MetaRow>

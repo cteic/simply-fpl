@@ -195,5 +195,49 @@
   "rivals_section.loading_meta": "Loading your leagues…",
   "rivals_section.empty_meta": "No mini-leagues found for this team",
 
-  "replay.seek_aria": "Jump to gameweek"
+  "replay.seek_aria": "Jump to gameweek",
+
+  "shared.you": "You",
+  "shared.them": "Them",
+  "shared.cap": "Cap",
+  "shared.bench": "Bench",
+  "shared.pts": "Pts",
+  "shared.rank": "Rank",
+  "shared.team": "Team",
+
+  "cohort.col_top10k": "Top 10k",
+  "cohort.col_overall": "Overall",
+  "cohort.col_top1k": "Top 1k",
+
+  "detailed_league_row.transfers_label": "Transfers",
+  "detailed_league_row.played_label": "Played",
+
+  "league_table.col_manager": "Manager",
+  "league_table.col_gw": "GW",
+
+  "live_status_pill.deselect_title": "Deselect team",
+
+  "logo.aria_label": "SimplyFPL home",
+
+  "notifications.pro_only": "Push notifications are a Pro feature. Upgrade to get notified when your captain scores and before the transfer deadline.",
+  "notifications.not_supported": "Push notifications are not supported in this browser.",
+  "notifications.blocked": "Notifications are blocked. Re-enable them in your browser settings, then reload.",
+  "notifications.subscribe_body": "Get notified when your captain scores and 30 minutes before the transfer deadline.",
+  "notifications.cta_enabling": "Enabling…",
+  "notifications.cta_enable": "Enable notifications",
+  "notifications.label_deadline_reminder": "GW deadline reminder",
+  "notifications.label_deadline_desc": "30 minutes before transfers lock",
+  "notifications.label_captain_scored": "Captain scored",
+  "notifications.label_captain_scored_desc": "When your captain starts scoring points",
+  "notifications.cta_disabling": "Disabling…",
+  "notifications.cta_disable": "Disable notifications",
+
+  "theme_picker.aria_label": "Theme",
+
+  "what_if.search_placeholder": "Search by name…",
+
+  "analytics_consent.aria_label": "Analytics consent",
+  "analytics_consent.body": "We use anonymous analytics to make SimplyFPL better. No personal data is sent.",
+  "analytics_consent.cta_decline": "Decline",
+  "analytics_consent.cta_accept": "Accept"
 }
