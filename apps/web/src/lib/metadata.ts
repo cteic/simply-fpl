@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL, TWITTER_HANDLE } from './site-url';
 
@@ -36,4 +36,8 @@ export const rootMetadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   robots: { index: true, follow: true },
+};
+
+export const rootViewport: Viewport = {
+  themeColor: '#F7F7F5',
 };
