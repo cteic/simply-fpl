@@ -20,6 +20,7 @@ const nextConfig = {
     '@simplyfpl/features',
     '@simplyfpl/fpl-client',
     '@simplyfpl/types',
+    '@simplyfpl/i18n',
     'react-native',
     'react-native-web',
     'tamagui',
