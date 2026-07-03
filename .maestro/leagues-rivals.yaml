@@ -1,0 +1,51 @@
+# Maestro E2E — Leagues tab → Rivals board
+# Source feature: apps/mobile/src/views/leagues-view.feature
+#                  apps/mobile/src/views/rivals-view.feature
+#                  packages/features/src/rivals/rivals.feature
+#
+# Device-run flow. See apps/mobile/README.md for how to run this against
+# an Expo dev build with mocked API responses.
+#
+# Mirrors scenarios:
+#   leagues-view.feature: "Entry endpoint returns leagues for a valid team ID"
+#   rivals.feature: "Rivals board shows live rank with correct ordering"
+
+appId: com.simplyfpl.mobile
+---
+- launchApp:
+    clearState: true
+    env:
+      EXPO_PUBLIC_API_URL: 'http://10.0.2.2:8787'
+
+# Precondition: team ID already stored
+- tapOn:
+    id: 'team-id-input'
+- inputText: '1234567'
+- tapOn:
+    id: 'search-button'
+- assertVisible:
+    id: 'live-rank-value'
+    timeout: 8000
+
+# When: user navigates to Leagues tab
+- tapOn:
+    id: 'tab-leagues'
+
+# Then: My Leagues header is visible
+- assertVisible: 'My Leagues'
+
+# And: at least one league filter chip appears
+- assertVisible:
+    id: 'league-filter-chip'
+    timeout: 5000
+
+# When: user taps "View rivals →"
+- tapOn: 'View rivals →'
+
+# Then: rivals board opens
+- assertVisible: 'Rivals'
+
+# And: at least one rival row is shown
+- assertVisible:
+    id: 'rival-cell'
+    timeout: 5000
