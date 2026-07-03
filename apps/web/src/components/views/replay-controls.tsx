@@ -1,6 +1,7 @@
 'use client';
 
 import { replay } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import { FilterButton, Text, XStack, YStack } from '@simplyfpl/ui';
 
 const { REPLAY_SPEEDS } = replay;
@@ -146,7 +147,7 @@ export function ReplayControls({
           max={state.endGw}
           step={1}
           value={state.gw}
-          aria-label="Jump to gameweek"
+          aria-label={t('replay.seek_aria')}
           data-testid="replay-seek"
           onChange={(e) => onSeek(Number(e.target.value))}
           style={{ width: '100%' }}

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
+import { t } from '@simplyfpl/i18n';
 import type { FplEntryLeague } from '@simplyfpl/types';
 import {
   Card,
@@ -42,7 +43,7 @@ export function RivalsSection({ entryId }: RivalsSectionProps) {
     return (
       <section data-testid="home-unified-rivals">
         <PageShell>
-          <PageHeader title="Rivals" meta="Loading your leagues…" />
+          <PageHeader title={t('rivals.title')} meta={t('rivals_section.loading_meta')} />
           <SkeletonLeagueTable />
         </PageShell>
       </section>
@@ -53,7 +54,7 @@ export function RivalsSection({ entryId }: RivalsSectionProps) {
     return (
       <section data-testid="home-unified-rivals">
         <PageShell>
-          <PageHeader title="Rivals" meta="No mini-leagues found for this team" />
+          <PageHeader title={t('rivals.title')} meta={t('rivals_section.empty_meta')} />
           <Card paddingHorizontal={16} paddingVertical={14}>
             <Text fontFamily="$body" fontSize={13} color="$colorMuted">
               Join a classic mini-league in the FPL app to see the managers right next to you.
