@@ -6,13 +6,13 @@ import { Providers } from '@/components/providers';
 import { ServiceWorkerInitializer } from '@/components/service-worker-initializer';
 import { StaleDataBanner } from '@/components/stale-data-banner';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
-import { FEATURE_WEB_PUSH } from '@/lib/feature-flags';
-import { rootMetadata } from '@/lib/metadata';
+import { rootMetadata, rootViewport } from '@/lib/metadata';
 
 import '../../public/tamagui.css';
 import './globals.css';
 
 export const metadata = rootMetadata;
+export const viewport = rootViewport;
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <NavBar />
             <StaleDataBanner />
-            {FEATURE_WEB_PUSH ? <ServiceWorkerInitializer /> : null}
+            <ServiceWorkerInitializer />
             {children}
             <AppFooter />
           </Providers>
