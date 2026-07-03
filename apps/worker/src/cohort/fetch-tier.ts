@@ -32,6 +32,7 @@ export interface Cursor {
 
 export interface FetchTierEnv {
   FPL_CACHE: KVNamespace;
+  COHORT_LOCK: DurableObjectNamespace;
 }
 
 interface ResumeResult {
@@ -174,15 +175,17 @@ async function writeAggregate(
   });
 }
 
+const LOCK_TTL_SECS = 300;
+
 async function acquireLock(env: FetchTierEnv, gw: number, tier: CohortTier): Promise<boolean> {
-  const existing = await env.FPL_CACHE.get(lockKey(gw, tier));
-  if (existing) return false;
-  await env.FPL_CACHE.put(lockKey(gw, tier), '1', { expirationTtl: 300 });
-  return true;
+  const stub = env.COHORT_LOCK.get(env.COHORT_LOCK.idFromName(lockKey(gw, tier)));
+  const res = await stub.fetch(`https://cohort-lock/acquire?ttl=${LOCK_TTL_SECS}`);
+  return res.status === 200;
 }
 
 async function releaseLock(env: FetchTierEnv, gw: number, tier: CohortTier): Promise<void> {
-  await env.FPL_CACHE.delete(lockKey(gw, tier));
+  const stub = env.COHORT_LOCK.get(env.COHORT_LOCK.idFromName(lockKey(gw, tier)));
+  await stub.fetch('https://cohort-lock/release');
 }
 
 async function isPaused(env: FetchTierEnv): Promise<boolean> {

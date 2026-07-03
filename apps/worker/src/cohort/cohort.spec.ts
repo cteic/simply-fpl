@@ -42,6 +42,32 @@ function makeKv(initial: Record<string, string> = {}): FakeKv {
   return { namespace, store };
 }
 
+function makeLockNamespace(): DurableObjectNamespace {
+  const locks = new Map<string, number>();
+  return {
+    idFromName: vi.fn((name: string) => ({ name })),
+    get: vi.fn((id: { name: string }) => ({
+      fetch: vi.fn(async (input: string) => {
+        const url = new URL(input);
+        if (url.pathname === '/acquire') {
+          const ttlSeconds = Number(url.searchParams.get('ttl') ?? '300');
+          const expiresAt = locks.get(id.name);
+          if (expiresAt !== undefined && expiresAt > Date.now()) {
+            return new Response('held', { status: 409 });
+          }
+          locks.set(id.name, Date.now() + ttlSeconds * 1000);
+          return new Response('acquired', { status: 200 });
+        }
+        if (url.pathname === '/release') {
+          locks.delete(id.name);
+          return new Response('released', { status: 200 });
+        }
+        return new Response('not found', { status: 404 });
+      }),
+    })),
+  } as unknown as DurableObjectNamespace;
+}
+
 function makeCtx(): ExecutionContext {
   return {
     waitUntil(): void {
@@ -177,6 +203,7 @@ function installMocks(): CohortEnv {
 
   return {
     FPL_CACHE: namespace,
+    COHORT_LOCK: makeLockNamespace(),
     SUPABASE_URL: 'https://supabase.test',
     SUPABASE_SERVICE_ROLE: 'service-role-key',
   };
