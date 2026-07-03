@@ -1,0 +1,15 @@
+--- a/dist/esm/loader.mjs
++++ b/dist/esm/loader.mjs
+@@ -11,7 +11,11 @@
+   try {
+     CSS_LOADER_PATH = requireResolve("./css.esm");
+   } catch {
+-    CSS_LOADER_PATH = requireResolve("./css.js");
++    try {
++      CSS_LOADER_PATH = requireResolve("./css.js");
++    } catch {
++      CSS_LOADER_PATH = requireResolve("./css.mjs");
++    }
+   }
+ }
+ let index = 0;
