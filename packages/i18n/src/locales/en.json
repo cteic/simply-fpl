@@ -239,5 +239,8 @@
   "analytics_consent.aria_label": "Analytics consent",
   "analytics_consent.body": "We use anonymous analytics to make SimplyFPL better. No personal data is sent.",
   "analytics_consent.cta_decline": "Decline",
-  "analytics_consent.cta_accept": "Accept"
+  "analytics_consent.cta_accept": "Accept",
+
+  "settings.section_language": "Language",
+  "settings.language_description": "Choose the language for SimplyFPL. Your choice is saved on this device."
 }
