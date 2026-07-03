@@ -34,9 +34,17 @@ binding = "BROWSER"
 name = "LIVE_GW"
 class_name = "LiveGwDO"
 
+[[durable_objects.bindings]]
+name = "COHORT_LOCK"
+class_name = "CohortLockDO"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["LiveGwDO"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["CohortLockDO"]
 
 [vars]
 FPL_BASE_URL = "https://fantasy.premierleague.com/api"
