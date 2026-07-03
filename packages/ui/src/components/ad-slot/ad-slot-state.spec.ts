@@ -50,4 +50,39 @@ describeFeature(feature, (f) => {
       expect(result).toBe('active');
     });
   });
+
+  f.Scenario('Paid user — slot is hidden even with ads flag on', ({ Given, When, Then }) => {
+    let result: AdSlotState;
+
+    Given('NEXT_PUBLIC_FEATURE_ADS is "true"', () => {
+      process.env['NEXT_PUBLIC_FEATURE_ADS'] = 'true';
+    });
+    When('resolveAdSlotState is called with adFree true', () => {
+      result = resolveAdSlotState({ adFree: true });
+    });
+    Then('the state is "hidden"', () => {
+      expect(result).toBe('hidden');
+    });
+  });
+
+  f.Scenario(
+    'Paid user — slot is hidden even with placeholders flag on',
+    ({ Given, When, Then }) => {
+      let result: AdSlotState;
+
+      Given(
+        'NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS is "true" and NEXT_PUBLIC_FEATURE_ADS is unset',
+        () => {
+          delete process.env['NEXT_PUBLIC_FEATURE_ADS'];
+          process.env['NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS'] = 'true';
+        }
+      );
+      When('resolveAdSlotState is called with adFree true', () => {
+        result = resolveAdSlotState({ adFree: true });
+      });
+      Then('the state is "hidden"', () => {
+        expect(result).toBe('hidden');
+      });
+    }
+  );
 });
