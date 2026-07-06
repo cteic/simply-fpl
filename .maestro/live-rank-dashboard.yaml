@@ -1,0 +1,40 @@
+# Maestro E2E — Live Rank Dashboard
+# Source feature: tests/shared-features/live-rank.feature
+#                  apps/mobile/src/views/live-rank-dashboard.feature
+#
+# Device-run flow. See apps/mobile/README.md for how to run this against
+# an Expo dev build with mocked API responses.
+#
+# Mirrors scenario: "Entry snapshot endpoint is called for the given team ID"
+# and the happy-path of: "Dashboard shows error state when snapshot endpoint returns 500"
+
+appId: com.simplyfpl.mobile
+---
+- launchApp:
+    clearState: true
+    env:
+      EXPO_PUBLIC_API_URL: 'http://10.0.2.2:8787'
+
+# Given: no team ID is stored (fresh install)
+- assertVisible: 'Enter your FPL team ID'
+
+# When: user enters a valid team ID and submits
+- tapOn:
+    id: 'team-id-input'
+- inputText: '1234567'
+- tapOn:
+    id: 'search-button'
+
+# Then: live rank dashboard loads and shows rank
+- assertVisible:
+    id: 'live-rank-value'
+    timeout: 8000
+
+# And: the "est. live rank" label is visible
+- assertVisible: 'est. live rank'
+
+# And: GW Points stat tile is rendered
+- assertVisible: 'GW Points'
+
+# Teardown: reset to home
+- tapOn: 'Search again →'

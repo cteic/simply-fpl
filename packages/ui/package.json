@@ -12,27 +12,41 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test:unit": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@simplyfpl/i18n": "workspace:*",
     "@simplyfpl/types": "workspace:*",
-    "@tamagui/animations-react-native": "^1.121.0",
-    "@tamagui/shorthands": "^1.121.0",
-    "@tamagui/themes": "^1.121.0",
-    "tamagui": "^1.121.0"
+    "@tamagui/animations-react-native": "2.4.0",
+    "@tamagui/shorthands": "2.4.0",
+    "@tamagui/themes": "2.4.0",
+    "tamagui": "2.4.0"
   },
   "peerDependencies": {
+    "expo-linear-gradient": "*",
     "react": "^18.0.0 || ^19.0.0",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-svg": "*"
   },
   "peerDependenciesMeta": {
+    "expo-linear-gradient": {
+      "optional": true
+    },
     "react-native": {
+      "optional": true
+    },
+    "react-native-svg": {
       "optional": true
     }
   },
   "devDependencies": {
+    "@amiceli/vitest-cucumber": "4.7.0",
     "@simplyfpl/tsconfig-config": "workspace:*",
     "@types/react": "^19.0.0",
-    "typescript": "^5.7.0"
+    "expo-linear-gradient": "~14.0.2",
+    "react-native-svg": "15.8.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6"
   }
 }

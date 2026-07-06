@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
-# Load optional PRE_COMMIT config from .env
+# Format ONLY staged files via lint-staged (~1s). lint-staged re-stages
+# files it modifies, so the commit lands prettier-clean without touching
+# unrelated files in the working tree.
+pnpm exec lint-staged
+
+# Optional opt-in commit-time checks via PRE_COMMIT env var in .env, e.g.
+# PRE_COMMIT=typecheck,lint
 [ -f .env ] && . ./.env
 
-for check in $(echo "$PRE_COMMIT" | tr ',' ' '); do
+for check in $(printf '%s' "${PRE_COMMIT:-}" | tr ',' ' '); do
   pnpm run "$check" || exit 1
 done

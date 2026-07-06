@@ -2,7 +2,7 @@ name: Code Checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
 
 concurrency:
@@ -23,6 +23,8 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test:unit
+      - run: pnpm test
       - run: pnpm build:packages
       - run: pnpm build:web
+      - name: Bundle size budget
+        run: node scripts/check-bundle-budget.mjs

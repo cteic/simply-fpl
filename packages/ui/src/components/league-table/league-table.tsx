@@ -1,6 +1,8 @@
 'use client';
 
-import { Stack, Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
+
+import { t } from '@simplyfpl/i18n';
 
 const TableRoot = styled(YStack, {
   width: '100%',
@@ -29,13 +31,15 @@ const Row = styled(XStack, {
   borderBottomWidth: 1,
   borderBottomColor: '$border',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   hoverStyle: { backgroundColor: '$background' },
   variants: {
     you: {
       true: {
-        backgroundColor: '$youRow',
-        hoverStyle: { backgroundColor: '$youRowHover' },
+        backgroundColor: '$brandBg',
+        borderLeftWidth: 3,
+        borderLeftColor: '$brand',
+        hoverStyle: { backgroundColor: '$brandBg' },
       },
     },
     last: {
@@ -72,8 +76,8 @@ const YouTag = styled(Text, {
   fontWeight: '600',
   textTransform: 'uppercase',
   letterSpacing: '$8',
-  color: '$info',
-  backgroundColor: '$infoBg',
+  color: '#FFFFFF',
+  backgroundColor: '$brand',
   paddingHorizontal: 5,
   paddingVertical: 2,
   borderRadius: 3,
@@ -100,51 +104,65 @@ export interface LeagueTableRow {
   managerName: string;
   teamName?: string;
   isYou?: boolean;
+  entryId?: number;
   gwScore: number | string;
   totalPoints: number | string;
 }
 
 interface LeagueTableProps {
   rows: LeagueTableRow[];
+  onRowClick?: (entryId: number) => void;
 }
 
-export function LeagueTable({ rows }: LeagueTableProps) {
+export function LeagueTable({ rows, onRowClick }: LeagueTableProps) {
   return (
     <TableRoot>
       <HeaderRow>
-        <Stack width={28}>
+        <YStack width={28}>
           <HeaderCell>#</HeaderCell>
-        </Stack>
-        <Stack flex={1}>
-          <HeaderCell>Manager</HeaderCell>
-        </Stack>
-        <Stack width={50} alignItems="flex-end">
-          <HeaderCell>GW</HeaderCell>
-        </Stack>
-        <Stack width={70} alignItems="flex-end">
-          <HeaderCell>Pts</HeaderCell>
-        </Stack>
+        </YStack>
+        <YStack flex={1}>
+          <HeaderCell>{t('league_table.col_manager')}</HeaderCell>
+        </YStack>
+        <YStack width={50} alignItems="flex-end">
+          <HeaderCell>{t('league_table.col_gw')}</HeaderCell>
+        </YStack>
+        <YStack width={70} alignItems="flex-end">
+          <HeaderCell>{t('shared.pts')}</HeaderCell>
+        </YStack>
       </HeaderRow>
       {rows.map((row, idx) => {
         const isLast = idx === rows.length - 1;
+        const canClick = onRowClick !== undefined && row.entryId !== undefined && !row.isYou;
         return (
-          <Row key={`${row.position}-${row.managerName}`} you={row.isYou} last={isLast}>
-            <Stack width={28}>
+          <Row
+            key={`${row.position}-${row.managerName}`}
+            you={row.isYou}
+            last={isLast}
+            onPress={
+              canClick
+                ? () => {
+                    if (row.entryId !== undefined) onRowClick(row.entryId);
+                  }
+                : undefined
+            }
+          >
+            <YStack width={28}>
               <Position>{row.position}</Position>
-            </Stack>
-            <Stack flex={1}>
+            </YStack>
+            <YStack flex={1}>
               <XStack alignItems="center">
                 <Manager>{row.managerName}</Manager>
-                {row.isYou ? <YouTag>You</YouTag> : null}
+                {row.isYou ? <YouTag>{t('shared.you')}</YouTag> : null}
               </XStack>
               {row.teamName ? <TeamName>{row.teamName}</TeamName> : null}
-            </Stack>
-            <Stack width={50} alignItems="flex-end">
+            </YStack>
+            <YStack width={50} alignItems="flex-end">
               <MonoCell look="muted">{row.gwScore}</MonoCell>
-            </Stack>
-            <Stack width={70} alignItems="flex-end">
+            </YStack>
+            <YStack width={70} alignItems="flex-end">
               <MonoCell look="strong">{row.totalPoints}</MonoCell>
-            </Stack>
+            </YStack>
           </Row>
         );
       })}

@@ -1,8 +1,8 @@
 # FPL `/event/{gw}/live/` update cadence — measurement (LF-01)
 
-Status: **Pending data collection** — script ready, awaiting a live match week.
-Last updated: 2026-05-12
-Issue: [#72](https://github.com/pete-watters/simply-fpl/issues/72)
+Status: **First findings in** (GW36 single-match, 2026-05-13). Multi-match GW37 measurement scheduled for the weekend.
+Last updated: 2026-05-14
+Issue: [#72](https://github.com/pete-watters/simply-fpl/issues/72) (closed via #104)
 RFC: [001 Live Fan-Out](../rfcs/001-live-fanout.md)
 
 ## Why this matters
@@ -45,32 +45,60 @@ To make the data defensible, run the script across a full GW including:
 
 A weekend pass with at least one Saturday 12:30 and one Sunday 16:30 is the minimum useful sample.
 
-## Findings — to be populated
+## Findings — GW36 single-match run (2026-05-13)
 
-Replace this section once you have a full match-week of JSONL data.
+Observation window: 2026-05-13T18:04:59Z → 2026-05-13T22:57:02Z (292 min, 1760 observations). One fixture in GW36 (kickoff 19:00 UTC).
 
-| State     | Sample size | Median change interval | p95   | Notes |
-| --------- | ----------- | ---------------------- | ----- | ----- |
-| match     | _TBD_       | _TBD_                  | _TBD_ |       |
-| pre       | _TBD_       | _TBD_                  | _TBD_ |       |
-| live-idle | _TBD_       | _TBD_                  | _TBD_ |       |
-| off       | _TBD_       | _TBD_                  | _TBD_ |       |
+| State       |   Obs | Errors | Changes | Median Δ | p95 Δ | Max Δ | Avg payload |
+| ----------- | ----: | -----: | ------: | -------: | ----: | ----: | ----------- |
+| `match`     | 1,557 |      0 |      87 |    5.0 s | 5.0 s | 6.1 s | 572.6 KB    |
+| `pre`       |   117 |      0 |       0 |        — |     — |     — | 571.8 KB    |
+| `live-idle` |    73 |      0 |       0 |        — |     — |     — | 573.0 KB    |
+| `off`       |    13 |      0 |       2 |  5.0 min | 5.0 m | 5.0 m | 574.2 KB    |
 
-Observations to look for:
+Key signals:
 
-- Does the `bonus` field churn faster or slower than `bps` mid-match?
-- Are there any goal events that take >30 s to show up in `/event/live/` after they happened on TV?
-- Does the response payload size grow over the GW (more `explain` entries accumulate)?
-- Any HTTP 429 / rate-limit signals when polling at 5 s for an hour?
+- **Zero rate-limiting** at any cadence we used (peak 5 s during a 2 h match window). FPL's edge tolerated us cleanly.
+- **`pre` and `live-idle` were silent** — 190 observations across the two states, zero detected changes. Polling these states aggressively is pure waste.
+- **Payload stayed flat** at ~572 KB across the full run (0% growth) — no `explain` accumulation problem in a single-match GW.
+- **`match` median Δ exactly 5.0 s** — see methodological caveat below before reading too much into this.
 
-## Implications for RFC 001 cadence — TBD
+### Methodological caveat — Nyquist artifact in `match` numbers
 
-Once findings are in, update RFC 001 §6 with empirical numbers and either:
+The 5.0 s median change interval observed in `match` is **at our polling rate**, not necessarily FPL's true upstream update rate. We polled every 5 s; if FPL actually updates every 2 s (e.g. fresh BPS deltas streaming in mid-attack), we couldn't detect it — every observation would still differ from the last. The 5.0 s median is a floor we measured, not a ceiling on FPL's update frequency.
 
-1. Confirm the 15 s / 60 s / 5 min cadences are appropriate, or
-2. Propose revised cadences with the data to back them.
+What we _can_ say from this data: FPL updates `/event/live/` **at least every ~5 s during active play, and probably faster**. To find the actual upstream rate we need a follow-up run at 1 s or sub-second cadence over a short match window. Until then, the safe LF-04 starting cadence is ~5 s and we tune down once we know FPL's true rate.
+
+## Implications for RFC 001 cadence
+
+RFC 001 §6 proposed: 15 s match / 30 s pre / 60 s live-idle / 5 min off. Revised proposal based on GW36 data:
+
+| State       | RFC 001 placeholder | Observed implication                                                             | **Proposed LF-04 cadence**                                                       |
+| ----------- | ------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `match`     | 15 s                | FPL updates ≤ 5 s. Anything > 5 s leaves freshness on the table.                 | **5 s** (tune down after a faster-cadence follow-up confirms true upstream rate) |
+| `pre`       | 30 s                | Zero changes observed in 117 obs across 30 min pre-kickoff.                      | **120 s** — there is nothing to poll for                                         |
+| `live-idle` | 60 s                | Zero changes observed in 73 obs across ~1 h between matches.                     | **120 s** — same reasoning                                                       |
+| `off`       | 5 min               | 2 changes observed at 5 min cadence — almost certainly the GW finalisation pass. | **5 min** — unchanged                                                            |
+
+Net effect: **`match` gets ~3× tighter** (15 s → 5 s) and **`pre` / `live-idle` halve their request volume** (no information to gain there). **RFC 001 §4 (polling cadence table) and §6 (endpoint cadence) updated in PR #128's follow-up** to reflect these numbers, with the Nyquist caveat noted inline.
+
+## Open questions surfaced by this run
+
+- Goal-event ingestion lag: did the 1 goal in tonight's fixture appear in `/event/live/` within 5 s of broadcast, or slower? Manual stopwatch needed during a Saturday/Sunday game — flagged as a follow-up next experiment.
+- Bonus settling cadence: GW36's bonus locks happened during the run but we didn't separately tag the `match → live-idle → bonus-locked` transition. Could be its own state in a future revision of the script.
+- Multi-match behavior: GW36 was a one-match midweek. GW37 weekend is the real stress test (next).
+
+## Next experiments (in priority order)
+
+1. **GW37 weekend multi-match measurement** — Sat–Sun continuous, captures parallel fixtures + bonus settling. Auto-stop scheduler already set up via `scripts/start-cadence-soak.sh`.
+2. **Sub-second cadence probe** — short 30 min run during a peak match minute (e.g. last 15 min when goals cluster) at 1 s or 500 ms cadence. Find FPL's true upstream rate. New, small script.
+3. **Worker KV mirror staleness vs DO snapshot** — only possible once LF-04 lands. Confirms the fan-out value proposition.
+
+## Tools shipped with this PR
+
+- **`scripts/analyze-fpl-cadence.mjs`** — reads JSONL files, produces the by-state cadence table + summary. Used by the auto-stop chain.
+- **`scripts/start-cadence-soak.sh`** — one-command wrapper for weekend runs. Starts the measurement under `caffeinate` (keeps macOS awake), schedules an auto-kill + analyzer at a stop time you pass in, detaches everything. Defaults to next Sunday 21:00 UTC when no arg is given. Usage: `./scripts/start-cadence-soak.sh [stop-utc-timestamp]`.
 
 ## Open follow-ups (out of scope for LF-01)
 
-- A small analysis script (`scripts/analyze-fpl-cadence.mjs`) that reads the JSONL and produces the summary table automatically.
 - Repeating the measurement under different upstream conditions (deadline day, double gameweek, blank gameweek) once they happen.

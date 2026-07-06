@@ -38,6 +38,11 @@ const animations = createAnimations({
     type: 'timing',
     duration: 1200,
   },
+  // Ambient loop indicators (live freshness "•") — per-leg fade; cycle via opacity state toggle
+  pulse: {
+    type: 'timing',
+    duration: 1500,
+  },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -181,11 +186,17 @@ const light = {
   positiveBorder: colors.gmid,
   negative: colors.red,
   negativeBg: colors.rbg,
+  danger: colors.red,
   warning: colors.amber,
   warningBg: colors.abg,
   warningBorder: colors.amid,
   info: colors.blue,
   infoBg: colors.bbg,
+
+  // Brand (mono lockup wordmark + s. favicon)
+  brand: colors.brand,
+  brandHover: colors.brandHover,
+  brandBg: colors.brandBg,
 
   // Position shirt backgrounds
   shirtGk: colors.shirtGk,
@@ -208,6 +219,63 @@ const light = {
   // Buttons
   buttonPrimary: colors.t1,
   buttonPrimaryHover: colors.buttonHover,
+
+  // Stadium surfaces (teal gradient stops)
+  stadium1: colors.stadium1,
+  stadium2: colors.stadium2,
+  stadium3: colors.stadium3,
+  stadium4: colors.stadium4,
+  stadiumAccent: colors.stadiumAccent,
+  stadiumAccentStrong: colors.stadiumAccentStrong,
+  stadiumDanger: colors.stadiumDanger,
+
+  // Inverse content (white-on-teal text ladder)
+  inverse: colors.inverse,
+  inverseStrong: colors.inverseStrong,
+  inverseMuted: colors.inverseMuted,
+  inverseSoft: colors.inverseSoft,
+  inverseFaint: colors.inverseFaint,
+
+  // Overlay scale (white fills / borders on teal)
+  overlay1: colors.overlay1,
+  overlay2: colors.overlay2,
+  overlay3: colors.overlay3,
+  overlay4: colors.overlay4,
+  overlay5: colors.overlay5,
+  overlay6: colors.overlay6,
+};
+
+const stadium = {
+  ...light,
+  featureSurface: colors.brand,
+  featureBorder: colors.transparent,
+};
+
+const bold = {
+  ...stadium,
+  featureSurface: colors.ink,
+  featureBorder: colors.transparent,
+};
+
+const quiet = {
+  ...stadium,
+  featureSurface: colors.surface,
+  featureBorder: colors.border,
+  inverse: colors.t1,
+  inverseStrong: colors.t1,
+  inverseMuted: colors.t2,
+  inverseSoft: colors.t2,
+  inverseFaint: colors.t3,
+  overlay1: colors.neutralFaint,
+  overlay2: colors.neutralSoft,
+  overlay3: colors.border,
+  overlay4: colors.border2,
+  overlay5: colors.border2,
+  overlay6: colors.t3,
+  stadiumAccent: colors.brand,
+  stadiumAccentStrong: colors.brandHover,
+  stadiumDanger: colors.red,
+  stadium3: colors.white,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -215,17 +283,20 @@ const light = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const config = createTamagui({
-  defaultFont: 'body',
+  settings: {
+    defaultFont: 'body',
+    shouldAddPrefersColorThemes: false,
+    addThemeClassName: false,
+  },
   animations,
-  shouldAddPrefersColorThemes: false,
-  themeClassNameOnRoot: false,
   fonts: {
     body: dmSans,
     mono: dmMono,
   },
   themes: {
-    light,
-    // Tamagui requires at least one theme; we provide light as default
+    stadium,
+    bold,
+    quiet,
   },
   tokens,
   shorthands,

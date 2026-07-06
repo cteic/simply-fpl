@@ -1,0 +1,6 @@
+# Captured data archives are not source — never reformat them.
+var/
+
+# Generated bundle of captured data — large, re-emitted by scripts/build-distributions-index.mjs.
+packages/fpl-client/src/score-distributions/distributions.generated.ts
+.claude/worktrees/

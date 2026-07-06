@@ -10,8 +10,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  migrate:
+    # Always runs so the deploy jobs (which depend on it) aren't skipped on PRs,
+    # but only applies migrations on a push to main. Pending migrations under
+    # supabase/migrations/ are pushed to the production database before deploy.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: github.event_name == 'push'
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Apply database migrations
+        if: github.event_name == 'push'
+        run: supabase db push --db-url "$SUPABASE_DB_URL"
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
   worker:
     if: github.event_name == 'push'
+    needs: migrate
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -28,6 +46,7 @@ jobs:
       - run: pnpm --filter @simplyfpl/worker run deploy
 
   web:
+    needs: migrate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,6 +70,7 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
         run: pnpm exec next-on-pages
       - name: Create Pages project if needed
         working-directory: apps/web

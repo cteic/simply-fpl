@@ -1,6 +1,8 @@
 {
   "extends": "@simplyfpl/tsconfig-config/tsconfig.react-native.json",
   "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "moduleSuffixes": [".native", ".ios", ".android", ""],
     "paths": {
       "@/*": ["./src/*"]
     },

@@ -1,0 +1,422 @@
+{
+  "gw": 23,
+  "builtAt": "2026-06-16T09:39:12.165Z",
+  "binSize": 5,
+  "cohorts": {
+    "top_10k": {
+      "sampleSize": 2500,
+      "min": 19,
+      "max": 77,
+      "mean": 44.2,
+      "median": 44,
+      "percentiles": {
+        "p1": 25,
+        "p5": 30,
+        "p10": 33,
+        "p25": 38,
+        "p50": 44,
+        "p75": 50,
+        "p90": 55,
+        "p95": 59,
+        "p99": 67
+      },
+      "histogram": [
+        {
+          "min": 15,
+          "max": 20,
+          "count": 2
+        },
+        {
+          "min": 20,
+          "max": 25,
+          "count": 20
+        },
+        {
+          "min": 25,
+          "max": 30,
+          "count": 78
+        },
+        {
+          "min": 30,
+          "max": 35,
+          "count": 231
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 429
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 535
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 562
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 349
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 187
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 63
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 34
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 7
+        },
+        {
+          "min": 75,
+          "max": 80,
+          "count": 3
+        }
+      ]
+    },
+    "overall": {
+      "sampleSize": 2500,
+      "min": 0,
+      "max": 88,
+      "mean": 44.3,
+      "median": 44,
+      "percentiles": {
+        "p1": 20,
+        "p5": 28,
+        "p10": 31,
+        "p25": 37,
+        "p50": 44,
+        "p75": 51,
+        "p90": 59,
+        "p95": 63,
+        "p99": 74
+      },
+      "histogram": [
+        {
+          "min": 0,
+          "max": 5,
+          "count": 1
+        },
+        {
+          "min": 5,
+          "max": 10,
+          "count": 1
+        },
+        {
+          "min": 10,
+          "max": 15,
+          "count": 3
+        },
+        {
+          "min": 15,
+          "max": 20,
+          "count": 14
+        },
+        {
+          "min": 20,
+          "max": 25,
+          "count": 43
+        },
+        {
+          "min": 25,
+          "max": 30,
+          "count": 112
+        },
+        {
+          "min": 30,
+          "max": 35,
+          "count": 272
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 415
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 480
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 420
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 309
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 206
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 124
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 54
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 22
+        },
+        {
+          "min": 75,
+          "max": 80,
+          "count": 12
+        },
+        {
+          "min": 80,
+          "max": 85,
+          "count": 10
+        },
+        {
+          "min": 85,
+          "max": 90,
+          "count": 2
+        }
+      ]
+    },
+    "legendary": {
+      "sampleSize": 1000,
+      "min": 20,
+      "max": 73,
+      "mean": 44.4,
+      "median": 44,
+      "percentiles": {
+        "p1": 24,
+        "p5": 31,
+        "p10": 33.9,
+        "p25": 38,
+        "p50": 44,
+        "p75": 50,
+        "p90": 56,
+        "p95": 59,
+        "p99": 67
+      },
+      "histogram": [
+        {
+          "min": 20,
+          "max": 25,
+          "count": 11
+        },
+        {
+          "min": 25,
+          "max": 30,
+          "count": 19
+        },
+        {
+          "min": 30,
+          "max": 35,
+          "count": 91
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 171
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 214
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 242
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 127
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 81
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 25
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 15
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 4
+        }
+      ]
+    },
+    "top_1k": {
+      "sampleSize": 1000,
+      "min": 20,
+      "max": 73,
+      "mean": 44.4,
+      "median": 44,
+      "percentiles": {
+        "p1": 24,
+        "p5": 31,
+        "p10": 33.9,
+        "p25": 38,
+        "p50": 44,
+        "p75": 50,
+        "p90": 56,
+        "p95": 59,
+        "p99": 67
+      },
+      "histogram": [
+        {
+          "min": 20,
+          "max": 25,
+          "count": 11
+        },
+        {
+          "min": 25,
+          "max": 30,
+          "count": 19
+        },
+        {
+          "min": 30,
+          "max": 35,
+          "count": 91
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 171
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 214
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 242
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 127
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 81
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 25
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 15
+        },
+        {
+          "min": 70,
+          "max": 75,
+          "count": 4
+        }
+      ]
+    },
+    "top_100k": {
+      "sampleSize": 1000,
+      "min": 21,
+      "max": 68,
+      "mean": 43.8,
+      "median": 43,
+      "percentiles": {
+        "p1": 21,
+        "p5": 33,
+        "p10": 33,
+        "p25": 38,
+        "p50": 43,
+        "p75": 49,
+        "p90": 56,
+        "p95": 62,
+        "p99": 68
+      },
+      "histogram": [
+        {
+          "min": 20,
+          "max": 25,
+          "count": 17
+        },
+        {
+          "min": 25,
+          "max": 30,
+          "count": 0
+        },
+        {
+          "min": 30,
+          "max": 35,
+          "count": 115
+        },
+        {
+          "min": 35,
+          "max": 40,
+          "count": 187
+        },
+        {
+          "min": 40,
+          "max": 45,
+          "count": 275
+        },
+        {
+          "min": 45,
+          "max": 50,
+          "count": 165
+        },
+        {
+          "min": 50,
+          "max": 55,
+          "count": 105
+        },
+        {
+          "min": 55,
+          "max": 60,
+          "count": 81
+        },
+        {
+          "min": 60,
+          "max": 65,
+          "count": 25
+        },
+        {
+          "min": 65,
+          "max": 70,
+          "count": 30
+        }
+      ]
+    }
+  }
+}

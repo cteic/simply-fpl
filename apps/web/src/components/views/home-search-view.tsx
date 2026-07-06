@@ -2,22 +2,25 @@
 
 import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useThemeName } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
   FNote,
   Input,
+  Logo,
   PageHeader,
   PageShell,
   SectionHeader,
   Text,
   XStack,
   YStack,
+  resolveThemeName,
 } from '@simplyfpl/ui';
 
-const STORAGE_KEY = 'simplyfpl:lastEntryId';
+import { readSavedEntryId, setSavedEntryId } from '@/lib/saved-entry-id';
 
 function parseEntryId(input: string): number | null {
   const trimmed = input.trim();
@@ -32,37 +35,48 @@ function parseEntryId(input: string): number | null {
   return null;
 }
 
-export function HomeSearchView() {
-  const router = useRouter();
+interface HomeSearchViewProps {
+  onSave?: (entryId: number) => void;
+}
+
+export function HomeSearchView({ onSave }: HomeSearchViewProps = {}) {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const logoTone = resolveThemeName(useThemeName()) === 'quiet' ? 'default' : 'stadium';
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) setInput(saved);
+    const id = readSavedEntryId();
+    if (id !== null) setInput(String(id));
   }, []);
 
   function handleSubmit() {
     setError(null);
     const id = parseEntryId(input);
     if (!id) {
-      setError('Enter a numeric FPL team ID or paste an FPL team URL.');
+      setError(t('home_search.input_error'));
       return;
     }
-    window.localStorage.setItem(STORAGE_KEY, String(id));
-    router.push(`/rank/${id}`);
+    setSavedEntryId(id);
+    if (onSave) {
+      onSave(id);
+    } else {
+      window.location.href = '/';
+    }
   }
 
   return (
     <PageShell>
-      <PageHeader title="SimplyFPL" meta="Live FPL companion · GW30" />
+      <PageHeader
+        tone="stadium"
+        title={<Logo size="lg" tone={logoTone} />}
+        meta={t('home_search.meta')}
+      />
 
       <Card paddingHorizontal={24} paddingVertical={24} marginBottom={20}>
-        <SectionHeader title="Find your team" />
+        <SectionHeader title={t('home_search.section_find')} />
         <YStack gap={10} marginTop={4}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            Enter your FPL team ID or paste your team URL to see your live rank, gameweek points,
-            and pitch.
+            {t('home_search.description')}
           </Text>
           <XStack gap={10}>
             <Input
@@ -70,12 +84,12 @@ export function HomeSearchView() {
               value={input}
               onChangeText={setInput}
               onSubmitEditing={handleSubmit}
-              placeholder="e.g. 1234567 or fantasy.premierleague.com/entry/1234567/event/30"
+              placeholder={t('home_search.input_placeholder')}
               borderColor="$borderStrong"
               backgroundColor="$background"
             />
             <Button tone="primary" size="md" onPress={handleSubmit}>
-              View Live Rank
+              {t('home_search.cta')}
             </Button>
           </XStack>
           {error ? (
@@ -87,24 +101,24 @@ export function HomeSearchView() {
       </Card>
 
       <Card paddingHorizontal={24} paddingVertical={20} marginBottom={20}>
-        <SectionHeader title="What you get" />
+        <SectionHeader title={t('home_search.section_features')} />
         <YStack gap={6} marginTop={8}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Live rank that updates every 60 seconds during gameweeks
+            {t('home_search.feature_live_rank')}
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Mini-league standings with live captain and bench points
+            {t('home_search.feature_leagues')}
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Daily price-change predictions
+            {t('home_search.feature_h2h')}
           </Text>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-            • Fixture-difficulty planner (Pro)
+            {t('home_search.feature_free')}
           </Text>
         </YStack>
       </Card>
 
-      <FNote>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</FNote>
+      <FNote>{t('common.disclaimer')}</FNote>
     </PageShell>
   );
 }

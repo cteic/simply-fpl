@@ -15,14 +15,16 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.simplyfpl.app"
+      "bundleIdentifier": "com.simplyfpl.app",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f1117"
       },
-      "package": "com.simplyfpl.app"
+      "package": "com.simplyfpl.app",
+      "versionCode": 1
     },
     "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {

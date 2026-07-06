@@ -1,0 +1,142 @@
+'use client';
+
+import { Text, XStack, YStack, styled } from 'tamagui';
+
+import { t } from '@simplyfpl/i18n';
+
+const TableRoot = styled(YStack, {
+  width: '100%',
+  borderWidth: 1,
+  borderColor: '$border',
+  borderRadius: '$6',
+  overflow: 'hidden',
+});
+
+const HeaderRow = styled(XStack, {
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '$border',
+  backgroundColor: '$background',
+  alignItems: 'center',
+});
+
+const Row = styled(XStack, {
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '$border',
+  alignItems: 'center',
+  variants: {
+    even: {
+      true: { backgroundColor: '$background' },
+    },
+    last: {
+      true: { borderBottomWidth: 0 },
+    },
+  } as const,
+});
+
+const HeaderCell = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 9.5,
+  fontWeight: '600',
+  textTransform: 'uppercase',
+  letterSpacing: '$10',
+  color: '$colorSubtle',
+  variants: {
+    you: {
+      true: { color: '$brand' },
+    },
+  } as const,
+});
+
+const RowLabel = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 11.5,
+  fontWeight: '500',
+  color: '$color',
+});
+
+const NumberCell = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: 12.5,
+  color: '$color',
+  textAlign: 'right',
+  variants: {
+    look: {
+      you: { fontWeight: '600', color: '$brand' },
+      muted: { color: '$colorMuted' },
+    },
+  } as const,
+});
+
+const Footer = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 10.5,
+  color: '$colorSubtle',
+  marginTop: 8,
+  paddingHorizontal: 12,
+});
+
+export interface CohortTableRow {
+  label: string;
+  you: string | number;
+  top10k: string | number;
+  overall: string | number;
+  legendary: string | number;
+}
+
+interface CohortTableProps {
+  rows: CohortTableRow[];
+  footer?: string;
+}
+
+export function CohortTable({ rows, footer }: CohortTableProps) {
+  return (
+    <YStack>
+      <TableRoot>
+        <HeaderRow>
+          <YStack flex={1.4}>
+            <HeaderCell> </HeaderCell>
+          </YStack>
+          <YStack flex={1} alignItems="flex-end">
+            <HeaderCell you>{t('shared.you')}</HeaderCell>
+          </YStack>
+          <YStack flex={1} alignItems="flex-end">
+            <HeaderCell>{t('cohort.col_top10k')}</HeaderCell>
+          </YStack>
+          <YStack flex={1} alignItems="flex-end">
+            <HeaderCell>{t('cohort.col_overall')}</HeaderCell>
+          </YStack>
+          <YStack flex={1} alignItems="flex-end">
+            <HeaderCell>{t('cohort.col_top1k')}</HeaderCell>
+          </YStack>
+        </HeaderRow>
+        {rows.map((row, idx) => {
+          const isLast = idx === rows.length - 1;
+          return (
+            <Row key={row.label} last={isLast} even={idx % 2 === 1}>
+              <YStack flex={1.4}>
+                <RowLabel>{row.label}</RowLabel>
+              </YStack>
+              <YStack flex={1} alignItems="flex-end">
+                <NumberCell look="you">{row.you}</NumberCell>
+              </YStack>
+              <YStack flex={1} alignItems="flex-end">
+                <NumberCell>{row.top10k}</NumberCell>
+              </YStack>
+              <YStack flex={1} alignItems="flex-end">
+                <NumberCell look="muted">{row.overall}</NumberCell>
+              </YStack>
+              <YStack flex={1} alignItems="flex-end">
+                <NumberCell>{row.legendary}</NumberCell>
+              </YStack>
+            </Row>
+          );
+        })}
+      </TableRoot>
+      {footer ? <Footer>{footer}</Footer> : null}
+    </YStack>
+  );
+}

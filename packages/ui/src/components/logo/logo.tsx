@@ -1,47 +1,124 @@
 'use client';
 
-import { Stack, Text, XStack, styled } from 'tamagui';
+import { Text, XStack, styled } from 'tamagui';
 
-const LogoLink = styled(XStack, {
-  alignItems: 'center',
-  gap: 9,
-  cursor: 'pointer',
-});
+import { t } from '@simplyfpl/i18n';
 
-const LogoMark = styled(Stack, {
-  width: 26,
-  height: 26,
-  backgroundColor: '$color',
-  borderRadius: 7,
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexShrink: 0,
-});
-
-const LogoText = styled(Text, {
-  fontFamily: '$body',
-  fontSize: '$12',
-  fontWeight: '600',
-  letterSpacing: '$3',
-  color: '$color',
-});
+type LogoVariant = 'wordmark' | 'mark' | 'lockup';
+type LogoSize = 'sm' | 'md' | 'lg';
+type LogoTone = 'default' | 'inverse' | 'stadium';
 
 interface LogoProps {
-  showText?: boolean;
+  variant?: LogoVariant;
+  size?: LogoSize;
+  tone?: LogoTone;
+  href?: string;
 }
 
-export function Logo({ showText = true }: LogoProps) {
+const WORDMARK_SIZE: Record<LogoSize, number> = {
+  sm: 13,
+  md: 16,
+  lg: 21,
+};
+
+const MARK_SIZE: Record<LogoSize, number> = {
+  sm: 16,
+  md: 24,
+  lg: 32,
+};
+
+const LOCKUP_MARK_SIZE: Record<LogoSize, number> = {
+  sm: 22,
+  md: 26,
+  lg: 42,
+};
+
+const LOCKUP_MARK_SRC: Record<LogoTone, string> = {
+  default: '/brand/simplyfpl-mark.svg',
+  inverse: '/brand/simplyfpl-mark-inverse.svg',
+  stadium: '/brand/simplyfpl-mark-inverse.svg',
+};
+
+const Wrap = styled(XStack, {
+  alignItems: 'center',
+  gap: 0,
+});
+
+const Glyph = styled(Text, {
+  fontFamily: '$mono',
+  fontWeight: '500',
+  letterSpacing: -0.5,
+});
+
+const WordGlyph = styled(Text, {
+  fontFamily: '$body',
+  fontWeight: '700',
+  letterSpacing: -0.3,
+});
+
+function baseColorForTone(tone: LogoTone): string {
+  if (tone === 'inverse' || tone === 'stadium') return '#FFFFFF';
+  return '$color';
+}
+
+export function Logo({ variant = 'wordmark', size = 'md', tone = 'default', href }: LogoProps) {
+  const baseColor = baseColorForTone(tone);
+  const isAccentTone = tone === 'inverse' || tone === 'stadium';
+  const wordColor = isAccentTone ? '#FFFFFF' : '#0F766E';
+  const tldColor = isAccentTone ? '#34D399' : '#0F766E';
+  const linkProps = href ? { render: <a href={href} aria-label={t('logo.aria_label')} /> } : {};
+
+  if (variant === 'lockup') {
+    const px = WORDMARK_SIZE[size];
+    const markPx = LOCKUP_MARK_SIZE[size];
+    return (
+      <Wrap {...linkProps} gap={9}>
+        <XStack
+          width={markPx}
+          height={markPx}
+          flexShrink={0}
+          style={{
+            backgroundImage: `url(${LOCKUP_MARK_SRC[tone]})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+          }}
+        />
+        <XStack alignItems="center" gap={0}>
+          <WordGlyph fontSize={px} lineHeight={px} color={wordColor}>
+            simplyfpl
+          </WordGlyph>
+          <WordGlyph fontSize={px} lineHeight={px} color={tldColor}>
+            .com
+          </WordGlyph>
+        </XStack>
+      </Wrap>
+    );
+  }
+
+  if (variant === 'mark') {
+    const px = MARK_SIZE[size];
+    return (
+      <Wrap {...linkProps}>
+        <Glyph fontSize={px} lineHeight={px} color={baseColor}>
+          s
+        </Glyph>
+        <Glyph fontSize={px} lineHeight={px} color={tldColor}>
+          .
+        </Glyph>
+      </Wrap>
+    );
+  }
+
+  const px = WORDMARK_SIZE[size];
   return (
-    <LogoLink tag="a" href="/">
-      <LogoMark>
-        <svg viewBox="0 0 14 14" fill="none" width={14} height={14}>
-          <rect x="1" y="1" width="5" height="5" rx="1.3" fill="white" />
-          <rect x="8" y="1" width="5" height="5" rx="1.3" fill="white" opacity="0.4" />
-          <rect x="1" y="8" width="5" height="5" rx="1.3" fill="white" opacity="0.4" />
-          <rect x="8" y="8" width="5" height="5" rx="1.3" fill="white" />
-        </svg>
-      </LogoMark>
-      {showText ? <LogoText>SimplyFPL</LogoText> : null}
-    </LogoLink>
+    <Wrap {...linkProps}>
+      <WordGlyph fontSize={px} lineHeight={px} color={wordColor}>
+        simplyfpl
+      </WordGlyph>
+      <WordGlyph fontSize={px} lineHeight={px} color={tldColor}>
+        .com
+      </WordGlyph>
+    </Wrap>
   );
 }

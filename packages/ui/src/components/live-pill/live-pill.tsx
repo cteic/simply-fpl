@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 /**
  * LivePill
@@ -24,16 +24,27 @@ const PillContainer = styled(XStack, {
   paddingHorizontal: 9,
   paddingVertical: 3,
   borderRadius: '$7',
+  variants: {
+    tone: {
+      fresh: { backgroundColor: '$positiveBg', borderColor: '$positiveBorder' },
+      stale: { backgroundColor: '$warningBg', borderColor: '$warningBorder' },
+      cold: { backgroundColor: '$negativeBg', borderColor: '$negative' },
+    },
+  } as const,
 });
 
-const PillDot = styled(Stack, {
+const PillDot = styled(YStack, {
   width: 5,
   height: 5,
   borderRadius: 999,
   backgroundColor: '$positive',
-  // Note: pulse animation is handled in component below using Tamagui's
-  // animation prop. Add `animation="pulse"` and the bar animations from
-  // tamagui.config.ts when wiring up.
+  variants: {
+    tone: {
+      fresh: { backgroundColor: '$positive' },
+      stale: { backgroundColor: '$warning' },
+      cold: { backgroundColor: '$negative' },
+    },
+  } as const,
 });
 
 const PillText = styled(Text, {
@@ -43,20 +54,56 @@ const PillText = styled(Text, {
   letterSpacing: '$9',
   textTransform: 'uppercase',
   color: '$positive',
+  variants: {
+    tone: {
+      fresh: { color: '$positive' },
+      stale: { color: '$warning' },
+      cold: { color: '$negative' },
+    },
+  } as const,
+});
+
+const AgoText = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: '$1',
+  marginLeft: 4,
+  color: '$colorSubtle',
+  letterSpacing: '$2',
+  textTransform: 'none',
 });
 
 interface LivePillProps {
-  /** e.g. "GW30 Live" */
   label: string;
-  /** Whether to pulse the dot. Default: true */
   pulse?: boolean;
+  agoMs?: number | null;
 }
 
-export function LivePill({ label, pulse = true }: LivePillProps) {
+function formatAgo(ms: number): string {
+  if (ms < 5_000) return 'just updated';
+  if (ms < 60_000) return `updated ${Math.floor(ms / 1000)}s ago`;
+  if (ms < 3_600_000) return `updated ${Math.floor(ms / 60_000)}m ago`;
+  return `updated ${Math.floor(ms / 3_600_000)}h ago`;
+}
+
+function toneForAge(ms: number | null | undefined): 'fresh' | 'stale' | 'cold' {
+  if (ms === null || ms === undefined) return 'fresh';
+  if (ms < 30_000) return 'fresh';
+  if (ms < 90_000) return 'stale';
+  return 'cold';
+}
+
+export function LivePill({ label, pulse = true, agoMs }: LivePillProps) {
+  const tone = toneForAge(agoMs);
+  const showAgo = typeof agoMs === 'number';
   return (
-    <PillContainer>
-      {pulse ? <PillDot animation="medium" /> : <PillDot opacity={1} />}
-      <PillText>{label}</PillText>
+    <PillContainer tone={tone}>
+      {pulse && tone === 'fresh' ? (
+        <PillDot tone={tone} transition="medium" />
+      ) : (
+        <PillDot tone={tone} opacity={1} />
+      )}
+      <PillText tone={tone}>{label}</PillText>
+      {showAgo ? <AgoText>· {formatAgo(agoMs)}</AgoText> : null}
     </PillContainer>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Text, XStack, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
 const Row = styled(XStack, {
   alignItems: 'center',
@@ -10,9 +10,15 @@ const Row = styled(XStack, {
   borderBottomWidth: 1,
   borderBottomColor: '$border',
   cursor: 'pointer',
-  animation: 'fast',
+  transition: 'fast',
   hoverStyle: { backgroundColor: '$background' },
+  borderLeftWidth: 3,
+  borderLeftColor: 'transparent',
   variants: {
+    flow: {
+      rise: { borderLeftColor: '$positive' },
+      fall: { borderLeftColor: '$negative' },
+    },
     last: {
       true: { borderBottomWidth: 0 },
     },
@@ -31,6 +37,13 @@ const Info = styled(YStack, {
   minWidth: 0,
 });
 
+const ClubDot = styled(YStack, {
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  flexShrink: 0,
+});
+
 const Name = styled(Text, {
   fontFamily: '$body',
   fontSize: 12,
@@ -47,22 +60,22 @@ const Club = styled(Text, {
   marginTop: 1,
 });
 
-const Bar = styled(Stack, {
+const Bar = styled(YStack, {
   flex: 1,
   minWidth: 40,
 });
 
-const Track = styled(Stack, {
+const Track = styled(YStack, {
   height: 3,
   backgroundColor: '$border',
   borderRadius: 2,
   overflow: 'hidden',
 });
 
-const Fill = styled(Stack, {
+const Fill = styled(YStack, {
   height: '100%',
   borderRadius: 2,
-  animation: 'bar',
+  transition: 'bar',
   variants: {
     flow: {
       rise: { backgroundColor: '$positive' },
@@ -93,18 +106,17 @@ const Prob = styled(Text, {
   borderRadius: 4,
   marginTop: 2,
   variants: {
-    confidence: {
-      hi: { color: '$positive', backgroundColor: '$positiveBg' },
-      md: { color: '$warning', backgroundColor: '$warningBg' },
-      lo: {
-        color: '$colorSubtle',
-        backgroundColor: '$background',
-        borderWidth: 1,
-        borderColor: '$border',
-      },
+    flow: {
+      rise: { color: '#FFFFFF', backgroundColor: '$positive' },
+      fall: { color: '#FFFFFF', backgroundColor: '$negative' },
     },
   } as const,
 });
+
+interface DefConMiniBar {
+  percentage: number;
+  breakdown?: string;
+}
 
 interface PriceRowProps {
   index: number;
@@ -114,23 +126,46 @@ interface PriceRowProps {
   value: string;
   probability: number;
   last?: boolean;
+  accentColor?: string | undefined;
+  defconBar?: DefConMiniBar | undefined;
 }
 
-function confidenceTier(probability: number): 'hi' | 'md' | 'lo' {
-  if (probability >= 70) return 'hi';
-  if (probability >= 40) return 'md';
-  return 'lo';
-}
-
-export function PriceRow({ index, name, club, flow, value, probability, last }: PriceRowProps) {
+export function PriceRow({
+  index,
+  name,
+  club,
+  flow,
+  value,
+  probability,
+  last,
+  accentColor,
+  defconBar,
+}: PriceRowProps) {
   const arrow = flow === 'rise' ? '↑' : '↓';
-  const tier = confidenceTier(probability);
   return (
-    <Row last={last}>
+    <Row last={last} flow={flow}>
       <Pos>{index}</Pos>
       <Info>
-        <Name>{name}</Name>
+        <XStack alignItems="center" gap={6}>
+          {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
+          <Name>{name}</Name>
+        </XStack>
         <Club>{club}</Club>
+        {defconBar ? (
+          <YStack
+            marginTop={4}
+            aria-label={defconBar.breakdown ?? `${Math.round(defconBar.percentage)}% CBIT/90`}
+          >
+            <Track>
+              <YStack
+                height="100%"
+                borderRadius={2}
+                backgroundColor="$colorSubtle"
+                width={`${Math.max(0, Math.min(100, defconBar.percentage))}%`}
+              />
+            </Track>
+          </YStack>
+        ) : null}
       </Info>
       <Bar>
         <Track>
@@ -139,7 +174,7 @@ export function PriceRow({ index, name, club, flow, value, probability, last }: 
       </Bar>
       <Right>
         <Value>{value}</Value>
-        <Prob confidence={tier}>
+        <Prob flow={flow}>
           {arrow} {probability}%
         </Prob>
       </Right>
