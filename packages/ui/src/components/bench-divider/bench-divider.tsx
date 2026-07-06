@@ -1,6 +1,8 @@
 'use client';
 
-import { Stack, Text, XStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
+
+import { t } from '@simplyfpl/i18n';
 
 const Row = styled(XStack, {
   alignItems: 'center',
@@ -8,10 +10,15 @@ const Row = styled(XStack, {
   marginVertical: 4,
 });
 
-const Line = styled(Stack, {
+const Line = styled(YStack, {
   flex: 1,
   height: 1,
   backgroundColor: '$border',
+  variants: {
+    onPitch: {
+      true: { backgroundColor: '$overlay4' },
+    },
+  } as const,
 });
 
 const Label = styled(Text, {
@@ -21,14 +28,23 @@ const Label = styled(Text, {
   textTransform: 'uppercase',
   letterSpacing: '$10',
   color: '$colorSubtle',
+  variants: {
+    onPitch: {
+      true: { color: '$inverseMuted' },
+    },
+  } as const,
 });
 
-export function BenchDivider() {
+interface BenchDividerProps {
+  onPitch?: boolean;
+}
+
+export function BenchDivider({ onPitch = false }: BenchDividerProps) {
   return (
     <Row>
-      <Line />
-      <Label>Bench</Label>
-      <Line />
+      <Line onPitch={onPitch} />
+      <Label onPitch={onPitch}>{t('pitch.bench_divider')}</Label>
+      <Line onPitch={onPitch} />
     </Row>
   );
 }

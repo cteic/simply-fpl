@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Read-only format verification on the whole repo before code leaves the
+# laptop. Catches anything that slipped past the lint-staged pre-commit
+# hook (eg files staged via `git add -p` with mixed-formatting hunks).
+# If this fails: run `pnpm format`, commit, and re-push.
+pnpm format:check
+
+# Optional opt-in pre-push checks via PRE_PUSH env var in .env, e.g.
+# PRE_PUSH=typecheck,lint,test:unit
+[ -f .env ] && . ./.env
+
+for check in $(printf '%s' "${PRE_PUSH:-}" | tr ',' ' '); do
+  pnpm run "$check" || exit 1
+done

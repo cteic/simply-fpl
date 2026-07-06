@@ -1,4 +1,6 @@
-// Supabase database schema — matches supabase/migrations/0001_init.sql
+// Supabase database schema — matches supabase/migrations/*.sql
+
+export type Tier = 'free' | 'pro' | 'ultimate';
 
 export interface Database {
   public: {
@@ -10,6 +12,9 @@ export interface Database {
           fpl_entry_id: number | null;
           is_pro: boolean;
           pro_until: string | null;
+          tier: Tier;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -19,12 +24,56 @@ export interface Database {
           fpl_entry_id?: number | null;
           is_pro?: boolean;
           pro_until?: string | null;
+          tier?: Tier;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
         };
         Update: {
           fpl_entry_id?: number | null;
           is_pro?: boolean;
           pro_until?: string | null;
+          tier?: Tier;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
         };
+        Relationships: [];
+      };
+      frank_queries: {
+        Row: {
+          id: string;
+          user_id: string;
+          question: string;
+          response: unknown;
+          model: string | null;
+          tokens_in: number | null;
+          tokens_out: number | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          question: string;
+          response?: unknown;
+          model?: string | null;
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+        };
+        Update: {
+          response?: unknown;
+          model?: string | null;
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+        };
+        Relationships: [];
+      };
+      stripe_events: {
+        Row: {
+          id: string;
+          processed_at: string;
+        };
+        Insert: {
+          id: string;
+        };
+        Update: Record<string, never>;
         Relationships: [];
       };
       user_leagues: {
@@ -41,6 +90,124 @@ export interface Database {
         };
         Update: {
           position?: number;
+        };
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          platform: 'web';
+          endpoint: string;
+          p256dh: string;
+          auth_key: string;
+          created_at: string;
+          last_used_at: string | null;
+          last_error: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          platform: 'web';
+          endpoint: string;
+          p256dh: string;
+          auth_key: string;
+          last_used_at?: string | null;
+          last_error?: string | null;
+        };
+        Update: {
+          last_used_at?: string | null;
+          last_error?: string | null;
+        };
+        Relationships: [];
+      };
+      notification_prefs: {
+        Row: {
+          user_id: string;
+          deadline_reminder: boolean;
+          captain_scored: boolean;
+          bonus_confirmed: boolean;
+          price_drop: boolean;
+          rank_swing: boolean;
+          rank_swing_threshold: number;
+          goal_scored: boolean;
+          assist: boolean;
+          red_card: boolean;
+          quiet_hours_start: number | null;
+          quiet_hours_end: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          deadline_reminder?: boolean;
+          captain_scored?: boolean;
+          bonus_confirmed?: boolean;
+          price_drop?: boolean;
+          rank_swing?: boolean;
+          rank_swing_threshold?: number;
+          goal_scored?: boolean;
+          assist?: boolean;
+          red_card?: boolean;
+          quiet_hours_start?: number | null;
+          quiet_hours_end?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          deadline_reminder?: boolean;
+          captain_scored?: boolean;
+          bonus_confirmed?: boolean;
+          price_drop?: boolean;
+          rank_swing?: boolean;
+          rank_swing_threshold?: number;
+          goal_scored?: boolean;
+          assist?: boolean;
+          red_card?: boolean;
+          quiet_hours_start?: number | null;
+          quiet_hours_end?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      league_rank_alert_subs: {
+        Row: {
+          id: string;
+          user_id: string;
+          league_id: number;
+          top_n: number | null;
+          swing_n: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          league_id: number;
+          top_n?: number | null;
+          swing_n?: number | null;
+        };
+        Update: {
+          top_n?: number | null;
+          swing_n?: number | null;
+        };
+        Relationships: [];
+      };
+      notification_log: {
+        Row: {
+          id: number;
+          user_id: string | null;
+          event: string;
+          payload: unknown;
+          sent_at: string;
+          clicked_at: string | null;
+        };
+        Insert: {
+          user_id?: string | null;
+          event: string;
+          payload?: unknown;
+          sent_at?: string;
+          clicked_at?: string | null;
+        };
+        Update: {
+          clicked_at?: string | null;
         };
         Relationships: [];
       };

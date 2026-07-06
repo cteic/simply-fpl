@@ -1,11 +1,18 @@
-import type { Metadata } from 'next';
 import { DM_Mono, DM_Sans } from 'next/font/google';
 
+import { AppFooter } from '@/components/app-footer';
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
+import { ServiceWorkerInitializer } from '@/components/service-worker-initializer';
+import { StaleDataBanner } from '@/components/stale-data-banner';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
+import { rootMetadata, rootViewport } from '@/lib/metadata';
 
+import '../../public/tamagui.css';
 import './globals.css';
+
+export const metadata = rootMetadata;
+export const viewport = rootViewport;
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -18,19 +25,8 @@ const dmMono = DM_Mono({
   subsets: ['latin'],
   variable: '--font-dm-mono',
   weight: ['400', '500'],
-  display: 'swap',
+  display: 'optional',
 });
-
-export const metadata: Metadata = {
-  title: 'SimplyFPL — Live FPL Companion',
-  description: 'Live rank, mini-leagues, price changes and more for Fantasy Premier League.',
-  openGraph: {
-    title: 'SimplyFPL',
-    description: 'Live FPL tools — rank tracker, price changes, mini-leagues',
-    url: 'https://simplyfpl.com',
-    siteName: 'SimplyFPL',
-  },
-};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const cfBeaconToken = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;
@@ -41,7 +37,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TamaguiClientProvider>
           <Providers>
             <NavBar />
+            <StaleDataBanner />
+            <ServiceWorkerInitializer />
             {children}
+            <AppFooter />
           </Providers>
         </TamaguiClientProvider>
         {cfBeaconToken ? (

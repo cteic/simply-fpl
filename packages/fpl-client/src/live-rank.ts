@@ -5,14 +5,25 @@ import type {
   LiveRankEntry,
 } from '@simplyfpl/types';
 
+import type { BonusPrediction } from './bonus-points';
+import {
+  estimateLiveRankFromDistribution,
+  hasDistribution,
+  loadDistribution,
+} from './estimate-rank';
+
 /**
  * Calculate live points for a set of picks against live gameweek data.
  * Accounts for captain multiplier and active chip (TC, BB, FH).
+ * Optionally folds in predicted bonus from `predictBonusPoints` — provisional
+ * bonus is added on top of `total_points`; non-provisional bonus is assumed to
+ * already be reflected in FPL's `total_points`.
  */
 export function calculateLivePoints(
   picks: FplEntryGameweekPicks,
   liveData: FplLiveGameweek,
-  _bootstrap: FplBootstrapStatic
+  _bootstrap: FplBootstrapStatic,
+  bonusMap?: Map<number, BonusPrediction>
 ): number {
   const liveMap = new Map(liveData.elements.map((e) => [e.id, e]));
   const isBenchBoost = picks.active_chip === 'bboost';
@@ -28,6 +39,10 @@ export function calculateLivePoints(
     if (!live) continue;
 
     let points = live.stats.total_points;
+    const bonusInfo = bonusMap?.get(pick.element);
+    if (bonusInfo && bonusInfo.provisional) {
+      points += bonusInfo.bonus;
+    }
 
     // Apply multiplier (captain = 2x, TC chip = 3x)
     if (pick.is_captain) {
@@ -92,4 +107,125 @@ export function getCurrentGameweek(bootstrap: FplBootstrapStatic): number | null
 export function getNextGameweek(bootstrap: FplBootstrapStatic): number | null {
   const next = bootstrap.events.find((e) => e.is_next);
   return next?.id ?? null;
+}
+
+export interface NextDeadline {
+  event: number;
+  deadlineTime: string;
+}
+
+/**
+ * The upcoming gameweek deadline (the `is_next` event's `deadline_time`).
+ * Returns null at the end of the season when there is no next event.
+ */
+export function getNextDeadline(bootstrap: FplBootstrapStatic): NextDeadline | null {
+  const next = bootstrap.events.find((e) => e.is_next);
+  if (!next) return null;
+  return { event: next.id, deadlineTime: next.deadline_time };
+}
+
+/**
+ * Human-readable time-until-deadline, coarsened to the two most significant
+ * units (e.g. "2d 4h", "4h 32m", "12m 30s", "45s"). Returns "closed" once the
+ * deadline has passed.
+ */
+export function formatTimeRemaining(ms: number): string {
+  if (ms <= 0) return 'closed';
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86_400);
+  const hours = Math.floor((totalSeconds % 86_400) / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+export interface LiveRankEstimate {
+  liveRank: number;
+  movement: number;
+  direction: 'up' | 'down' | 'flat';
+}
+
+const PLACES_PER_POINT = 700;
+
+export function estimateLiveRank(
+  preGwRank: number,
+  livePoints: number,
+  avgEntryScore: number
+): LiveRankEstimate {
+  const delta = livePoints - avgEntryScore;
+  const movement = Math.round(delta * PLACES_PER_POINT);
+  const liveRank = Math.max(1, preGwRank - movement);
+  let direction: LiveRankEstimate['direction'] = 'flat';
+  if (movement > 0) direction = 'up';
+  else if (movement < 0) direction = 'down';
+  return { liveRank, movement, direction };
+}
+
+export const APPROX_TOTAL_FPL_ENTRIES = 11_000_000;
+
+export interface EstimateLiveRankSmartOptions {
+  totalEntries?: number;
+}
+
+/**
+ * Distribution-aware live-rank estimator. When a captured `overall` score
+ * distribution exists for `gw`, it positions the live score on the empirical
+ * CDF and maps the resulting percentile to a rank in [1, totalEntries].
+ * Falls back to the flat-700 heuristic (`estimateLiveRank`) when no
+ * distribution is captured yet — keeps future gameweeks working before the
+ * scrape lands.
+ */
+export function estimateLiveRankSmart(
+  gw: number,
+  preGwRank: number,
+  livePoints: number,
+  avgEntryScore: number,
+  opts: EstimateLiveRankSmartOptions = {}
+): LiveRankEstimate {
+  if (!hasDistribution(gw, 'overall')) {
+    return estimateLiveRank(preGwRank, livePoints, avgEntryScore);
+  }
+  const distribution = loadDistribution(gw, 'overall');
+  const totalEntries = opts.totalEntries ?? APPROX_TOTAL_FPL_ENTRIES;
+  const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
+    preGwRank,
+    livePoints,
+    distribution,
+    totalEntries
+  );
+  return { liveRank, movement, direction };
+}
+
+export interface RankDetails {
+  oldRank: number;
+  preSubsRank: number;
+  postSubsRank: number;
+  changePct: number;
+}
+
+export function computeRankDetails(
+  preGwRank: number,
+  livePoints: number,
+  postSubsPoints: number,
+  avgEntryScore: number,
+  gw?: number
+): RankDetails | null {
+  if (preGwRank <= 0) return null;
+  const preSubs =
+    gw !== undefined
+      ? estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore)
+      : estimateLiveRank(preGwRank, livePoints, avgEntryScore);
+  const postSubs =
+    gw !== undefined
+      ? estimateLiveRankSmart(gw, preGwRank, postSubsPoints, avgEntryScore)
+      : estimateLiveRank(preGwRank, postSubsPoints, avgEntryScore);
+  return {
+    oldRank: preGwRank,
+    preSubsRank: preSubs.liveRank,
+    postSubsRank: postSubs.liveRank,
+    changePct: (postSubs.movement / preGwRank) * 100,
+  };
 }

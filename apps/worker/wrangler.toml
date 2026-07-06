@@ -8,13 +8,43 @@ binding = "FPL_CACHE"
 id = "478c306b8b974f85bc2a9b83a51d87d1"
 preview_id = "51fbb5bf51fb4ff7a2a6ff28bffaac0a"
 
+[[kv_namespaces]]
+binding = "FRANK_WEEKLY_CACHE"
+id = "e1bc894c74a54453944b3c48d0f56d08"
+preview_id = "0fb68df53a444314b23b7440e8f64357"
+
+# Speed-comparison artefact store — see docs/rfcs/003-speed-comparison.md.
+# Pete must create the bucket (`wrangler r2 bucket create simplyfpl-vs`) before deploy.
+[[r2_buckets]]
+binding = "VS_BUCKET"
+bucket_name = "simplyfpl-vs"
+preview_bucket_name = "simplyfpl-vs-preview"
+
+[[r2_buckets]]
+binding = "RECORDINGS_R2"
+bucket_name = "simplyfpl-recordings"
+preview_bucket_name = "simplyfpl-recordings-preview"
+
+# Browser Rendering — used by the weekly speed-comparison cron.
+# Requires the Browser Rendering product to be enabled on the Cloudflare account.
+[browser]
+binding = "BROWSER"
+
 [[durable_objects.bindings]]
 name = "LIVE_GW"
 class_name = "LiveGwDO"
 
+[[durable_objects.bindings]]
+name = "COHORT_LOCK"
+class_name = "CohortLockDO"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["LiveGwDO"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["CohortLockDO"]
 
 [vars]
 FPL_BASE_URL = "https://fantasy.premierleague.com/api"
@@ -24,3 +54,33 @@ BOOTSTRAP_TTL = "3600"
 LIVE_GW_TTL = "60"
 ENTRY_TTL = "120"
 LEAGUE_TTL = "90"
+
+# Build-time stamped at deploy via `wrangler deploy --var GIT_SHA:$(git rev-parse --short HEAD)`
+# Falls back to "unknown" on /status if not set.
+GIT_SHA = "unknown"
+
+# Web push VAPID subject — surfaced to push services if they need to reach the sender.
+# Public key and private key are secrets (see below).
+VAPID_SUBJECT = "mailto:pete@cteic.ie"
+
+# Cohort engine cron triggers — see docs/rfcs/004-cohort-engine.md
+# DISABLED by default. Uncomment to enable after setting Supabase secrets:
+#   wrangler secret put SUPABASE_URL
+#   wrangler secret put SUPABASE_SERVICE_ROLE
+#
+# Web push secrets (set via wrangler secret put before deploying):
+#   wrangler secret put VAPID_PUBLIC_KEY
+#   wrangler secret put VAPID_PRIVATE_KEY
+#   wrangler secret put NOTIFY_DISPATCH_SECRET
+[triggers]
+crons = [
+  "*/10 * * * *",  # live-GW cadence + captain-scored check
+  "0 */6 * * *",   # idle cadence
+  "*/15 * * * *",  # /fpl/prices KV warm — keep bootstrap + slim prices hot
+  "0 6 * * 1",      # weekly speed-comparison (Mon 06:00 UTC)
+  "*/10 14-18 * * 1",
+  "0 6 * * 2",      # Frank weekly AI advice cache (Tue 06:00 UTC, after GW deadline Mon)
+  "30 17 * * *",    # GW deadline reminder (30 min before typical 18:00 UTC deadline)
+  "0 * * * *"       # rivals pre-warm: prime tracked-league picks into KV every hour so the rivals view loads instantly
+]
+

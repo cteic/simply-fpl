@@ -27,6 +27,8 @@ jobs:
       - run: pnpm build:web
       - run: pnpm exec playwright install --with-deps
       - run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS: '1'
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

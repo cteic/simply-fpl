@@ -1,13 +1,31 @@
 DO NOT ADD, REMOVE, OR MODIFY COMMENTS IN CODE — including punctuation and formatting in existing comments. Only touch comments if explicitly asked.
 
+NEVER reference, name, or describe any OTHER project, client, or repository in this repo's artifacts — commits, PR titles/bodies/comments, issues, code, or docs. Pete may work for multiple clients on the same machine, so leaking one project into another's history is a confidentiality breach. If you observe cross-environment interference (e.g. a port already in use, a stray process, a conflicting global tool), describe it generically — "another local process is using port 3000" — never by name or purpose. This applies in every execution context: interactive sessions, scheduled agents, and subagents.
+
 After ANY code changes, you MUST run verification (see Verification section). Do not report a task as complete until all checks pass.
 
 ## Personal preferences
 
 - **PRs**: title + summary bullets only. No "Generated with Claude Code" footer, no Test Plan section.
 - **Commits**: no `Co-Authored-By: Claude` trailer.
+- **Commit authorship**: every commit — interactive sessions AND remote/scheduled agents alike — must be authored as `Peter Watters <2938440+pete-watters@users.noreply.github.com>`. Remote agents MUST run `git config user.name "Peter Watters"` and `git config user.email "2938440+pete-watters@users.noreply.github.com"` at the start of the run, so no AI/tool ever appears as a commit author or co-author. No AI/tool attribution in any commit message, PR body, or issue.
 - **Branches**: short kebab-case, scoped prefix when useful (`fix/...`, `ci/...`, `feat/...`).
 - **Tone**: terse. Skip trailing "summary of what I just did" — the diff speaks for itself.
+
+### After opening a PR
+
+Immediately after `gh pr create` returns, do both of these:
+
+1. **Assign Pete** so the PR lands on his dashboard:
+   `gh pr edit <N> --add-assignee pete-watters`
+   GitHub rejects review requests on self-authored PRs, and our PRs (local + scheduled-agent) are all authored under Pete's account — so assignee is the equivalent visibility signal. Don't waste time on `--add-reviewer`.
+
+2. **Post a status comment** that opens with `@pete-watters` and uses this shape:
+   - **Shipped** — bullets of what landed in this PR
+   - **Pending / decisions needed** — anything Pete should look at, blockers, open questions
+   - **Verification** — confirm `pnpm typecheck / lint / format / build` are clean. List any manual steps Pete needs to take (env vars to set, services to sign up for, smoke-test URLs, migrations to run)
+
+This applies to PRs opened from any session — local CLI work AND scheduled remote agents. Scheduled-agent prompts include "post the final-response summary as a PR comment with `@pete-watters`" as a hard requirement.
 
 # SimplyFPL — Claude Instructions
 
@@ -139,6 +157,18 @@ pnpm dev:mobile     # Expo dev server
 - Branches and PRs target `dev`, not `main`
 - Imports: use the workspace alias `@simplyfpl/<pkg>` rather than relative paths across packages
 
+## Branching + release process (simplified GitFlow)
+
+- `main` is production. Auto-deploys to Cloudflare Pages + the Worker on every push.
+- `dev` is the integration branch and the **default branch** of the repo. PRs target `dev`.
+- Feature/fix/docs branches (`feat/*`, `fix/*`, `docs/*`, `chore/*`) branch from `dev` and PR back to `dev`.
+- **No stacked PRs.** Every PR branches off `dev` and targets `dev` directly — never branch a PR off another open PR's branch. Stacked PRs have repeatedly stranded work here: a PR gets merged into its parent branch instead of `dev`, the parent is then superseded, and the commits never reach `dev`/`main`. When several pieces of work are genuinely shared or dependent, put them in **one larger PR off `dev` with separate, well-scoped commits** rather than a stack.
+- Releases are PRs from `dev` → `main`. Merge with a merge commit (preserves the per-feature history). Tag the merge commit on main `v0.X.0`.
+- After a release lands on main, the next PR to dev should include a `chore: sync main into dev` merge so dev stays at-or-ahead of main.
+- Hotfix exception: a true production hotfix can branch off `main` and PR to `main`, then cherry-pick back to `dev`. Use sparingly. Run `/hotfix` (see `.claude/commands/hotfix.md`) to automate the flow.
+
+Branch protection is **not enforced via GitHub** (the repo is private on Free tier — branch protection rules cost Pro). Discipline replaces enforcement: don't direct-push to `main`, don't force-push either branch, don't delete `main` or `dev`.
+
 ## FPL-specific notes
 
 - All FPL API calls must go through the Cloudflare Worker (`apps/worker`), never directly from client
@@ -192,14 +222,51 @@ pnpm --filter @simplyfpl/{package} typecheck
 pnpm --filter @simplyfpl/{package} lint
 ```
 
-### Pre-commit hook gotcha
+### Diff-grep before every code-touching push
 
-The husky pre-commit hook (`.husky/pre-commit`) runs whatever's listed in the `PRE_COMMIT` env var (set in `.env`). If `PRE_COMMIT=format`, the hook runs `prettier --write` _after_ `git add` but does **not** re-stage. The commit lands with the pre-format content; CI's `format:check` then fails on the next push.
-
-**Always do this before `git commit`:**
+Local `pnpm lint` is unreliable on Pete's machine (issue #157 — OOM/hang on prettier-plugin-sort-imports), so violations have slipped past pre-commit and been caught by CI several times. Until #157 is fixed, every push that adds or modifies source code must grep its own diff for the patterns CLAUDE.md forbids:
 
 ```
-pnpm format && git add -u
+git diff origin/<base>..HEAD -- 'apps/' 'packages/' 'tests/' | \
+  grep -nE '\!\.[A-Za-z_$]|: any\b|\benum |^\+.* as [A-Z]'
 ```
 
-…then commit. Don't rely on the hook to format for you. CI runs `format:check`, not `format`, so any unformatted file in a commit fails the `checks` job until a follow-up `chore: prettier` commit lands.
+If anything matches, fix locally before pushing. Nested ternaries don't grep cleanly — scan the diff visually for `? ... ? ... :` shapes. This is on top of the pre-commit/pre-push hooks, not a replacement.
+
+This applies equally to interactive sessions, scheduled remote agents, and human dev work.
+
+### Git hooks (pre-commit + pre-push)
+
+- **`.husky/pre-commit`** runs `lint-staged` — prettier --write on staged files only (~1s). lint-staged re-stages the formatted versions automatically. Unstaged files in the working tree are never touched, so `git add -p` partial-staging works as expected.
+- **`.husky/pre-push`** runs `pnpm format:check` (read-only) on the whole repo. This is the safety net for anything that slipped past the pre-commit hook (e.g. cherry-picked commits, partial-staging hunks, scheduled agents). If it fails: run `pnpm format`, commit the fix, and re-push.
+
+Optional extra checks per hook via `.env`:
+
+```
+PRE_COMMIT=typecheck,lint
+PRE_PUSH=typecheck,lint,test:unit
+```
+
+`.env` is gitignored.
+
+**Bypassing**: `--no-verify` skips the hook entirely. Reserve for genuine emergencies (e.g. prod-down hotfix with local tooling hung). Never as a routine workflow.
+
+## Testing
+
+BDD tests use Gherkin `.feature` files with step definitions in `*.steps.ts`.
+
+- **Unit/integration**: Vitest + `@amiceli/vitest-cucumber` + MSW. Co-locate `.feature` and `*.spec.ts` next to source.
+- **E2E**: Playwright + `playwright-bdd` in `apps/web/e2e/features/`. Runs on push to `main` only.
+- **MSW**: all FPL API calls in tests go through MSW — never hit real FPL or the Worker in tests.
+
+### Rule for new features
+
+Every PR that adds a new feature or user-facing flow MUST include:
+
+- At least one `.feature` scenario describing the user-observable behaviour.
+- Step definitions and any required MSW handlers.
+- For E2E-worthy flows (anything reachable from primary navigation), add a Playwright BDD scenario too.
+
+Bug-fix PRs MUST include a regression test that fails without the fix.
+
+A PR without tests for new behaviour will be rejected at review. The agent opening the PR is responsible for writing the tests — don't defer.

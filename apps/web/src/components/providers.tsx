@@ -5,12 +5,20 @@ import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { auth } from '@simplyfpl/features';
+import { LocaleProvider } from '@simplyfpl/i18n';
+import type { SupportedLocale } from '@simplyfpl/i18n';
 
+import { PostHogProvider } from '@/components/posthog-provider';
 import { getSupabaseClient } from '@/lib/supabase';
 
 const { AuthProvider } = auth;
 
-export function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  children: React.ReactNode;
+  initialLocale?: SupportedLocale;
+}
+
+export function Providers({ children, initialLocale }: ProvidersProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -26,8 +34,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [supabase] = useState(() => getSupabaseClient());
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider client={supabase}>{children}</AuthProvider>
-    </QueryClientProvider>
+    <LocaleProvider initialLocale={initialLocale}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider client={supabase}>
+          <PostHogProvider>{children}</PostHogProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </LocaleProvider>
   );
 }

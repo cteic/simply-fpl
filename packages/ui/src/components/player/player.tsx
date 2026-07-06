@@ -1,7 +1,9 @@
 'use client';
 
-import { Stack, Text, YStack, styled } from 'tamagui';
+import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { DefConBar } from '../defcon-bar';
+import type { DefConBarProps } from '../defcon-bar';
 import { PBadge } from '../pbadge';
 import { Shirt } from '../shirt';
 import type { ShirtKind } from '../shirt';
@@ -13,7 +15,7 @@ const Wrap = styled(YStack, {
   cursor: 'pointer',
 });
 
-const ShirtWrap = styled(Stack, {
+const ShirtWrap = styled(YStack, {
   position: 'relative',
   variants: {
     bench: {
@@ -46,6 +48,26 @@ const Detail = styled(Text, {
   textAlign: 'center',
 });
 
+const ClubDot = styled(YStack, {
+  width: 6,
+  height: 6,
+  borderRadius: 3,
+  flexShrink: 0,
+});
+
+const Ownership = styled(Text, {
+  fontFamily: '$mono',
+  fontSize: 8.5,
+  color: '$colorSubtle',
+  textAlign: 'center',
+  letterSpacing: 0,
+  variants: {
+    partial: {
+      true: { fontStyle: 'italic', color: '$colorMuted' },
+    },
+  } as const,
+});
+
 type BadgeTone = 'default' | 'hot' | 'bench' | 'captain' | 'tbp';
 
 interface PlayerProps {
@@ -55,8 +77,15 @@ interface PlayerProps {
   badge?: string;
   badgeTone?: BadgeTone;
   bench?: boolean;
+  compact?: boolean;
   kitUrl?: string | undefined;
   kitUrl2x?: string | undefined;
+  ownershipPercent?: number | undefined;
+  ownershipPartial?: boolean;
+  accentColor?: string | undefined;
+  defcon?: DefConBarProps | undefined;
+  onPitch?: boolean;
+  onWhatIf?: () => void;
 }
 
 export function Player({
@@ -66,18 +95,70 @@ export function Player({
   badge,
   badgeTone = 'default',
   bench = false,
+  compact = false,
   kitUrl,
   kitUrl2x,
+  ownershipPercent,
+  ownershipPartial = false,
+  accentColor,
+  defcon,
+  onPitch = false,
+  onWhatIf,
 }: PlayerProps) {
   const shirtKind: ShirtKind = bench ? 'bch' : position;
+  let nameColor: string | undefined;
+  if (onPitch) {
+    nameColor = bench ? '$inverseSoft' : '$inverse';
+  }
+  const detailColor = onPitch ? '$inverseMuted' : undefined;
+  const ownershipColor = onPitch ? '$inverseSoft' : undefined;
   return (
-    <Wrap>
+    <Wrap width={compact ? 56 : undefined}>
       <ShirtWrap bench={bench}>
-        <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} />
+        <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} size={compact ? 36 : 44} />
         {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
       </ShirtWrap>
-      <Name bench={bench}>{name}</Name>
-      {detail ? <Detail>{detail}</Detail> : null}
+      <Name bench={bench} maxWidth={compact ? 54 : undefined} color={nameColor}>
+        {name}
+      </Name>
+      {detail ? (
+        <XStack alignItems="center" justifyContent="center" gap={4}>
+          {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
+          <Detail color={detailColor}>{detail}</Detail>
+        </XStack>
+      ) : null}
+      {ownershipPercent !== undefined && Number.isFinite(ownershipPercent) ? (
+        <Ownership partial={ownershipPartial} color={ownershipColor}>
+          {ownershipPartial ? '~' : ''}
+          {ownershipPercent.toFixed(1)}%
+        </Ownership>
+      ) : null}
+      {defcon ? (
+        <DefConBar
+          current={defcon.current}
+          threshold={defcon.threshold}
+          percentage={defcon.percentage}
+          awarded={defcon.awarded}
+          {...(defcon.breakdown !== undefined ? { breakdown: defcon.breakdown } : {})}
+        />
+      ) : null}
+      {onWhatIf && !bench ? (
+        <Text
+          render="button"
+          role="button"
+          fontFamily="$body"
+          fontSize={8}
+          fontWeight="600"
+          letterSpacing={0.2}
+          color={onPitch ? '$stadiumAccent' : '$brand'}
+          cursor="pointer"
+          textAlign="center"
+          hoverStyle={{ color: onPitch ? '$stadiumAccentStrong' : '$brandHover' }}
+          onPress={onWhatIf}
+        >
+          What if?
+        </Text>
+      ) : null}
     </Wrap>
   );
 }

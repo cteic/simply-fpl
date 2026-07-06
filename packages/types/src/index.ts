@@ -14,6 +14,10 @@ export interface FplPlayer {
   transfers_out_event: number;
   chance_of_playing_next_round: number | null;
   news: string;
+  status?: 'a' | 'd' | 'i' | 's' | 'n' | 'u';
+  minutes?: number;
+  clearances_blocks_interceptions?: number;
+  tackles?: number;
 }
 
 export interface FplTeam {
@@ -50,6 +54,17 @@ export interface FplElementType {
   singular_name_short: string;
 }
 
+// DefCon (defensive contribution) bonus progress for a player in the current GW
+export interface DefConProgress {
+  eligible: boolean;
+  current: number;
+  threshold: number;
+  percentage: number;
+  awarded: boolean;
+  cbi: number;
+  tackles: number;
+}
+
 // Live gameweek types
 export interface FplLiveElement {
   id: number;
@@ -65,6 +80,8 @@ export interface FplLiveElement {
     bonus: number;
     bps: number;
     total_points: number;
+    clearances_blocks_interceptions: number;
+    tackles: number;
   };
   explain: FplExplain[];
 }
@@ -166,7 +183,9 @@ export type FplDifficulty = 1 | 2 | 3 | 4 | 5;
 export interface FplFixture {
   id: number;
   event: number | null;
+  started?: boolean;
   finished: boolean;
+  finished_provisional?: boolean;
   kickoff_time: string | null;
   team_h: number;
   team_a: number;
@@ -174,6 +193,32 @@ export interface FplFixture {
   team_a_score: number | null;
   team_h_difficulty: FplDifficulty;
   team_a_difficulty: FplDifficulty;
+}
+
+export interface FplEntrySnapshot {
+  bootstrap: FplBootstrapStatic;
+  entry: FplEntry;
+  picks: FplEntryGameweekPicks | null;
+  gw: number;
+  picksAvailable: boolean;
+}
+
+export type BootstrapLitePlayer = Pick<
+  FplPlayer,
+  'id' | 'web_name' | 'team' | 'element_type' | 'selected_by_percent' | 'now_cost'
+>;
+
+export type BootstrapLiteTeam = Pick<FplTeam, 'id' | 'short_name' | 'code'>;
+
+export type BootstrapLiteEvent = Pick<
+  FplEvent,
+  'id' | 'average_entry_score' | 'is_current' | 'is_next'
+>;
+
+export interface BootstrapLite {
+  elements: BootstrapLitePlayer[];
+  teams: BootstrapLiteTeam[];
+  events: BootstrapLiteEvent[];
 }
 
 // Computed/app types
@@ -196,4 +241,133 @@ export interface PriceChange {
   probability: number; // 0-1
 }
 
+export type ThemeName = 'stadium' | 'bold' | 'quiet';
+
+export interface ScorePercentiles {
+  p1: number;
+  p5: number;
+  p10: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p90: number;
+  p95: number;
+  p99: number;
+}
+
+export interface ScoreHistogramBin {
+  min: number;
+  max: number;
+  count: number;
+}
+
+export interface ScoreDistribution {
+  sampleSize: number;
+  min: number;
+  max: number;
+  mean: number;
+  median: number;
+  percentiles: ScorePercentiles;
+  histogram: ScoreHistogramBin[];
+}
+
+export type RankDistributionCohort = 'overall' | 'top_100k' | 'top_10k' | 'top_1k' | 'legendary';
+
+export interface RankDistribution extends ScoreDistribution {
+  gw: number;
+  cohort: RankDistributionCohort;
+}
+
+export interface ScoreDistributionFileCohorts {
+  top_10k?: ScoreDistribution;
+  top_1k?: ScoreDistribution;
+  top_100k?: ScoreDistribution;
+  overall?: ScoreDistribution;
+  legendary?: ScoreDistribution;
+}
+
+export interface ScoreDistributionFile {
+  gw: number;
+  builtAt: string;
+  binSize: number;
+  cohorts: ScoreDistributionFileCohorts;
+}
+
+export type Percentiles = ScorePercentiles;
+
+export interface ComparisonSiteEntry {
+  slug: string;
+  label: string;
+  url: string;
+  timeToFirstData: number | null;
+  totalBytes: number;
+  thirdPartyCount: number;
+  screenshotKey: string;
+}
+
+export interface ComparisonSnapshot {
+  measuredAt: string;
+  week: string;
+  sites: ComparisonSiteEntry[];
+}
+
+// Detailed league / rivals table row (presentational contract for #113)
+export interface DetailedLeagueCaptain {
+  name: string;
+  points: number;
+  multiplier: number; // 2 = (C), 3 = (TC)
+}
+
+export interface DetailedLeagueRowData {
+  position: number;
+  managerName: string;
+  teamName: string;
+  entryId: number;
+  overallRank: number | null;
+  gwPoints: number; // gross GW points, before any transfer hit
+  transferHits: number; // points cost of hits this GW (positive, e.g. 4)
+  totalPoints: number;
+  captain: DetailedLeagueCaptain | null;
+  benchPointsWasted: number;
+  activeChip: string | null;
+  transfersOut: string[];
+  transfersIn: string[];
+  playersPlayed: number;
+  playersTotal: number;
+  rankMovement?: number; // positive = climbed, negative = dropped
+  isYou?: boolean;
+}
+
 export * from './db';
+export * from './frank';
+export * from './notifications';
+
+export type PlayerNewsStatus = 'available' | 'doubt' | 'suspended' | 'injured' | 'unavailable';
+
+export interface PlayerNewsItem {
+  id: number;
+  web_name: string;
+  element_type: number;
+  team_id: number;
+  chance_of_playing_next_round: number | null;
+  news: string;
+  status: PlayerNewsStatus;
+}
+
+export interface TeamNewsGroup {
+  team_id: number;
+  team_name: string;
+  team_short_name: string;
+  players: PlayerNewsItem[];
+}
+
+export interface TeamNewsResponse {
+  generated_at: string;
+  teams: TeamNewsGroup[];
+}
+
+export interface EntryNewsResponse {
+  generated_at: string;
+  entry_id: number;
+  players: PlayerNewsItem[];
+}

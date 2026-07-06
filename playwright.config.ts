@@ -19,6 +19,7 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
+  captureGitInfo: { diff: false },
   webServer: {
     command: 'pnpm --filter @simplyfpl/web start',
     url: baseURL,

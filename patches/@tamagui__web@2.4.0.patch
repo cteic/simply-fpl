@@ -1,0 +1,132 @@
+--- a/dist/cjs/createComponent.cjs
++++ b/dist/cjs/createComponent.cjs
+@@ -654,7 +654,7 @@
+         if (animations.ref) animatedRef = animations.ref;
+         if (isHydrated && animations) {
+           animationStyles = animations.style;
+-          viewProps.style = animationStyles;
++          viewProps.style = import_constants.isWeb && typeof elementType === "string" && Array.isArray(animationStyles) ? Object.assign({}, ...animationStyles.filter(Boolean)) : animationStyles;
+           if (animations.className) viewProps.className = `${state.unmounted === "should-enter" ? "t_unmounted " : ""}${viewProps.className || ""} ${animations.className}`;
+         }
+       }
+--- a/dist/cjs/helpers/getSplitStyles.cjs
++++ b/dist/cjs/helpers/getSplitStyles.cjs
+@@ -673,7 +673,8 @@
+         if (groupClassName) classList.push(groupClassName);
+         if (props.className) classList.push(props.className);
+         const finalClassName = classList.join(" ");
+-        const needsCssStyles = isReactNative || styleProps.isAnimated && driver?.isReactNative;
++        const renderingAsHostDomElement = import_constants.isWeb && typeof elementType === "string";
++        const needsCssStyles = !renderingAsHostDomElement && (isReactNative || styleProps.isAnimated && driver?.isReactNative);
+         if (styleProps.isAnimated && driver?.inputStyle === "css") {
+           viewProps.className = finalClassName;
+           if (style) viewProps.style = style;
+--- a/dist/cjs/helpers/mergeSlotStyleProps.cjs
++++ b/dist/cjs/helpers/mergeSlotStyleProps.cjs
+@@ -28,16 +28,26 @@
+ var import_compose_refs = require("@tamagui/compose-refs");
+ var import_helpers = require("@tamagui/helpers");
+ const isEventHandler = /^on[A-Z]/;
++function flattenStyle(value) {
++  if (!Array.isArray(value)) return value;
++  return value.reduce((acc, item) => {
++    if (item === null || item === void 0 || item === false) return acc;
++    if (Array.isArray(item)) return Object.assign(acc, flattenStyle(item));
++    return Object.assign(acc, item);
++  }, {});
++}
+ function mergeSlotStyleProps(base, overlay) {
+   for (const key in overlay) {
+     const baseVal = base[key];
+     const overlayVal = overlay[key];
+     if (overlayVal === void 0) continue;
+     if (key === "style") {
+-      base.style = baseVal && overlayVal ? {
+-        ...baseVal,
+-        ...overlayVal
+-      } : overlayVal || baseVal;
++      const flatBase = flattenStyle(baseVal);
++      const flatOverlay = flattenStyle(overlayVal);
++      base.style = flatBase && flatOverlay ? {
++        ...flatBase,
++        ...flatOverlay
++      } : flatOverlay || flatBase;
+     } else if (key === "className") {
+       base.className = baseVal && overlayVal ? `${baseVal} ${overlayVal}` : overlayVal || baseVal;
+     } else if (key === "ref") {
+--- a/dist/cjs/setupReactNative.cjs
++++ b/dist/cjs/setupReactNative.cjs
+@@ -30,7 +30,6 @@
+   if (!Component) return;
+   if (Component.getSize && Component.prefetch) return RNConfigs.Image;
+   if (Component.displayName === "Text" && Component.render) return RNConfigs.Text;
+-  if (Component.render && (Component.displayName === "ScrollView" || Component.displayName === "View")) return RNConfigs.default;
+   if (Component.State?.blurTextInput) return RNConfigs.TextInput;
+   return ReactNativeStaticConfigs.get(Component);
+ }
+--- a/dist/esm/createComponent.mjs
++++ b/dist/esm/createComponent.mjs
+@@ -614,7 +614,7 @@
+         if (animations.ref) animatedRef = animations.ref;
+         if (isHydrated && animations) {
+           animationStyles = animations.style;
+-          viewProps.style = animationStyles;
++          viewProps.style = isWeb && typeof elementType === "string" && Array.isArray(animationStyles) ? Object.assign({}, ...animationStyles.filter(Boolean)) : animationStyles;
+           if (animations.className) viewProps.className = `${state.unmounted === "should-enter" ? "t_unmounted " : ""}${viewProps.className || ""} ${animations.className}`;
+         }
+       }
+--- a/dist/esm/helpers/getSplitStyles.mjs
++++ b/dist/esm/helpers/getSplitStyles.mjs
+@@ -629,7 +629,8 @@
+         if (groupClassName) classList.push(groupClassName);
+         if (props.className) classList.push(props.className);
+         const finalClassName = classList.join(" ");
+-        const needsCssStyles = isReactNative || styleProps.isAnimated && driver?.isReactNative;
++        const renderingAsHostDomElement = isWeb && typeof elementType === "string";
++        const needsCssStyles = !renderingAsHostDomElement && (isReactNative || styleProps.isAnimated && driver?.isReactNative);
+         if (styleProps.isAnimated && driver?.inputStyle === "css") {
+           viewProps.className = finalClassName;
+           if (style) viewProps.style = style;
+--- a/dist/esm/helpers/mergeSlotStyleProps.mjs
++++ b/dist/esm/helpers/mergeSlotStyleProps.mjs
+@@ -1,16 +1,26 @@
+ import { composeRefs } from "@tamagui/compose-refs";
+ import { composeEventHandlers } from "@tamagui/helpers";
+ const isEventHandler = /^on[A-Z]/;
++function flattenStyle(value) {
++  if (!Array.isArray(value)) return value;
++  return value.reduce((acc, item) => {
++    if (item === null || item === void 0 || item === false) return acc;
++    if (Array.isArray(item)) return Object.assign(acc, flattenStyle(item));
++    return Object.assign(acc, item);
++  }, {});
++}
+ function mergeSlotStyleProps(base, overlay) {
+   for (const key in overlay) {
+     const baseVal = base[key];
+     const overlayVal = overlay[key];
+     if (overlayVal === void 0) continue;
+     if (key === "style") {
+-      base.style = baseVal && overlayVal ? {
+-        ...baseVal,
+-        ...overlayVal
+-      } : overlayVal || baseVal;
++      const flatBase = flattenStyle(baseVal);
++      const flatOverlay = flattenStyle(overlayVal);
++      base.style = flatBase && flatOverlay ? {
++        ...flatBase,
++        ...flatOverlay
++      } : flatOverlay || flatBase;
+     } else if (key === "className") {
+       base.className = baseVal && overlayVal ? `${baseVal} ${overlayVal}` : overlayVal || baseVal;
+     } else if (key === "ref") {
+--- a/dist/esm/setupReactNative.mjs
++++ b/dist/esm/setupReactNative.mjs
+@@ -3,7 +3,6 @@
+   if (!Component) return;
+   if (Component.getSize && Component.prefetch) return RNConfigs.Image;
+   if (Component.displayName === "Text" && Component.render) return RNConfigs.Text;
+-  if (Component.render && (Component.displayName === "ScrollView" || Component.displayName === "View")) return RNConfigs.default;
+   if (Component.State?.blurTextInput) return RNConfigs.TextInput;
+   return ReactNativeStaticConfigs.get(Component);
+ }

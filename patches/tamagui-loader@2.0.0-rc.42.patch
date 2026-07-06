@@ -1,0 +1,17 @@
+diff --git a/dist/esm/loader.mjs b/dist/esm/loader.mjs
+index 144bab0ec637980f11a681861fe90e87783b221c..2183687285feba4bdfbe086cf634ed86fc002d22 100644
+--- a/dist/esm/loader.mjs
++++ b/dist/esm/loader.mjs
+@@ -11,7 +11,11 @@ try {
+   try {
+     CSS_LOADER_PATH = requireResolve("./css.esm");
+   } catch {
+-    CSS_LOADER_PATH = requireResolve("./css.js");
++    try {
++      CSS_LOADER_PATH = requireResolve("./css.js");
++    } catch {
++      CSS_LOADER_PATH = requireResolve("./css.mjs");
++    }
+   }
+ }
+ let index = 0;

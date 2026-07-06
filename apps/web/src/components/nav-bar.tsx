@@ -1,40 +1,96 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { auth } from '@simplyfpl/features';
-import { Nav } from '@simplyfpl/ui';
+import { usePathname, useRouter } from 'next/navigation';
+
+import { auth, liveRank } from '@simplyfpl/features';
+import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
+import { LiveStatusPill, Nav } from '@simplyfpl/ui';
+
+import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
+import { setSavedEntryId, useSavedEntryId } from '@/lib/saved-entry-id';
+import { useBootstrap } from '@/queries/fpl';
+
+import { buildNavLinks } from './nav-links';
 
 const { useAuth } = auth;
-
-const BASE_LINKS = [
-  { label: 'Live Rank', href: '/' },
-  { label: 'Leagues', href: '/leagues' },
-  { label: 'Prices', href: '/prices' },
-  { label: 'Planner', href: '/planner' },
-];
+const { useCountdown, useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
 
 export function NavBar() {
   const pathname = usePathname() ?? '/';
+  const router = useRouter();
   const { session, signOut } = useAuth();
+  const entryId = useSavedEntryId();
+  const [mounted, setMounted] = useState(false);
 
-  const allLinks = session ? [...BASE_LINKS, { label: 'Settings', href: '/settings' }] : BASE_LINKS;
+  function handleDeselectTeam() {
+    setSavedEntryId(null);
+    router.push('/?clear=1');
+  }
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const { data: bootstrap } = useBootstrap();
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
+  const nextDeadline = bootstrap ? getNextDeadline(bootstrap) : null;
+  const countdown = useCountdown(nextDeadline?.deadlineTime ?? null);
+  useLiveSnapshot(currentGw);
+  const agoMs = useLiveAgoMs();
+  const { estimate } = useLiveRankEstimate(entryId);
+  const liveRankValue = estimate?.liveRank ?? null;
+  const liveLabel = mounted && currentGw !== null ? `GW${currentGw} Live` : 'Live';
+
+  const deadlineProps =
+    nextDeadline && countdown.label && !countdown.isPast
+      ? { deadlineLabel: `GW${nextDeadline.event}`, deadlineCountdown: countdown.label }
+      : {};
+
+  const baseLinks = buildNavLinks({
+    hasEntry: entryId !== null,
+    prices: FEATURE_PRICES,
+    planner: FEATURE_PLANNER,
+  });
+  const allLinks =
+    FEATURE_AUTH && session ? [...baseLinks, { label: 'Settings', href: '/settings' }] : baseLinks;
 
   const links = allLinks.map((link) => {
-    const active =
-      link.href === '/'
-        ? pathname === '/' || pathname.startsWith('/rank')
-        : pathname === link.href || pathname.startsWith(`${link.href}/`);
+    const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
     return { ...link, active };
   });
 
-  const authProps = session
-    ? {
-        onSignOut: () => {
-          signOut();
-        },
-      }
-    : {};
+  const authProps =
+    FEATURE_AUTH && session
+      ? {
+          onSignOut: () => {
+            signOut();
+          },
+        }
+      : {};
 
-  return <Nav links={links} liveLabel="GW30 Live" signInHref="/login" {...authProps} />;
+  const statusPill = (
+    <LiveStatusPill
+      liveLabel={liveLabel}
+      agoMs={agoMs}
+      rank={entryId !== null ? liveRankValue : null}
+      movement={estimate?.movement ?? null}
+      direction={estimate?.direction ?? null}
+      teamId={entryId}
+      onDeselect={handleDeselectTeam}
+      {...deadlineProps}
+      href="/"
+    />
+  );
+
+  return (
+    <Nav
+      links={links}
+      statusPill={statusPill}
+      signInHref="/login"
+      showAuthButton={FEATURE_AUTH}
+      {...authProps}
+    />
+  );
 }

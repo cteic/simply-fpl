@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SimplyFPL — Direction C · Vibrant Stadium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F6F7F4;--surface:#FFFFFF;--border:#E2E4DC;--border2:#CDD0C5;
+  --t1:#15201A;--t2:#566055;--t3:#869083;
+  --green:#15803D;--gbg:#EAF7EE;--gmid:#C6EBD2;
+  --red:#C2333B;--rbg:#FBEBEC;
+  --amber:#B45309;--blue:#2563EB;
+  --teal:#0F766E;--teal2:#0B5C55;--lime:#3FA34D;--glow:#34D399;
+  --liv:#C8102E;--mci:#6CABDD;--ars:#EF0107;--che:#034694;--new:#241F20;--avl:#95BFE5;
+  --r:14px;--rs:8px;
+  --sh:0 1px 2px rgba(20,30,20,.05),0 8px 24px -14px rgba(20,40,30,.22);
+}
+html{font-size:15px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:'DM Mono',monospace;font-feature-settings:"tnum" 1}
+
+.switch{position:fixed;z-index:999;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(11,46,42,.9);backdrop-filter:blur(12px);padding:4px;border-radius:99px;box-shadow:0 8px 30px -8px rgba(0,0,0,.45)}
+.switch button{font-family:'DM Sans',sans-serif;font-size:.74rem;font-weight:600;letter-spacing:-.01em;color:rgba(255,255,255,.62);background:none;border:none;padding:7px 16px;border-radius:99px;cursor:pointer;transition:.18s}
+.switch button.on{color:var(--teal2);background:var(--glow)}
+.switch button:not(.on):hover{color:#fff}
+
+.state{display:none}.state.on{display:block;animation:fade .5s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+@keyframes sweep{from{width:0}to{width:100%}}
+@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:.9}}
+
+/* ─── LANDING — floodlit stadium ─── */
+.land{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;color:#fff;
+  background:radial-gradient(120% 90% at 70% -10%,#1A8A6E 0%,#0F766E 32%,#0B4F49 70%,#082E2A 100%)}
+.land::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 64px);pointer-events:none}
+.land::after{content:"";position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:80vw;height:60vh;background:radial-gradient(ellipse,rgba(52,211,153,.28),transparent 60%);filter:blur(20px);animation:glowPulse 5s ease-in-out infinite;pointer-events:none}
+.ltop{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:22px clamp(20px,5vw,60px)}
+.lwm{display:flex;align-items:center;gap:9px;font-weight:600;font-size:.95rem;letter-spacing:-.03em}
+.lwm .dot{color:var(--glow)}
+.lmark{width:26px;height:26px;border-radius:7px;background:#fff;color:var(--teal2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem}
+.lpill{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal2);background:var(--glow);padding:5px 12px;border-radius:99px}
+.lpill .d{width:5px;height:5px;border-radius:50%;background:var(--teal2);animation:pulseDot 1.5s ease-in-out infinite}
+
+.lbody{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:clamp(30px,5vh,56px) clamp(20px,5vw,60px)}
+.lkick{font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--glow);margin-bottom:clamp(16px,3vh,26px);animation:fadeUp .6s ease both}
+.lh{font-weight:700;font-size:clamp(2.6rem,8.4vw,5.6rem);line-height:.92;letter-spacing:-.04em;max-width:14ch;animation:fadeUp .6s .06s ease both}
+.lh .ac{color:var(--glow)}
+.lsub{font-size:clamp(1rem,1.7vw,1.22rem);line-height:1.55;color:rgba(255,255,255,.78);max-width:42ch;margin-top:clamp(18px,3vh,28px);animation:fadeUp .6s .14s ease both}
+.lform{display:flex;gap:10px;margin-top:clamp(24px,4vh,38px);max-width:520px;width:100%;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s .22s ease both}
+.lform input{flex:1;min-width:220px;font-family:'DM Mono',monospace;font-size:1rem;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);border-radius:var(--rs);padding:15px 18px;transition:.16s}
+.lform input::placeholder{color:rgba(255,255,255,.55)}
+.lform input:focus{outline:none;border-color:var(--glow);background:rgba(255,255,255,.16)}
+.lgo{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;color:var(--teal2);background:var(--glow);border:none;border-radius:var(--rs);padding:0 26px;cursor:pointer;transition:.16s;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+.lgo:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.lnote{font-size:.8rem;color:rgba(255,255,255,.6);margin-top:14px;animation:fadeUp .6s .3s ease both}
+.lchips{display:flex;gap:10px;margin-top:clamp(28px,5vh,46px);flex-wrap:wrap;justify-content:center;animation:fadeUp .6s .38s ease both}
+.lchip{display:flex;align-items:center;gap:8px;font-size:.8rem;color:rgba(255,255,255,.85);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:9px 15px;border-radius:99px}
+.lchip svg{color:var(--glow)}
+
+/* ─── NAV ─── */
+nav{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,32px);height:56px}
+.nl{display:flex;align-items:center;gap:24px}
+.nwm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;letter-spacing:-.03em}
+.nwm .dot{color:var(--teal)}
+.nmark{width:24px;height:24px;border-radius:6px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.74rem}
+.nlinks{display:flex;gap:2px}
+.nlinks a{font-size:.8rem;font-weight:500;color:var(--t2);text-decoration:none;padding:6px 11px;border-radius:var(--rs)}
+.nlinks a.on,.nlinks a:hover{color:var(--teal);background:var(--gbg)}
+.nr{display:flex;align-items:center;gap:10px}
+.livepill{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--teal);padding:5px 11px;border-radius:99px}
+.livepill .d{width:5px;height:5px;border-radius:50%;background:var(--glow);animation:pulseDot 1.5s ease-in-out infinite}
+
+/* ─── DASHBOARD ─── */
+.page{max-width:1060px;margin:0 auto;padding:clamp(16px,2.6vh,26px) clamp(14px,4vw,30px) 56px}
+.dgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+
+.hero{position:relative;overflow:hidden;border-radius:var(--r);padding:clamp(20px,2.6vw,30px);color:#fff;box-shadow:var(--sh);animation:fadeUp .5s ease both;
+  background:radial-gradient(120% 130% at 85% -20%,#1A8A6E,#0F766E 45%,#0B4F49 100%)}
+.hero::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 56px);pointer-events:none}
+.heroTop{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.eyebrow{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--glow)}
+.teampillD{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);padding:5px 12px;border-radius:99px;cursor:pointer}
+.heroNum{position:relative;font-family:'DM Mono',monospace;font-weight:400;font-size:clamp(2.9rem,9vw,4.8rem);line-height:.92;letter-spacing:-.045em;margin:4px 0 6px;text-shadow:0 2px 20px rgba(0,0,0,.2)}
+.heroRow{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.deltaW{display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:.86rem;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--glow);color:var(--teal2)}
+.heroMeta{font-size:.82rem;color:rgba(255,255,255,.8)}.heroMeta b{color:#fff;font-weight:700}
+.spark{position:relative;margin-top:18px;height:40px}
+.spark svg{width:100%;height:100%;overflow:visible}
+.refresh{position:relative;margin-top:14px;display:flex;align-items:center;gap:10px}
+.refTrack{flex:1;height:4px;background:rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+.refFill{height:100%;background:var(--glow);border-radius:2px;animation:sweep 60s linear infinite}
+.refLab{font-size:.7rem;color:rgba(255,255,255,.7)}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;animation:fadeUp .5s .06s ease both}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:clamp(13px,1.6vw,17px);box-shadow:var(--sh);border-left:3px solid var(--accent,var(--teal))}
+.tlab{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:8px}
+.tval{font-family:'DM Mono',monospace;font-size:clamp(1.5rem,3.4vw,2rem);font-weight:400;letter-spacing:-.03em;line-height:1;color:var(--t1)}
+.tsub{font-size:.68rem;color:var(--t2);margin-top:7px}
+
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);animation:fadeUp .5s .12s ease both}
+.phead{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;color:#fff;background:linear-gradient(90deg,var(--teal),var(--teal2))}
+.ptitle{font-size:.82rem;font-weight:600;letter-spacing:-.015em}
+.ftag{font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;color:#fff;background:rgba(255,255,255,.18);padding:3px 9px;border-radius:5px}
+.pbody{padding:clamp(14px,1.8vw,20px) 12px;background:
+  linear-gradient(180deg,#F3FAF4,#FFFFFF),
+  repeating-linear-gradient(0deg,rgba(15,118,110,.04) 0 30px,transparent 30px 60px)}
+.prows{display:flex;flex-direction:column;gap:clamp(9px,1.5vh,16px)}
+.prow{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.player{display:flex;flex-direction:column;align-items:center;gap:4px;width:62px}
+.shirt{width:clamp(34px,4vw,42px);height:clamp(34px,4vw,42px);border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s;box-shadow:0 2px 6px -2px rgba(0,0,0,.25)}
+.player:hover .shirt{transform:translateY(-3px)}
+.shirt svg{width:64%;height:64%}
+.pbadge{position:absolute;top:-5px;right:-6px;font-family:'DM Mono',monospace;font-size:.58rem;font-weight:500;background:var(--t1);color:#fff;padding:1px 4px;border-radius:4px;min-width:16px;text-align:center}
+.pbadge.h{background:var(--green)}.pbadge.c{background:var(--blue)}.pbadge.t{background:var(--amber)}.pbadge.b{background:var(--border2);color:var(--t2)}
+.pname{font-size:.62rem;font-weight:600;letter-spacing:-.01em;max-width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.pdet{font-size:.56rem;color:var(--t3)}
+.player.bch .shirt{opacity:.42;box-shadow:none}.player.bch .pname{color:var(--t3)}
+.bdiv{display:flex;align-items:center;gap:10px;margin:2px 4px}
+.bline{flex:1;height:1px;background:var(--border)}
+.blab{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+.foot{text-align:center;font-size:.72rem;color:var(--t3);margin-top:24px;line-height:1.6}
+
+@media(max-width:840px){
+  .dgrid{grid-template-columns:1fr;gap:12px}
+}
+@media(max-width:520px){
+  .page{padding:14px 12px 40px}
+  .heroNum{font-size:3.2rem}
+  .prow{gap:3px}.player{width:50px}
+  .lh{font-size:2.7rem}
+}
+</style>
+</head>
+<body>
+
+<div class="switch">
+  <button id="b1" class="on" onclick="setState(1)">Landing · no team</button>
+  <button id="b2" onclick="setState(2)">Dashboard · with team</button>
+</div>
+
+<!-- ═══════════ STATE 1 — LANDING ═══════════ -->
+<section class="state on" id="s1">
+  <div class="land">
+    <div class="ltop">
+      <div class="lwm"><span class="lmark">s<span class="dot">.</span></span> simply<span class="dot">.</span>fpl</div>
+      <span class="lpill"><span class="d"></span> GW30 Live</span>
+    </div>
+    <div class="lbody">
+      <div class="lkick">Live FPL companion</div>
+      <h1 class="lh">Feel every <span class="ac">green arrow.</span></h1>
+      <p class="lsub">Your live rank, mini-leagues and head-to-heads — updating every 60 seconds as the goals go in.</p>
+      <form class="lform" onsubmit="setState(2);return false">
+        <input type="text" placeholder="Team ID or paste your FPL URL" />
+        <button class="lgo" type="submit">View live rank
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h8M7.5 4l3.5 3.5L7.5 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <div class="lnote">No sign-up needed — just paste your team ID.</div>
+      <div class="lchips">
+        <span class="lchip"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 3.5v3l2 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Live every 60s</span>
+        <span class="lchip"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 10V3M6.5 10V5M11 10V6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Mini-leagues</span>
+        <span class="lchip"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M4 2.5 8 6.5l-4 4M9 2.5l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Head-to-head</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STATE 2 — DASHBOARD ═══════════ -->
+<section class="state" id="s2">
+  <nav>
+    <div class="nl">
+      <div class="nwm"><span class="nmark">s<span class="dot">.</span></span> simply<span class="dot">.</span>fpl</div>
+      <div class="nlinks"><a class="on">Live Rank</a><a>Leagues</a><a>Prices</a></div>
+    </div>
+    <div class="nr"><span class="livepill"><span class="d"></span> GW30 Live</span><span class="teampillD" style="color:var(--teal);background:var(--gbg);border-color:var(--gmid)">#184,203</span></div>
+  </nav>
+  <div class="page">
+    <div class="dgrid">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="hero">
+          <div class="heroTop">
+            <span class="eyebrow">Estimated live rank</span>
+            <span class="teampillD">Peter's United · 4821039
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2.5 3.5l2 2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </span>
+          </div>
+          <div class="heroNum" id="rank">—</div>
+          <div class="heroRow">
+            <span class="deltaW">▲ 42,310</span>
+            <span class="heroMeta">since GW start · <b>Top 2.4%</b></span>
+          </div>
+          <div class="spark">
+            <svg viewBox="0 0 400 40" preserveAspectRatio="none">
+              <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34D399" stop-opacity=".4"/><stop offset="1" stop-color="#34D399" stop-opacity="0"/></linearGradient></defs>
+              <polyline points="0,32 56,34 112,27 168,29 224,18 280,20 336,9 400,5" fill="none" stroke="#34D399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <polygon points="0,32 56,34 112,27 168,29 224,18 280,20 336,9 400,5 400,40 0,40" fill="url(#g)"/>
+              <circle cx="400" cy="5" r="3.4" fill="#fff" stroke="#34D399" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="refresh"><div class="refTrack"><div class="refFill"></div></div><span class="refLab">updated 14s ago</span></div>
+        </div>
+
+        <div class="pcard">
+          <div class="phead"><span class="ptitle">Peter's United · GW30</span><span class="ftag">4–4–2</span></div>
+          <div class="pbody"><div class="prows" id="pitch"></div></div>
+        </div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="foot">Live values refresh every 60s while gameweeks are active · Bonus is provisional until confirmed<br>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</div>
+  </div>
+</section>
+
+<script>
+const STATS=[
+  {l:'GW Points',v:'67',s:'XI 58 · Bonus +9',a:'#15803D'},
+  {l:'Total Points',v:'2,243',s:'overall',a:'#0F766E'},
+  {l:'On Bench',v:'13',s:'autosubs ready',a:'#869083'},
+  {l:'Safety Score',v:'83',s:'green-arrow line',a:'#3FA34D'},
+  {l:'Off Top 10k',v:'33',s:'points behind',a:'#B45309'},
+  {l:'Captain',v:'Salah',s:'×2 · TBP',a:'#C8102E'},
+];
+const SHIRT=f=>`<svg viewBox="0 0 28 28" fill="none"><path d="M8 8h12l2 4v8H6v-8l2-4z" fill="${f}"/><path d="M11 8v12M17 8v12" stroke="#fff" stroke-width="1.3"/></svg>`;
+/* club-coloured kits for the vibrant direction */
+const SQ={
+  gk:[['Flekken','BRE','6','','#B45309']],
+  def:[['TAA','LIV','8','','#C8102E'],['Gabriel','ARS','14','h','#EF0107'],['P. Porro','TOT','6','','#132257'],['Mykolenko','EVE','2','b','#003399']],
+  mid:[['Salah','LIV','–','c','#C8102E'],['Palmer','CHE','12','h','#034694'],['Andreas','FUL','5','','#000000'],['Mbeumo','BRE','7','','#E30613']],
+  fwd:[['Haaland','MCI','13','h','#6CABDD'],['Isak','NEW','–','t','#241F20']],
+  bench:[['Raya','ARS','6','b','#9CA3AF'],['Dunk','BHA','2','b','#9CA3AF'],['Wissa','BRE','3','b','#9CA3AF'],['Núñez','LIV','1','b','#9CA3AF']],
+};
+function plyr([n,c,b,cls,fill],bench){return `<div class="player${bench?' bch':''}"><div class="shirt">${SHIRT(fill)}<span class="pbadge ${cls}">${b}</span></div><div class="pname">${n}</div><div class="pdet">${c}</div></div>`}
+function renderPitch(){
+  const rows=[SQ.gk,SQ.def,SQ.mid,SQ.fwd];
+  let h=rows.map(r=>`<div class="prow">${r.map(p=>plyr(p)).join('')}</div>`).join('');
+  h+=`<div class="bdiv"><div class="bline"></div><div class="blab">Bench</div><div class="bline"></div></div>`;
+  h+=`<div class="prow">${SQ.bench.map(p=>plyr(p,true)).join('')}</div>`;
+  document.getElementById('pitch').innerHTML=h;
+}
+function renderStats(){document.getElementById('stats').innerHTML=STATS.map(s=>`<div class="tile" style="--accent:${s.a}"><div class="tlab">${s.l}</div><div class="tval">${s.v}</div><div class="tsub">${s.s}</div></div>`).join('')}
+function countUp(){
+  const el=document.getElementById('rank');if(!el)return;
+  const target=184203,start=target+42310,dur=1300,t0=performance.now();
+  function step(now){const p=Math.min((now-t0)/dur,1);const e=1-Math.pow(1-p,4);el.textContent=Math.round(start-(start-target)*e).toLocaleString();if(p<1)requestAnimationFrame(step)}
+  requestAnimationFrame(step);
+}
+function setState(n){
+  document.getElementById('s1').classList.toggle('on',n===1);
+  document.getElementById('s2').classList.toggle('on',n===2);
+  document.getElementById('b1').classList.toggle('on',n===1);
+  document.getElementById('b2').classList.toggle('on',n===2);
+  if(n===2){renderStats();renderPitch();countUp()}
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "tamagui-next-plugin-webpack-instance-repro",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "node postinstall.mjs",
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@tamagui/config": "2.0.0-rc.42",
+    "@tamagui/next-plugin": "2.0.0-rc.42",
+    "next": "15.4.11",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native-web": "0.21.0",
+    "tamagui": "2.0.0-rc.42"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}

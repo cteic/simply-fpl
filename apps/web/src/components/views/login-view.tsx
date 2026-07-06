@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { auth } from '@simplyfpl/features';
+import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
@@ -40,7 +41,7 @@ export function LoginView() {
   if (session) {
     return (
       <PageShell>
-        <PageHeader title="Signed in" meta={session.user.email ?? ''} />
+        <PageHeader title={t('login.signed_in_title')} meta={session.user.email ?? ''} />
         <Card paddingHorizontal={24} paddingVertical={24}>
           <Text fontFamily="$body" fontSize={14} color="$colorMuted">
             You're already signed in. Head to <a href="/leagues">Leagues</a> to start tracking.
@@ -52,15 +53,15 @@ export function LoginView() {
 
   return (
     <PageShell>
-      <PageHeader title="Sign in" meta="Magic link via email" />
+      <PageHeader tone="stadium" title={t('login.title')} meta={t('login.meta')} />
 
       <Card paddingHorizontal={24} paddingVertical={24}>
-        <SectionHeader title="Enter your email" />
+        <SectionHeader title={t('login.section_email')} />
         <YStack gap={12} marginTop={4}>
           <Input
             value={email}
             onChangeText={setEmail}
-            placeholder="you@example.com"
+            placeholder={t('login.email_placeholder')}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -74,11 +75,11 @@ export function LoginView() {
               handleSubmit();
             }}
           >
-            {status === 'sending' ? 'Sending…' : 'Send magic link'}
+            {status === 'sending' ? t('login.cta_sending') : t('login.cta_send')}
           </Button>
           {status === 'sent' ? (
             <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-              Check your inbox — click the link to finish signing in.
+              {t('login.sent_body')}
             </Text>
           ) : null}
           {status === 'error' && errorMessage ? (
