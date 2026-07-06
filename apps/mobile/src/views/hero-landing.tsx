@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { fplClient, parseEntryId } from '@simplyfpl/fpl-client';
-import { Input, Logo, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
+import { Input, Logo, PitchBackground, TeamIdHelp, Text, XStack, YStack } from '@simplyfpl/ui';
 
 import { StadiumGradient } from '@/components/stadium-gradient';
 
@@ -93,7 +93,15 @@ export function HeroLanding({ onSave }: HeroLandingProps) {
           alignItems="center"
           justifyContent="center"
         >
-          <YStack maxWidth={560} width="100%" alignItems="center" gap={18}>
+          <PitchBackground />
+          <YStack
+            maxWidth={560}
+            width="100%"
+            alignItems="center"
+            gap={18}
+            position="relative"
+            zIndex={1}
+          >
             <Logo variant="lockup" tone="stadium" size="lg" />
 
             <Text
