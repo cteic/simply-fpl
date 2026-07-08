@@ -26,5 +26,9 @@ export function buildDeepLink(event: NotificationEvent, params?: Record<string, 
       return params?.['entryId']
         ? `${BASE_URL}/live/team/${params['entryId']}`
         : `${BASE_URL}/live`;
+    case 'player_availability_changed':
+      return params?.['entryId']
+        ? `${BASE_URL}/news/entry/${params['entryId']}`
+        : `${BASE_URL}/news`;
   }
 }

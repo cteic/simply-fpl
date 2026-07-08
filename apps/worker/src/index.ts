@@ -13,6 +13,7 @@ import { runCaptainScoredCheck } from './notify/captain-scored';
 import { runDeadlineReminder } from './notify/deadline-reminder';
 import { dispatchNotification } from './notify/dispatch';
 import { runLeagueRankAlertCheck } from './notify/league-rank-alert';
+import { runPlayerAvailabilityCheck } from './notify/player-availability';
 import { runPlayerEventsCheck } from './notify/player-events';
 import { buildFplPassthroughTarget, matchFplRoute } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
@@ -600,6 +601,7 @@ export default {
     }
     await warmPricesCache(env, ctx).catch(() => undefined);
     await warmNewsCache(env).catch(() => undefined);
+    await runPlayerAvailabilityCheck(env).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
     await runCaptainScoredCheck(env).catch(() => undefined);
     await runPlayerEventsCheck(env).catch(() => undefined);
