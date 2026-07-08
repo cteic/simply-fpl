@@ -21,12 +21,34 @@ interface FrankRow {
 type AnyMock = Mock<(...args: unknown[]) => unknown>;
 let frankRows: FrankRow[];
 let nextRowId: number;
-let mockAnthropicCreate: AnyMock;
+let mockAnthropicStream: AnyMock;
+let cacheHit: boolean;
+
+class MockMessageStream implements AsyncIterable<unknown> {
+  constructor(
+    private readonly chunks: string[],
+    private readonly usage = { input_tokens: 10, output_tokens: 20 }
+  ) {}
+
+  async *[Symbol.asyncIterator]() {
+    for (const text of this.chunks) {
+      yield { type: 'content_block_delta', delta: { type: 'text_delta', text } };
+    }
+  }
+
+  async finalMessage() {
+    const text = this.chunks.join('');
+    return {
+      content: [{ type: 'text', text }],
+      usage: this.usage,
+    };
+  }
+}
 
 vi.mock('@anthropic-ai/sdk', () => {
   class MockAnthropic {
     messages = {
-      create: (...args: unknown[]) => mockAnthropicCreate(...args),
+      stream: (...args: unknown[]) => mockAnthropicStream(...args),
     };
   }
   return { default: MockAnthropic };
@@ -52,7 +74,7 @@ vi.mock('@/lib/supabase-server', () => ({
 vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdminClient: () => ({
     from: (_table: string) => ({
-      select: (_cols: string, _opts: { count: string; head: boolean }) => ({
+      select: (_cols: string, _opts?: { count: string; head: boolean }) => ({
         eq: (_col: string, userId: string) => ({
           gte: (_dateCol: string, _iso: string) =>
             Promise.resolve({
@@ -87,11 +109,12 @@ vi.mock('@/lib/supabase-admin', () => ({
   }),
 }));
 
-function makeAnthropicMessage() {
-  return {
-    content: [{ type: 'text', text: JSON.stringify({ advice: 'Captain Salah.' }) }],
-    usage: { input_tokens: 10, output_tokens: 20 },
-  };
+function makeStreamChunks(json: string): string[] {
+  return [json];
+}
+
+function makeDefaultStream() {
+  return new MockMessageStream(makeStreamChunks(JSON.stringify({ advice: 'Captain Salah.' })));
 }
 
 function makeRequest(question = 'Who should I captain?') {
@@ -111,20 +134,71 @@ async function importRoute() {
   return import('./route');
 }
 
+async function drainStream(response: Response): Promise<string> {
+  if (!response.body) return '';
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let result = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    result += decoder.decode(value);
+  }
+  return result;
+}
+
+function parseSseEvents(raw: string): Array<{ event: string; data: unknown }> {
+  const events: Array<{ event: string; data: unknown }> = [];
+  for (const block of raw.split('\n\n')) {
+    let eventName = '';
+    let dataStr = '';
+    for (const line of block.split('\n')) {
+      if (line.startsWith('event: ')) eventName = line.slice(7).trim();
+      else if (line.startsWith('data: ')) dataStr = line.slice(6);
+    }
+    if (eventName && dataStr) {
+      try {
+        events.push({ event: eventName, data: JSON.parse(dataStr) as unknown });
+      } catch {
+        // ignore
+      }
+    }
+  }
+  return events;
+}
+
 describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   BeforeEachScenario(() => {
     frankRows = [];
     nextRowId = 1;
-    mockAnthropicCreate = vi.fn().mockResolvedValue(makeAnthropicMessage());
+    cacheHit = false;
+    mockAnthropicStream = vi.fn().mockReturnValue(makeDefaultStream());
     vi.stubEnv('FEATURE_FRANK_ONDEMAND', 'true');
     vi.stubEnv('ANTHROPIC_API_KEY', 'test-key');
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        if (String(url).includes('/frank/ask-cache')) {
+          if (cacheHit) {
+            return Promise.resolve(
+              new Response(JSON.stringify({ advice: 'Cached advice.', follow_up_question: null }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+              })
+            );
+          }
+          return Promise.resolve(new Response('not found', { status: 404 }));
+        }
+        return Promise.resolve(new Response('', { status: 404 }));
+      })
+    );
   });
 
   Scenario(
     'a user under quota gets an answer and the reservation stores the response',
     ({ Given, When, Then, And }) => {
       let response: Response | null = null;
+      let sseText = '';
 
       Given('a signed-in Ultimate user with 0 queries this month', () => {
         seedRows(0);
@@ -133,16 +207,22 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
       When('they ask Frank a question', async () => {
         const { POST } = await importRoute();
         response = await POST(makeRequest());
+        sseText = await drainStream(response);
       });
 
-      Then("the response contains Frank's advice", async () => {
-        expect(response?.status).toBe(200);
-        const body: unknown = await response?.json();
-        expect(body).toMatchObject({ advice: 'Captain Salah.', used: 1 });
+      Then('the response is a stream', () => {
+        expect(response?.headers.get('content-type')).toContain('text/event-stream');
+      });
+
+      And("the stream contains a done event with Frank's advice", () => {
+        const events = parseSseEvents(sseText);
+        const done = events.find((e) => e.event === 'done');
+        expect(done).toBeDefined();
+        expect((done?.data as { advice: string }).advice).toBe('Captain Salah.');
       });
 
       And('exactly one AI call is made', () => {
-        expect(mockAnthropicCreate).toHaveBeenCalledTimes(1);
+        expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
       });
 
       And('the stored query row contains the response', () => {
@@ -171,7 +251,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
       });
 
       And('no AI call is made', () => {
-        expect(mockAnthropicCreate).not.toHaveBeenCalled();
+        expect(mockAnthropicStream).not.toHaveBeenCalled();
       });
     }
   );
@@ -187,11 +267,17 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
 
       When('they ask Frank two questions concurrently', async () => {
         const { POST } = await importRoute();
-        responses = await Promise.all([POST(makeRequest()), POST(makeRequest())]);
+        const [r1, r2] = await Promise.all([POST(makeRequest()), POST(makeRequest())]);
+        responses = [r1, r2];
+        for (const r of responses) {
+          if (r.headers.get('content-type')?.includes('text/event-stream')) {
+            await drainStream(r);
+          }
+        }
       });
 
       Then('at most one AI call is made', () => {
-        expect(mockAnthropicCreate.mock.calls.length).toBeLessThanOrEqual(1);
+        expect(mockAnthropicStream.mock.calls.length).toBeLessThanOrEqual(1);
       });
 
       And('at least one response status is 429', () => {
@@ -203,26 +289,100 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
 
   Scenario('an AI service failure releases the quota reservation', ({ Given, And, When, Then }) => {
     let response: Response | null = null;
+    let sseText = '';
 
     Given('a signed-in Ultimate user with 0 queries this month', () => {
       seedRows(0);
     });
 
     And('the AI service is failing', () => {
-      mockAnthropicCreate = vi.fn().mockRejectedValue(new Error('overloaded'));
+      mockAnthropicStream = vi.fn().mockReturnValue({
+        async *[Symbol.asyncIterator]() {
+          throw new Error('overloaded');
+        },
+        finalMessage: () => Promise.reject(new Error('overloaded')),
+      });
     });
 
     When('they ask Frank a question', async () => {
       const { POST } = await importRoute();
       response = await POST(makeRequest());
+      sseText = await drainStream(response);
     });
 
-    Then('the response status is 503', () => {
-      expect(response?.status).toBe(503);
+    Then('the response is a stream', () => {
+      expect(response?.headers.get('content-type')).toContain('text/event-stream');
+    });
+
+    And('the stream contains an error event', () => {
+      const events = parseSseEvents(sseText);
+      expect(events.some((e) => e.event === 'error')).toBe(true);
     });
 
     And('no query rows remain for the user', () => {
       expect(frankRows).toHaveLength(0);
+    });
+  });
+
+  Scenario(
+    'a cached answer is returned as JSON without an AI call',
+    ({ Given, And, When, Then }) => {
+      let response: Response | null = null;
+
+      Given('a signed-in Ultimate user with 0 queries this month', () => {
+        seedRows(0);
+      });
+
+      And('the ask-cache has a stored answer for the question', () => {
+        cacheHit = true;
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        response = await POST(makeRequest());
+      });
+
+      Then('the response is JSON', () => {
+        expect(response?.headers.get('content-type')).toContain('application/json');
+      });
+
+      And('no AI call is made', () => {
+        expect(mockAnthropicStream).not.toHaveBeenCalled();
+      });
+    }
+  );
+
+  Scenario('a cache miss triggers a streaming response', ({ Given, And, When, Then }) => {
+    let response: Response | null = null;
+    let sseText = '';
+
+    Given('a signed-in Ultimate user with 0 queries this month', () => {
+      seedRows(0);
+    });
+
+    And('the ask-cache has no stored answer', () => {
+      cacheHit = false;
+    });
+
+    When('they ask Frank a question', async () => {
+      const { POST } = await importRoute();
+      response = await POST(makeRequest());
+      sseText = await drainStream(response);
+    });
+
+    Then('the response is a stream', () => {
+      expect(response?.headers.get('content-type')).toContain('text/event-stream');
+    });
+
+    And("the stream contains a done event with Frank's advice", () => {
+      const events = parseSseEvents(sseText);
+      const done = events.find((e) => e.event === 'done');
+      expect(done).toBeDefined();
+      expect((done?.data as { advice: string }).advice).toBeTruthy();
+    });
+
+    And('exactly one AI call is made', () => {
+      expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
     });
   });
 });
