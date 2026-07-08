@@ -60,6 +60,8 @@ function eventToPrefField(event: NotificationEvent): string {
       return 'assist';
     case 'red_card':
       return 'red_card';
+    case 'player_availability_changed':
+      return 'player_availability_changed';
   }
 }
 
