@@ -138,6 +138,36 @@ describeFeature(feature, ({ Scenario }) => {
     });
   });
 
+  Scenario(
+    'Triple Captain multiplier is read from pick.multiplier not the chip flag',
+    ({ Given, When, Then }) => {
+      let picks: FplEntryGameweekPicks;
+      let liveData: FplLiveGameweek;
+      let result: number;
+
+      Given(
+        'an 11-player squad with no active chip where the captain pick carries multiplier 3',
+        () => {
+          const scores: Record<number, number> = {};
+          for (let i = 1; i <= 11; i++) scores[i] = i === 1 ? 10 : 5;
+          liveData = makeLive(scores);
+          picks = makePicks(null, 0, [
+            makePick(1, 1, 3, true),
+            ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => makePick(n, n, 1)),
+          ]);
+        }
+      );
+
+      When('I calculate live points', () => {
+        result = calculateLivePoints(picks, liveData, EMPTY_BOOTSTRAP);
+      });
+
+      Then("the captain's points are tripled and the total is 80", () => {
+        expect(result).toBe(80);
+      });
+    }
+  );
+
   Scenario('Transfer hit is deducted from live points', ({ Given, When, Then }) => {
     let picks: FplEntryGameweekPicks;
     let liveData: FplLiveGameweek;

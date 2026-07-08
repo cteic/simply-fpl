@@ -28,7 +28,6 @@ export function calculateLivePoints(
 ): number {
   const liveMap = new Map(liveData.elements.map((e) => [e.id, e]));
   const isBenchBoost = picks.active_chip === 'bboost';
-  const isTripleCaptain = picks.active_chip === '3xc';
 
   // Active players: positions 1-11 (or 1-15 on bench boost)
   const activePicks = isBenchBoost ? picks.picks : picks.picks.filter((p) => p.position <= 11);
@@ -45,11 +44,7 @@ export function calculateLivePoints(
       points += bonusInfo.bonus;
     }
 
-    // Apply multiplier (captain = 2x, TC chip = 3x)
-    if (pick.is_captain) {
-      const multiplier = isTripleCaptain ? 3 : 2;
-      points = points * multiplier;
-    }
+    points = points * pick.multiplier;
 
     totalPoints += points;
   }
