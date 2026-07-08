@@ -6,9 +6,12 @@ import type {
   TeamNewsResponse,
 } from '@simplyfpl/types';
 
+import { generateTeamSummaries } from './team-summary';
+
 export interface NewsEnv {
   FPL_CACHE: KVNamespace;
   FPL_BASE_URL: string;
+  ANTHROPIC_API_KEY?: string;
 }
 
 export const NEWS_TEAMS_CACHE_KEY = 'news:teams';
@@ -176,6 +179,7 @@ export async function warmNewsCache(env: NewsEnv): Promise<void> {
   const bootstrap = await readBootstrap(env);
   if (!bootstrap) return;
   const body = buildTeamsResponse(bootstrap);
+  await generateTeamSummaries(env, body.teams);
   await env.FPL_CACHE.put(NEWS_TEAMS_CACHE_KEY, JSON.stringify(body), {
     expirationTtl: NEWS_TEAMS_TTL_SECONDS,
   }).catch(() => undefined);
