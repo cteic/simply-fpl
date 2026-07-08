@@ -10,6 +10,11 @@ Feature: Live points calculation
     When I calculate live points
     Then the total should be 80
 
+  Scenario: Triple Captain multiplier is read from pick.multiplier not the chip flag
+    Given an 11-player squad with no active chip where the captain pick carries multiplier 3
+    When I calculate live points
+    Then the captain's points are tripled and the total is 80
+
   Scenario: Transfer hit is deducted from live points
     Given an 11-player squad scoring 50 gross points with a 4-point transfer hit
     When I calculate live points
