@@ -5,10 +5,12 @@
   "license": "UNLICENSED",
   "type": "module",
   "description": "Cross-platform UI components and design tokens for SimplyFPL",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
     "./theme": "./src/theme/index.ts",
-    "./tamagui.config": "./tamagui.config.ts"
+    "./tamagui.config": "./tamagui.config.ts",
+    "./live-battle-panel": "./src/components/live-battle-panel/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
