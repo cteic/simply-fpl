@@ -5,6 +5,7 @@ import {
   type KvStore,
   type TargetFetcher,
   type TimedFetchEnv,
+  checkRateLimit,
   handleVsTimedFetch,
 } from './timed-fetch';
 
@@ -104,6 +105,44 @@ describeFeature(feature, ({ Scenario }) => {
 
     Then('the response is 400', () => {
       expect(response.status).toBe(400);
+    });
+  });
+
+  Scenario('A strict limit-3 window rejects the fourth request', ({ Given, When, Then }) => {
+    let kv: KvStore;
+    let result: { allowed: boolean; retryAfterSeconds: number };
+    const now = Date.now();
+
+    Given('the IP "2.3.4.5" has made 3 requests in a window with limit 3', () => {
+      kv = makeKv({ 'vs:rl:2.3.4.5': { count: 3, windowStart: now - 5_000 } });
+    });
+
+    When('checkRateLimit is called with limit 3 for IP "2.3.4.5"', async () => {
+      result = await checkRateLimit(kv, '2.3.4.5', now, 3);
+    });
+
+    Then('the check result is not allowed', () => {
+      expect(result.allowed).toBe(false);
+      expect(result.retryAfterSeconds).toBeGreaterThan(0);
+    });
+  });
+
+  Scenario('A looser limit-10 window allows the fourth request', ({ Given, When, Then }) => {
+    let kv: KvStore;
+    let result: { allowed: boolean; retryAfterSeconds: number };
+    const now = Date.now();
+
+    Given('the IP "2.3.4.5" has made 3 requests in a window with limit 10', () => {
+      kv = makeKv({ 'vs:rl:2.3.4.5': { count: 3, windowStart: now - 5_000 } });
+    });
+
+    When('checkRateLimit is called with limit 10 for IP "2.3.4.5"', async () => {
+      result = await checkRateLimit(kv, '2.3.4.5', now, 10);
+    });
+
+    Then('the check result is allowed', () => {
+      expect(result.allowed).toBe(true);
+      expect(result.retryAfterSeconds).toBe(0);
     });
   });
 });

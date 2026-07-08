@@ -17,3 +17,13 @@ Feature: /vs/timed-fetch — live byte-timing endpoint
   Scenario: Unknown target returns 400
     When GET /vs/timed-fetch?target=unknown is requested
     Then the response is 400
+
+  Scenario: A strict limit-3 window rejects the fourth request
+    Given the IP "2.3.4.5" has made 3 requests in a window with limit 3
+    When checkRateLimit is called with limit 3 for IP "2.3.4.5"
+    Then the check result is not allowed
+
+  Scenario: A looser limit-10 window allows the fourth request
+    Given the IP "2.3.4.5" has made 3 requests in a window with limit 10
+    When checkRateLimit is called with limit 10 for IP "2.3.4.5"
+    Then the check result is allowed

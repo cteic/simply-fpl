@@ -74,7 +74,12 @@ const CORS_HEADERS = {
 };
 
 async function enforceRateLimit(env: Env, ip: string, limit: number): Promise<Response | null> {
-  const check = await checkRateLimit(env.FPL_CACHE, `${RL_KEY_PREFIX}${limit}:${ip}`, Date.now());
+  const check = await checkRateLimit(
+    env.FPL_CACHE,
+    `${RL_KEY_PREFIX}${limit}:${ip}`,
+    Date.now(),
+    limit
+  );
   if (!check.allowed) {
     return new Response(
       JSON.stringify({ error: 'rate_limited', retryAfterSeconds: check.retryAfterSeconds }),

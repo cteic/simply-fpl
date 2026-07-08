@@ -46,6 +46,104 @@ function snapshotRequest(): Request {
   });
 }
 
+describe('enforceRateLimit uses the per-route limit, not a shared constant', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('/status enforces STATUS_RATE_LIMIT=10: allows request 10, rejects request 11', async () => {
+    const kv = makeKvNamespace({
+      [`vs:rl:rl:10:${CLIENT_IP}`]: JSON.stringify({ count: 10, windowStart: Date.now() }),
+    });
+    const req = new Request('https://worker.example/status', {
+      headers: { 'CF-Connecting-IP': CLIENT_IP },
+    });
+
+    globalThis.fetch = vi.fn(
+      async () => new Response('{}', { status: 200 })
+    ) as unknown as typeof fetch;
+    const env = makeEnv(kv);
+    (env as Env & { LIVE_GW: unknown }).LIVE_GW = {
+      idFromName: () => ({ toString: () => 'stub-id' }),
+      get: () => null,
+    } as unknown as DurableObjectNamespace;
+    const res = await worker.fetch(req, env, makeCtx());
+
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).not.toBeNull();
+  });
+
+  it('/status does NOT rate-limit at 30: a count of 30 under the limit-10 key is still blocked', async () => {
+    const kv = makeKvNamespace({
+      [`vs:rl:rl:10:${CLIENT_IP}`]: JSON.stringify({ count: 10, windowStart: Date.now() }),
+    });
+    const req = new Request('https://worker.example/status', {
+      headers: { 'CF-Connecting-IP': CLIENT_IP },
+    });
+
+    globalThis.fetch = vi.fn(
+      async () => new Response('{}', { status: 200 })
+    ) as unknown as typeof fetch;
+    const env = makeEnv(kv);
+    (env as Env & { LIVE_GW: unknown }).LIVE_GW = {
+      idFromName: () => ({ toString: () => 'stub-id' }),
+      get: () => null,
+    } as unknown as DurableObjectNamespace;
+    const res = await worker.fetch(req, env, makeCtx());
+
+    expect(res.status).toBe(429);
+  });
+
+  it('/fpl/* enforces PUBLIC_RATE_LIMIT=120: count of 30 is still allowed', async () => {
+    const kv = makeKvNamespace({
+      [`vs:rl:rl:120:${CLIENT_IP}`]: JSON.stringify({ count: 30, windowStart: Date.now() }),
+    });
+    const req = new Request('https://worker.example/fpl/bootstrap-static/', {
+      headers: { 'CF-Connecting-IP': CLIENT_IP },
+    });
+
+    globalThis.fetch = vi.fn(
+      async () => new Response('{}', { status: 200 })
+    ) as unknown as typeof fetch;
+    const res = await worker.fetch(req, makeEnv(kv), makeCtx());
+
+    expect(res.status).not.toBe(429);
+  });
+
+  it('/fpl/* enforces PUBLIC_RATE_LIMIT=120: count of 120 is blocked', async () => {
+    const kv = makeKvNamespace({
+      [`vs:rl:rl:120:${CLIENT_IP}`]: JSON.stringify({ count: 120, windowStart: Date.now() }),
+    });
+    const req = new Request('https://worker.example/fpl/bootstrap-static/', {
+      headers: { 'CF-Connecting-IP': CLIENT_IP },
+    });
+
+    globalThis.fetch = vi.fn(
+      async () => new Response('{}', { status: 200 })
+    ) as unknown as typeof fetch;
+    const res = await worker.fetch(req, makeEnv(kv), makeCtx());
+
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).not.toBeNull();
+  });
+
+  it('/fpl/* and /status use different KV key namespaces (no cross-limit contamination)', async () => {
+    const kv = makeKvNamespace({
+      [`vs:rl:rl:10:${CLIENT_IP}`]: JSON.stringify({ count: 10, windowStart: Date.now() }),
+    });
+    const req = new Request('https://worker.example/fpl/bootstrap-static/', {
+      headers: { 'CF-Connecting-IP': CLIENT_IP },
+    });
+
+    globalThis.fetch = vi.fn(
+      async () => new Response('{}', { status: 200 })
+    ) as unknown as typeof fetch;
+    const res = await worker.fetch(req, makeEnv(kv), makeCtx());
+
+    expect(res.status).not.toBe(429);
+  });
+});
+
 describe('GET /snapshot/entry/:id rate limiting', () => {
   beforeEach(() => {
     globalThis.fetch = vi.fn(async () => {
@@ -60,7 +158,7 @@ describe('GET /snapshot/entry/:id rate limiting', () => {
 
   it('returns 429 once the per-ip window is exhausted', async () => {
     const kv = makeKvNamespace({
-      [`vs:rl:rl:120:${CLIENT_IP}`]: JSON.stringify({ count: 30, windowStart: Date.now() }),
+      [`vs:rl:rl:120:${CLIENT_IP}`]: JSON.stringify({ count: 120, windowStart: Date.now() }),
     });
 
     const res = await worker.fetch(snapshotRequest(), makeEnv(kv), makeCtx());
