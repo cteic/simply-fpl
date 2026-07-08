@@ -10,12 +10,12 @@
 
 The most likely candidate is **Adobe Firefly** — Adobe's AI image-generation suite. It's widely marketed, has "fire" in the name, and maps cleanly to the use case (generating match-day graphics and social creative without hiring a designer). The other fire-sounding candidates:
 
-| Tool | Category | Verdict |
-|---|---|---|
-| **Adobe Firefly** | AI image / creative generation | ✅ Most likely — AI graphics tool, directly useful |
-| **Firecut** | AI video editor plugin (Premiere Pro / DaVinci) | Unlikely — requires video editing software |
-| **Fireflies.ai** | AI meeting transcription | Not it — meeting notes, irrelevant here |
-| **FeedHive** | AI social media scheduler | Possible second reading — "hive" not "fire" but could be what was half-remembered |
+| Tool              | Category                                        | Verdict                                                                           |
+| ----------------- | ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Adobe Firefly** | AI image / creative generation                  | ✅ Most likely — AI graphics tool, directly useful                                |
+| **Firecut**       | AI video editor plugin (Premiere Pro / DaVinci) | Unlikely — requires video editing software                                        |
+| **Fireflies.ai**  | AI meeting transcription                        | Not it — meeting notes, irrelevant here                                           |
+| **FeedHive**      | AI social media scheduler                       | Possible second reading — "hive" not "fire" but could be what was half-remembered |
 
 Recommendation: assume **Adobe Firefly** for graphics; see §3. If the memory was of a _scheduler_, FeedHive is the nearest fit but it's not a strong contender vs the options below.
 
@@ -29,14 +29,14 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://typefully.com
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 15 posts/month, 1 scheduled post at a time — borderline usable for planning, not production |
-| Starter | $8/mo — unlimited scheduling, analytics, video |
-| Creator | $19/mo — multiple accounts + AI features |
-| Platforms | X/Twitter, LinkedIn, Bluesky, Mastodon only |
-| AI features | CMD+J assistant: rewrites, tone adjustment, punchier hooks; learns writing style over time |
-| Learning curve | Very low — minimal interface, write-and-schedule flow |
+| Dimension      | Detail                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| Free plan      | 15 posts/month, 1 scheduled post at a time — borderline usable for planning, not production |
+| Starter        | $8/mo — unlimited scheduling, analytics, video                                              |
+| Creator        | $19/mo — multiple accounts + AI features                                                    |
+| Platforms      | X/Twitter, LinkedIn, Bluesky, Mastodon only                                                 |
+| AI features    | CMD+J assistant: rewrites, tone adjustment, punchier hooks; learns writing style over time  |
+| Learning curve | Very low — minimal interface, write-and-schedule flow                                       |
 
 **FPL fit:** Purpose-built for X/Twitter threads. The clean editor is ideal for someone batch-writing GW content on a Sunday evening for the week ahead. No Instagram or TikTok, but those aren't in scope for this launch.
 
@@ -48,14 +48,14 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://buffer.com
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 3 channels, up to 10 queued posts per channel |
-| Essentials | $5/mo per channel |
-| Team | $10/mo per channel |
-| Platforms | Instagram, TikTok, Facebook, X/Twitter, LinkedIn, Threads, Bluesky, Mastodon |
-| AI features | Free AI assistant on all plans (OpenAI-backed): generate, repurpose, adjust tone, translate |
-| Learning curve | Low — industry-standard interface; most non-technical users have seen it before |
+| Dimension      | Detail                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| Free plan      | 3 channels, up to 10 queued posts per channel                                               |
+| Essentials     | $5/mo per channel                                                                           |
+| Team           | $10/mo per channel                                                                          |
+| Platforms      | Instagram, TikTok, Facebook, X/Twitter, LinkedIn, Threads, Bluesky, Mastodon                |
+| AI features    | Free AI assistant on all plans (OpenAI-backed): generate, repurpose, adjust tone, translate |
+| Learning curve | Low — industry-standard interface; most non-technical users have seen it before             |
 
 **FPL fit:** Slightly more friction than Typefully for pure X usage but AI assistant is free and unlimited even on the free plan. Multi-platform coverage is overkill at launch but useful if Instagram gets added later.
 
@@ -67,14 +67,14 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://feedhive.com
 
-| Dimension | Detail |
-|---|---|
-| Free plan | None — 7-day free trial only |
-| Creator | $19/mo (4 social accounts) |
-| Brand | $29/mo (10 accounts, 5 workspaces) |
-| Platforms | Instagram, Facebook, TikTok, LinkedIn, YouTube, X/Twitter, Pinterest |
-| AI features | AI writing, performance prediction before publish, content recycling with AI variations, conditional posting |
-| Learning curve | Medium — more features = more to learn |
+| Dimension      | Detail                                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------ |
+| Free plan      | None — 7-day free trial only                                                                                 |
+| Creator        | $19/mo (4 social accounts)                                                                                   |
+| Brand          | $29/mo (10 accounts, 5 workspaces)                                                                           |
+| Platforms      | Instagram, Facebook, TikTok, LinkedIn, YouTube, X/Twitter, Pinterest                                         |
+| AI features    | AI writing, performance prediction before publish, content recycling with AI variations, conditional posting |
+| Learning curve | Medium — more features = more to learn                                                                       |
 
 **FPL fit:** Best-in-class for content recycling (evergreen posts auto-reposted with AI variations). Useful mid-season when the same content types repeat each GW. However, X/Twitter support has had reliability issues; not the strongest choice for a Twitter-primary strategy. AI credit cap even on Business plan is a limitation. No free tier.
 
@@ -86,14 +86,14 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://hypefury.com
 
-| Dimension | Detail |
-|---|---|
-| Free plan | None |
-| Starter | $29/mo (1 X account, 6 total social accounts) |
-| Creator | $65/mo |
-| Platforms | X/Twitter, LinkedIn, Instagram, Threads, Bluesky, TikTok, Facebook |
-| AI features | AI composer generates variations from content history; no standalone AI writing assistant |
-| Learning curve | Medium |
+| Dimension      | Detail                                                                                    |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| Free plan      | None                                                                                      |
+| Starter        | $29/mo (1 X account, 6 total social accounts)                                             |
+| Creator        | $65/mo                                                                                    |
+| Platforms      | X/Twitter, LinkedIn, Instagram, Threads, Bluesky, TikTok, Facebook                        |
+| AI features    | AI composer generates variations from content history; no standalone AI writing assistant |
+| Learning curve | Medium                                                                                    |
 
 **FPL fit:** Good for growing X accounts through evergreen recycling and engagement automation. The "tweet-to-Reels" feature is a bonus. But at $29/mo for the Starter and without a proper AI writing assistant, it's expensive relative to alternatives for this use case.
 
@@ -105,14 +105,14 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://postwise.ai
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 7-day trial only |
-| Basic | $37/mo (3 accounts, 500 AI posts/month) |
-| Boss | $59/mo (5 accounts, 1,000 AI posts/month) |
-| Platforms | X/Twitter, LinkedIn, Threads |
-| AI features | GhostWriter — takes a rough prompt and generates 6 tweet variations in your voice; viral hooks, repurposing |
-| Learning curve | Low-medium |
+| Dimension      | Detail                                                                                                      |
+| -------------- | ----------------------------------------------------------------------------------------------------------- |
+| Free plan      | 7-day trial only                                                                                            |
+| Basic          | $37/mo (3 accounts, 500 AI posts/month)                                                                     |
+| Boss           | $59/mo (5 accounts, 1,000 AI posts/month)                                                                   |
+| Platforms      | X/Twitter, LinkedIn, Threads                                                                                |
+| AI features    | GhostWriter — takes a rough prompt and generates 6 tweet variations in your voice; viral hooks, repurposing |
+| Learning curve | Low-medium                                                                                                  |
 
 **FPL fit:** Strong AI writing, but the cheapest tier at $37/mo is expensive for a bootstrapped launch. The GhostWriter feature is genuinely useful but Typefully at $8/mo covers the same ground adequately.
 
@@ -122,13 +122,13 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 ### Summary table — social content tools
 
-| Tool | Free tier | Entry price | AI writing | Twitter quality | Learning curve | Verdict |
-|---|---|---|---|---|---|---|
-| **Typefully** | 15 posts/mo | $8/mo | Good | ⭐⭐⭐⭐⭐ | Very low | **Recommended** |
-| Buffer | 3 channels | $5/mo/channel | Free, unlimited | ⭐⭐⭐⭐ | Low | Strong backup |
-| FeedHive | None (trial) | $19/mo | Good + prediction | ⭐⭐⭐ | Medium | Mid-season recycling tool |
-| Hypefury | None | $29/mo | Weak | ⭐⭐⭐⭐ | Medium | Overpriced for launch |
-| Postwise | None (trial) | $37/mo | Very strong | ⭐⭐⭐⭐ | Low-medium | Too expensive at launch |
+| Tool          | Free tier    | Entry price   | AI writing        | Twitter quality | Learning curve | Verdict                   |
+| ------------- | ------------ | ------------- | ----------------- | --------------- | -------------- | ------------------------- |
+| **Typefully** | 15 posts/mo  | $8/mo         | Good              | ⭐⭐⭐⭐⭐      | Very low       | **Recommended**           |
+| Buffer        | 3 channels   | $5/mo/channel | Free, unlimited   | ⭐⭐⭐⭐        | Low            | Strong backup             |
+| FeedHive      | None (trial) | $19/mo        | Good + prediction | ⭐⭐⭐          | Medium         | Mid-season recycling tool |
+| Hypefury      | None         | $29/mo        | Weak              | ⭐⭐⭐⭐        | Medium         | Overpriced for launch     |
+| Postwise      | None (trial) | $37/mo        | Very strong       | ⭐⭐⭐⭐        | Low-medium     | Too expensive at launch   |
 
 ---
 
@@ -138,13 +138,13 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://canva.com
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 5 Dream Lab AI image generations/month, 10 Magic Design generations, basic chart creation |
-| Pro | $15/mo — 500 AI credits, Brand Kit, unlimited Magic Write |
-| AI features | Magic Studio umbrella: Dream Lab (text-to-image), Magic Write (copy), background removal, text-to-video |
-| Template library | Hundreds of football / match-day / sports social media templates out-of-the-box |
-| Learning curve | Very low — drag-and-drop, no design experience needed |
+| Dimension        | Detail                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------- |
+| Free plan        | 5 Dream Lab AI image generations/month, 10 Magic Design generations, basic chart creation               |
+| Pro              | $15/mo — 500 AI credits, Brand Kit, unlimited Magic Write                                               |
+| AI features      | Magic Studio umbrella: Dream Lab (text-to-image), Magic Write (copy), background removal, text-to-video |
+| Template library | Hundreds of football / match-day / sports social media templates out-of-the-box                         |
+| Learning curve   | Very low — drag-and-drop, no design experience needed                                                   |
 
 **FPL fit:** Best option for a non-technical co-founder. Sports match-day templates exist already; brand colours and fonts can be locked in the Brand Kit so every graphic looks consistent. Dream Lab generates player-inspired or themed visuals without a Firefly subscription. At $15/mo it's the most accessible full-featured creative tool.
 
@@ -156,13 +156,13 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://adobe.com/products/firefly.html
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 25 generative credits/month; images may carry Content Credentials watermark |
-| Standard | $9.99/mo — 2,000 premium credits; unlimited standard text-to-image |
-| Pro | $19.99/mo — 4,000 premium credits |
-| AI features | Text-to-image, Generative Fill (Adobe Photoshop integration), vector generation, text effects |
-| Learning curve | Medium — requires knowing Photoshop or the web app; more powerful, steeper ramp |
+| Dimension      | Detail                                                                                        |
+| -------------- | --------------------------------------------------------------------------------------------- |
+| Free plan      | 25 generative credits/month; images may carry Content Credentials watermark                   |
+| Standard       | $9.99/mo — 2,000 premium credits; unlimited standard text-to-image                            |
+| Pro            | $19.99/mo — 4,000 premium credits                                                             |
+| AI features    | Text-to-image, Generative Fill (Adobe Photoshop integration), vector generation, text effects |
+| Learning curve | Medium — requires knowing Photoshop or the web app; more powerful, steeper ramp               |
 
 **FPL fit:** More powerful than Canva for custom graphics, but the non-technical co-founder would hit the learning curve fast. No scheduling. Best as an add-on if custom visual quality becomes a priority post-launch. Commercial safety is a strength — Firefly is trained on licensed content.
 
@@ -174,13 +174,13 @@ Tools evaluated for: price, free tier, learning curve for a non-technical user, 
 
 **URL:** https://adcreative.ai
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 7-day trial, 10 credits (1 credit = 1 download) |
-| Starter | $39/mo — 10 monthly credits, 1 brand |
-| Professional | $249/mo |
-| AI features | Ad banner + text generation trained on $35B ad spend data; competitor creative insights |
-| Learning curve | Low for ad banners specifically |
+| Dimension      | Detail                                                                                  |
+| -------------- | --------------------------------------------------------------------------------------- |
+| Free plan      | 7-day trial, 10 credits (1 credit = 1 download)                                         |
+| Starter        | $39/mo — 10 monthly credits, 1 brand                                                    |
+| Professional   | $249/mo                                                                                 |
+| AI features    | Ad banner + text generation trained on $35B ad spend data; competitor creative insights |
+| Learning curve | Low for ad banners specifically                                                         |
 
 **FPL fit:** Designed for paid ads (Facebook/Google), not organic social. The credit pricing is restrictive for a high-cadence FPL account posting 5-7x/week. **Not recommended** for this use case.
 
@@ -196,12 +196,12 @@ Short verdict first: **not at launch.** The FPL Twitter community is text, stats
 
 **URL:** https://opus.pro
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 60 mins/month source video, watermarked |
-| Starter | $15/mo — 150 mins, no watermark, 720p |
-| Pro | $29/mo — 300 mins, 1080p, auto-post, virality scoring |
-| Use case | Clips long-form video (podcasts, YouTube) into short-form snippets |
+| Dimension | Detail                                                             |
+| --------- | ------------------------------------------------------------------ |
+| Free plan | 60 mins/month source video, watermarked                            |
+| Starter   | $15/mo — 150 mins, no watermark, 720p                              |
+| Pro       | $29/mo — 300 mins, 1080p, auto-post, virality scoring              |
+| Use case  | Clips long-form video (podcasts, YouTube) into short-form snippets |
 
 **FPL fit:** Only useful if the co-founder is already producing long-form video content (a podcast, YouTube deep-dives). If that's in the pipeline for Season 2026/27, Opus Clip is worth revisiting.
 
@@ -211,12 +211,12 @@ Short verdict first: **not at launch.** The FPL Twitter community is text, stats
 
 **URL:** https://heygen.com
 
-| Dimension | Detail |
-|---|---|
-| Free plan | 3 videos/month, watermarked |
-| Creator | $29/mo — unlimited videos, 200 monthly credits |
-| Pro | $99/mo |
-| Use case | AI avatar videos, 175+ language localisation |
+| Dimension | Detail                                         |
+| --------- | ---------------------------------------------- |
+| Free plan | 3 videos/month, watermarked                    |
+| Creator   | $29/mo — unlimited videos, 200 monthly credits |
+| Pro       | $99/mo                                         |
+| Use case  | AI avatar videos, 175+ language localisation   |
 
 **FPL fit:** High production value but high learning curve. Real costs land closer to $49-99/mo with realistic usage. Skip at launch.
 
@@ -256,11 +256,11 @@ r/FantasyPL has its own rules in the sidebar (check directly before posting). La
 
 **Start with Typefully + Canva Pro.**
 
-| Tool | Cost | Role |
-|---|---|---|
-| Typefully Starter | $8/mo | Write, schedule, and AI-assist X/Twitter content |
-| Canva Pro | $15/mo | Match-day graphics, player stat cards, GW deadline countdowns |
-| **Total** | **$23/mo** | |
+| Tool              | Cost       | Role                                                          |
+| ----------------- | ---------- | ------------------------------------------------------------- |
+| Typefully Starter | $8/mo      | Write, schedule, and AI-assist X/Twitter content              |
+| Canva Pro         | $15/mo     | Match-day graphics, player stat cards, GW deadline countdowns |
+| **Total**         | **$23/mo** |                                                               |
 
 **Why this stack:**
 
@@ -285,11 +285,13 @@ Assumes co-founder has set up Typefully + Canva, batch-writes on the Sunday befo
 ### Sunday (6 days before GW1 deadline)
 
 **Canva:** Create 3 reusable templates in your brand:
+
 1. "Deadline day countdown" card (update the number each day)
 2. "We're live — SimplyFPL GW1" launch graphic
 3. "Live rank updating" animated-style card (static is fine)
 
 **Typefully batch:**
+
 - Thread: "SimplyFPL is live. Here's what's different from other FPL tools: [3-4 bullet points about speed, live rank, Frank AI]. Free at simplyfpl.com → [link]"
 - Single tweet: "GW1 deadline is [date]. We'll be live-tracking rank from the first kick-off. [link]"
 - Single tweet: "Frank (our AI) called [captain choice] for GW1. Here's why: [2-line summary]. Full picks → [link]"
