@@ -10,6 +10,7 @@ export {
   estimateLiveRankSmart,
   formatTimeRemaining,
   getCurrentGameweek,
+  getCurrentSeasonYear,
   getNextDeadline,
   getNextGameweek,
 } from './live-rank';
@@ -18,6 +19,7 @@ export type {
   LiveRankEstimate,
   NextDeadline,
   RankDetails,
+  RankEstimateSource,
 } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
 export { computeScoreDistribution } from './score-distribution';
