@@ -361,6 +361,7 @@ export interface TeamNewsGroup {
   team_name: string;
   team_short_name: string;
   players: PlayerNewsItem[];
+  summary?: string | null;
 }
 
 export interface TeamNewsResponse {
