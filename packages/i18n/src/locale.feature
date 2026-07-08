@@ -36,7 +36,7 @@ Feature: Locale infrastructure
     Then the detected locale is "fr"
 
   Scenario: Accept-Language header falls back to English for unsupported locale
-    Given an Accept-Language header of "ja,zh;q=0.9"
+    Given an Accept-Language header of "ar,ko;q=0.9"
     When the locale is detected from the header
     Then the detected locale is "en"
 
