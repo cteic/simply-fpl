@@ -91,7 +91,7 @@ export function NotificationsSettings({
         </YStack>
       ) : (
         <YStack gap={16}>
-          <SectionLabel>Deadline & results</SectionLabel>
+          <SectionLabel>{t('notifications.section_deadline_results')}</SectionLabel>
           <PrefToggle
             label={t('notifications.label_deadline_reminder')}
             description={t('notifications.label_deadline_desc')}
@@ -99,13 +99,13 @@ export function NotificationsSettings({
             onToggle={(v) => onTogglePref('deadlineReminder', v)}
           />
           <PrefToggle
-            label="Bonus points confirmed"
-            description="When provisional bonus becomes official"
+            label={t('notifications.label_bonus_confirmed')}
+            description={t('notifications.label_bonus_confirmed_desc')}
             enabled={prefs.bonusConfirmed}
             onToggle={(v) => onTogglePref('bonusConfirmed', v)}
           />
 
-          <SectionLabel>Captain & squad events</SectionLabel>
+          <SectionLabel>{t('notifications.section_captain_squad')}</SectionLabel>
           <PrefToggle
             label={t('notifications.label_captain_scored')}
             description={t('notifications.label_captain_scored_desc')}
@@ -113,32 +113,32 @@ export function NotificationsSettings({
             onToggle={(v) => onTogglePref('captainScored', v)}
           />
           <PrefToggle
-            label="Goals scored"
-            description="When a starting XI player scores a goal"
+            label={t('notifications.label_goal_scored')}
+            description={t('notifications.label_goal_scored_desc')}
             enabled={prefs.goalScored}
             onToggle={(v) => onTogglePref('goalScored', v)}
           />
           <PrefToggle
-            label="Assists"
-            description="When a starting XI player gets an assist"
+            label={t('notifications.label_assist')}
+            description={t('notifications.label_assist_desc')}
             enabled={prefs.assist}
             onToggle={(v) => onTogglePref('assist', v)}
           />
           <PrefToggle
-            label="Red cards"
-            description="When a starting XI player is sent off"
+            label={t('notifications.label_red_card')}
+            description={t('notifications.label_red_card_desc')}
             enabled={prefs.redCard}
             onToggle={(v) => onTogglePref('redCard', v)}
           />
 
-          <SectionLabel>League rank alerts</SectionLabel>
+          <SectionLabel>{t('notifications.section_league_rank')}</SectionLabel>
           <LeagueAlertList
             alerts={leagueAlerts}
             onRemove={onRemoveLeagueAlert}
             onAdd={onAddLeagueAlert}
           />
 
-          <SectionLabel>Quiet hours (UTC)</SectionLabel>
+          <SectionLabel>{t('notifications.section_quiet_hours')}</SectionLabel>
           <QuietHoursControl
             start={prefs.quietHoursStart}
             end={prefs.quietHoursEnd}
@@ -201,7 +201,7 @@ function PrefToggle({ label, description, enabled, onToggle }: PrefToggleProps) 
         </Text>
       </YStack>
       <Button tone="ghost" size="sm" onPress={() => onToggle(!enabled)}>
-        {enabled ? 'On' : 'Off'}
+        {enabled ? t('notifications.toggle_on') : t('notifications.toggle_off')}
       </Button>
     </XStack>
   );
@@ -240,61 +240,61 @@ function LeagueAlertList({ alerts, onRemove, onAdd }: LeagueAlertListProps) {
     <YStack gap={8}>
       {alerts.length === 0 && !adding ? (
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-          No league alerts configured.
+          {t('notifications.no_league_alerts')}
         </Text>
       ) : null}
       {alerts.map((alert) => (
         <XStack key={alert.leagueId} justifyContent="space-between" alignItems="center" gap={8}>
           <YStack flex={1} gap={1}>
             <Text fontFamily="$mono" fontSize={12} color="$color">
-              League {alert.leagueId}
+              {t('notifications.league_label', { leagueId: String(alert.leagueId) })}
               {alert.leagueName ? ` — ${alert.leagueName}` : ''}
             </Text>
             <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
               {[
-                alert.topN !== null ? `Top ${alert.topN}` : null,
-                alert.swingN !== null ? `±${alert.swingN} places` : null,
+                alert.topN !== null ? t('notifications.league_top_n', { n: String(alert.topN) }) : null,
+                alert.swingN !== null ? t('notifications.league_swing_n', { n: String(alert.swingN) }) : null,
               ]
                 .filter(Boolean)
                 .join(' · ')}
             </Text>
           </YStack>
           <Button tone="ghost" size="sm" onPress={() => onRemove(alert.leagueId)}>
-            Remove
+            {t('notifications.league_cta_remove')}
           </Button>
         </XStack>
       ))}
       {adding ? (
         <YStack gap={6} borderWidth={1} borderColor="$borderColor" borderRadius={6} padding={10}>
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-            League ID
+            {t('notifications.league_id_label')}
           </Text>
           <LeagueInput
             value={leagueIdInput}
-            placeholder="e.g. 314159"
+            placeholder={t('notifications.league_id_placeholder')}
             onChange={setLeagueIdInput}
           />
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle" marginTop={4}>
-            Alert when entering / leaving top N (leave blank to skip)
+            {t('notifications.league_top_n_hint')}
           </Text>
-          <LeagueInput value={topNInput} placeholder="e.g. 3" onChange={setTopNInput} />
+          <LeagueInput value={topNInput} placeholder={t('notifications.league_top_n_placeholder')} onChange={setTopNInput} />
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle" marginTop={4}>
-            Alert on rank swing of ±N places (leave blank to skip)
+            {t('notifications.league_swing_n_hint')}
           </Text>
-          <LeagueInput value={swingNInput} placeholder="e.g. 5" onChange={setSwingNInput} />
+          <LeagueInput value={swingNInput} placeholder={t('notifications.league_swing_n_placeholder')} onChange={setSwingNInput} />
           <XStack gap={8} marginTop={4}>
             <Button tone="primary" size="sm" onPress={handleAdd}>
-              Save
+              {t('notifications.league_cta_save')}
             </Button>
             <Button tone="ghost" size="sm" onPress={() => setAdding(false)}>
-              Cancel
+              {t('notifications.league_cta_cancel')}
             </Button>
           </XStack>
         </YStack>
       ) : (
         <XStack>
           <Button tone="ghost" size="sm" onPress={() => setAdding(true)}>
-            + Add league alert
+            {t('notifications.league_cta_add')}
           </Button>
         </XStack>
       )}
@@ -345,12 +345,12 @@ function QuietHoursControl({ start, end, onUpdate }: QuietHoursControlProps) {
       <XStack justifyContent="space-between" alignItems="center">
         <YStack gap={2}>
           <Text fontFamily="$body" fontSize={13} color="$color">
-            Mute notifications overnight
+            {t('notifications.quiet_hours_label')}
           </Text>
           <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
             {enabled
               ? `${String(start).padStart(2, '0')}:00 – ${String(end).padStart(2, '0')}:00 UTC`
-              : 'Disabled'}
+              : t('notifications.quiet_hours_disabled')}
           </Text>
         </YStack>
         <Button
@@ -358,7 +358,7 @@ function QuietHoursControl({ start, end, onUpdate }: QuietHoursControlProps) {
           size="sm"
           onPress={() => onUpdate(enabled ? null : 22, enabled ? null : 8)}
         >
-          {enabled ? 'Disable' : 'Enable'}
+          {enabled ? t('notifications.quiet_hours_cta_disable') : t('notifications.quiet_hours_cta_enable')}
         </Button>
       </XStack>
     </YStack>
