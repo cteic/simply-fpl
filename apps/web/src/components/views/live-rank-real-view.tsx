@@ -31,7 +31,6 @@ import {
   Card,
   CohortTable,
   FNote,
-  LiveBattlePanel,
   Logo,
   NumberTicker,
   PageHeader,
@@ -88,6 +87,11 @@ const LivePitchColumn = dynamic(
       </Card>
     ),
   }
+);
+
+const LiveBattlePanel = dynamic(
+  () => import('@simplyfpl/ui/live-battle-panel').then((m) => ({ default: m.LiveBattlePanel })),
+  { ssr: false }
 );
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
