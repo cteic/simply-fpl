@@ -252,8 +252,12 @@ function LeagueAlertList({ alerts, onRemove, onAdd }: LeagueAlertListProps) {
             </Text>
             <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
               {[
-                alert.topN !== null ? t('notifications.league_top_n', { n: String(alert.topN) }) : null,
-                alert.swingN !== null ? t('notifications.league_swing_n', { n: String(alert.swingN) }) : null,
+                alert.topN !== null
+                  ? t('notifications.league_top_n', { n: String(alert.topN) })
+                  : null,
+                alert.swingN !== null
+                  ? t('notifications.league_swing_n', { n: String(alert.swingN) })
+                  : null,
               ]
                 .filter(Boolean)
                 .join(' · ')}
@@ -277,11 +281,19 @@ function LeagueAlertList({ alerts, onRemove, onAdd }: LeagueAlertListProps) {
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle" marginTop={4}>
             {t('notifications.league_top_n_hint')}
           </Text>
-          <LeagueInput value={topNInput} placeholder={t('notifications.league_top_n_placeholder')} onChange={setTopNInput} />
+          <LeagueInput
+            value={topNInput}
+            placeholder={t('notifications.league_top_n_placeholder')}
+            onChange={setTopNInput}
+          />
           <Text fontFamily="$body" fontSize={12} color="$colorSubtle" marginTop={4}>
             {t('notifications.league_swing_n_hint')}
           </Text>
-          <LeagueInput value={swingNInput} placeholder={t('notifications.league_swing_n_placeholder')} onChange={setSwingNInput} />
+          <LeagueInput
+            value={swingNInput}
+            placeholder={t('notifications.league_swing_n_placeholder')}
+            onChange={setSwingNInput}
+          />
           <XStack gap={8} marginTop={4}>
             <Button tone="primary" size="sm" onPress={handleAdd}>
               {t('notifications.league_cta_save')}
@@ -358,7 +370,9 @@ function QuietHoursControl({ start, end, onUpdate }: QuietHoursControlProps) {
           size="sm"
           onPress={() => onUpdate(enabled ? null : 22, enabled ? null : 8)}
         >
-          {enabled ? t('notifications.quiet_hours_cta_disable') : t('notifications.quiet_hours_cta_enable')}
+          {enabled
+            ? t('notifications.quiet_hours_cta_disable')
+            : t('notifications.quiet_hours_cta_enable')}
         </Button>
       </XStack>
     </YStack>
