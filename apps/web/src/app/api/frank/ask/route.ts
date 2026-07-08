@@ -328,7 +328,7 @@ export async function POST(request: NextRequest) {
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
 
-  const reservationId = reservation.id as string;
+  const reservationId = String(reservation.id);
 
   void (async () => {
     try {
