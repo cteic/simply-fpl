@@ -5,6 +5,7 @@ import type { ScoreDistributionFile } from '@simplyfpl/types';
 export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   "1": {
     "gw": 1,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.441Z",
     "binSize": 5,
     "cohorts": {
@@ -552,6 +553,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "2": {
     "gw": 2,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.522Z",
     "binSize": 5,
     "cohorts": {
@@ -1044,6 +1046,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "3": {
     "gw": 3,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.600Z",
     "binSize": 5,
     "cohorts": {
@@ -1551,6 +1554,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "4": {
     "gw": 4,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.675Z",
     "binSize": 5,
     "cohorts": {
@@ -2018,6 +2022,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "5": {
     "gw": 5,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.751Z",
     "binSize": 5,
     "cohorts": {
@@ -2490,6 +2495,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "6": {
     "gw": 6,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.828Z",
     "binSize": 5,
     "cohorts": {
@@ -2997,6 +3003,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "7": {
     "gw": 7,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.903Z",
     "binSize": 5,
     "cohorts": {
@@ -3479,6 +3486,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "8": {
     "gw": 8,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:10.980Z",
     "binSize": 5,
     "cohorts": {
@@ -4046,6 +4054,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "9": {
     "gw": 9,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.056Z",
     "binSize": 5,
     "cohorts": {
@@ -4533,6 +4542,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "10": {
     "gw": 10,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.129Z",
     "binSize": 5,
     "cohorts": {
@@ -4995,6 +5005,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "11": {
     "gw": 11,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.206Z",
     "binSize": 5,
     "cohorts": {
@@ -5452,6 +5463,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "12": {
     "gw": 12,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.285Z",
     "binSize": 5,
     "cohorts": {
@@ -5899,6 +5911,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "13": {
     "gw": 13,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.363Z",
     "binSize": 5,
     "cohorts": {
@@ -6386,6 +6399,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "14": {
     "gw": 14,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.438Z",
     "binSize": 5,
     "cohorts": {
@@ -6853,6 +6867,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "15": {
     "gw": 15,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.517Z",
     "binSize": 5,
     "cohorts": {
@@ -7380,6 +7395,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "16": {
     "gw": 16,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.605Z",
     "binSize": 5,
     "cohorts": {
@@ -7872,6 +7888,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "17": {
     "gw": 17,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.688Z",
     "binSize": 5,
     "cohorts": {
@@ -8369,6 +8386,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "18": {
     "gw": 18,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.768Z",
     "binSize": 5,
     "cohorts": {
@@ -8836,6 +8854,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "19": {
     "gw": 19,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.848Z",
     "binSize": 5,
     "cohorts": {
@@ -9308,6 +9327,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "20": {
     "gw": 20,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:11.925Z",
     "binSize": 5,
     "cohorts": {
@@ -9795,6 +9815,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "21": {
     "gw": 21,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.001Z",
     "binSize": 5,
     "cohorts": {
@@ -10232,6 +10253,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "22": {
     "gw": 22,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.086Z",
     "binSize": 5,
     "cohorts": {
@@ -10624,6 +10646,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "23": {
     "gw": 23,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.165Z",
     "binSize": 5,
     "cohorts": {
@@ -11046,6 +11069,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "24": {
     "gw": 24,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.240Z",
     "binSize": 5,
     "cohorts": {
@@ -11458,6 +11482,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "25": {
     "gw": 25,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.317Z",
     "binSize": 5,
     "cohorts": {
@@ -11945,6 +11970,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "26": {
     "gw": 26,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.397Z",
     "binSize": 5,
     "cohorts": {
@@ -12437,6 +12463,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "27": {
     "gw": 27,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.475Z",
     "binSize": 5,
     "cohorts": {
@@ -12834,6 +12861,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "28": {
     "gw": 28,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.553Z",
     "binSize": 5,
     "cohorts": {
@@ -13276,6 +13304,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "29": {
     "gw": 29,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.631Z",
     "binSize": 5,
     "cohorts": {
@@ -13778,6 +13807,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "30": {
     "gw": 30,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.710Z",
     "binSize": 5,
     "cohorts": {
@@ -14200,6 +14230,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "31": {
     "gw": 31,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.787Z",
     "binSize": 5,
     "cohorts": {
@@ -14627,6 +14658,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "32": {
     "gw": 32,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.866Z",
     "binSize": 5,
     "cohorts": {
@@ -15074,6 +15106,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "33": {
     "gw": 33,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:12.943Z",
     "binSize": 5,
     "cohorts": {
@@ -15696,6 +15729,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "34": {
     "gw": 34,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:13.019Z",
     "binSize": 5,
     "cohorts": {
@@ -16133,6 +16167,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "35": {
     "gw": 35,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:13.094Z",
     "binSize": 5,
     "cohorts": {
@@ -16600,6 +16635,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "36": {
     "gw": 36,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:13.172Z",
     "binSize": 5,
     "cohorts": {
@@ -17082,6 +17118,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "37": {
     "gw": 37,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:13.254Z",
     "binSize": 5,
     "cohorts": {
@@ -17619,6 +17656,7 @@ export const DISTRIBUTIONS: Readonly<Record<number, ScoreDistributionFile>> = {
   },
   "38": {
     "gw": 38,
+    "season": 2025,
     "builtAt": "2026-06-16T09:39:13.337Z",
     "binSize": 5,
     "cohorts": {
