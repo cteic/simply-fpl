@@ -20,6 +20,7 @@
     "@expo-google-fonts/dm-sans": "^0.2.3",
     "@simplyfpl/features": "workspace:*",
     "@simplyfpl/fpl-client": "workspace:*",
+    "@simplyfpl/i18n": "workspace:*",
     "@simplyfpl/types": "workspace:*",
     "@simplyfpl/ui": "workspace:*",
     "@supabase/supabase-js": "^2.0.0",

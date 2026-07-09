@@ -398,7 +398,7 @@ describeFeature(sharedFeature, ({ Scenario }) => {
     When('live points are calculated', () => {
       const picks = makePicks(
         [
-          makePick(1, 1, 2, true),
+          makePick(1, 1, 3, true),
           ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => makePick(n, n, 1)),
         ],
         '3xc'
