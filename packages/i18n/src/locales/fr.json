@@ -2,7 +2,6 @@
   "common.loading": "Chargement…",
   "common.cta_enter_team_id": "Entrer l'ID d'équipe",
   "common.disclaimer": "SimplyFPL n'est pas affilié à la Premier League ou à Fantasy Premier League",
-
   "login.title": "Connexion",
   "login.meta": "Lien magique par e-mail",
   "login.signed_in_title": "Connecté",
@@ -11,7 +10,6 @@
   "login.cta_sending": "Envoi…",
   "login.cta_send": "Envoyer le lien magique",
   "login.sent_body": "Vérifiez votre boîte de réception — cliquez sur le lien pour terminer la connexion.",
-
   "home_search.meta": "Compagnon FPL en direct · GW30",
   "home_search.section_find": "Trouvez votre équipe",
   "home_search.description": "Entrez votre ID d'équipe FPL ou collez l'URL de votre équipe pour voir votre classement en direct, vos points GW, et votre terrain.",
@@ -23,7 +21,6 @@
   "home_search.feature_leagues": "• Classements mini-ligue avec les points du capitaine et du banc en direct",
   "home_search.feature_h2h": "• Comparaison en tête-à-tête contre n'importe quel rival de vos ligues",
   "home_search.feature_free": "• Gratuit, sans inscription — collez simplement votre ID d'équipe",
-
   "settings.title": "Paramètres",
   "settings.section_account": "Compte",
   "settings.label_email": "E-mail",
@@ -41,7 +38,6 @@
   "settings.section_notifications": "Notifications",
   "settings.cta_sign_out": "Déconnexion",
   "settings.fnote": "Plus de contrôles de compte à venir une fois les abonnements lancés.",
-
   "rivals.title": "Rivaux",
   "rivals.meta_invalid_id": "ID de ligue invalide dans l'URL",
   "rivals.invalid_id_body": "L'URL doit contenir un ID de ligue entier positif, comme /rivals/123456.",
@@ -55,7 +51,7 @@
   "rivals.loading_rival_picks": "Chargement des sélections des rivaux…",
   "rivals.top_of_window": "Vous êtes en tête de la fenêtre des rivaux — aucun manager au-dessus à comparer.",
   "rivals.fnote": "Les points GW en direct sont actualisés toutes les 60s. Le bonus affiché est provisoire jusqu'à confirmation.",
-
+  "rivals.pro_banner_title": "Suivez plusieurs ligues",
   "threats.title": "Menaces",
   "threats.section_top": "Principales menaces ({{count}})",
   "threats.empty": "Aucune menace ne correspond à ce filtre.",
@@ -66,12 +62,14 @@
   "threats.filter_to_play": "À jouer",
   "threats.filter_played": "Joué",
   "threats.filter_didnt_play": "N'a pas joué",
-
+  "threats.col_eo": "EO",
+  "threats.col_score_pct": "score %",
+  "threats.col_lost": "perdu",
+  "threats.col_haul_impact": "si 8 pts",
   "prices.title": "Variations de prix",
   "prices.meta": "Prédictions mises à jour quotidiennement à minuit · Basées sur les transferts nets",
   "prices.empty": "Aucune variation de prix ne correspond à ce filtre.",
   "prices.fnote": "Les prédictions de prix sont des estimations basées sur les données de transfert FPL. Non garanties.",
-
   "planner.title": "Planificateur de transferts",
   "planner.meta_no_team": "Entrez votre ID d'équipe FPL pour commencer",
   "planner.meta_xi": "Votre XI · GW{{startGw}}–{{endGw}}",
@@ -80,11 +78,11 @@
   "planner.loading_body": "Chargement des matchs et de votre XI…",
   "planner.no_fixture_data": "Pas encore de données de match pour les 5 prochains GW.",
   "planner.fnote": "Les indices de difficulté des matchs (FDR) sont basés sur les données officielles FPL.",
-
   "h2h.title": "Tête à Tête",
+  "h2h.error_meta": "Impossible de charger ce duel",
+  "h2h.captains_label": "Capitaines",
   "h2h.meta_invalid": "ID d'équipes invalides dans l'URL",
   "h2h.invalid_body": "L'URL doit contenir deux ID d'équipes entiers positifs différents, comme /h2h/123456/789012.",
-
   "hero.eyebrow": "Compagnon FPL en direct",
   "hero.headline_lead": "Ressentez chaque ",
   "hero.headline_accent": "flèche verte.",
@@ -103,7 +101,6 @@
   "hero.feature_reliable_body": "Servi depuis le réseau edge — rapide et disponible quand tout le monde se connecte en même temps.",
   "hero.feature_cohort_title": "Analyse cohorte et rivaux",
   "hero.feature_cohort_body": "Voyez où vous vous situez par rapport au top 10k et aux rivaux juste à côté de vous dans vos ligues.",
-
   "leagues.title": "Mes Ligues",
   "leagues.meta_no_team": "Entrez votre ID d'équipe FPL pour voir vos ligues",
   "leagues.meta_loading_team": "Équipe {{entryId}} · Classements mini-ligue en direct",
@@ -114,29 +111,23 @@
   "leagues.cta_view_rivals": "Voir les rivaux →",
   "leagues.error_load_team": "Impossible de charger cette équipe. Vérifiez l'ID d'équipe et réessayez.",
   "leagues.empty_leagues": "Aucune mini-ligue trouvée pour cette équipe pour l'instant.",
-
   "league_card.loading": "Chargement de la ligue {{leagueId}}…",
   "league_card.error": "Impossible de charger la ligue {{leagueId}}",
   "league_card.empty": "Aucun manager dans cette ligue pour l'instant.",
   "league_card.cta_rivals": "Rivaux",
   "league_card.show_all": "Afficher les {{count}}",
   "league_card.show_top_10": "Afficher le top 10",
-
   "stale_data.message": "Mises à jour en direct suspendues — affichage des dernières données",
-
   "error.title": "Quelque chose a mal tourné",
   "error.meta": "Une erreur inattendue s'est produite",
   "error.body": "Une erreur s'est produite lors du rendu de cette page. Réessayez, ou retournez à la page d'accueil.",
   "error.cta_retry": "Réessayer",
   "error.fnote": "Si cela persiste, veuillez actualiser la page ou revenir dans quelques minutes.",
-
   "not_found.title": "Page introuvable",
   "not_found.body": "Nous n'avons pas trouvé cette page. Elle a peut-être été déplacée, ou le lien est incorrect.",
   "not_found.cta_home": "Retour à l'accueil",
-
   "demo_banner.badge": "Aperçu",
   "demo_banner.message": "Ceci est une démonstration de SimplyFPL — les données sont illustratives.",
-
   "live_battle.section_title": "Live Battle",
   "live_battle.subtitle": "Joueurs qui font évoluer votre classement en ce moment · en cours de jeu",
   "live_battle.gains": "Gains",
@@ -145,19 +136,15 @@
   "live_battle.net_vs_field": "Net par rapport au terrain",
   "live_battle.empty_gains": "Pas encore de gains en direct.",
   "live_battle.empty_losses": "Pas encore de pertes en direct.",
-
   "differentials.section_title": "Différentiels",
   "differentials.yours_header": "Vous avez",
   "differentials.theirs_header": "Ils ont",
   "differentials.captaincy_label": "Capitainerie",
   "differentials.same_captain": "Même capitaine",
   "differentials.empty": "Aucun choix unique par rapport à ce rival.",
-
   "pitch.bench_divider": "Remplaçants",
-
   "nav.sign_in": "Connexion",
   "nav.sign_out": "Déconnexion",
-
   "team_id_help.label": "Comment trouver mon ID d'équipe ?",
   "team_id_help.step_1": "Ouvrez le site FPL et allez sur votre page Points.",
   "team_id_help.step_2": "Copiez l'URL depuis la barre d'adresse de votre navigateur.",
@@ -167,7 +154,6 @@
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "Ce numéro est votre ID d'équipe.",
   "team_id_help.open_fpl": "Ouvrir le site FPL →",
-
   "vs_livefpl.title": "SimplyFPL vs livefpl.net",
   "vs_livefpl.error_title": "Impossible de charger la comparaison",
   "vs_livefpl.error_meta": "Données de vitesse indisponibles",
@@ -179,24 +165,21 @@
   "vs_livefpl.methodology_title": "Méthodologie",
   "vs_livefpl.test_title": "Testez vous-même",
   "vs_livefpl.test_label": "Temps de réponse réseau (moyenne sur 5 essais depuis votre position)",
-
   "frank.ask_section_title": "Demandez à Frank",
   "frank.ask_placeholder": "Devrais-je choisir Salah ou Haaland comme capitaine cette semaine ?",
   "frank.page_meta": "Votre coach FPL IA · Mis à jour chaque semaine après la deadline",
   "frank.chip_watch_title": "Surveillance des chips",
   "frank.transfer_targets_title": "Cibles de transfert",
-
   "upgrade.title": "Mise à niveau",
   "upgrade.loading_meta": "Choisir un abonnement",
   "upgrade.page_meta": "Passez à Pro ou Ultimate pour profiter au maximum de SimplyFPL",
   "upgrade.section_title": "Choisissez votre abonnement",
   "upgrade.fnote": "Les paiements sont traités par Stripe. Annulez ou changez d'abonnement à tout moment depuis les paramètres de votre compte.",
-
+  "upgrade.plan_pro_title": "Pro",
+  "upgrade.plan_ultimate_title": "Ultimate",
   "rivals_section.loading_meta": "Chargement de vos ligues…",
   "rivals_section.empty_meta": "Aucune mini-ligue trouvée pour cette équipe",
-
   "replay.seek_aria": "Aller au GW",
-
   "shared.you": "Vous",
   "shared.them": "Eux",
   "shared.cap": "Cap",
@@ -204,21 +187,15 @@
   "shared.pts": "Pts",
   "shared.rank": "Rang",
   "shared.team": "Équipe",
-
   "cohort.col_top10k": "Top 10k",
   "cohort.col_overall": "Global",
   "cohort.col_top1k": "Top 1k",
-
   "detailed_league_row.transfers_label": "Transferts",
   "detailed_league_row.played_label": "Joué",
-
   "league_table.col_manager": "Manager",
   "league_table.col_gw": "GW",
-
   "live_status_pill.deselect_title": "Désélectionner l'équipe",
-
   "logo.aria_label": "Accueil SimplyFPL",
-
   "notifications.pro_only": "Les notifications push sont une fonctionnalité Pro. Passez à Pro pour être notifié quand votre capitaine marque et avant la deadline des transferts.",
   "notifications.not_supported": "Les notifications push ne sont pas supportées dans ce navigateur.",
   "notifications.blocked": "Les notifications sont bloquées. Réactivez-les dans les paramètres de votre navigateur, puis rechargez.",
@@ -263,16 +240,23 @@
   "notifications.quiet_hours_disabled": "Désactivé",
   "notifications.quiet_hours_cta_disable": "Désactiver",
   "notifications.quiet_hours_cta_enable": "Activer",
-
   "theme_picker.aria_label": "Thème",
-
   "what_if.search_placeholder": "Rechercher par nom…",
-
   "analytics_consent.aria_label": "Consentement analytics",
   "analytics_consent.body": "Nous utilisons des analytics anonymes pour améliorer SimplyFPL. Aucune donnée personnelle n'est transmise.",
   "analytics_consent.cta_decline": "Refuser",
   "analytics_consent.cta_accept": "Accepter",
-
   "settings.section_language": "Langue",
-  "settings.language_description": "Choisissez la langue de SimplyFPL. Votre choix est enregistré sur cet appareil."
+  "settings.language_description": "Choisissez la langue de SimplyFPL. Votre choix est enregistré sur cet appareil.",
+  "live_rank.title": "Classement en direct",
+  "live_rank.no_team_meta": "Aucune équipe sélectionnée",
+  "live_rank.error_meta": "Impossible de charger cette équipe",
+  "live_rank.autosubs_toggle_aria": "Bascule des remplacements automatiques",
+  "live_rank.subs_pre_label": "Avant",
+  "live_rank.subs_post_label": "Après",
+  "live_rank.freshness_aria": "Fraîcheur des données en direct",
+  "live_rank.cohort_section_title": "Comparaison de cohorte",
+  "live_rank.provisional_bonus_aria": "Note de bonus provisoire",
+  "team_news.title": "Actualités des clubs",
+  "team_news.all_available": "Tous vos joueurs sont disponibles"
 }
