@@ -9,7 +9,16 @@ import { join } from 'path';
 
 const SCAN_DIRS = ['apps/web/src', 'packages/ui/src'];
 
-const SKIP_PATTERNS = [/node_modules/, /\.spec\./, /\.test\./, /\/design\//, /\.d\.ts$/];
+const SKIP_PATTERNS = [
+  /node_modules/,
+  /\.spec\./,
+  /\.test\./,
+  /\/design\//,
+  /\.d\.ts$/,
+  /\/app\/og\//,
+  /opengraph-image\.tsx$/,
+  /\/app\/admin\//,
+];
 
 /** Match JSX text containing 2+ consecutive ASCII letters, not inside {…} */
 const JSX_TEXT_RE = />[^<{]*[A-Za-z]{2,}[^<{]*</g;

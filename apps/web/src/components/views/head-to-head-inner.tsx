@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { ads, h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import {
   AdSlot,
   Card,
@@ -71,7 +72,7 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
   if (anyError) {
     return (
       <PageShell>
-        <PageHeader title="Head to Head" meta="Couldn't load this matchup" />
+        <PageHeader title={t('h2h.title')} meta={t('h2h.error_meta')} />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
           We couldn't load one or both managers' live data. Check the team IDs and refresh to try
           again.
@@ -83,7 +84,7 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
   if (yourEntryLoading || theirEntryLoading) {
     return (
       <PageShell>
-        <PageHeader title="Head to Head" meta="Loading…" />
+        <PageHeader title={t('h2h.title')} meta={t('common.loading')} />
       </PageShell>
     );
   }
@@ -91,7 +92,7 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
   if (!result) {
     return (
       <PageShell>
-        <PageHeader title="Head to Head" meta="Loading live data…" />
+        <PageHeader title={t('h2h.title')} meta={t('rivals.loading_live')} />
       </PageShell>
     );
   }
@@ -102,7 +103,7 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
     <PageShell>
       <PageHeader
         tone="stadium"
-        title="Head to Head"
+        title={t('h2h.title')}
         meta={`${you.managerName || you.teamName} vs ${them.managerName || them.teamName} · GW${currentGw ?? '—'}`}
       />
 
@@ -126,7 +127,7 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
 
       <CommonBlock players={commonPicks} />
 
-      <FNote>Live GW points refresh every 60s. Bonus shown is provisional until confirmed.</FNote>
+      <FNote>{t('rivals.fnote')}</FNote>
     </PageShell>
   );
 }
@@ -201,14 +202,14 @@ function Scoreboard({ you, them, scoreDelta }: ScoreboardProps) {
   return (
     <ScoreCard>
       <XStack justifyContent="space-between" alignItems="center">
-        <SideStat label="You" side={you} alignRight={false} />
+        <SideStat label={t('shared.you')} side={you} alignRight={false} />
         <DeltaBadge tone={tone}>{deltaLabel}</DeltaBadge>
-        <SideStat label="Them" side={them} alignRight />
+        <SideStat label={t('shared.them')} side={them} alignRight />
       </XStack>
       <SummaryDivider />
       <XStack justifyContent="space-between" alignItems="center">
         <CaptainCell side={you.captain} alignRight={false} />
-        <ScoreLabel>Captains</ScoreLabel>
+        <ScoreLabel>{t('h2h.captains_label')}</ScoreLabel>
         <CaptainCell side={them.captain} alignRight />
       </XStack>
     </ScoreCard>

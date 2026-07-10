@@ -261,14 +261,14 @@ export function UpgradeView() {
       <XStack gap={16} marginTop={8} marginBottom={20} flexWrap="wrap">
         <PlanCard
           tier="pro"
-          title="Pro"
+          title={t('upgrade.plan_pro_title')}
           features={PRO_FEATURES}
           options={PRO_OPTIONS}
           currentTier={tier}
         />
         <PlanCard
           tier="ultimate"
-          title="Ultimate"
+          title={t('upgrade.plan_ultimate_title')}
           features={ULTIMATE_FEATURES}
           options={ULTIMATE_OPTIONS}
           currentTier={tier}
