@@ -2,7 +2,6 @@
   "common.loading": "Загрузка…",
   "common.cta_enter_team_id": "Введите ID команды",
   "common.disclaimer": "SimplyFPL не аффилирован с Premier League или Fantasy Premier League",
-
   "login.title": "Войти",
   "login.meta": "Волшебная ссылка по электронной почте",
   "login.signed_in_title": "Выполнен вход",
@@ -11,7 +10,6 @@
   "login.cta_sending": "Отправка…",
   "login.cta_send": "Отправить волшебную ссылку",
   "login.sent_body": "Проверьте входящие — нажмите на ссылку, чтобы завершить вход.",
-
   "home_search.meta": "FPL-компаньон в прямом эфире · GW30",
   "home_search.section_find": "Найдите вашу команду",
   "home_search.description": "Введите ID вашей FPL-команды или вставьте URL команды, чтобы увидеть ваш живой рейтинг, очки GW и расстановку.",
@@ -23,7 +21,6 @@
   "home_search.feature_leagues": "• Таблицы мини-лиг с живыми очками капитана и скамейки",
   "home_search.feature_h2h": "• Сравнение один на один с любым соперником из ваших лиг",
   "home_search.feature_free": "• Бесплатно, без регистрации — просто вставьте ID команды",
-
   "settings.title": "Настройки",
   "settings.section_account": "Аккаунт",
   "settings.label_email": "E-mail",
@@ -41,7 +38,6 @@
   "settings.section_notifications": "Уведомления",
   "settings.cta_sign_out": "Выйти",
   "settings.fnote": "Больше настроек аккаунта появится после запуска подписок.",
-
   "rivals.title": "Соперники",
   "rivals.meta_invalid_id": "Неверный ID лиги в URL",
   "rivals.invalid_id_body": "URL должен содержать положительный целочисленный ID лиги, например /rivals/123456.",
@@ -55,7 +51,7 @@
   "rivals.loading_rival_picks": "Загрузка составов соперников…",
   "rivals.top_of_window": "Вы на вершине окна соперников — менеджеров выше для сравнения нет.",
   "rivals.fnote": "Живые очки GW обновляются каждые 60с. Показанный бонус предварительный до подтверждения.",
-
+  "rivals.pro_banner_title": "Отслеживайте несколько лиг",
   "threats.title": "Угрозы",
   "threats.section_top": "Главные угрозы ({{count}})",
   "threats.empty": "Нет угроз, соответствующих этому фильтру.",
@@ -66,12 +62,14 @@
   "threats.filter_to_play": "Ещё играет",
   "threats.filter_played": "Сыграл",
   "threats.filter_didnt_play": "Не сыграл",
-
+  "threats.col_eo": "EO",
+  "threats.col_score_pct": "счёт %",
+  "threats.col_lost": "потеряно",
+  "threats.col_haul_impact": "если 8 очк.",
   "prices.title": "Изменения цен",
   "prices.meta": "Прогнозы обновляются ежедневно в полночь · На основе трансферного баланса",
   "prices.empty": "Нет изменений цен, соответствующих этому фильтру.",
   "prices.fnote": "Прогнозы цен — оценки на основе данных трансферов FPL. Не гарантировано.",
-
   "planner.title": "Планировщик трансферов",
   "planner.meta_no_team": "Введите ID вашей FPL-команды, чтобы начать",
   "planner.meta_xi": "Ваш XI · GW{{startGw}}–{{endGw}}",
@@ -80,11 +78,11 @@
   "planner.loading_body": "Загрузка матчей и вашего XI…",
   "planner.no_fixture_data": "Данных о матчах для следующих 5 GW пока нет.",
   "planner.fnote": "Рейтинги сложности матчей (FDR) основаны на официальных данных FPL.",
-
   "h2h.title": "Один на один",
+  "h2h.error_meta": "Не удалось загрузить этот матч",
+  "h2h.captains_label": "Капитаны",
   "h2h.meta_invalid": "Неверные ID команд в URL",
   "h2h.invalid_body": "URL должен содержать два разных положительных целых ID команд, например /h2h/123456/789012.",
-
   "hero.eyebrow": "FPL-компаньон в прямом эфире",
   "hero.headline_lead": "Почувствуйте каждую ",
   "hero.headline_accent": "зелёную стрелку.",
@@ -103,7 +101,6 @@
   "hero.feature_reliable_body": "Раздаётся с edge — быстро и стабильно, когда все подключаются одновременно.",
   "hero.feature_cohort_title": "Анализ когорты и соперников",
   "hero.feature_cohort_body": "Видите, где вы стоите относительно топ-10k и соперников рядом в ваших лигах.",
-
   "leagues.title": "Мои Лиги",
   "leagues.meta_no_team": "Введите ID FPL-команды, чтобы увидеть лиги",
   "leagues.meta_loading_team": "Команда {{entryId}} · Таблицы мини-лиг в реальном времени",
@@ -114,29 +111,23 @@
   "leagues.cta_view_rivals": "Смотреть соперников →",
   "leagues.error_load_team": "Не удалось загрузить эту команду. Проверьте ID команды и попробуйте снова.",
   "leagues.empty_leagues": "Мини-лиги для этой команды пока не найдены.",
-
   "league_card.loading": "Загрузка лиги {{leagueId}}…",
   "league_card.error": "Не удалось загрузить лигу {{leagueId}}",
   "league_card.empty": "В этой лиге пока нет менеджеров.",
   "league_card.cta_rivals": "Соперники",
   "league_card.show_all": "Показать все {{count}}",
   "league_card.show_top_10": "Показать топ 10",
-
   "stale_data.message": "Живые обновления приостановлены — показаны последние данные",
-
   "error.title": "Что-то пошло не так",
   "error.meta": "Произошла непредвиденная ошибка",
   "error.body": "При рендеринге страницы возникла ошибка. Попробуйте ещё раз или вернитесь на главную.",
   "error.cta_retry": "Попробовать снова",
   "error.fnote": "Если это повторяется, обновите страницу или зайдите позже.",
-
   "not_found.title": "Страница не найдена",
   "not_found.body": "Мы не смогли найти эту страницу. Возможно, она переехала или ссылка неверна.",
   "not_found.cta_home": "На главную",
-
   "demo_banner.badge": "Превью",
   "demo_banner.message": "Это демонстрация дизайна SimplyFPL — данные иллюстративны.",
-
   "live_battle.section_title": "Live Battle",
   "live_battle.subtitle": "Игроки, двигающие ваш рейтинг прямо сейчас · в игре",
   "live_battle.gains": "Прирост",
@@ -145,19 +136,15 @@
   "live_battle.net_vs_field": "Нетто vs поле",
   "live_battle.empty_gains": "Живого прироста пока нет.",
   "live_battle.empty_losses": "Живых потерь пока нет.",
-
   "differentials.section_title": "Дифференциалы",
   "differentials.yours_header": "У вас",
   "differentials.theirs_header": "У них",
   "differentials.captaincy_label": "Капитанство",
   "differentials.same_captain": "Одинаковый капитан",
   "differentials.empty": "Нет уникальных выборов против этого соперника.",
-
   "pitch.bench_divider": "Скамейка",
-
   "nav.sign_in": "Войти",
   "nav.sign_out": "Выйти",
-
   "team_id_help.label": "Как найти ID команды?",
   "team_id_help.step_1": "Откройте сайт FPL и перейдите на страницу очков.",
   "team_id_help.step_2": "Скопируйте URL из адресной строки браузера.",
@@ -167,7 +154,6 @@
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "Это число — ваш ID команды.",
   "team_id_help.open_fpl": "Открыть сайт FPL →",
-
   "vs_livefpl.title": "SimplyFPL vs livefpl.net",
   "vs_livefpl.error_title": "Не удалось загрузить сравнение",
   "vs_livefpl.error_meta": "Данные о скорости недоступны",
@@ -179,24 +165,21 @@
   "vs_livefpl.methodology_title": "Методология",
   "vs_livefpl.test_title": "Проверьте сами",
   "vs_livefpl.test_label": "Время ответа сети (среднее за 5 попыток с вашего местоположения)",
-
   "frank.ask_section_title": "Спросить Фрэнка",
   "frank.ask_placeholder": "Кого лучше ставить капитаном — Салаха или Холанда?",
   "frank.page_meta": "Ваш FPL-тренер на ИИ · Обновляется еженедельно после дедлайна",
   "frank.chip_watch_title": "Мониторинг чипов",
   "frank.transfer_targets_title": "Цели трансфера",
-
   "upgrade.title": "Улучшить",
   "upgrade.loading_meta": "Выберите тариф",
   "upgrade.page_meta": "Перейдите на Pro или Ultimate, чтобы получить максимум от SimplyFPL",
   "upgrade.section_title": "Выберите ваш тариф",
   "upgrade.fnote": "Платежи обрабатываются через Stripe. Отмените или смените тариф в любое время в настройках аккаунта.",
-
+  "upgrade.plan_pro_title": "Pro",
+  "upgrade.plan_ultimate_title": "Ultimate",
   "rivals_section.loading_meta": "Загрузка ваших лиг…",
   "rivals_section.empty_meta": "Мини-лиги для этой команды не найдены",
-
   "replay.seek_aria": "Перейти к GW",
-
   "shared.you": "Вы",
   "shared.them": "Они",
   "shared.cap": "Кап",
@@ -204,21 +187,15 @@
   "shared.pts": "Оч",
   "shared.rank": "Рейт",
   "shared.team": "Команда",
-
   "cohort.col_top10k": "Топ 10k",
   "cohort.col_overall": "Всего",
   "cohort.col_top1k": "Топ 1k",
-
   "detailed_league_row.transfers_label": "Трансферы",
   "detailed_league_row.played_label": "Сыгр",
-
   "league_table.col_manager": "Менеджер",
   "league_table.col_gw": "GW",
-
   "live_status_pill.deselect_title": "Отменить выбор команды",
-
   "logo.aria_label": "Главная SimplyFPL",
-
   "notifications.pro_only": "Push-уведомления — функция Pro. Перейдите на Pro, чтобы получать уведомления о голах капитана и перед дедлайном трансферов.",
   "notifications.not_supported": "Push-уведомления не поддерживаются в этом браузере.",
   "notifications.blocked": "Уведомления заблокированы. Включите их в настройках браузера и перезагрузите страницу.",
@@ -263,16 +240,23 @@
   "notifications.quiet_hours_disabled": "Отключено",
   "notifications.quiet_hours_cta_disable": "Отключить",
   "notifications.quiet_hours_cta_enable": "Включить",
-
   "theme_picker.aria_label": "Тема",
-
   "what_if.search_placeholder": "Поиск по имени…",
-
   "analytics_consent.aria_label": "Согласие на аналитику",
   "analytics_consent.body": "Мы используем анонимную аналитику для улучшения SimplyFPL. Персональные данные не передаются.",
   "analytics_consent.cta_decline": "Отказать",
   "analytics_consent.cta_accept": "Принять",
-
   "settings.section_language": "Язык",
-  "settings.language_description": "Выберите язык SimplyFPL. Ваш выбор сохраняется на этом устройстве."
+  "settings.language_description": "Выберите язык SimplyFPL. Ваш выбор сохраняется на этом устройстве.",
+  "live_rank.title": "Живой рейтинг",
+  "live_rank.no_team_meta": "Команда не выбрана",
+  "live_rank.error_meta": "Не удалось загрузить эту команду",
+  "live_rank.autosubs_toggle_aria": "Переключатель автозамен",
+  "live_rank.subs_pre_label": "До",
+  "live_rank.subs_post_label": "После",
+  "live_rank.freshness_aria": "Актуальность живых данных",
+  "live_rank.cohort_section_title": "Сравнение когорт",
+  "live_rank.provisional_bonus_aria": "Примечание о предварительном бонусе",
+  "team_news.title": "Новости команд",
+  "team_news.all_available": "Все ваши игроки доступны"
 }

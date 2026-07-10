@@ -2,6 +2,7 @@
 
 import type { H2hPlayer, H2hPosition, H2hSide } from '@simplyfpl/features/h2h';
 import { getClubColor, getKitUrl } from '@simplyfpl/fpl-client';
+import { t } from '@simplyfpl/i18n';
 import { BenchDivider, Pitch, PitchRow, Player, XStack, YStack, styled } from '@simplyfpl/ui';
 import type { ShirtKind } from '@simplyfpl/ui';
 
@@ -116,10 +117,10 @@ export default function PitchPair({ you, them }: { you: H2hSide; them: H2hSide }
   return (
     <PitchPairWrap>
       <PitchColumn>
-        <PitchSide side={you} label="You" />
+        <PitchSide side={you} label={t('shared.you')} />
       </PitchColumn>
       <PitchColumn>
-        <PitchSide side={them} label="Them" />
+        <PitchSide side={them} label={t('shared.them')} />
       </PitchColumn>
     </PitchPairWrap>
   );

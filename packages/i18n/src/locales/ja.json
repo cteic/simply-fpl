@@ -2,7 +2,6 @@
   "common.loading": "読み込み中…",
   "common.cta_enter_team_id": "チーム ID を入力",
   "common.disclaimer": "SimplyFPL はプレミアリーグまたは Fantasy Premier League とは提携していません",
-
   "login.title": "サインイン",
   "login.meta": "メールでマジックリンクを送信",
   "login.signed_in_title": "サインイン済み",
@@ -11,7 +10,6 @@
   "login.cta_sending": "送信中…",
   "login.cta_send": "マジックリンクを送信",
   "login.sent_body": "受信トレイを確認してください — リンクをクリックしてサインインを完了してください。",
-
   "home_search.meta": "FPL ライブコンパニオン · GW30",
   "home_search.section_find": "チームを検索",
   "home_search.description": "FPL チーム ID を入力するか、チーム URL を貼り付けてライブランク、GW ポイント、ピッチを確認しましょう。",
@@ -23,7 +21,6 @@
   "home_search.feature_leagues": "• キャプテンとベンチのライブポイントを含むミニリーグ順位表",
   "home_search.feature_h2h": "• リーグ内の任意のライバルとの一対一比較",
   "home_search.feature_free": "• 無料・登録不要 — チーム ID を貼り付けるだけ",
-
   "settings.title": "設定",
   "settings.section_account": "アカウント",
   "settings.label_email": "メール",
@@ -41,7 +38,6 @@
   "settings.section_notifications": "通知",
   "settings.cta_sign_out": "サインアウト",
   "settings.fnote": "サブスクリプション開始後、さらに多くのアカウント設定が追加されます。",
-
   "rivals.title": "ライバル",
   "rivals.meta_invalid_id": "URL のリーグ ID が無効です",
   "rivals.invalid_id_body": "URL には /rivals/123456 のような正の整数のリーグ ID が必要です。",
@@ -55,7 +51,7 @@
   "rivals.loading_rival_picks": "ライバルの選手情報を読み込み中…",
   "rivals.top_of_window": "ライバルウィンドウのトップです — 比較できる上位マネージャーはいません。",
   "rivals.fnote": "ライブ GW ポイントは 60 秒ごとに更新されます。表示されるボーナスは確定前の暫定値です。",
-
+  "rivals.pro_banner_title": "複数のリーグを追跡",
   "threats.title": "脅威",
   "threats.section_top": "主な脅威（{{count}}）",
   "threats.empty": "このフィルターに一致する脅威はありません。",
@@ -66,12 +62,14 @@
   "threats.filter_to_play": "未プレー",
   "threats.filter_played": "プレー済み",
   "threats.filter_didnt_play": "不出場",
-
+  "threats.col_eo": "EO",
+  "threats.col_score_pct": "スコア%",
+  "threats.col_lost": "損失",
+  "threats.col_haul_impact": "8点なら",
   "prices.title": "価格変動",
   "prices.meta": "予測は毎日深夜に更新 · 純移籍数に基づく",
   "prices.empty": "このフィルターに一致する価格変動はありません。",
   "prices.fnote": "価格予測は FPL の移籍データに基づく推定です。保証はありません。",
-
   "planner.title": "移籍プランナー",
   "planner.meta_no_team": "FPL チーム ID を入力して開始",
   "planner.meta_xi": "あなたの XI · GW{{startGw}}–{{endGw}}",
@@ -80,11 +78,11 @@
   "planner.loading_body": "フィクスチャとあなたの XI を読み込み中…",
   "planner.no_fixture_data": "今後 5 GW のフィクスチャデータはまだありません。",
   "planner.fnote": "対戦難易度評価（FDR）は FPL の公式データに基づいています。",
-
   "h2h.title": "ヘッド・トゥ・ヘッド",
+  "h2h.error_meta": "この対戦を読み込めませんでした",
+  "h2h.captains_label": "キャプテン",
   "h2h.meta_invalid": "URL のチーム ID が無効です",
   "h2h.invalid_body": "URL には /h2h/123456/789012 のような異なる 2 つの正の整数チーム ID が必要です。",
-
   "hero.eyebrow": "FPL ライブコンパニオン",
   "hero.headline_lead": "すべての ",
   "hero.headline_accent": "緑の矢印を感じよう。",
@@ -103,7 +101,6 @@
   "hero.feature_reliable_body": "エッジから配信 — みんなが一斉にアクセスしても速くて安定。",
   "hero.feature_cohort_title": "コーホートとライバルの分析",
   "hero.feature_cohort_body": "トップ 10k と、リーグ内で隣り合うライバルと比べた自分の位置を把握できます。",
-
   "leagues.title": "マイリーグ",
   "leagues.meta_no_team": "FPL チーム ID を入力してリーグを確認",
   "leagues.meta_loading_team": "チーム {{entryId}} · ライブミニリーグ順位",
@@ -114,29 +111,23 @@
   "leagues.cta_view_rivals": "ライバルを見る →",
   "leagues.error_load_team": "このチームを読み込めませんでした。チーム ID を確認して再試行してください。",
   "leagues.empty_leagues": "このチームのミニリーグはまだ見つかりません。",
-
   "league_card.loading": "リーグ {{leagueId}} を読み込み中…",
   "league_card.error": "リーグ {{leagueId}} を読み込めませんでした",
   "league_card.empty": "このリーグにはまだマネージャーがいません。",
   "league_card.cta_rivals": "ライバル",
   "league_card.show_all": "全 {{count}} 件を表示",
   "league_card.show_top_10": "トップ 10 を表示",
-
   "stale_data.message": "ライブ更新を一時停止中 — 最終データを表示",
-
   "error.title": "問題が発生しました",
   "error.meta": "予期しないエラーが発生しました",
   "error.body": "このページのレンダリング中にエラーが発生しました。再試行するか、ホームページに戻ってください。",
   "error.cta_retry": "再試行",
   "error.fnote": "問題が続く場合は、ページを更新するか、しばらくしてから再アクセスしてください。",
-
   "not_found.title": "ページが見つかりません",
   "not_found.body": "このページは見つかりませんでした。移動したか、リンクが間違っている可能性があります。",
   "not_found.cta_home": "ホームに戻る",
-
   "demo_banner.badge": "プレビュー",
   "demo_banner.message": "これは SimplyFPL のデザインデモです — データはイメージです。",
-
   "live_battle.section_title": "Live Battle",
   "live_battle.subtitle": "今あなたのランクを動かしている選手 · プレー中",
   "live_battle.gains": "上昇",
@@ -145,19 +136,15 @@
   "live_battle.net_vs_field": "フィールド全体との差",
   "live_battle.empty_gains": "まだライブ上昇はありません。",
   "live_battle.empty_losses": "まだライブ下降はありません。",
-
   "differentials.section_title": "差別化選手",
   "differentials.yours_header": "あなたが持つ",
   "differentials.theirs_header": "相手が持つ",
   "differentials.captaincy_label": "キャプテン",
   "differentials.same_captain": "同じキャプテン",
   "differentials.empty": "このライバルに対してユニークな選手はいません。",
-
   "pitch.bench_divider": "ベンチ",
-
   "nav.sign_in": "サインイン",
   "nav.sign_out": "サインアウト",
-
   "team_id_help.label": "チーム ID の見つけ方は？",
   "team_id_help.step_1": "FPL サイトを開き、ポイントページへ移動します。",
   "team_id_help.step_2": "ブラウザのアドレスバーから URL をコピーします。",
@@ -167,7 +154,6 @@
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "この数字がチーム ID です。",
   "team_id_help.open_fpl": "FPL サイトを開く →",
-
   "vs_livefpl.title": "SimplyFPL vs livefpl.net",
   "vs_livefpl.error_title": "比較を読み込めませんでした",
   "vs_livefpl.error_meta": "速度データが利用不可",
@@ -179,24 +165,21 @@
   "vs_livefpl.methodology_title": "測定方法",
   "vs_livefpl.test_title": "自分で試す",
   "vs_livefpl.test_label": "ネットワーク応答時間（あなたの場所から 5 回の平均）",
-
   "frank.ask_section_title": "Frank に質問",
   "frank.ask_placeholder": "今週はサラーとハーランド、どちらをキャプテンにすべき？",
   "frank.page_meta": "あなたの AI FPL コーチ · 締め切り後に毎週更新",
   "frank.chip_watch_title": "チップ監視",
   "frank.transfer_targets_title": "移籍ターゲット",
-
   "upgrade.title": "アップグレード",
   "upgrade.loading_meta": "プランを選択",
   "upgrade.page_meta": "Pro または Ultimate にアップグレードして SimplyFPL を最大限活用しましょう",
   "upgrade.section_title": "プランを選択",
   "upgrade.fnote": "支払いは Stripe が処理します。アカウント設定からいつでもキャンセル・プラン変更できます。",
-
+  "upgrade.plan_pro_title": "Pro",
+  "upgrade.plan_ultimate_title": "Ultimate",
   "rivals_section.loading_meta": "リーグを読み込み中…",
   "rivals_section.empty_meta": "このチームのミニリーグは見つかりません",
-
   "replay.seek_aria": "GW に移動",
-
   "shared.you": "あなた",
   "shared.them": "相手",
   "shared.cap": "Cap",
@@ -204,21 +187,15 @@
   "shared.pts": "Pts",
   "shared.rank": "ランク",
   "shared.team": "チーム",
-
   "cohort.col_top10k": "トップ 10k",
   "cohort.col_overall": "全体",
   "cohort.col_top1k": "トップ 1k",
-
   "detailed_league_row.transfers_label": "移籍",
   "detailed_league_row.played_label": "試合数",
-
   "league_table.col_manager": "マネージャー",
   "league_table.col_gw": "GW",
-
   "live_status_pill.deselect_title": "チームの選択を解除",
-
   "logo.aria_label": "SimplyFPL ホーム",
-
   "notifications.pro_only": "プッシュ通知は Pro 機能です。キャプテンがゴールしたときや移籍締め切り前に通知を受け取るには Pro にアップグレードしてください。",
   "notifications.not_supported": "このブラウザはプッシュ通知に対応していません。",
   "notifications.blocked": "通知がブロックされています。ブラウザ設定で再度有効にして、ページを再読み込みしてください。",
@@ -263,16 +240,23 @@
   "notifications.quiet_hours_disabled": "無効",
   "notifications.quiet_hours_cta_disable": "無効にする",
   "notifications.quiet_hours_cta_enable": "有効にする",
-
   "theme_picker.aria_label": "テーマ",
-
   "what_if.search_placeholder": "名前で検索…",
-
   "analytics_consent.aria_label": "アナリティクス同意",
   "analytics_consent.body": "SimplyFPL を改善するため匿名アナリティクスを使用しています。個人データは送信されません。",
   "analytics_consent.cta_decline": "断る",
   "analytics_consent.cta_accept": "同意する",
-
   "settings.section_language": "言語",
-  "settings.language_description": "SimplyFPL の言語を選択してください。選択内容はこのデバイスに保存されます。"
+  "settings.language_description": "SimplyFPL の言語を選択してください。選択内容はこのデバイスに保存されます。",
+  "live_rank.title": "ライブランク",
+  "live_rank.no_team_meta": "チーム未選択",
+  "live_rank.error_meta": "このチームを読み込めませんでした",
+  "live_rank.autosubs_toggle_aria": "オートサブ切替",
+  "live_rank.subs_pre_label": "交代前",
+  "live_rank.subs_post_label": "交代後",
+  "live_rank.freshness_aria": "ライブデータの鮮度",
+  "live_rank.cohort_section_title": "コホート比較",
+  "live_rank.provisional_bonus_aria": "暫定ボーナスの注記",
+  "team_news.title": "チームニュース",
+  "team_news.all_available": "あなたの選手は全員出場可能です"
 }
