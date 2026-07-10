@@ -2,7 +2,6 @@
   "common.loading": "加载中…",
   "common.cta_enter_team_id": "输入球队 ID",
   "common.disclaimer": "SimplyFPL 与英超联赛或梦幻英超没有关联",
-
   "login.title": "登录",
   "login.meta": "通过邮箱发送魔法链接",
   "login.signed_in_title": "已登录",
@@ -11,7 +10,6 @@
   "login.cta_sending": "发送中…",
   "login.cta_send": "发送魔法链接",
   "login.sent_body": "请查看您的收件箱 — 点击链接完成登录。",
-
   "home_search.meta": "FPL 实时助手 · GW30",
   "home_search.section_find": "查找您的球队",
   "home_search.description": "输入您的 FPL 球队 ID 或粘贴球队链接，查看实时排名、GW 积分和阵容。",
@@ -23,7 +21,6 @@
   "home_search.feature_leagues": "• 含队长和替补实时积分的迷你联赛排行榜",
   "home_search.feature_h2h": "• 与联赛中任意对手进行面对面比较",
   "home_search.feature_free": "• 免费，无需注册 — 只需粘贴球队 ID",
-
   "settings.title": "设置",
   "settings.section_account": "账户",
   "settings.label_email": "邮箱",
@@ -41,7 +38,6 @@
   "settings.section_notifications": "通知",
   "settings.cta_sign_out": "退出登录",
   "settings.fnote": "订阅上线后将开放更多账户控制功能。",
-
   "rivals.title": "对手",
   "rivals.meta_invalid_id": "URL 中的联赛 ID 无效",
   "rivals.invalid_id_body": "URL 需要一个正整数联赛 ID，例如 /rivals/123456。",
@@ -55,7 +51,7 @@
   "rivals.loading_rival_picks": "加载对手阵容中…",
   "rivals.top_of_window": "您已在对手窗口顶部 — 没有可比较的上方管理者。",
   "rivals.fnote": "实时 GW 积分每 60 秒刷新一次。显示的加分为临时数据，待确认后生效。",
-
+  "rivals.pro_banner_title": "追踪多个联赛",
   "threats.title": "威胁",
   "threats.section_top": "主要威胁（{{count}}）",
   "threats.empty": "没有符合此筛选条件的威胁。",
@@ -66,12 +62,14 @@
   "threats.filter_to_play": "待比赛",
   "threats.filter_played": "已比赛",
   "threats.filter_didnt_play": "未上场",
-
+  "threats.col_eo": "EO",
+  "threats.col_score_pct": "得分%",
+  "threats.col_lost": "损失",
+  "threats.col_haul_impact": "若得8分",
   "prices.title": "价格变动",
   "prices.meta": "预测每天午夜更新 · 基于净转会数据",
   "prices.empty": "没有符合此筛选条件的价格变动。",
   "prices.fnote": "价格预测基于 FPL 转会数据估算，不保证准确。",
-
   "planner.title": "转会规划器",
   "planner.meta_no_team": "输入您的 FPL 球队 ID 开始",
   "planner.meta_xi": "您的 XI · GW{{startGw}}–{{endGw}}",
@@ -80,11 +78,11 @@
   "planner.loading_body": "正在加载赛程和您的 XI…",
   "planner.no_fixture_data": "接下来 5 个 GW 暂无赛程数据。",
   "planner.fnote": "赛事难度评级（FDR）基于 FPL 官方数据。",
-
   "h2h.title": "面对面",
+  "h2h.error_meta": "无法加载此对决",
+  "h2h.captains_label": "队长",
   "h2h.meta_invalid": "URL 中的球队 ID 无效",
   "h2h.invalid_body": "URL 需要两个不同的正整数球队 ID，例如 /h2h/123456/789012。",
-
   "hero.eyebrow": "FPL 实时助手",
   "hero.headline_lead": "感受每一支 ",
   "hero.headline_accent": "绿色箭头。",
@@ -103,7 +101,6 @@
   "hero.feature_reliable_body": "边缘节点部署 — 所有人同时涌入时依然快速稳定。",
   "hero.feature_cohort_title": "群体与对手洞察",
   "hero.feature_cohort_body": "查看您相对于前 10k 及联赛中相邻对手的位置。",
-
   "leagues.title": "我的联赛",
   "leagues.meta_no_team": "输入 FPL 球队 ID 查看您的联赛",
   "leagues.meta_loading_team": "球队 {{entryId}} · 实时迷你联赛排行榜",
@@ -114,29 +111,23 @@
   "leagues.cta_view_rivals": "查看对手 →",
   "leagues.error_load_team": "无法加载此球队。请检查球队 ID 后重试。",
   "leagues.empty_leagues": "暂未找到此球队的迷你联赛。",
-
   "league_card.loading": "加载联赛 {{leagueId}}…",
   "league_card.error": "无法加载联赛 {{leagueId}}",
   "league_card.empty": "此联赛暂无管理者。",
   "league_card.cta_rivals": "对手",
   "league_card.show_all": "显示全部 {{count}}",
   "league_card.show_top_10": "显示前 10",
-
   "stale_data.message": "实时更新已暂停 — 显示最后数据",
-
   "error.title": "出了点问题",
   "error.meta": "发生了意外错误",
   "error.body": "渲染此页面时遇到错误。请重试或返回首页。",
   "error.cta_retry": "重试",
   "error.fnote": "如果问题持续，请刷新页面或稍后再试。",
-
   "not_found.title": "页面未找到",
   "not_found.body": "我们找不到该页面。它可能已移动，或链接有误。",
   "not_found.cta_home": "返回首页",
-
   "demo_banner.badge": "预览",
   "demo_banner.message": "这是 SimplyFPL 的设计演示 — 数据仅供参考。",
-
   "live_battle.section_title": "Live Battle",
   "live_battle.subtitle": "正在改变您排名的球员 · 比赛进行中",
   "live_battle.gains": "上升",
@@ -145,19 +136,15 @@
   "live_battle.net_vs_field": "相对全场净值",
   "live_battle.empty_gains": "暂无实时上升。",
   "live_battle.empty_losses": "暂无实时下降。",
-
   "differentials.section_title": "差异球员",
   "differentials.yours_header": "您有",
   "differentials.theirs_header": "他们有",
   "differentials.captaincy_label": "队长",
   "differentials.same_captain": "相同队长",
   "differentials.empty": "与此对手无独特选择。",
-
   "pitch.bench_divider": "替补席",
-
   "nav.sign_in": "登录",
   "nav.sign_out": "退出",
-
   "team_id_help.label": "如何找到球队 ID？",
   "team_id_help.step_1": "打开 FPL 网站，前往积分页面。",
   "team_id_help.step_2": "复制浏览器地址栏中的链接。",
@@ -167,7 +154,6 @@
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "那个数字就是您的球队 ID。",
   "team_id_help.open_fpl": "打开 FPL 网站 →",
-
   "vs_livefpl.title": "SimplyFPL vs livefpl.net",
   "vs_livefpl.error_title": "无法加载对比",
   "vs_livefpl.error_meta": "速度数据不可用",
@@ -179,24 +165,21 @@
   "vs_livefpl.methodology_title": "方法论",
   "vs_livefpl.test_title": "自行测试",
   "vs_livefpl.test_label": "网络响应时间（从您的位置取 5 次平均值）",
-
   "frank.ask_section_title": "询问 Frank",
   "frank.ask_placeholder": "这轮我应该选萨拉赫还是哈兰德当队长？",
   "frank.page_meta": "您的 AI FPL 教练 · 截止日期后每周更新",
   "frank.chip_watch_title": "筹码观察",
   "frank.transfer_targets_title": "转会目标",
-
   "upgrade.title": "升级",
   "upgrade.loading_meta": "选择套餐",
   "upgrade.page_meta": "升级至 Pro 或 Ultimate，充分发挥 SimplyFPL 的潜力",
   "upgrade.section_title": "选择您的套餐",
   "upgrade.fnote": "付款由 Stripe 处理。随时可在账户设置中取消或更换套餐。",
-
+  "upgrade.plan_pro_title": "Pro",
+  "upgrade.plan_ultimate_title": "Ultimate",
   "rivals_section.loading_meta": "加载您的联赛中…",
   "rivals_section.empty_meta": "未找到此球队的迷你联赛",
-
   "replay.seek_aria": "跳转至 GW",
-
   "shared.you": "你",
   "shared.them": "他们",
   "shared.cap": "队长",
@@ -204,21 +187,15 @@
   "shared.pts": "分",
   "shared.rank": "排名",
   "shared.team": "球队",
-
   "cohort.col_top10k": "前 10k",
   "cohort.col_overall": "总体",
   "cohort.col_top1k": "前 1k",
-
   "detailed_league_row.transfers_label": "转会",
   "detailed_league_row.played_label": "已赛",
-
   "league_table.col_manager": "管理者",
   "league_table.col_gw": "GW",
-
   "live_status_pill.deselect_title": "取消选择球队",
-
   "logo.aria_label": "SimplyFPL 首页",
-
   "notifications.pro_only": "推送通知是 Pro 功能。升级以在队长进球时和转会截止前收到通知。",
   "notifications.not_supported": "此浏览器不支持推送通知。",
   "notifications.blocked": "通知已被屏蔽。请在浏览器设置中重新启用，然后刷新页面。",
@@ -263,16 +240,23 @@
   "notifications.quiet_hours_disabled": "已禁用",
   "notifications.quiet_hours_cta_disable": "禁用",
   "notifications.quiet_hours_cta_enable": "启用",
-
   "theme_picker.aria_label": "主题",
-
   "what_if.search_placeholder": "按姓名搜索…",
-
   "analytics_consent.aria_label": "分析同意",
   "analytics_consent.body": "我们使用匿名分析数据改进 SimplyFPL。不会发送任何个人数据。",
   "analytics_consent.cta_decline": "拒绝",
   "analytics_consent.cta_accept": "接受",
-
   "settings.section_language": "语言",
-  "settings.language_description": "选择 SimplyFPL 的语言。您的选择保存在此设备上。"
+  "settings.language_description": "选择 SimplyFPL 的语言。您的选择保存在此设备上。",
+  "live_rank.title": "实时排名",
+  "live_rank.no_team_meta": "未选择球队",
+  "live_rank.error_meta": "无法加载该球队",
+  "live_rank.autosubs_toggle_aria": "自动换人开关",
+  "live_rank.subs_pre_label": "换人前",
+  "live_rank.subs_post_label": "换人后",
+  "live_rank.freshness_aria": "实时数据新鲜度",
+  "live_rank.cohort_section_title": "分组对比",
+  "live_rank.provisional_bonus_aria": "临时奖励分说明",
+  "team_news.title": "球队新闻",
+  "team_news.all_available": "你的所有球员均可出场"
 }
