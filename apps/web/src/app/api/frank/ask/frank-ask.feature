@@ -1,14 +1,12 @@
-Feature: Frank on-demand ask quota and streaming
+Feature: Frank on-demand ask quota
 
   The ask route reserves a quota row before calling the AI service so that
-  concurrent requests can never spend past the monthly hard cap. Live responses
-  are streamed via SSE; cache hits return JSON instantly without streaming.
+  concurrent requests can never spend past the monthly hard cap.
 
   Scenario: a user under quota gets an answer and the reservation stores the response
     Given a signed-in Ultimate user with 0 queries this month
     When they ask Frank a question
-    Then the response is a stream
-    And the stream contains a done event with Frank's advice
+    Then the response contains Frank's advice
     And exactly one AI call is made
     And the stored query row contains the response
 
@@ -28,21 +26,5 @@ Feature: Frank on-demand ask quota and streaming
     Given a signed-in Ultimate user with 0 queries this month
     And the AI service is failing
     When they ask Frank a question
-    Then the response is a stream
-    And the stream contains an error event
+    Then the response status is 503
     And no query rows remain for the user
-
-  Scenario: a cached answer is returned as JSON without an AI call
-    Given a signed-in Ultimate user with 0 queries this month
-    And the ask-cache has a stored answer for the question
-    When they ask Frank a question
-    Then the response is JSON
-    And no AI call is made
-
-  Scenario: a cache miss triggers a streaming response
-    Given a signed-in Ultimate user with 0 queries this month
-    And the ask-cache has no stored answer
-    When they ask Frank a question
-    Then the response is a stream
-    And the stream contains a done event with Frank's advice
-    And exactly one AI call is made

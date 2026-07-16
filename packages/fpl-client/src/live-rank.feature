@@ -10,11 +10,6 @@ Feature: Live points calculation
     When I calculate live points
     Then the total should be 80
 
-  Scenario: Triple Captain multiplier is read from pick.multiplier not the chip flag
-    Given an 11-player squad with no active chip where the captain pick carries multiplier 3
-    When I calculate live points
-    Then the captain's points are tripled and the total is 80
-
   Scenario: Transfer hit is deducted from live points
     Given an 11-player squad scoring 50 gross points with a 4-point transfer hit
     When I calculate live points
@@ -94,27 +89,3 @@ Feature: Live points calculation
     Given my pre-gameweek rank is 0 and the average score is 30
     When I compute rank details with 50 live points and 58 post-subs points
     Then there are no rank details
-
-  Scenario: Season-mismatch bootstrap triggers live-cohort aggregate over captured distribution
-    Given a captured GW1 distribution from season 2025
-    And a live cohort score distribution with mean 60 for season 2026
-    And a bootstrap showing GW1 deadline in August 2026
-    When I call estimateLiveRankSmart with gw 1 and the live aggregate
-    Then the estimate source is "live-cohort"
-
-  Scenario: Same-season bootstrap uses the captured distribution
-    Given a captured GW1 distribution from season 2025
-    And a bootstrap showing GW1 deadline in August 2025
-    When I call estimateLiveRankSmart with gw 1 and no live aggregate
-    Then the estimate source is "captured-same-season"
-
-  Scenario: Season-mismatch without live aggregate falls to prior-season-scaled
-    Given a captured GW1 distribution from season 2025
-    And a bootstrap showing GW1 deadline in August 2026
-    When I call estimateLiveRankSmart with gw 1 and no live aggregate
-    Then the estimate source is "captured-prior-season-scaled"
-
-  Scenario: No captured distribution and no live aggregate falls to flat heuristic
-    Given no captured distribution exists for gw 999
-    When I call estimateLiveRankSmart for gw 999 with no live aggregate
-    Then the estimate source is "flat-heuristic"

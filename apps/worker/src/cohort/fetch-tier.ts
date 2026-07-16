@@ -148,13 +148,6 @@ function rehydrateAggregate(raw: unknown): PartialAggregate {
       if (typeof id === 'number') agg.seenEntryIds.add(id);
     }
   }
-  if (Array.isArray(r['scoreHistogram'])) {
-    for (const entry of r['scoreHistogram']) {
-      if (Array.isArray(entry) && typeof entry[0] === 'number' && typeof entry[1] === 'number') {
-        agg.scoreHistogram.set(entry[0], entry[1]);
-      }
-    }
-  }
   return agg;
 }
 
@@ -168,7 +161,6 @@ function serialiseAggregate(agg: PartialAggregate): string {
     entriesSeen: agg.entriesSeen,
     totalEventPoints: agg.totalEventPoints,
     seenEntryIds: Array.from(agg.seenEntryIds),
-    scoreHistogram: Array.from(agg.scoreHistogram.entries()),
   });
 }
 

@@ -4,9 +4,6 @@ import deTranslations from './locales/de.json';
 import enTranslations from './locales/en.json';
 import esTranslations from './locales/es.json';
 import frTranslations from './locales/fr.json';
-import jaTranslations from './locales/ja.json';
-import ruTranslations from './locales/ru.json';
-import zhTranslations from './locales/zh.json';
 
 const EN_KEYS = new Set(Object.keys(enTranslations));
 
@@ -14,9 +11,6 @@ const LOCALES: Array<{ code: string; translations: Record<string, string> }> = [
   { code: 'fr', translations: frTranslations },
   { code: 'de', translations: deTranslations },
   { code: 'es', translations: esTranslations },
-  { code: 'ru', translations: ruTranslations },
-  { code: 'zh', translations: zhTranslations },
-  { code: 'ja', translations: jaTranslations },
 ];
 
 describe('locale key parity', () => {

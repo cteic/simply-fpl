@@ -6,8 +6,7 @@ export type NotificationEvent =
   | 'rank_swing'
   | 'goal_scored'
   | 'assist'
-  | 'red_card'
-  | 'player_availability_changed';
+  | 'red_card';
 
 export interface PushPayload {
   v: 1;
@@ -30,7 +29,6 @@ export interface NotificationPrefsRow {
   goal_scored: boolean;
   assist: boolean;
   red_card: boolean;
-  player_availability_changed: boolean;
   quiet_hours_start: number | null;
   quiet_hours_end: number | null;
   updated_at: string;

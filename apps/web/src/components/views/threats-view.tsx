@@ -301,19 +301,19 @@ function ThreatRow({ threat, last }: ThreatRowProps) {
       </YStack>
       <StatBlock>
         <StatNumber>{threat.effectiveOwnershipPct.toFixed(0)}%</StatNumber>
-        <StatLabel>{t('threats.col_eo')}</StatLabel>
+        <StatLabel>EO</StatLabel>
       </StatBlock>
       <StatBlock>
         <StatNumber>{scoreLabel}</StatNumber>
-        <StatLabel>{t('threats.col_score_pct')}</StatLabel>
+        <StatLabel>score%</StatLabel>
       </StatBlock>
       <StatBlock>
         <StatNumber>{lostLabel}</StatNumber>
-        <StatLabel>{t('threats.col_lost')}</StatLabel>
+        <StatLabel>lost</StatLabel>
       </StatBlock>
       <StatBlock>
         <StatNumber>−{threat.liveRankImpactIfTheyHaul.toFixed(1)}</StatNumber>
-        <StatLabel>{t('threats.col_haul_impact')}</StatLabel>
+        <StatLabel>if 8 pt</StatLabel>
       </StatBlock>
     </Row>
   );

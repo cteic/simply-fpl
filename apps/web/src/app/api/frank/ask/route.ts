@@ -81,12 +81,6 @@ function isSlimPricesPayload(value: unknown): value is SlimPricesPayload {
   );
 }
 
-const enc = new TextEncoder();
-
-function sseChunk(event: string, data: unknown): Uint8Array {
-  return enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
-}
-
 export async function POST(request: NextRequest) {
   if (!FEATURE_FRANK_ONDEMAND_SERVER) {
     return NextResponse.json({ error: 'Feature not enabled' }, { status: 503 });
@@ -325,85 +319,58 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
-  const writer = writable.getWriter();
+  let message: Anthropic.Message;
+  try {
+    message = await client.messages.create({
+      model: FRANK_MODEL,
+      max_tokens: 512,
+      system: systemParts,
+      messages: [{ role: 'user', content: question }],
+    });
+  } catch {
+    await admin.from('frank_queries').delete().eq('id', reservation.id);
+    return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
+  }
 
-  const reservationId = String(reservation.id);
+  const rawText = message.content
+    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+    .map((block: Anthropic.TextBlock) => block.text)
+    .join('');
 
-  void (async () => {
-    try {
-      const anthropicStream = client.messages.stream({
+  const parsed = parseFrankJson(rawText);
+  const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
+  const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
+
+  if (FRANK_CACHE_WRITE_SECRET) {
+    fetch(`${API_BASE_URL}/frank/ask-cache?key=${encodeURIComponent(cacheKey)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Frank-Cache-Secret': FRANK_CACHE_WRITE_SECRET,
+      },
+      body: JSON.stringify(responsePayload),
+    }).catch(() => undefined);
+  }
+
+  try {
+    await admin
+      .from('frank_queries')
+      .update({
+        response: responsePayload,
         model: FRANK_MODEL,
-        max_tokens: 512,
-        system: systemParts,
-        messages: [{ role: 'user', content: question }],
-      });
+        tokens_in: message.usage.input_tokens,
+        tokens_out: message.usage.output_tokens,
+      })
+      .eq('id', reservation.id);
+  } catch {
+    // log to frank_queries is best-effort; don't fail the response
+  }
 
-      let fullText = '';
-      for await (const event of anthropicStream) {
-        if (
-          event.type === 'content_block_delta' &&
-          event.delta.type === 'text_delta' &&
-          event.delta.text
-        ) {
-          fullText += event.delta.text;
-          await writer.write(sseChunk('token', { text: event.delta.text }));
-        }
-      }
-
-      const finalMsg = await anthropicStream.finalMessage();
-      const parsed = parseFrankJson(fullText);
-      const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
-      const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
-
-      if (FRANK_CACHE_WRITE_SECRET) {
-        fetch(`${API_BASE_URL}/frank/ask-cache?key=${encodeURIComponent(cacheKey)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Frank-Cache-Secret': FRANK_CACHE_WRITE_SECRET,
-          },
-          body: JSON.stringify(responsePayload),
-        }).catch(() => undefined);
-      }
-
-      try {
-        await admin
-          .from('frank_queries')
-          .update({
-            response: responsePayload,
-            model: FRANK_MODEL,
-            tokens_in: finalMsg.usage.input_tokens,
-            tokens_out: finalMsg.usage.output_tokens,
-          })
-          .eq('id', reservationId);
-      } catch {
-        // best-effort
-      }
-
-      await writer.write(
-        sseChunk('done', {
-          advice,
-          follow_up_question: parsed?.follow_up_question ?? null,
-          used: usedWithReservation,
-          softCap: FRANK_QUOTA_SOFT,
-          hardCap: FRANK_QUOTA_HARD,
-        })
-      );
-    } catch {
-      await admin.from('frank_queries').delete().eq('id', reservationId);
-      await writer.write(sseChunk('error', { error: 'AI service unavailable' }));
-    } finally {
-      writer.close().catch(() => undefined);
-    }
-  })();
-
-  return new Response(readable, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-      'X-Content-Type-Options': 'nosniff',
-    },
+  return NextResponse.json({
+    advice,
+    follow_up_question: parsed?.follow_up_question ?? null,
+    used: usedWithReservation,
+    softCap: FRANK_QUOTA_SOFT,
+    hardCap: FRANK_QUOTA_HARD,
   });
 }

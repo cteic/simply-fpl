@@ -64,13 +64,3 @@ Feature: Frank AI coach view
   Scenario: Gated free or pro user is shown an upgrade affordance to Ultimate
     Given Frank access is resolved for the free tier
     Then the upgrade affordance points to the ultimate tier
-
-  Scenario: Follow-up chip pre-fills the question input
-    Given a Frank answer with follow_up_question "Should I bench Haaland?"
-    When the user selects the follow-up chip
-    Then the question input is filled with "Should I bench Haaland?"
-
-  Scenario: Frank share URL encodes the advice verdict
-    Given a Frank answer with advice "Captain Salah — home fixture, great form."
-    When the share URL is built
-    Then the URL contains the encoded verdict

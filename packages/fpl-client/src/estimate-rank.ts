@@ -24,7 +24,7 @@ export function loadDistribution(
   if (!file) throw new DistributionUnavailableError(gw, cohort);
   const sample = file.cohorts[cohort];
   if (!sample) throw new DistributionUnavailableError(gw, cohort);
-  return { ...sample, gw, season: file.season, cohort };
+  return { ...sample, gw, cohort };
 }
 
 export function hasDistribution(gw: number, cohort: RankDistributionCohort = 'overall'): boolean {

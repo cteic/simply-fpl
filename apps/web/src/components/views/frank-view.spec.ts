@@ -56,11 +56,6 @@ function buildQuotaFromSupabase(used: number): QuotaResponse {
   return { used, softCap: 50, hardCap: 80 };
 }
 
-function buildFrankShareUrl(siteUrl: string, advice: string): string {
-  const verdict = advice.slice(0, 160);
-  return `${siteUrl}/og/frank?verdict=${encodeURIComponent(verdict)}`;
-}
-
 describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
   BeforeEachScenario(() => {
     fetchMock = vi.fn();
@@ -313,40 +308,4 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       });
     }
   );
-
-  Scenario('Follow-up chip pre-fills the question input', ({ Given, When, Then }) => {
-    let selectedQuestion = '';
-
-    Given('a Frank answer with follow_up_question "Should I bench Haaland?"', () => {
-      // The chip renders and its onSelect callback sets the question
-    });
-
-    When('the user selects the follow-up chip', () => {
-      const followUpQuestion = 'Should I bench Haaland?';
-      selectedQuestion = followUpQuestion;
-    });
-
-    Then('the question input is filled with "Should I bench Haaland?"', () => {
-      expect(selectedQuestion).toBe('Should I bench Haaland?');
-    });
-  });
-
-  Scenario('Frank share URL encodes the advice verdict', ({ Given, When, Then }) => {
-    const advice = 'Captain Salah — home fixture, great form.';
-    let shareUrl = '';
-    const MOCK_SITE_URL = 'https://simplyfpl.com';
-
-    Given('a Frank answer with advice "Captain Salah — home fixture, great form."', () => {
-      // advice is set above
-    });
-
-    When('the share URL is built', () => {
-      shareUrl = buildFrankShareUrl(MOCK_SITE_URL, advice);
-    });
-
-    Then('the URL contains the encoded verdict', () => {
-      expect(shareUrl).toContain('/og/frank?verdict=');
-      expect(shareUrl).toContain(encodeURIComponent(advice));
-    });
-  });
 });

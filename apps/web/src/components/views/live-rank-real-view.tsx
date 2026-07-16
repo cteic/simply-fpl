@@ -18,7 +18,6 @@ import {
   predictBonusPoints,
 } from '@simplyfpl/fpl-client';
 import type { BonusPrediction, LiveRankEstimate } from '@simplyfpl/fpl-client';
-import { t } from '@simplyfpl/i18n';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,
@@ -32,6 +31,7 @@ import {
   Card,
   CohortTable,
   FNote,
+  LiveBattlePanel,
   Logo,
   NumberTicker,
   PageHeader,
@@ -88,11 +88,6 @@ const LivePitchColumn = dynamic(
       </Card>
     ),
   }
-);
-
-const LiveBattlePanel = dynamic(
-  () => import('@simplyfpl/ui/live-battle-panel').then((m) => ({ default: m.LiveBattlePanel })),
-  { ssr: false }
 );
 
 function parseEntryIdParam(raw: string | string[] | undefined): number | null {
@@ -318,7 +313,7 @@ export function LiveRankRealView({
   if (entryId === null || entryId === undefined) {
     return (
       <PageShell>
-        <PageHeader title={t('live_rank.title')} meta={t('live_rank.no_team_meta')} />
+        <PageHeader title="Live Rank" meta="No team selected" />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
           Enter your FPL team ID on the home page to see your live rank.
         </Text>
@@ -654,7 +649,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   if (snapshotError) {
     return (
       <PageShell>
-        <PageHeader title={t('live_rank.title')} meta={t('live_rank.error_meta')} />
+        <PageHeader title="Live Rank" meta="Could not load this team" />
         <Text fontFamily="$body" fontSize={12} color="$colorMuted">
           Check the team ID and try again.
         </Text>
@@ -666,7 +661,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   if (noPicksYet) {
     return (
       <PageShell>
-        <PageHeader title={t('live_rank.title')} meta={`${teamName} · GW${currentGw ?? '—'}`} />
+        <PageHeader title="Live Rank" meta={`${teamName} · GW${currentGw ?? '—'}`} />
         <YStack gap={10}>
           <Text fontFamily="$body" fontSize={14} fontWeight="500" color="$color">
             No picks yet for this gameweek
@@ -739,15 +734,15 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                   borderColor="rgba(255,255,255,0.28)"
                   borderRadius={99}
                   overflow="hidden"
-                  aria-label={t('live_rank.autosubs_toggle_aria')}
+                  aria-label="Autosubs toggle"
                 >
                   <SubsToggleButton
-                    label={t('live_rank.subs_pre_label')}
+                    label="Pre"
                     active={subsMode === 'pre'}
                     onPress={() => setSubsMode('pre')}
                   />
                   <SubsToggleButton
-                    label={t('live_rank.subs_post_label')}
+                    label="Post"
                     active={subsMode === 'post'}
                     onPress={() => setSubsMode('post')}
                   />
@@ -865,7 +860,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                 fontFamily="$body"
                 fontSize={11}
                 color="rgba(255,255,255,0.72)"
-                aria-label={t('live_rank.freshness_aria')}
+                aria-label="Live data freshness"
               >
                 {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
               </Text>
@@ -927,7 +922,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
           </XStack>
 
           <Card paddingHorizontal={20} paddingVertical={16} gap={8}>
-            <SectionHeader title={t('live_rank.cohort_section_title')} />
+            <SectionHeader title="Cohort comparison" />
             {showCohortLoading && <SkeletonCohortTable />}
             {!showCohortLoading && hasCohortData && (
               <CohortTable

@@ -4,13 +4,13 @@
 //   GW<n> shorthand (e.g. "GW30") — universally recognised in FPL communities
 //
 // Terms that get a fixed per-locale translation:
-//   differential → fr: différentiel | de: Differenzialspieler | es: diferencial | ru: дифференциал | zh: 差异球员 | ja: 差別化選手
-//   hit (transfer penalty) → fr: pénalité | de: Strafpunkt | es: penalización | ru: штрафное очко | zh: 扣分 | ja: ペナルティ
-//   captain → fr: capitaine | de: Kapitän | es: capitán | ru: капитан | zh: 队长 | ja: キャプテン
-//   bench → fr: remplaçants | de: Bank | es: suplentes | ru: скамейка | zh: 替补席 | ja: ベンチ
-//   rank → fr: classement | de: Rang | es: clasificación | ru: рейтинг | zh: 排名 | ja: ランク
+//   differential → fr: différentiel | de: Differenzialspieler | es: diferencial
+//   hit (transfer penalty) → fr: pénalité | de: Strafpunkt | es: penalización
+//   captain → fr: capitaine | de: Kapitän | es: capitán
+//   bench → fr: remplaçants | de: Bank | es: suplentes
+//   rank → fr: classement | de: Rang | es: clasificación
 
-export const SUPPORTED_LOCALES = ['en', 'fr', 'de', 'es', 'ru', 'zh', 'ja'] as const;
+export const SUPPORTED_LOCALES = ['en', 'fr', 'de', 'es'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en';
@@ -21,9 +21,6 @@ export const LOCALE_LABELS: Record<SupportedLocale, string> = {
   fr: 'Français',
   de: 'Deutsch',
   es: 'Español',
-  ru: 'Русский',
-  zh: '中文',
-  ja: '日本語',
 };
 
 export function isSupportedLocale(value: unknown): value is SupportedLocale {

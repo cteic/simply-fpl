@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 
 import { cohorts } from '@simplyfpl/features';
 import type { CohortSnapshotPayload } from '@simplyfpl/features/cohorts';
-import { t } from '@simplyfpl/i18n';
 import {
   BenchDivider,
   FilterButton,
@@ -208,7 +207,7 @@ export function LivePitchColumn({
             fontSize={10.5}
             color="$colorMuted"
             marginTop={8}
-            aria-label={t('live_rank.provisional_bonus_aria')}
+            aria-label="Provisional bonus note"
           >
             Includes provisional bonus (
             <Text fontFamily="$mono" fontSize={10.5} color="$colorMuted">
