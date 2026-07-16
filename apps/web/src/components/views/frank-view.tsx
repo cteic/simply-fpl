@@ -20,7 +20,6 @@ import {
 } from '@simplyfpl/ui';
 
 import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
-import { SITE_URL } from '@/lib/site-url';
 import { useFrankHistory, useFrankQuota, useFrankWeekly } from '@/queries/frank';
 
 const { useAuth } = auth;
@@ -86,111 +85,12 @@ interface AskFormResponse {
   hardCap?: number;
 }
 
-function buildFrankShareUrl(advice: string): string {
-  const verdict = advice.slice(0, 160);
-  return `${SITE_URL}/og/frank?verdict=${encodeURIComponent(verdict)}`;
-}
-
-interface FollowUpChipProps {
-  question: string;
-  onSelect: (q: string) => void;
-}
-
-function FollowUpChip({ question, onSelect }: FollowUpChipProps) {
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(question)}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        fontFamily: 'var(--font-body, sans-serif)',
-        fontSize: 12,
-        color: 'var(--brand, #0F766E)',
-        background: 'var(--brandBg, #F0FAF9)',
-        border: '1px solid var(--brand, #0F766E)',
-        borderRadius: 20,
-        padding: '6px 12px',
-        cursor: 'pointer',
-        textAlign: 'left',
-        lineHeight: 1.4,
-      }}
-    >
-      <span style={{ opacity: 0.7 }}>💡</span> {question}
-    </button>
-  );
-}
-
-function ShareButton({ advice }: { advice: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(buildFrankShareUrl(advice));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard unavailable
-    }
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => void handleCopy()}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        fontFamily: 'var(--font-body, sans-serif)',
-        fontSize: 11,
-        fontWeight: 600,
-        color: copied ? 'var(--positive, #166534)' : 'var(--colorSubtle, #767672)',
-        background: 'none',
-        border: '1px solid var(--border, #E9E8E4)',
-        borderRadius: 6,
-        padding: '4px 10px',
-        cursor: 'pointer',
-      }}
-    >
-      {copied ? '✓ Copied' : '↗ Share'}
-    </button>
-  );
-}
-
-function parseSseBuffer(buffer: string): {
-  events: Array<{ event: string; data: string }>;
-  remaining: string;
-} {
-  const events: Array<{ event: string; data: string }> = [];
-  let idx: number;
-  let rest = buffer;
-
-  while ((idx = rest.indexOf('\n\n')) !== -1) {
-    const block = rest.slice(0, idx);
-    rest = rest.slice(idx + 2);
-
-    let eventName = '';
-    let dataStr = '';
-    for (const line of block.split('\n')) {
-      if (line.startsWith('event: ')) eventName = line.slice(7).trim();
-      else if (line.startsWith('data: ')) dataStr = line.slice(6);
-    }
-    if (eventName && dataStr) events.push({ event: eventName, data: dataStr });
-  }
-
-  return { events, remaining: rest };
-}
-
 function AskFrankForm() {
   const { tier, client, user } = useAuth();
   const router = useRouter();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState<AskFormResponse | null>(null);
-  const [streamingAdvice, setStreamingAdvice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -241,8 +141,6 @@ function AskFrankForm() {
     e.preventDefault();
     if (!question.trim()) return;
     setIsLoading(true);
-    setIsStreaming(false);
-    setStreamingAdvice(null);
     setError(null);
     setAnswer(null);
 
@@ -252,12 +150,11 @@ function AskFrankForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question }),
       });
-
       if (res.status === 429) {
         setError("You've hit your monthly quota — resets on the 1st.");
         return;
       }
-      if (!res.ok && !res.headers.get('content-type')?.includes('text/event-stream')) {
+      if (!res.ok) {
         const errBody = (await res.json()) as { error?: string };
         if (res.status >= 500) {
           setError('Frank is briefly unavailable; try again.');
@@ -266,76 +163,17 @@ function AskFrankForm() {
         }
         return;
       }
-
-      const contentType = res.headers.get('content-type') ?? '';
-
-      if (contentType.includes('application/json')) {
-        const data = (await res.json()) as AskFormResponse;
-        setAnswer(data);
-        setQuestion('');
-        void refetchQuota();
-        void refetchHistory();
-        return;
-      }
-
-      if (!res.body) {
-        setError('Frank is briefly unavailable; try again.');
-        return;
-      }
-
-      setIsLoading(false);
-      setIsStreaming(true);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let accumulated = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const { events, remaining } = parseSseBuffer(buffer);
-        buffer = remaining;
-
-        for (const { event, data } of events) {
-          try {
-            const payload = JSON.parse(data) as unknown;
-            if (event === 'token') {
-              const { text } = payload as { text: string };
-              accumulated += text;
-              setStreamingAdvice(accumulated);
-            } else if (event === 'done') {
-              setAnswer(payload as AskFormResponse);
-              setStreamingAdvice(null);
-              setIsStreaming(false);
-              setQuestion('');
-              void refetchQuota();
-              void refetchHistory();
-            } else if (event === 'error') {
-              const { error: msg } = payload as { error: string };
-              setError(msg ?? 'Frank is briefly unavailable; try again.');
-              setStreamingAdvice(null);
-              setIsStreaming(false);
-            }
-          } catch {
-            // ignore malformed event
-          }
-        }
-      }
-
-      setIsStreaming(false);
+      const data = (await res.json()) as AskFormResponse;
+      setAnswer(data);
+      setQuestion('');
+      void refetchQuota();
+      void refetchHistory();
     } catch {
       setError('Frank is briefly unavailable; try again.');
-      setStreamingAdvice(null);
-      setIsStreaming(false);
     } finally {
       setIsLoading(false);
     }
   }
-
-  const showingAdvice = answer !== null || streamingAdvice !== null;
-  const displayAdvice = streamingAdvice ?? answer?.advice ?? '';
 
   return (
     <Card marginBottom={20}>
@@ -357,7 +195,7 @@ function AskFrankForm() {
               onChange={(e) => setQuestion(e.target.value)}
               placeholder={t('frank.ask_placeholder')}
               rows={3}
-              disabled={isLoading || isStreaming}
+              disabled={isLoading}
               style={{
                 fontFamily: 'var(--font-body, sans-serif)',
                 fontSize: 13,
@@ -374,7 +212,7 @@ function AskFrankForm() {
           ) : null}
           <button
             type="submit"
-            disabled={isLoading || isStreaming || !question.trim()}
+            disabled={isLoading || !question.trim()}
             style={{
               fontFamily: 'var(--font-body, sans-serif)',
               fontSize: 12,
@@ -382,22 +220,20 @@ function AskFrankForm() {
               padding: '8px 16px',
               borderRadius: 6,
               border: 'none',
-              background: isLoading || isStreaming || !question.trim() ? '#A8A8A0' : '#0F766E',
+              background: isLoading || !question.trim() ? '#A8A8A0' : '#0F766E',
               color: '#FFF',
-              cursor: isLoading || isStreaming || !question.trim() ? 'not-allowed' : 'pointer',
+              cursor: isLoading || !question.trim() ? 'not-allowed' : 'pointer',
               alignSelf: 'flex-end',
             }}
           >
-            {isLoading && 'Asking Frank…'}
-            {!isLoading && isStreaming && 'Frank is thinking…'}
-            {!isLoading && !isStreaming && 'Ask Frank'}
+            {isLoading ? 'Asking Frank…' : 'Ask Frank'}
           </button>
           {error ? (
             <Text fontFamily="$body" fontSize={12} color="$negative">
               {error}
             </Text>
           ) : null}
-          {showingAdvice ? (
+          {answer ? (
             <YStack
               backgroundColor="$brandBg"
               borderRadius={8}
@@ -405,31 +241,16 @@ function AskFrankForm() {
               paddingVertical={12}
               gap={8}
             >
-              <XStack alignItems="center" justifyContent="space-between">
+              <XStack alignItems="center" gap={8}>
                 <AiChip />
-                {answer && !isStreaming ? <ShareButton advice={answer.advice} /> : null}
               </XStack>
               <Text fontFamily="$body" fontSize={12} color="$color" lineHeight={20}>
-                {displayAdvice}
-                {isStreaming ? (
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      width: 2,
-                      height: 14,
-                      background: 'var(--color, #1A1A18)',
-                      marginLeft: 2,
-                      verticalAlign: 'middle',
-                      animation: 'frank-cursor-blink 1s step-end infinite',
-                    }}
-                  />
-                ) : null}
+                {answer.advice}
               </Text>
-              {answer?.follow_up_question && !isStreaming ? (
-                <FollowUpChip
-                  question={answer.follow_up_question}
-                  onSelect={(q) => setQuestion(q)}
-                />
+              {answer.follow_up_question ? (
+                <Text fontFamily="$body" fontSize={11} color="$colorSubtle" lineHeight={18}>
+                  💡 {answer.follow_up_question}
+                </Text>
               ) : null}
             </YStack>
           ) : null}
@@ -512,12 +333,6 @@ export function FrankView() {
 
   return (
     <PageShell>
-      <style>{`
-        @keyframes frank-cursor-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-      `}</style>
       <PageHeader tone="stadium" title={title} meta={t('frank.page_meta')} />
 
       {isLoading ? (

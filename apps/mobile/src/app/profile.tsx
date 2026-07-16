@@ -1,20 +1,9 @@
 import { router } from 'expo-router';
 
 import { auth } from '@simplyfpl/features';
-import { useLocale } from '@simplyfpl/i18n';
-import {
-  Button,
-  Card,
-  LocaleSwitcher,
-  SectionHeader,
-  Text,
-  ThemePicker,
-  XStack,
-  YStack,
-} from '@simplyfpl/ui';
+import { Button, Card, SectionHeader, Text, XStack, YStack } from '@simplyfpl/ui';
 
 import { Screen } from '@/components/screen';
-import { useMobileThemeMode } from '@/lib/mobile-theme-provider';
 import { useSavedEntryId } from '@/lib/saved-team';
 
 const { useAuth } = auth;
@@ -29,8 +18,6 @@ const PRO_FEATURES = [
 export default function ProfileScreen() {
   const { entryId, clear } = useSavedEntryId();
   const { session, user, isPro, isLoading, signOut } = useAuth();
-  const { theme, setTheme } = useMobileThemeMode();
-  const { locale, setLocale } = useLocale();
 
   async function handleSignOut() {
     await signOut();
@@ -125,22 +112,6 @@ export default function ProfileScreen() {
       </Card>
 
       <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
-        <SectionHeader title="Appearance" />
-        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          Choose your preferred theme.
-        </Text>
-        <ThemePicker value={theme} onSelect={setTheme} />
-      </Card>
-
-      <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
-        <SectionHeader title="Language" />
-        <Text fontFamily="$body" fontSize={13} color="$colorMuted">
-          Choose your preferred language.
-        </Text>
-        <LocaleSwitcher value={locale} onSelect={setLocale} />
-      </Card>
-
-      <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
         <SectionHeader title="SimplyFPL Pro" />
         <YStack gap={8}>
           {PRO_FEATURES.map((feature) => (
@@ -162,7 +133,7 @@ export default function ProfileScreen() {
         </Text>
       </Card>
 
-      <Card paddingHorizontal={20} paddingVertical={6}>
+      <Card paddingHorizontal={20} paddingVertical={18} gap={6}>
         <SectionHeader title="About" />
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
           SimplyFPL · Data refreshes every 60 seconds during live gameweeks.

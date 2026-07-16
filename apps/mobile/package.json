@@ -20,7 +20,6 @@
     "@expo-google-fonts/dm-sans": "^0.2.3",
     "@simplyfpl/features": "workspace:*",
     "@simplyfpl/fpl-client": "workspace:*",
-    "@simplyfpl/i18n": "workspace:*",
     "@simplyfpl/types": "workspace:*",
     "@simplyfpl/ui": "workspace:*",
     "@supabase/supabase-js": "^2.0.0",
@@ -41,7 +40,7 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "4.7.0",
-    "@babel/core": "^7.29.6",
+    "@babel/core": "^7.0.0",
     "@simplyfpl/tsconfig-config": "workspace:*",
     "@types/react": "^18.0.0",
     "babel-preset-expo": "~12.0.0",

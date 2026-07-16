@@ -46,21 +46,13 @@ export function predictBonusPoints(
     const fixture = fixturesById.get(fixtureId);
     if (!fixture) continue;
 
-    if (fixture.finished) {
+    const isFinished = fixture.finished || fixture.finished_provisional === true;
+
+    if (isFinished) {
       for (const el of els) {
         const existing = result.get(el.id);
         const total = (existing?.bonus ?? 0) + el.stats.bonus;
         result.set(el.id, { bonus: total, provisional: false });
-      }
-      continue;
-    }
-
-    if (fixture.finished_provisional === true) {
-      for (const el of els) {
-        if (el.stats.bonus <= 0) continue;
-        const existing = result.get(el.id);
-        const total = (existing?.bonus ?? 0) + el.stats.bonus;
-        result.set(el.id, { bonus: total, provisional: true });
       }
       continue;
     }

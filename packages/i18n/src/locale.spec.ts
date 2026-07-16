@@ -128,9 +128,9 @@ describeFeature(feature, ({ Scenario }) => {
   Scenario(
     'Accept-Language header falls back to English for unsupported locale',
     ({ Given, When, Then }) => {
-      Given('an Accept-Language header of "ar,ko;q=0.9"', () => {});
+      Given('an Accept-Language header of "ja,zh;q=0.9"', () => {});
       When('the locale is detected from the header', () => {
-        state.detectedLocale = parseAcceptLanguage('ar,ko;q=0.9');
+        state.detectedLocale = parseAcceptLanguage('ja,zh;q=0.9');
       });
       Then('the detected locale is "en"', () => {
         expect(state.detectedLocale).toBe('en');

@@ -26,18 +26,17 @@ import {
   PitchRow,
   Player,
   SectionHeader,
-  StatTile,
   TeamPill,
   Text,
   XStack,
   YStack,
 } from '@simplyfpl/ui';
-import type { BadgeTone, CohortTableRow, ShirtKind, StatTileTone } from '@simplyfpl/ui';
+import type { BadgeTone, CohortTableRow, ShirtKind } from '@simplyfpl/ui';
 
 import { RankSparkline } from '@/components/rank-sparkline';
-import { RefreshBar } from '@/components/refresh-bar';
 import { Screen } from '@/components/screen';
 import { StadiumGradient } from '@/components/stadium-gradient';
+import { StatTile } from '@/components/stat-tile';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
@@ -348,42 +347,27 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const offTop10kValue =
     ready && top10kAvg != null ? String(Math.max(0, Math.round(top10kAvg) - livePoints)) : '—';
 
-  const tiles: {
-    label: string;
-    value: string;
-    tick: number | null;
-    sub: string;
-    tone: StatTileTone;
-  }[] = [
+  const tiles = [
     {
       label: 'GW Points',
       value: String(ready ? displayedPoints : '—'),
-      tick: ready ? displayedPoints : null,
       sub: gwSub,
-      tone: 'positive',
+      accent: '$positive',
     },
-    {
-      label: 'Total Points',
-      value: totalPointsLabel,
-      tick: entry?.summary_overall_points ?? null,
-      sub: 'overall',
-      tone: 'brand',
-    },
+    { label: 'Total Points', value: totalPointsLabel, sub: 'overall', accent: '$brand' },
     {
       label: 'On Bench',
       value: String(ready ? benchPoints : '—'),
-      tick: ready ? benchPoints : null,
       sub: 'autosubs ready',
-      tone: 'neutral',
+      accent: '$colorSubtle',
     },
     ...(showSafety
       ? [
           {
             label: 'Safety Score',
             value: safetyValue,
-            tick: null,
             sub: 'green-arrow line',
-            tone: 'positive' as const,
+            accent: '$positive',
           },
         ]
       : []),
@@ -392,19 +376,12 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           {
             label: 'Off Top 10k',
             value: offTop10kValue,
-            tick: null,
             sub: 'points behind',
-            tone: 'warning' as const,
+            accent: '$warning',
           },
         ]
       : []),
-    {
-      label: 'Captain',
-      value: captainName,
-      tick: null,
-      sub: captainSub,
-      tone: 'negative',
-    },
+    { label: 'Captain', value: captainName, sub: captainSub, accent: '$negative' },
   ];
 
   const cohortRows: CohortTableRow[] =
@@ -549,8 +526,10 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
         <RankSparkline />
 
         <XStack alignItems="center" gap={10} marginTop={12}>
-          <RefreshBar paused={isLoading} />
-          <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
+          <YStack flex={1} height={4} borderRadius={2} backgroundColor="rgba(255,255,255,0.18)">
+            <YStack height={4} borderRadius={2} backgroundColor="#34D399" width="35%" />
+          </YStack>
+          <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.7)">
             {isLoading ? 'loading…' : 'refreshes every 60s'}
           </Text>
         </XStack>
@@ -561,32 +540,9 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           <StatTile
             key={tile.label}
             label={tile.label}
-            tone={tile.tone}
+            value={tile.value}
             sub={tile.sub}
-            pulseKey={tile.tick}
-            value={
-              tile.tick !== null ? (
-                <NumberTicker
-                  value={tile.tick}
-                  format={(n) => n.toLocaleString()}
-                  fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
-                  color="$color"
-                />
-              ) : (
-                <Text
-                  fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
-                  color="$color"
-                >
-                  {tile.value}
-                </Text>
-              )
-            }
+            accent={tile.accent}
           />
         ))}
       </XStack>

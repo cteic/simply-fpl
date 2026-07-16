@@ -23,8 +23,3 @@ Feature: Live bonus point prediction
     When I predict bonus points for the fixture
     Then the result uses the official bonus values
     And the entries are marked non-provisional
-
-  Scenario: A finished_provisional fixture keeps official bonus as provisional
-    Given a finished_provisional fixture where stats.bonus is set but total_points is not yet updated
-    When I predict bonus points for the fixture
-    Then the official bonus is returned as provisional

@@ -55,7 +55,6 @@
   "rivals.loading_rival_picks": "Loading rival picks…",
   "rivals.top_of_window": "You're top of the rivals window — no manager above to compare against.",
   "rivals.fnote": "Live GW points refresh every 60s. Bonus shown is provisional until confirmed.",
-  "rivals.pro_banner_title": "Track multiple leagues",
 
   "threats.title": "Threats",
   "threats.section_top": "Top threats ({{count}})",
@@ -67,10 +66,6 @@
   "threats.filter_to_play": "To Play",
   "threats.filter_played": "Played",
   "threats.filter_didnt_play": "Didn't Play",
-  "threats.col_eo": "EO",
-  "threats.col_score_pct": "score%",
-  "threats.col_lost": "lost",
-  "threats.col_haul_impact": "if 8 pt",
 
   "prices.title": "Price Changes",
   "prices.meta": "Predictions update daily at midnight · Based on net transfers",
@@ -87,8 +82,6 @@
   "planner.fnote": "Fixture difficulty ratings (FDR) are based on FPL's official data.",
 
   "h2h.title": "Head to Head",
-  "h2h.error_meta": "Couldn't load this matchup",
-  "h2h.captains_label": "Captains",
   "h2h.meta_invalid": "Invalid team IDs in URL",
   "h2h.invalid_body": "The URL needs two different positive integer team IDs, like /h2h/123456/789012.",
 
@@ -198,8 +191,6 @@
   "upgrade.page_meta": "Unlock Pro or Ultimate to get the most out of SimplyFPL",
   "upgrade.section_title": "Choose your plan",
   "upgrade.fnote": "Payments are processed by Stripe. Cancel or change plan any time from your account settings.",
-  "upgrade.plan_pro_title": "Pro",
-  "upgrade.plan_ultimate_title": "Ultimate",
 
   "rivals_section.loading_meta": "Loading your leagues…",
   "rivals_section.empty_meta": "No mini-leagues found for this team",
@@ -240,38 +231,6 @@
   "notifications.label_captain_scored_desc": "When your captain starts scoring points",
   "notifications.cta_disabling": "Disabling…",
   "notifications.cta_disable": "Disable notifications",
-  "notifications.section_deadline_results": "Deadline & results",
-  "notifications.section_captain_squad": "Captain & squad events",
-  "notifications.section_league_rank": "League rank alerts",
-  "notifications.section_quiet_hours": "Quiet hours (UTC)",
-  "notifications.label_bonus_confirmed": "Bonus points confirmed",
-  "notifications.label_bonus_confirmed_desc": "When provisional bonus becomes official",
-  "notifications.label_goal_scored": "Goals scored",
-  "notifications.label_goal_scored_desc": "When a starting XI player scores a goal",
-  "notifications.label_assist": "Assists",
-  "notifications.label_assist_desc": "When a starting XI player gets an assist",
-  "notifications.label_red_card": "Red cards",
-  "notifications.label_red_card_desc": "When a starting XI player is sent off",
-  "notifications.toggle_on": "On",
-  "notifications.toggle_off": "Off",
-  "notifications.no_league_alerts": "No league alerts configured.",
-  "notifications.league_label": "League {{leagueId}}",
-  "notifications.league_top_n": "Top {{n}}",
-  "notifications.league_swing_n": "±{{n}} places",
-  "notifications.league_cta_remove": "Remove",
-  "notifications.league_id_label": "League ID",
-  "notifications.league_top_n_hint": "Alert when entering / leaving top N (leave blank to skip)",
-  "notifications.league_swing_n_hint": "Alert on rank swing of ±N places (leave blank to skip)",
-  "notifications.league_id_placeholder": "e.g. 314159",
-  "notifications.league_top_n_placeholder": "e.g. 3",
-  "notifications.league_swing_n_placeholder": "e.g. 5",
-  "notifications.league_cta_save": "Save",
-  "notifications.league_cta_cancel": "Cancel",
-  "notifications.league_cta_add": "+ Add league alert",
-  "notifications.quiet_hours_label": "Mute notifications overnight",
-  "notifications.quiet_hours_disabled": "Disabled",
-  "notifications.quiet_hours_cta_disable": "Disable",
-  "notifications.quiet_hours_cta_enable": "Enable",
 
   "theme_picker.aria_label": "Theme",
 
@@ -283,18 +242,5 @@
   "analytics_consent.cta_accept": "Accept",
 
   "settings.section_language": "Language",
-  "settings.language_description": "Choose the language for SimplyFPL. Your choice is saved on this device.",
-
-  "live_rank.title": "Live Rank",
-  "live_rank.no_team_meta": "No team selected",
-  "live_rank.error_meta": "Could not load this team",
-  "live_rank.autosubs_toggle_aria": "Autosubs toggle",
-  "live_rank.subs_pre_label": "Pre",
-  "live_rank.subs_post_label": "Post",
-  "live_rank.freshness_aria": "Live data freshness",
-  "live_rank.cohort_section_title": "Cohort comparison",
-  "live_rank.provisional_bonus_aria": "Provisional bonus note",
-
-  "team_news.title": "Team News",
-  "team_news.all_available": "All your players are available"
+  "settings.language_description": "Choose the language for SimplyFPL. Your choice is saved on this device."
 }

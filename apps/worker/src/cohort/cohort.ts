@@ -32,7 +32,7 @@ async function fetchBootstrap(env: FetchTierEnv): Promise<FplBootstrapStatic | n
 
 function tiersForMode(mode: CohortMode): CohortTier[] {
   if (mode === 'off') return [];
-  if (mode === 'live') return ['legendary', 'top_10k', 'overall'];
+  if (mode === 'live') return ['legendary', 'top_10k'];
   return ['legendary', 'top_10k', 'top_100k'];
 }
 
