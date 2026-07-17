@@ -44,7 +44,9 @@ export function LoginView() {
         <PageHeader title={t('login.signed_in_title')} meta={session.user.email ?? ''} />
         <Card paddingHorizontal={24} paddingVertical={24}>
           <Text fontFamily="$body" fontSize={14} color="$colorMuted">
-            You're already signed in. Head to <a href="/leagues">Leagues</a> to start tracking.
+            {t('login.already_signed_in_prefix')}
+            <a href="/leagues">{t('login.already_signed_in_link')}</a>
+            {t('login.already_signed_in_suffix')}
           </Text>
         </Card>
       </PageShell>
