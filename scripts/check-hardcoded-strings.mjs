@@ -7,6 +7,20 @@
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
+function loadAllowlist() {
+  try {
+    return JSON.parse(readFileSync(new URL('./i18n-allowlist.json', import.meta.url), 'utf-8'));
+  } catch {
+    return [];
+  }
+}
+
+const ALLOWLIST = loadAllowlist();
+
+function isAllowed(filePath, text) {
+  return ALLOWLIST.some((entry) => filePath.endsWith(entry.file) && text.includes(entry.text));
+}
+
 const SCAN_DIRS = ['apps/web/src', 'packages/ui/src'];
 
 const SKIP_PATTERNS = [
@@ -87,6 +101,7 @@ for (const scanDir of SCAN_DIRS) {
     if (hits.length > 0) {
       const rel = filePath.startsWith(cwd) ? filePath.slice(cwd.length + 1) : filePath;
       for (const hit of hits) {
+        if (isAllowed(filePath, hit.text)) continue;
         console.log(`${rel}:${hit.line} — ${hit.text}`);
         totalHits++;
       }
