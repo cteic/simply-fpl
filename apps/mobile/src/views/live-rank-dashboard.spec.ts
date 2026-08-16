@@ -1,6 +1,7 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
+import { liveBattle } from '@simplyfpl/features';
 import { calculateLivePoints, computeRankDetails, predictBonusPoints } from '@simplyfpl/fpl-client';
 import type { BonusPrediction } from '@simplyfpl/fpl-client';
 import type {
@@ -10,6 +11,8 @@ import type {
   FplFixture,
   FplLiveGameweek,
 } from '@simplyfpl/types';
+
+const { computeLiveBattle } = liveBattle;
 
 const ORIGINAL_FETCH = globalThis.fetch;
 let fetchMock: ReturnType<typeof vi.fn>;
@@ -341,6 +344,54 @@ describeFeature(localFeature, ({ Scenario, BeforeEachScenario, AfterEachScenario
       expect(entry?.bonus).toBe(3);
     });
   });
+
+  Scenario(
+    'Live battle panel is hidden when no fixtures are in progress',
+    ({ Given, When, Then }) => {
+      let picks: FplEntryGameweekPicks;
+      let fixtures: FplFixture[];
+      let liveGw: FplLiveGameweek;
+      let battle: ReturnType<typeof computeLiveBattle>;
+
+      Given('a squad and every fixture has finished', () => {
+        picks = makePicks([
+          makePick(1, 1, 2, true),
+          ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => makePick(n, n, 1)),
+        ]);
+        liveGw = makeLive({ 1: 6 });
+        fixtures = [
+          {
+            id: 1,
+            event: 1,
+            team_h: 1,
+            team_a: 2,
+            team_h_score: 1,
+            team_a_score: 0,
+            finished: true,
+            finished_provisional: true,
+            kickoff_time: null,
+            team_h_difficulty: 3,
+            team_a_difficulty: 3,
+          },
+        ];
+      });
+
+      When('the live battle is computed', () => {
+        battle = computeLiveBattle({
+          yourPicks: picks,
+          bootstrap: EMPTY_BOOTSTRAP,
+          liveGw,
+          fixtures,
+        });
+      });
+
+      Then('the battle is not live and the panel is skipped', () => {
+        expect(battle.isLive).toBe(false);
+        expect(battle.gains).toHaveLength(0);
+        expect(battle.losses).toHaveLength(0);
+      });
+    }
+  );
 });
 
 describeFeature(sharedFeature, ({ Scenario }) => {
@@ -398,7 +449,7 @@ describeFeature(sharedFeature, ({ Scenario }) => {
     When('live points are calculated', () => {
       const picks = makePicks(
         [
-          makePick(1, 1, 2, true),
+          makePick(1, 1, 3, true),
           ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => makePick(n, n, 1)),
         ],
         '3xc'

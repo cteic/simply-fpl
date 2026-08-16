@@ -3,6 +3,7 @@ import type {
   FplEntryGameweekPicks,
   FplLiveGameweek,
   LiveRankEntry,
+  ScoreDistribution,
 } from '@simplyfpl/types';
 
 import type { BonusPrediction } from './bonus-points';
@@ -27,7 +28,6 @@ export function calculateLivePoints(
 ): number {
   const liveMap = new Map(liveData.elements.map((e) => [e.id, e]));
   const isBenchBoost = picks.active_chip === 'bboost';
-  const isTripleCaptain = picks.active_chip === '3xc';
 
   // Active players: positions 1-11 (or 1-15 on bench boost)
   const activePicks = isBenchBoost ? picks.picks : picks.picks.filter((p) => p.position <= 11);
@@ -44,11 +44,7 @@ export function calculateLivePoints(
       points += bonusInfo.bonus;
     }
 
-    // Apply multiplier (captain = 2x, TC chip = 3x)
-    if (pick.is_captain) {
-      const multiplier = isTripleCaptain ? 3 : 2;
-      points = points * multiplier;
-    }
+    points = points * pick.multiplier;
 
     totalPoints += points;
   }
@@ -142,10 +138,17 @@ export function formatTimeRemaining(ms: number): string {
   return `${seconds}s`;
 }
 
+export type RankEstimateSource =
+  | 'live-cohort'
+  | 'captured-same-season'
+  | 'captured-prior-season-scaled'
+  | 'flat-heuristic';
+
 export interface LiveRankEstimate {
   liveRank: number;
   movement: number;
   direction: 'up' | 'down' | 'flat';
+  source: RankEstimateSource;
 }
 
 const PLACES_PER_POINT = 700;
@@ -161,22 +164,44 @@ export function estimateLiveRank(
   let direction: LiveRankEstimate['direction'] = 'flat';
   if (movement > 0) direction = 'up';
   else if (movement < 0) direction = 'down';
-  return { liveRank, movement, direction };
+  return { liveRank, movement, direction, source: 'flat-heuristic' };
+}
+
+export function getCurrentSeasonYear(bootstrap: FplBootstrapStatic): number | null {
+  const gw1 = bootstrap.events.find((e) => e.id === 1);
+  if (!gw1) return null;
+  return new Date(gw1.deadline_time).getUTCFullYear();
 }
 
 export const APPROX_TOTAL_FPL_ENTRIES = 11_000_000;
 
 export interface EstimateLiveRankSmartOptions {
   totalEntries?: number;
+  liveAggregate?: ScoreDistribution;
+  bootstrap?: FplBootstrapStatic;
 }
 
 /**
- * Distribution-aware live-rank estimator. When a captured `overall` score
- * distribution exists for `gw`, it positions the live score on the empirical
- * CDF and maps the resulting percentile to a rank in [1, totalEntries].
- * Falls back to the flat-700 heuristic (`estimateLiveRank`) when no
- * distribution is captured yet — keeps future gameweeks working before the
- * scrape lands.
+ * Distribution-aware live-rank estimator with a four-level confidence chain.
+ *
+ * Priority (highest to lowest):
+ *   1. live-cohort — `opts.liveAggregate` (score distribution from the worker
+ *      cohort for the current GW, season-correct by construction).
+ *   2. captured-same-season — a captured `overall` distribution whose `season`
+ *      matches the current season year derived from `opts.bootstrap`.
+ *   3. captured-prior-season-scaled — the captured distribution for the GW from
+ *      a previous season, reused with a linear mean-shift: the query score is
+ *      multiplied by (prior_mean / current_avg) before lookup so that the
+ *      distribution median maps to the current season's known average. This
+ *      preserves shape while anchoring to the live average.
+ *   4. flat-heuristic — `estimateLiveRank`, the flat 700-places-per-point model.
+ *
+ * Without `opts.bootstrap` the estimator cannot verify season match, so any
+ * captured distribution for `gw` is treated as same-season (backward-compat).
+ * Without `opts.liveAggregate` step 1 is skipped.
+ *
+ * The returned `source` field tells callers which level was used so the UI can
+ * display a confidence hint.
  */
 export function estimateLiveRankSmart(
   gw: number,
@@ -185,18 +210,47 @@ export function estimateLiveRankSmart(
   avgEntryScore: number,
   opts: EstimateLiveRankSmartOptions = {}
 ): LiveRankEstimate {
+  const { totalEntries = APPROX_TOTAL_FPL_ENTRIES, liveAggregate, bootstrap } = opts;
+
+  if (liveAggregate) {
+    const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
+      preGwRank,
+      livePoints,
+      liveAggregate,
+      totalEntries
+    );
+    return { liveRank, movement, direction, source: 'live-cohort' };
+  }
+
   if (!hasDistribution(gw, 'overall')) {
     return estimateLiveRank(preGwRank, livePoints, avgEntryScore);
   }
+
   const distribution = loadDistribution(gw, 'overall');
-  const totalEntries = opts.totalEntries ?? APPROX_TOTAL_FPL_ENTRIES;
+  const currentSeasonYear = bootstrap ? getCurrentSeasonYear(bootstrap) : null;
+  const isSameSeason = currentSeasonYear === null || distribution.season === currentSeasonYear;
+
+  if (isSameSeason) {
+    const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
+      preGwRank,
+      livePoints,
+      distribution,
+      totalEntries
+    );
+    return { liveRank, movement, direction, source: 'captured-same-season' };
+  }
+
+  const scaledScore =
+    distribution.mean > 0
+      ? (livePoints * distribution.mean) / Math.max(1, avgEntryScore)
+      : livePoints;
   const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
     preGwRank,
-    livePoints,
+    scaledScore,
     distribution,
     totalEntries
   );
-  return { liveRank, movement, direction };
+  return { liveRank, movement, direction, source: 'captured-prior-season-scaled' };
 }
 
 export interface RankDetails {

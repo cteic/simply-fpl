@@ -275,6 +275,7 @@ export type RankDistributionCohort = 'overall' | 'top_100k' | 'top_10k' | 'top_1
 
 export interface RankDistribution extends ScoreDistribution {
   gw: number;
+  season: number;
   cohort: RankDistributionCohort;
 }
 
@@ -288,6 +289,7 @@ export interface ScoreDistributionFileCohorts {
 
 export interface ScoreDistributionFile {
   gw: number;
+  season: number;
   builtAt: string;
   binSize: number;
   cohorts: ScoreDistributionFileCohorts;
@@ -359,6 +361,7 @@ export interface TeamNewsGroup {
   team_name: string;
   team_short_name: string;
   players: PlayerNewsItem[];
+  summary?: string | null;
 }
 
 export interface TeamNewsResponse {

@@ -13,6 +13,7 @@ import { runCaptainScoredCheck } from './notify/captain-scored';
 import { runDeadlineReminder } from './notify/deadline-reminder';
 import { dispatchNotification } from './notify/dispatch';
 import { runLeagueRankAlertCheck } from './notify/league-rank-alert';
+import { runPlayerAvailabilityCheck } from './notify/player-availability';
 import { runPlayerEventsCheck } from './notify/player-events';
 import { buildFplPassthroughTarget, matchFplRoute } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
@@ -74,7 +75,12 @@ const CORS_HEADERS = {
 };
 
 async function enforceRateLimit(env: Env, ip: string, limit: number): Promise<Response | null> {
-  const check = await checkRateLimit(env.FPL_CACHE, `${RL_KEY_PREFIX}${limit}:${ip}`, Date.now());
+  const check = await checkRateLimit(
+    env.FPL_CACHE,
+    `${RL_KEY_PREFIX}${limit}:${ip}`,
+    Date.now(),
+    limit
+  );
   if (!check.allowed) {
     return new Response(
       JSON.stringify({ error: 'rate_limited', retryAfterSeconds: check.retryAfterSeconds }),
@@ -595,6 +601,7 @@ export default {
     }
     await warmPricesCache(env, ctx).catch(() => undefined);
     await warmNewsCache(env).catch(() => undefined);
+    await runPlayerAvailabilityCheck(env).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
     await runCaptainScoredCheck(env).catch(() => undefined);
     await runPlayerEventsCheck(env).catch(() => undefined);

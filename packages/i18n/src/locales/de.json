@@ -2,7 +2,6 @@
   "common.loading": "Laden…",
   "common.cta_enter_team_id": "Team-ID eingeben",
   "common.disclaimer": "SimplyFPL ist nicht mit der Premier League oder Fantasy Premier League verbunden",
-
   "login.title": "Anmelden",
   "login.meta": "Magic Link per E-Mail",
   "login.signed_in_title": "Angemeldet",
@@ -11,7 +10,9 @@
   "login.cta_sending": "Senden…",
   "login.cta_send": "Magic Link senden",
   "login.sent_body": "Überprüfe dein Postfach — klicke auf den Link, um die Anmeldung abzuschließen.",
-
+  "login.already_signed_in_prefix": "Du bist bereits angemeldet. Gehe zu ",
+  "login.already_signed_in_link": "Meine Ligen",
+  "login.already_signed_in_suffix": ", um mit der Verfolgung zu beginnen.",
   "home_search.meta": "FPL-Begleiter live · GW30",
   "home_search.section_find": "Dein Team finden",
   "home_search.description": "Gib deine FPL-Team-ID ein oder füge deine Team-URL ein, um deinen Live-Rang, GW-Punkte und dein Spielfeld zu sehen.",
@@ -23,7 +24,6 @@
   "home_search.feature_leagues": "• Mini-Liga-Tabellen mit Live-Kapitäns- und Bank-Punkten",
   "home_search.feature_h2h": "• Kopf-an-Kopf-Vergleich gegen jeden Rivalen in deinen Ligen",
   "home_search.feature_free": "• Kostenlos, keine Anmeldung — einfach deine Team-ID einfügen",
-
   "settings.title": "Einstellungen",
   "settings.section_account": "Konto",
   "settings.label_email": "E-Mail",
@@ -41,9 +41,6 @@
   "settings.section_notifications": "Benachrichtigungen",
   "settings.cta_sign_out": "Abmelden",
   "settings.fnote": "Weitere Kontoverwaltung kommt, sobald Abonnements verfügbar sind.",
-  "settings.section_language": "Sprache",
-  "settings.language_description": "Wähle die Sprache für SimplyFPL. Deine Wahl wird auf diesem Gerät gespeichert.",
-
   "rivals.title": "Rivalen",
   "rivals.meta_invalid_id": "Ungültige Liga-ID in der URL",
   "rivals.invalid_id_body": "Die URL benötigt eine positive ganzzahlige Liga-ID, wie /rivals/123456.",
@@ -57,7 +54,7 @@
   "rivals.loading_rival_picks": "Rivalen-Aufstellungen werden geladen…",
   "rivals.top_of_window": "Du bist an der Spitze des Rivalen-Fensters — kein Manager über dir zum Vergleichen.",
   "rivals.fnote": "Live-GW-Punkte werden alle 60s aktualisiert. Angezeigte Bonuspunkte sind vorläufig bis zur Bestätigung.",
-
+  "rivals.pro_banner_title": "Mehrere Ligen verfolgen",
   "threats.title": "Bedrohungen",
   "threats.section_top": "Top-Bedrohungen ({{count}})",
   "threats.empty": "Keine Bedrohungen entsprechen diesem Filter.",
@@ -68,12 +65,14 @@
   "threats.filter_to_play": "Spielt noch",
   "threats.filter_played": "Gespielt",
   "threats.filter_didnt_play": "Nicht gespielt",
-
+  "threats.col_eo": "EO",
+  "threats.col_score_pct": "Score %",
+  "threats.col_lost": "verloren",
+  "threats.col_haul_impact": "bei 8 Pkt.",
   "prices.title": "Preisänderungen",
   "prices.meta": "Vorhersagen werden täglich um Mitternacht aktualisiert · Basierend auf Nettotransfers",
   "prices.empty": "Keine Preisänderungen entsprechen diesem Filter.",
   "prices.fnote": "Preisvorhersagen sind Schätzungen basierend auf FPL-Transferdaten. Keine Garantie.",
-
   "planner.title": "Transfer-Planer",
   "planner.meta_no_team": "Gib deine FPL-Team-ID ein, um zu beginnen",
   "planner.meta_xi": "Dein XI · GW{{startGw}}–{{endGw}}",
@@ -82,11 +81,11 @@
   "planner.loading_body": "Spiele und dein XI werden geladen…",
   "planner.no_fixture_data": "Noch keine Spieldaten für die nächsten 5 GW.",
   "planner.fnote": "Spielschwierigkeitswerte (FDR) basieren auf offiziellen FPL-Daten.",
-
   "h2h.title": "Kopf an Kopf",
+  "h2h.error_meta": "Dieses Duell konnte nicht geladen werden",
+  "h2h.captains_label": "Kapitäne",
   "h2h.meta_invalid": "Ungültige Team-IDs in der URL",
   "h2h.invalid_body": "Die URL benötigt zwei verschiedene positive ganzzahlige Team-IDs, wie /h2h/123456/789012.",
-
   "hero.eyebrow": "FPL-Begleiter live",
   "hero.headline_lead": "Spür jeden ",
   "hero.headline_accent": "grünen Pfeil.",
@@ -105,7 +104,6 @@
   "hero.feature_reliable_body": "Vom Edge-Netzwerk bereitgestellt — schnell und verfügbar, wenn alle gleichzeitig einsteigen.",
   "hero.feature_cohort_title": "Kohorte & Rivalen-Einblick",
   "hero.feature_cohort_body": "Sieh, wo du im Vergleich zum Top-10k und den Rivalen neben dir in deinen Ligen stehst.",
-
   "leagues.title": "Meine Ligen",
   "leagues.meta_no_team": "Gib deine FPL-Team-ID ein, um deine Ligen zu sehen",
   "leagues.meta_loading_team": "Team {{entryId}} · Live-Mini-Liga-Tabellen",
@@ -116,29 +114,23 @@
   "leagues.cta_view_rivals": "Rivalen anzeigen →",
   "leagues.error_load_team": "Dieses Team konnte nicht geladen werden. Überprüfe die Team-ID und versuche es erneut.",
   "leagues.empty_leagues": "Noch keine Mini-Ligen für dieses Team gefunden.",
-
   "league_card.loading": "Liga {{leagueId}} wird geladen…",
   "league_card.error": "Liga {{leagueId}} konnte nicht geladen werden",
   "league_card.empty": "Noch keine Manager in dieser Liga.",
   "league_card.cta_rivals": "Rivalen",
   "league_card.show_all": "Alle {{count}} anzeigen",
   "league_card.show_top_10": "Top 10 anzeigen",
-
   "stale_data.message": "Live-Updates pausiert — letzte Daten werden angezeigt",
-
   "error.title": "Etwas ist schiefgelaufen",
   "error.meta": "Ein unerwarteter Fehler ist aufgetreten",
   "error.body": "Beim Rendern dieser Seite ist ein Fehler aufgetreten. Versuche es erneut oder gehe zurück zur Startseite.",
   "error.cta_retry": "Erneut versuchen",
   "error.fnote": "Wenn das weiterhin passiert, aktualisiere die Seite oder komme in ein paar Minuten zurück.",
-
   "not_found.title": "Seite nicht gefunden",
   "not_found.body": "Wir konnten diese Seite nicht finden. Sie wurde möglicherweise verschoben oder der Link ist falsch.",
   "not_found.cta_home": "Zurück zur Startseite",
-
   "demo_banner.badge": "Vorschau",
   "demo_banner.message": "Dies ist eine Design-Demo von SimplyFPL — die Daten sind illustrativ.",
-
   "live_battle.section_title": "Live Battle",
   "live_battle.subtitle": "Spieler, die deinen Rang gerade bewegen · aktuell im Spiel",
   "live_battle.gains": "Gewinne",
@@ -147,19 +139,15 @@
   "live_battle.net_vs_field": "Netto vs. Feld",
   "live_battle.empty_gains": "Noch keine Live-Gewinne.",
   "live_battle.empty_losses": "Noch keine Live-Verluste.",
-
   "differentials.section_title": "Differenzialspieler",
   "differentials.yours_header": "Du hast",
   "differentials.theirs_header": "Sie haben",
   "differentials.captaincy_label": "Kapitänsband",
   "differentials.same_captain": "Gleicher Kapitän",
   "differentials.empty": "Keine einzigartigen Spieler gegenüber diesem Rivalen.",
-
   "pitch.bench_divider": "Bank",
-
   "nav.sign_in": "Anmelden",
   "nav.sign_out": "Abmelden",
-
   "team_id_help.label": "Wie finde ich meine Team-ID?",
   "team_id_help.step_1": "Öffne die FPL-Website und gehe zu deiner Punkte-Seite.",
   "team_id_help.step_2": "Kopiere die URL aus der Adressleiste deines Browsers.",
@@ -169,7 +157,6 @@
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "Diese Zahl ist deine Team-ID.",
   "team_id_help.open_fpl": "FPL-Website öffnen →",
-
   "vs_livefpl.title": "SimplyFPL vs livefpl.net",
   "vs_livefpl.error_title": "Vergleich konnte nicht geladen werden",
   "vs_livefpl.error_meta": "Geschwindigkeitsdaten nicht verfügbar",
@@ -181,24 +168,21 @@
   "vs_livefpl.methodology_title": "Methodik",
   "vs_livefpl.test_title": "Selbst testen",
   "vs_livefpl.test_label": "Netzwerkantwortzeit (5-facher Durchschnitt von deinem Standort)",
-
   "frank.ask_section_title": "Frank fragen",
   "frank.ask_placeholder": "Sollte ich Salah oder Haaland diese Woche als Kapitän wählen?",
   "frank.page_meta": "Dein KI-FPL-Coach · Wöchentlich nach dem Deadline aktualisiert",
   "frank.chip_watch_title": "Chip-Überwachung",
   "frank.transfer_targets_title": "Transfer-Ziele",
-
   "upgrade.title": "Upgrade",
   "upgrade.loading_meta": "Plan wählen",
   "upgrade.page_meta": "Wechsle zu Pro oder Ultimate, um das Beste aus SimplyFPL herauszuholen",
   "upgrade.section_title": "Wähle deinen Plan",
   "upgrade.fnote": "Zahlungen werden von Stripe verarbeitet. Kündige oder ändere den Plan jederzeit in deinen Kontoeinstellungen.",
-
+  "upgrade.plan_pro_title": "Pro",
+  "upgrade.plan_ultimate_title": "Ultimate",
   "rivals_section.loading_meta": "Deine Ligen werden geladen…",
   "rivals_section.empty_meta": "Keine Mini-Ligen für dieses Team gefunden",
-
   "replay.seek_aria": "Zu GW springen",
-
   "shared.you": "Du",
   "shared.them": "Sie",
   "shared.cap": "Kap",
@@ -206,21 +190,15 @@
   "shared.pts": "Pkt",
   "shared.rank": "Rang",
   "shared.team": "Team",
-
   "cohort.col_top10k": "Top 10k",
   "cohort.col_overall": "Gesamt",
   "cohort.col_top1k": "Top 1k",
-
   "detailed_league_row.transfers_label": "Transfers",
   "detailed_league_row.played_label": "Gespielt",
-
   "league_table.col_manager": "Manager",
   "league_table.col_gw": "GW",
-
   "live_status_pill.deselect_title": "Team abwählen",
-
   "logo.aria_label": "SimplyFPL Startseite",
-
   "notifications.pro_only": "Push-Benachrichtigungen sind eine Pro-Funktion. Upgrade zu Pro, um benachrichtigt zu werden, wenn dein Kapitän trifft und vor dem Transfer-Deadline.",
   "notifications.not_supported": "Push-Benachrichtigungen werden in diesem Browser nicht unterstützt.",
   "notifications.blocked": "Benachrichtigungen sind blockiert. Aktiviere sie in deinen Browser-Einstellungen und lade neu.",
@@ -233,13 +211,55 @@
   "notifications.label_captain_scored_desc": "Wenn dein Kapitän anfängt, Punkte zu sammeln",
   "notifications.cta_disabling": "Deaktiviere…",
   "notifications.cta_disable": "Benachrichtigungen deaktivieren",
-
+  "notifications.section_deadline_results": "Deadline & Ergebnisse",
+  "notifications.section_captain_squad": "Kapitän & Kader-Ereignisse",
+  "notifications.section_league_rank": "Liga-Rang-Benachrichtigungen",
+  "notifications.section_quiet_hours": "Ruhestunden (UTC)",
+  "notifications.label_bonus_confirmed": "Bonuspunkte bestätigt",
+  "notifications.label_bonus_confirmed_desc": "Wenn vorläufiger Bonus offiziell wird",
+  "notifications.label_goal_scored": "Tore erzielt",
+  "notifications.label_goal_scored_desc": "Wenn ein Stammspieler ein Tor schießt",
+  "notifications.label_assist": "Vorlagen",
+  "notifications.label_assist_desc": "Wenn ein Stammspieler eine Vorlage gibt",
+  "notifications.label_red_card": "Rote Karten",
+  "notifications.label_red_card_desc": "Wenn ein Stammspieler vom Platz gestellt wird",
+  "notifications.toggle_on": "An",
+  "notifications.toggle_off": "Aus",
+  "notifications.no_league_alerts": "Keine Liga-Benachrichtigungen konfiguriert.",
+  "notifications.league_label": "Liga {{leagueId}}",
+  "notifications.league_top_n": "Top {{n}}",
+  "notifications.league_swing_n": "±{{n}} Plätze",
+  "notifications.league_cta_remove": "Entfernen",
+  "notifications.league_id_label": "Liga-ID",
+  "notifications.league_top_n_hint": "Benachrichtigen wenn du den Top-N verlässt oder erreichst (leer lassen zum Überspringen)",
+  "notifications.league_swing_n_hint": "Benachrichtigen bei Rangveränderung von ±N Plätzen (leer lassen zum Überspringen)",
+  "notifications.league_id_placeholder": "z.B. 314159",
+  "notifications.league_top_n_placeholder": "z.B. 3",
+  "notifications.league_swing_n_placeholder": "z.B. 5",
+  "notifications.league_cta_save": "Speichern",
+  "notifications.league_cta_cancel": "Abbrechen",
+  "notifications.league_cta_add": "+ Liga-Benachrichtigung hinzufügen",
+  "notifications.quiet_hours_label": "Benachrichtigungen nachts stummschalten",
+  "notifications.quiet_hours_disabled": "Deaktiviert",
+  "notifications.quiet_hours_cta_disable": "Deaktivieren",
+  "notifications.quiet_hours_cta_enable": "Aktivieren",
   "theme_picker.aria_label": "Thema",
-
   "what_if.search_placeholder": "Nach Name suchen…",
-
   "analytics_consent.aria_label": "Analytics-Zustimmung",
   "analytics_consent.body": "Wir verwenden anonyme Analytics, um SimplyFPL zu verbessern. Es werden keine persönlichen Daten gesendet.",
   "analytics_consent.cta_decline": "Ablehnen",
-  "analytics_consent.cta_accept": "Akzeptieren"
+  "analytics_consent.cta_accept": "Akzeptieren",
+  "settings.section_language": "Sprache",
+  "settings.language_description": "Wähle die Sprache für SimplyFPL. Deine Wahl wird auf diesem Gerät gespeichert.",
+  "live_rank.title": "Live-Rang",
+  "live_rank.no_team_meta": "Kein Team ausgewählt",
+  "live_rank.error_meta": "Dieses Team konnte nicht geladen werden",
+  "live_rank.autosubs_toggle_aria": "Autosubs-Umschalter",
+  "live_rank.subs_pre_label": "Vorher",
+  "live_rank.subs_post_label": "Nachher",
+  "live_rank.freshness_aria": "Aktualität der Live-Daten",
+  "live_rank.cohort_section_title": "Kohortenvergleich",
+  "live_rank.provisional_bonus_aria": "Hinweis zum vorläufigen Bonus",
+  "team_news.title": "Team-News",
+  "team_news.all_available": "Alle deine Spieler sind verfügbar"
 }

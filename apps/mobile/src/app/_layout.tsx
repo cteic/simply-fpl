@@ -8,11 +8,14 @@ import { DMMono_300Light, DMMono_400Regular, DMMono_500Medium } from '@expo-goog
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Theme } from 'tamagui';
 
 import { auth } from '@simplyfpl/features';
 import { TamaguiProvider } from '@simplyfpl/ui';
 import { config } from '@simplyfpl/ui/tamagui.config';
 
+import { MobileLocaleProvider } from '@/lib/mobile-locale-provider';
+import { MobileThemeModeProvider, useMobileThemeMode } from '@/lib/mobile-theme-provider';
 import { supabaseClient } from '@/lib/supabase';
 
 const { AuthProvider } = auth;
@@ -25,6 +28,77 @@ const COLORS = {
   text: '#1A1A18',
   inactive: '#A8A8A0',
 };
+
+interface AppContentProps {
+  queryClient: QueryClient;
+}
+
+function AppContent({ queryClient }: AppContentProps) {
+  const { theme } = useMobileThemeMode();
+
+  return (
+    <Theme name={theme}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <MobileLocaleProvider>
+            <AuthProvider client={supabaseClient}>
+              <StatusBar style="dark" />
+              <Tabs
+                screenOptions={{
+                  tabBarStyle: {
+                    backgroundColor: COLORS.surface,
+                    borderTopColor: COLORS.border,
+                  },
+                  tabBarActiveTintColor: COLORS.brand,
+                  tabBarInactiveTintColor: COLORS.inactive,
+                  headerStyle: { backgroundColor: COLORS.bg },
+                  headerTintColor: COLORS.text,
+                  headerShadowVisible: false,
+                }}
+              >
+                <Tabs.Screen
+                  name="index"
+                  options={{ title: 'Live Rank', tabBarLabel: 'Home', headerShown: false }}
+                />
+                <Tabs.Screen
+                  name="leagues"
+                  options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues', headerShown: false }}
+                />
+                <Tabs.Screen
+                  name="h2h"
+                  options={{ title: 'Head to Head', tabBarLabel: 'H2H', headerShown: false }}
+                />
+                <Tabs.Screen
+                  name="planner"
+                  options={{ title: 'Transfer Planner', tabBarLabel: 'Planner' }}
+                />
+                <Tabs.Screen
+                  name="prices"
+                  options={{ title: 'Price Changes', tabBarLabel: 'Prices', headerShown: false }}
+                />
+                <Tabs.Screen
+                  name="threats"
+                  options={{ title: 'Threats', tabBarLabel: 'Threats', headerShown: false }}
+                />
+                <Tabs.Screen
+                  name="frank"
+                  options={{ title: 'Frank', tabBarLabel: 'Frank', headerShown: false }}
+                />
+                <Tabs.Screen
+                  name="profile"
+                  options={{ title: 'Profile', tabBarLabel: 'Profile' }}
+                />
+                <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
+                <Tabs.Screen name="login" options={{ title: 'Sign In', href: null }} />
+                <Tabs.Screen name="auth/callback" options={{ title: 'Signing In', href: null }} />
+              </Tabs>
+            </AuthProvider>
+          </MobileLocaleProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </Theme>
+  );
+}
 
 export default function RootLayout() {
   const [queryClient] = useState(
@@ -59,55 +133,9 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config} defaultTheme="stadium">
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider client={supabaseClient}>
-            <StatusBar style="dark" />
-            <Tabs
-              screenOptions={{
-                tabBarStyle: {
-                  backgroundColor: COLORS.surface,
-                  borderTopColor: COLORS.border,
-                },
-                tabBarActiveTintColor: COLORS.brand,
-                tabBarInactiveTintColor: COLORS.inactive,
-                headerStyle: { backgroundColor: COLORS.bg },
-                headerTintColor: COLORS.text,
-                headerShadowVisible: false,
-              }}
-            >
-              <Tabs.Screen
-                name="index"
-                options={{ title: 'Live Rank', tabBarLabel: 'Home', headerShown: false }}
-              />
-              <Tabs.Screen
-                name="leagues"
-                options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues', headerShown: false }}
-              />
-              <Tabs.Screen
-                name="h2h"
-                options={{ title: 'Head to Head', tabBarLabel: 'H2H', headerShown: false }}
-              />
-              <Tabs.Screen
-                name="planner"
-                options={{ title: 'Transfer Planner', tabBarLabel: 'Planner' }}
-              />
-              <Tabs.Screen
-                name="prices"
-                options={{ title: 'Price Changes', tabBarLabel: 'Prices', headerShown: false }}
-              />
-              <Tabs.Screen
-                name="threats"
-                options={{ title: 'Threats', tabBarLabel: 'Threats', headerShown: false }}
-              />
-              <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
-              <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
-              <Tabs.Screen name="login" options={{ title: 'Sign In', href: null }} />
-              <Tabs.Screen name="auth/callback" options={{ title: 'Signing In', href: null }} />
-            </Tabs>
-          </AuthProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
+      <MobileThemeModeProvider>
+        <AppContent queryClient={queryClient} />
+      </MobileThemeModeProvider>
     </TamaguiProvider>
   );
 }

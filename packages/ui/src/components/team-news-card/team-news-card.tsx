@@ -2,6 +2,7 @@
 
 import { Text, XStack, YStack, styled } from 'tamagui';
 
+import { t } from '@simplyfpl/i18n';
 import type { PlayerNewsItem, PlayerNewsStatus } from '@simplyfpl/types';
 
 import { Card } from '../card';
@@ -113,10 +114,10 @@ export interface TeamNewsCardProps {
 export function TeamNewsCard({ players }: TeamNewsCardProps) {
   return (
     <YStack>
-      <SectionHeader title="Team News" />
+      <SectionHeader title={t('team_news.title')} />
       <Card>
         {players.length === 0 ? (
-          <EmptyText>All your players are available</EmptyText>
+          <EmptyText>{t('team_news.all_available')}</EmptyText>
         ) : (
           players.map((player, i) => (
             <PlayerRow key={player.id} player={player} isLast={i === players.length - 1} />
@@ -130,7 +131,7 @@ export function TeamNewsCard({ players }: TeamNewsCardProps) {
 export function TeamNewsCardSkeleton() {
   return (
     <YStack>
-      <SectionHeader title="Team News" />
+      <SectionHeader title={t('team_news.title')} />
       <Card paddingHorizontal={16} paddingVertical={14} gap={10}>
         <Skeleton height={14} borderRadius={3} />
         <Skeleton height={14} borderRadius={3} width="70%" />

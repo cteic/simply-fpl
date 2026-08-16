@@ -31,6 +31,18 @@ export async function loadLocale(locale: SupportedLocale): Promise<void> {
   }
   if (locale === 'es') {
     registerLocale('es', (await import('./locales/es.json')).default);
+    return;
+  }
+  if (locale === 'ru') {
+    registerLocale('ru', (await import('./locales/ru.json')).default);
+    return;
+  }
+  if (locale === 'zh') {
+    registerLocale('zh', (await import('./locales/zh.json')).default);
+    return;
+  }
+  if (locale === 'ja') {
+    registerLocale('ja', (await import('./locales/ja.json')).default);
   }
 }
 

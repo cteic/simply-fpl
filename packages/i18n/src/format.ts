@@ -5,6 +5,9 @@ const INTL_LOCALE: Record<SupportedLocale, string> = {
   fr: 'fr-FR',
   de: 'de-DE',
   es: 'es-ES',
+  ru: 'ru-RU',
+  zh: 'zh-CN',
+  ja: 'ja-JP',
 };
 
 export function formatNumber(value: number, locale: SupportedLocale): string {

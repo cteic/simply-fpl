@@ -137,7 +137,12 @@ describe('computeLiveRankEstimate', () => {
   it('falls back to flat-700 when no captured distribution exists for the gw', () => {
     // 10 starters @ 5 + captain 5*2 = 60 net points; average 50 -> +10 -> +7000 places.
     const estimate = computeLiveRankEstimate(withGw(buildInput(), 999));
-    expect(estimate).toEqual({ liveRank: 993_000, movement: 7000, direction: 'up' });
+    expect(estimate).toEqual({
+      liveRank: 993_000,
+      movement: 7000,
+      direction: 'up',
+      source: 'flat-heuristic',
+    });
   });
 
   it('uses the captured distribution when one exists for the gw', () => {

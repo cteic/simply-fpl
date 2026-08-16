@@ -156,6 +156,7 @@ pnpm dev:mobile     # Expo dev server
 - Conventional commits with scope: `feat(web)`, `fix(worker)`, `refactor(fpl-client)`
 - Branches and PRs target `dev`, not `main`
 - Imports: use the workspace alias `@simplyfpl/<pkg>` rather than relative paths across packages
+- i18n: any new key added to `packages/i18n/src/locales/en.json` MUST be added with a real translation to every other locale file in that directory — the key-parity spec fails the i18n suite otherwise. Non-English locales load lazily via `loadLocale`; never import them statically.
 
 ## Branching + release process (simplified GitFlow)
 
