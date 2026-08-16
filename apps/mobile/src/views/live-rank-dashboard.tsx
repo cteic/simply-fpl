@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { liveRank } from '@simplyfpl/features';
+import { liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
@@ -20,6 +20,7 @@ import {
   BenchDivider,
   CohortTable,
   FNote,
+  LiveBattlePanel,
   Logo,
   NumberTicker,
   Pitch,
@@ -42,6 +43,7 @@ import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
 const { useLiveRankEstimate } = liveRank;
+const { computeLiveBattle } = liveBattle;
 
 const POSITION: Record<number, ShirtKind> = { 1: 'gk', 2: 'def', 3: 'mid', 4: 'fwd' };
 
@@ -258,6 +260,10 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     ready && fixtures && liveGw && bootstrap
       ? predictBonusPoints(liveGw, fixtures, bootstrap)
       : new Map<number, BonusPrediction>();
+  const battle =
+    ready && picks && liveGw && bootstrap && fixtures
+      ? computeLiveBattle({ yourPicks: picks, bootstrap, liveGw, fixtures, bonusMap })
+      : null;
   const livePoints =
     ready && picks && liveGw && bootstrap
       ? calculateLivePoints(picks, liveGw, bootstrap, bonusMap)
@@ -661,6 +667,26 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           </Text>
         )}
       </YStack>
+
+      {battle && battle.isLive && (battle.gains.length > 0 || battle.losses.length > 0) ? (
+        <LiveBattlePanel
+          gains={battle.gains.map((p) => ({
+            id: p.elementId,
+            name: p.name,
+            teamShort: p.teamShort,
+            points: p.livePoints,
+            rankImpact: p.rankImpact,
+          }))}
+          losses={battle.losses.map((p) => ({
+            id: p.elementId,
+            name: p.name,
+            teamShort: p.teamShort,
+            points: p.livePoints,
+            rankImpact: p.rankImpact,
+          }))}
+          totalImpact={battle.totalImpact}
+        />
+      ) : null}
 
       <XStack justifyContent="center">
         <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
