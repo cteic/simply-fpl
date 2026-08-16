@@ -135,7 +135,6 @@ export function computeLiveBattle({
   const bonus = bonusMap ?? predictBonusPoints(liveGw, fixtures, bootstrap);
 
   const isBenchBoost = yourPicks.active_chip === 'bboost';
-  const isTripleCaptain = yourPicks.active_chip === '3xc';
   const pickByElement = new Map<number, FplEntryPick>();
   for (const pick of yourPicks.picks) pickByElement.set(pick.element, pick);
 
@@ -155,8 +154,7 @@ export function computeLiveBattle({
     const active = pick !== undefined && (pick.position <= 11 || isBenchBoost);
     let userMultiplier = 0;
     if (active && pick !== undefined) {
-      if (pick.is_captain) userMultiplier = isTripleCaptain ? 3 : 2;
-      else userMultiplier = 1;
+      userMultiplier = pick.multiplier;
     }
 
     const fieldOwnershipPct = field.get(liveEl.id) ?? 0;

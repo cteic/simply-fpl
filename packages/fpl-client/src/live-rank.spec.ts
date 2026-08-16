@@ -6,8 +6,10 @@ import type {
   FplEntryGameweekPicks,
   FplEntryPick,
   FplLiveGameweek,
+  ScoreDistribution,
 } from '@simplyfpl/types';
 
+import { hasDistribution } from './estimate-rank';
 import {
   APPROX_TOTAL_FPL_ENTRIES,
   buildLiveLeagueTable,
@@ -20,7 +22,7 @@ import {
   getNextDeadline,
   getNextGameweek,
 } from './live-rank';
-import type { NextDeadline, RankDetails } from './live-rank';
+import type { LiveRankEstimate, NextDeadline, RankDetails, RankEstimateSource } from './live-rank';
 
 const feature = await loadFeature('./live-rank.feature');
 
@@ -135,6 +137,36 @@ describeFeature(feature, ({ Scenario }) => {
       expect(result).toBe(80);
     });
   });
+
+  Scenario(
+    'Triple Captain multiplier is read from pick.multiplier not the chip flag',
+    ({ Given, When, Then }) => {
+      let picks: FplEntryGameweekPicks;
+      let liveData: FplLiveGameweek;
+      let result: number;
+
+      Given(
+        'an 11-player squad with no active chip where the captain pick carries multiplier 3',
+        () => {
+          const scores: Record<number, number> = {};
+          for (let i = 1; i <= 11; i++) scores[i] = i === 1 ? 10 : 5;
+          liveData = makeLive(scores);
+          picks = makePicks(null, 0, [
+            makePick(1, 1, 3, true),
+            ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => makePick(n, n, 1)),
+          ]);
+        }
+      );
+
+      When('I calculate live points', () => {
+        result = calculateLivePoints(picks, liveData, EMPTY_BOOTSTRAP);
+      });
+
+      Then("the captain's points are tripled and the total is 80", () => {
+        expect(result).toBe(80);
+      });
+    }
+  );
 
   Scenario('Transfer hit is deducted from live points', ({ Given, When, Then }) => {
     let picks: FplEntryGameweekPicks;
@@ -576,6 +608,168 @@ describeFeature(feature, ({ Scenario }) => {
       expect(details).toBeNull();
     });
   });
+
+  Scenario(
+    'Season-mismatch bootstrap triggers live-cohort aggregate over captured distribution',
+    ({ Given, And, When, Then }) => {
+      let liveAggregate: ScoreDistribution;
+      let bootstrap: FplBootstrapStatic;
+      let estimate: LiveRankEstimate;
+
+      Given('a captured GW1 distribution from season 2025', () => {
+        expect(hasDistribution(1, 'overall')).toBe(true);
+      });
+
+      And('a live cohort score distribution with mean 60 for season 2026', () => {
+        liveAggregate = {
+          sampleSize: 500,
+          min: 20,
+          max: 110,
+          mean: 60,
+          median: 60,
+          percentiles: {
+            p1: 28,
+            p5: 35,
+            p10: 39,
+            p25: 46,
+            p50: 60,
+            p75: 72,
+            p90: 80,
+            p95: 85,
+            p99: 95,
+          },
+          histogram: [{ min: 55, max: 60, count: 500 }],
+        };
+      });
+
+      And('a bootstrap showing GW1 deadline in August 2026', () => {
+        bootstrap = {
+          elements: [],
+          teams: [],
+          element_types: [],
+          events: [
+            {
+              id: 1,
+              name: 'Gameweek 1',
+              deadline_time: '2026-08-15T17:30:00Z',
+              is_current: true,
+              is_next: false,
+              is_previous: false,
+              average_entry_score: 60,
+              highest_score: null,
+              finished: false,
+            },
+          ],
+        };
+      });
+
+      When('I call estimateLiveRankSmart with gw 1 and the live aggregate', () => {
+        estimate = estimateLiveRankSmart(1, 5_000_000, 70, 60, { liveAggregate, bootstrap });
+      });
+
+      Then('the estimate source is "live-cohort"', () => {
+        expect(estimate.source).toBe('live-cohort' satisfies RankEstimateSource);
+      });
+    }
+  );
+
+  Scenario('Same-season bootstrap uses the captured distribution', ({ Given, And, When, Then }) => {
+    let bootstrap: FplBootstrapStatic;
+    let estimate: LiveRankEstimate;
+
+    Given('a captured GW1 distribution from season 2025', () => {
+      expect(hasDistribution(1, 'overall')).toBe(true);
+    });
+
+    And('a bootstrap showing GW1 deadline in August 2025', () => {
+      bootstrap = {
+        elements: [],
+        teams: [],
+        element_types: [],
+        events: [
+          {
+            id: 1,
+            name: 'Gameweek 1',
+            deadline_time: '2025-08-15T17:30:00Z',
+            is_current: true,
+            is_next: false,
+            is_previous: false,
+            average_entry_score: 54,
+            highest_score: null,
+            finished: false,
+          },
+        ],
+      };
+    });
+
+    When('I call estimateLiveRankSmart with gw 1 and no live aggregate', () => {
+      estimate = estimateLiveRankSmart(1, 5_000_000, 70, 54, { bootstrap });
+    });
+
+    Then('the estimate source is "captured-same-season"', () => {
+      expect(estimate.source).toBe('captured-same-season' satisfies RankEstimateSource);
+    });
+  });
+
+  Scenario(
+    'Season-mismatch without live aggregate falls to prior-season-scaled',
+    ({ Given, And, When, Then }) => {
+      let bootstrap: FplBootstrapStatic;
+      let estimate: LiveRankEstimate;
+
+      Given('a captured GW1 distribution from season 2025', () => {
+        expect(hasDistribution(1, 'overall')).toBe(true);
+      });
+
+      And('a bootstrap showing GW1 deadline in August 2026', () => {
+        bootstrap = {
+          elements: [],
+          teams: [],
+          element_types: [],
+          events: [
+            {
+              id: 1,
+              name: 'Gameweek 1',
+              deadline_time: '2026-08-15T17:30:00Z',
+              is_current: true,
+              is_next: false,
+              is_previous: false,
+              average_entry_score: 60,
+              highest_score: null,
+              finished: false,
+            },
+          ],
+        };
+      });
+
+      When('I call estimateLiveRankSmart with gw 1 and no live aggregate', () => {
+        estimate = estimateLiveRankSmart(1, 5_000_000, 70, 60, { bootstrap });
+      });
+
+      Then('the estimate source is "captured-prior-season-scaled"', () => {
+        expect(estimate.source).toBe('captured-prior-season-scaled' satisfies RankEstimateSource);
+      });
+    }
+  );
+
+  Scenario(
+    'No captured distribution and no live aggregate falls to flat heuristic',
+    ({ Given, When, Then }) => {
+      let estimate: LiveRankEstimate;
+
+      Given('no captured distribution exists for gw 999', () => {
+        expect(hasDistribution(999, 'overall')).toBe(false);
+      });
+
+      When('I call estimateLiveRankSmart for gw 999 with no live aggregate', () => {
+        estimate = estimateLiveRankSmart(999, 100_000, 50, 30);
+      });
+
+      Then('the estimate source is "flat-heuristic"', () => {
+        expect(estimate.source).toBe('flat-heuristic' satisfies RankEstimateSource);
+      });
+    }
+  );
 });
 
 describe('estimateLiveRankSmart', () => {

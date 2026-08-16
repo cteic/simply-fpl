@@ -64,7 +64,8 @@ function isRateLimitRecord(value: unknown): value is RateLimitRecord {
 export async function checkRateLimit(
   kv: KvStore,
   ip: string,
-  now: number
+  now: number,
+  limit: number = RATE_LIMIT
 ): Promise<{ allowed: boolean; retryAfterSeconds: number }> {
   const key = `${RATE_KEY_PREFIX}${ip}`;
   const existing = await kv.get(key, 'json');
@@ -76,7 +77,7 @@ export async function checkRateLimit(
     return { allowed: true, retryAfterSeconds: 0 };
   }
 
-  if (existing.count >= RATE_LIMIT) {
+  if (existing.count >= limit) {
     const elapsed = (now - existing.windowStart) / 1000;
     const retryAfterSeconds = Math.max(1, Math.ceil(RATE_WINDOW_SECS - elapsed));
     return { allowed: false, retryAfterSeconds };

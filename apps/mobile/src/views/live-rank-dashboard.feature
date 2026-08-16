@@ -19,3 +19,8 @@ Feature: Live rank dashboard — mobile view
     Given live data has a player with 3 provisional bonus points
     When bonus points are predicted for an unfinished fixture
     Then the player's bonus map entry is provisional and equals 3
+
+  Scenario: Live battle panel is hidden when no fixtures are in progress
+    Given a squad and every fixture has finished
+    When the live battle is computed
+    Then the battle is not live and the panel is skipped

@@ -403,7 +403,7 @@ function RivalsBoardSection({
           ) : null}
           {hasHiddenLeagues ? (
             <ProBanner
-              title="Track multiple leagues"
+              title={t('rivals.pro_banner_title')}
               body="You have more than one mini-league tracked. Upgrade to switch between them."
               ctaLabel="Upgrade"
               onPress={() => {
