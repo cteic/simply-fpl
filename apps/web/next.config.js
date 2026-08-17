@@ -1,4 +1,7 @@
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import { withTamagui } from '@tamagui/next-plugin';
+
+initOpenNextCloudflareForDev();
 
 /** @type {import('next').NextConfig} */
 const CSP = [

@@ -2,7 +2,6 @@ import { ImageResponse } from 'next/og';
 
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
-export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'SimplyFPL — Fastest live-rank companion for Fantasy Premier League';
@@ -12,12 +11,12 @@ const FONT_TIMEOUT_MS = 3000;
 export default async function OpenGraphImage() {
   const [dmMonoResult, dmSansResult] = await Promise.all([
     fetchWithTimeout(
-      new URL('https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2'),
+      new URL('https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzIYQ.ttf'),
       FONT_TIMEOUT_MS
     ),
     fetchWithTimeout(
       new URL(
-        'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAop0.woff2'
+        'https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTg.ttf'
       ),
       FONT_TIMEOUT_MS
     ),
@@ -71,7 +70,7 @@ export default async function OpenGraphImage() {
     </div>,
     {
       ...size,
-      fonts,
+      ...(fonts.length > 0 ? { fonts } : {}),
     }
   );
 }
