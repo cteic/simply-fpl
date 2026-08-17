@@ -16,7 +16,10 @@
     "test:unit": "vitest run --passWithNoTests",
     "budget:check": "node ../../scripts/check-bundle-budget.mjs",
     "capture:hero": "node scripts/capture-hero-screenshot.mjs",
-    "e2e": "bddgen --config playwright.config.ts && playwright test --config playwright.config.ts"
+    "e2e": "bddgen --config playwright.config.ts && playwright test --config playwright.config.ts",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && wrangler dev",
+    "deploy": "opennextjs-cloudflare build && wrangler deploy"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
@@ -28,7 +31,7 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.0.0",
     "@tanstack/react-query": "^5.0.0",
-    "next": "^15.5.18",
+    "next": "^15.5.23",
     "posthog-js": "^1.406.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -38,7 +41,7 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "4.7.0",
-    "@cloudflare/next-on-pages": "^1.13.16",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@simplyfpl/tsconfig-config": "workspace:*",
     "@tamagui/core": "2.4.0",
     "@tamagui/next-plugin": "2.4.0",

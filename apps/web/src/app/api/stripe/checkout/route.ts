@@ -7,8 +7,6 @@ import { getStripeEnv } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
-export const runtime = 'edge';
-
 const PLAN_IDS = [
   'pro-monthly',
   'pro-yearly',

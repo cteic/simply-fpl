@@ -2,7 +2,6 @@ import { ImageResponse } from 'next/og';
 
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
-export const runtime = 'edge';
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
@@ -10,7 +9,7 @@ const FONT_TIMEOUT_MS = 3000;
 
 export default async function AppleIcon() {
   const dmMonoResult = await fetchWithTimeout(
-    new URL('https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2'),
+    new URL('https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzIYQ.ttf'),
     FONT_TIMEOUT_MS
   );
 
@@ -38,7 +37,7 @@ export default async function AppleIcon() {
     </div>,
     {
       ...size,
-      fonts,
+      ...(fonts.length > 0 ? { fonts } : {}),
     }
   );
 }
