@@ -1,12 +1,15 @@
 import { DM_Mono, DM_Sans } from 'next/font/google';
 
 import { AppFooter } from '@/components/app-footer';
+import { JsonLd } from '@/components/json-ld';
 import { NavBar } from '@/components/nav-bar';
 import { Providers } from '@/components/providers';
 import { ServiceWorkerInitializer } from '@/components/service-worker-initializer';
 import { StaleDataBanner } from '@/components/stale-data-banner';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
+import { WebMcpRegistration } from '@/components/webmcp-registration';
 import { rootMetadata, rootViewport } from '@/lib/metadata';
+import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/structured-data';
 
 import '../../public/tamagui.css';
 import './globals.css';
@@ -41,8 +44,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ServiceWorkerInitializer />
             {children}
             <AppFooter />
+            <WebMcpRegistration />
           </Providers>
         </TamaguiClientProvider>
+        <JsonLd nodes={[buildOrganizationSchema(), buildWebSiteSchema()]} />
         {cfBeaconToken ? (
           <script
             defer

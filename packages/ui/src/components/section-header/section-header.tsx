@@ -27,7 +27,7 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, action }: SectionHeaderProps) {
   return (
     <Row>
-      <Title>{title}</Title>
+      <Title render="h2">{title}</Title>
       {action ?? null}
     </Row>
   );

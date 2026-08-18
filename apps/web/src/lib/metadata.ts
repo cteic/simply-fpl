@@ -1,6 +1,22 @@
 import type { Metadata, Viewport } from 'next';
 
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL, TWITTER_HANDLE } from './site-url';
+import {
+  IS_PRODUCTION_SITE,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+  TWITTER_HANDLE,
+} from './site-url';
+
+export interface RobotsDirective {
+  index: boolean;
+  follow: boolean;
+}
+
+export function buildRootRobots(isProductionSite: boolean): RobotsDirective {
+  return isProductionSite ? { index: true, follow: true } : { index: false, follow: false };
+}
 
 export const rootMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -19,7 +35,6 @@ export const rootMetadata: Metadata = {
     'FPL companion',
     'FPL tracker',
   ],
-  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     url: '/',
@@ -35,7 +50,7 @@ export const rootMetadata: Metadata = {
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
   },
-  robots: { index: true, follow: true },
+  robots: buildRootRobots(IS_PRODUCTION_SITE),
 };
 
 export const rootViewport: Viewport = {

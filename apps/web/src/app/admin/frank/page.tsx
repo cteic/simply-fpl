@@ -1,9 +1,16 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export const runtime = 'edge';
+
+export const metadata: Metadata = {
+  title: 'Frank usage admin',
+  description: 'Internal Frank usage dashboard. Not part of the public site.',
+  robots: { index: false, follow: false },
+};
 
 const FRANK_ADMIN_EMAILS = (process.env['FRANK_ADMIN_EMAILS'] ?? '')
   .split(',')

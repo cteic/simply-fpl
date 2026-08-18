@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 
+import { JsonLd } from '@/components/json-ld';
 import { VsLivefplView } from '@/components/views/vs-livefpl-view';
+import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { fetchVsData } from '@/queries/vs';
 
 export const metadata: Metadata = {
@@ -23,5 +25,17 @@ export const metadata: Metadata = {
 
 export default async function VsLivefplPage() {
   const { snapshot, isFallback } = await fetchVsData();
-  return <VsLivefplView snapshot={snapshot} isFallback={isFallback} />;
+  return (
+    <>
+      <JsonLd
+        nodes={[
+          buildBreadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'SimplyFPL vs livefpl.net', path: '/vs-livefpl' },
+          ]),
+        ]}
+      />
+      <VsLivefplView snapshot={snapshot} isFallback={isFallback} />
+    </>
+  );
 }
