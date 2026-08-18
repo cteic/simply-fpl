@@ -21,6 +21,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "lint": "turbo run lint && node scripts/check-hardcoded-strings.mjs",
     "lint:fix": "turbo run lint:fix",
+    "check:pii": "node scripts/check-posthog-pii.mjs",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test:unit",
     "test:unit": "turbo run test:unit",
