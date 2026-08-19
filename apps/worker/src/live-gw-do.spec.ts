@@ -134,10 +134,15 @@ describe('LiveGwDO.fetch origin allowlist', () => {
     }
   });
 
-  it('accepts preview-deployment origins past the allowlist', async () => {
-    const doInstance = makeAtCapacityInstance();
-    const res = await doInstance.fetch(upgradeRequest('https://abc123.simply-fpl.pages.dev'));
-    expect(res.status).toBe(503);
+  it('accepts the web worker and its preview versions past the allowlist', async () => {
+    for (const origin of [
+      'https://simply-fpl.simplyfpl.workers.dev',
+      'https://abc123-simply-fpl.simplyfpl.workers.dev',
+    ]) {
+      const doInstance = makeAtCapacityInstance();
+      const res = await doInstance.fetch(upgradeRequest(origin));
+      expect(res.status).toBe(503);
+    }
   });
 
   it('rejects unknown origins with 403', async () => {
