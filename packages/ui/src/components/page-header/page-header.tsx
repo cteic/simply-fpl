@@ -60,6 +60,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
           <YStack>
             {typeof title === 'string' ? (
               <Text
+                render="h1"
                 fontFamily="$body"
                 fontSize="$13"
                 fontWeight="600"
@@ -92,7 +93,7 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
   return (
     <Header>
       <YStack>
-        {typeof title === 'string' ? <Title>{title}</Title> : title}
+        {typeof title === 'string' ? <Title render="h1">{title}</Title> : title}
         {meta ? <Meta>{meta}</Meta> : null}
       </YStack>
       {right ? <YStack>{right}</YStack> : null}
