@@ -5,7 +5,7 @@ import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
 import { OG_SIZE } from '../og-config';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 const SIZE = OG_SIZE;
 

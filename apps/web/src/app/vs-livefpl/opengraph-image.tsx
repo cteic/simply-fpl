@@ -2,7 +2,8 @@ import { ImageResponse } from 'next/og';
 
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'SimplyFPL vs livefpl.net — weekly speed comparison';

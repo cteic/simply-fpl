@@ -11,6 +11,9 @@
     "dev": "pnpm run clean:tamagui && pnpm run generate-tamagui-css && next dev",
     "build": "pnpm run clean:tamagui && pnpm run generate-tamagui-css && next build",
     "start": "next start",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "test:unit": "vitest run --passWithNoTests",
@@ -20,6 +23,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@simplyfpl/features": "workspace:*",
     "@simplyfpl/fpl-client": "workspace:*",
     "@simplyfpl/i18n": "workspace:*",
@@ -38,7 +42,6 @@
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "4.7.0",
-    "@cloudflare/next-on-pages": "^1.13.16",
     "@simplyfpl/tsconfig-config": "workspace:*",
     "@tamagui/core": "2.4.0",
     "@tamagui/next-plugin": "2.4.0",

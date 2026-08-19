@@ -4,8 +4,6 @@ import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
-export const runtime = 'edge';
-
 export async function POST() {
   const supabase = await getSupabaseServerClient();
   const {

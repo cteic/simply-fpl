@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { t } from '@simplyfpl/i18n';
 import { Button, FNote, PageHeader, PageShell, Text, XStack, YStack } from '@simplyfpl/ui';
 
-export const runtime = 'edge';
 export const dynamic = 'force-static';
 
 export default function NotFound() {
