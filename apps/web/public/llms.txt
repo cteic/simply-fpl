@@ -1,0 +1,33 @@
+# SimplyFPL
+
+> SimplyFPL is a free Fantasy Premier League companion that estimates your overall
+> rank live while fixtures are still being played, tracks mini-leagues in real
+> time, and predicts player price changes. Live rank is recalculated from
+> in-progress fixture data rather than waiting for FPL's own overnight update.
+
+Free to use with no signup — enter your FPL entry (team) id and the live rank
+dashboard loads immediately. A Pro tier (€4/month or €25/year) unlocks the price
+predictor, transfer planner, season replay and alerting. Data comes from the
+official Fantasy Premier League API, cached and served from the edge.
+
+Agents can call SimplyFPL directly over the Model Context Protocol: POST a
+JSON-RPC 2.0 message to https://simplyfpl.com/mcp and call `tools/list` to
+discover the available tools.
+
+## Pages
+
+- [Live rank dashboard](https://simplyfpl.com/): live overall rank estimate, live points, captain and autosub handling for a single FPL team
+- [Mini-leagues](https://simplyfpl.com/leagues): live mini-league standings that update while fixtures are in play
+- [Head to head](https://simplyfpl.com/h2h): side-by-side comparison of two FPL managers — captain choice, differentials, live points
+- [Price changes](https://simplyfpl.com/prices): predicted overnight FPL price rises and falls, derived from live net-transfer activity
+- [Transfer planner](https://simplyfpl.com/planner): plan transfers, chips and captaincy across upcoming gameweeks against fixture difficulty
+- [Frank](https://simplyfpl.com/frank): weekly AI-assisted captain, transfer and chip suggestions
+
+## For agents
+
+- [MCP endpoint](https://simplyfpl.com/mcp): JSON-RPC 2.0 over HTTP POST; `initialize`, `tools/list`, `tools/call`. Exposes `get_live_rank(entryId)`.
+
+## Optional
+
+- [Speed comparison](https://simplyfpl.com/vs-livefpl): weekly automated measurement of SimplyFPL against livefpl.net
+- [Sitemap](https://simplyfpl.com/sitemap.xml)

@@ -7,6 +7,7 @@ import { Text, XStack, YStack } from '@simplyfpl/ui';
 export function AppFooter() {
   return (
     <YStack
+      render="footer"
       borderTopWidth={1}
       borderTopColor="$border"
       borderStyle="solid"

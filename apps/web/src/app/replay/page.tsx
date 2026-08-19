@@ -9,6 +9,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
+  alternates: { canonical: '/replay' },
   robots: { index: false, follow: false },
 };
 
