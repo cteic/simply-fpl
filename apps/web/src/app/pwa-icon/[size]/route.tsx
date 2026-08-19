@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 const FONT_URL = 'https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2';
 const FONT_TIMEOUT_MS = 3000;

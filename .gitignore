@@ -53,3 +53,7 @@ apps/web/playwright-report
 # Claude Code per-machine settings (commands/ is tracked, settings.local.json is not)
 .claude/settings.local.json
 .claude/worktrees/
+
+# OpenNext (Cloudflare Workers) build output and local Worker vars
+.open-next
+.dev.vars
