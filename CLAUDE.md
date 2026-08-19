@@ -1,37 +1,27 @@
-DO NOT ADD, REMOVE, OR MODIFY COMMENTS IN CODE — including punctuation and formatting in existing comments. Only touch comments if explicitly asked.
-
-NEVER reference, name, or describe any OTHER project, client, or repository in this repo's artifacts — commits, PR titles/bodies/comments, issues, code, or docs. Pete may work for multiple clients on the same machine, so leaking one project into another's history is a confidentiality breach. If you observe cross-environment interference (e.g. a port already in use, a stray process, a conflicting global tool), describe it generically — "another local process is using port 3000" — never by name or purpose. This applies in every execution context: interactive sessions, scheduled agents, and subagents.
-
-After ANY code changes, you MUST run verification (see Verification section). Do not report a task as complete until all checks pass.
-
-## Personal preferences
-
-- **PRs**: title + summary bullets only. No "Generated with Claude Code" footer, no Test Plan section.
-- **Commits**: no `Co-Authored-By: Claude` trailer.
-- **Commit authorship**: every commit — interactive sessions AND remote/scheduled agents alike — must be authored as `Peter Watters <2938440+pete-watters@users.noreply.github.com>`. Remote agents MUST run `git config user.name "Peter Watters"` and `git config user.email "2938440+pete-watters@users.noreply.github.com"` at the start of the run, so no AI/tool ever appears as a commit author or co-author. No AI/tool attribution in any commit message, PR body, or issue.
-- **Branches**: short kebab-case, scoped prefix when useful (`fix/...`, `ci/...`, `feat/...`).
-- **Tone**: terse. Skip trailing "summary of what I just did" — the diff speaks for itself.
-
-### After opening a PR
-
-Immediately after `gh pr create` returns, do both of these:
-
-1. **Assign Pete** so the PR lands on his dashboard:
-   `gh pr edit <N> --add-assignee pete-watters`
-   GitHub rejects review requests on self-authored PRs, and our PRs (local + scheduled-agent) are all authored under Pete's account — so assignee is the equivalent visibility signal. Don't waste time on `--add-reviewer`.
-
-2. **Post a status comment** that opens with `@pete-watters` and uses this shape:
-   - **Shipped** — bullets of what landed in this PR
-   - **Pending / decisions needed** — anything Pete should look at, blockers, open questions
-   - **Verification** — confirm `pnpm typecheck / lint / format / build` are clean. List any manual steps Pete needs to take (env vars to set, services to sign up for, smoke-test URLs, migrations to run)
-
-This applies to PRs opened from any session — local CLI work AND scheduled remote agents. Scheduled-agent prompts include "post the final-response summary as a PR comment with `@pete-watters`" as a hard requirement.
-
 # SimplyFPL — Claude Instructions
 
 SimplyFPL is a freemium FPL (Fantasy Premier League) companion app — a faster, cleaner alternative to livefpl.net. Solo dev (Pete) plus non-technical co-marketer. Targeting launch before GW1 in August 2026.
 
 Architecture inspired by [leather-io/mono](https://github.com/leather-io/mono).
+
+## Scoped instruction files
+
+This file covers the repo. Packages with their own hard boundaries state them in
+their own `CLAUDE.md`, which applies to everything beneath it and wins over this
+file inside its subtree:
+
+- `apps/web/CLAUDE.md` — app shell, Supabase, Stripe, E2E
+- `apps/worker/CLAUDE.md` — FPL proxy and cache
+- `packages/features/CLAUDE.md` — no platform imports; testing bar
+- `packages/fpl-client/CLAUDE.md` — pure domain logic
+- `packages/ui/CLAUDE.md` — Tamagui and design tokens
+
+`AGENTS.md` is a symlink to `CLAUDE.md` at every level, so tools reading either
+name get the same rules. Never create a second real file — edit the CLAUDE.md.
+
+Standing rules that apply everywhere — attribution, commit authorship,
+confidentiality, secrets, verification before "done" — are global and are
+deliberately not repeated here.
 
 ## Stack
 
@@ -81,42 +71,19 @@ When implementing a new feature, decide which package each piece belongs to BEFO
 
 If you find yourself putting business logic inside an app component, stop and move it to `features` (or `fpl-client` if it's pure). If you find yourself building UI inside `apps/web/components/`, ask whether it should be in `packages/ui` instead — most should.
 
-### Strict package rules
+### Package rules
 
-#### `packages/types`
+Each package states its own rules in its `CLAUDE.md`, which applies to
+everything under that directory:
 
-- Types only, no logic, no dependencies
-
-#### `packages/fpl-client`
-
-- Depends on `types` only
-- No React, no React Native, no Next, no Expo
-- Pure TypeScript
-
-#### `packages/features`
-
-- MUST NOT import from `react-native`, `next`, `expo`, or any platform-specific package
-- React hooks only (e.g. `useEffect`, `useMemo`) — no platform-specific React APIs
-- Pure TypeScript and React are allowed
-- Test coverage matters here more than anywhere else — this is the heart of the product
-
-#### `packages/ui`
-
-- Cross-platform via Tamagui — single component definition works on web and native
-- Use Tamagui primitives (`<XStack>`, `<YStack>`, `<Stack>`, `<Text>`, etc.) instead of raw `<View>`/`<div>`
-- Reference design tokens via `$` prefix (`backgroundColor="$surface"`, `color="$t1"`)
-- No business logic, no API calls, no hooks beyond UI state
-
-#### `packages/utils`
-
-- Pure functions, no dependencies
-
-#### `apps/*`
-
-- Thin shells. Compose `features` + `ui`.
-- Routing, layouts, env config, platform-specific concerns only
-- A page component should be ~30-50 lines on average — if it's larger, extract logic into `features` or composition into `ui`
-- Apps depend on packages; packages never depend on apps
+| Package               | Holds                          | Hard boundary                              |
+| --------------------- | ------------------------------ | ------------------------------------------ |
+| `packages/types`      | shared domain types            | types only, no logic, no deps              |
+| `packages/fpl-client` | FPL client, rank + price logic | depends on `types` only; no React          |
+| `packages/features`   | React-aware business logic     | no platform-specific imports               |
+| `packages/ui`         | cross-platform components      | Tamagui only; no business logic            |
+| `packages/utils`      | pure helpers                   | pure functions, no deps                    |
+| `apps/*`              | routing, layouts, env config   | thin shells; packages never depend on apps |
 
 ## Design system
 
@@ -139,20 +106,13 @@ pnpm dev:worker     # Wrangler on :8787
 pnpm dev:mobile     # Expo dev server
 ```
 
-## Code style (mirrors leather-io/mono conventions)
+## Code style — repo-specific
 
-- No `enum` — use `const` objects or union types
-- `interface` for object shapes; name component props `ComponentNameProps`
-- `function` declarations for top-level functions and React components; arrow functions for callbacks only
-- Destructure props in the function signature
-- No `as` casts, `!` non-null assertions, or `any` — use runtime checks and type guards
-- `prefer-const` everywhere
-- No nested ternaries
+General TypeScript style is global; these are the rules particular to this repo.
+
 - camelCase for variables; SCREAMING_SNAKE_CASE for module-level constants in `constants.ts` files
-- Kebab-case filenames: `live-rank-view.tsx`
 - Platform suffixes where needed: `.web.tsx`, `.native.tsx`, `.shared.ts`
 - No `index.ts` except barrel exports from packages
-- Tests co-located as `*.spec.ts`
 - Conventional commits with scope: `feat(web)`, `fix(worker)`, `refactor(fpl-client)`
 - Branches and PRs target `dev`, not `main`
 - Imports: use the workspace alias `@simplyfpl/<pkg>` rather than relative paths across packages
@@ -173,25 +133,7 @@ Branch protection is **not enforced via GitHub** (the repo is private on Free ti
 ## FPL-specific notes
 
 - All FPL API calls must go through the Cloudflare Worker (`apps/worker`), never directly from client
-- Live gameweek data refreshes every 60 seconds — respect this in query `refetchInterval`
-- Bootstrap-static caches for 1 hour — safe to use `staleTime: 60 * 60 * 1000`
-- Bonus points are provisional until confirmed — mark them clearly in UI
-- Price calculations: FPL prices are in tenths (55 = £5.5m), use `formatPrice()` from `fpl-client`
 - Captain multiplier: 2x normally, 3x with Triple Captain chip, bench boost activates bench players
-
-## Supabase
-
-- Client-side: `getSupabaseClient()` from `apps/web/src/lib/supabase.ts`
-- Server-side (route handlers, server components): `getSupabaseServerClient()` from `apps/web/src/lib/supabase-server.ts`
-- Admin (webhooks only, service role key): `getSupabaseAdminClient()`
-- RLS is enabled — never bypass it except in admin client for webhooks
-
-## Stripe
-
-- Checkout flow: POST `/api/stripe/checkout` → redirect to Stripe → webhook updates Supabase
-- Webhook handler: `apps/web/src/app/api/stripe/webhook/route.ts`
-- Price IDs in env: `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
-- Never expose `STRIPE_SECRET_KEY` to client — server routes only
 
 ## What NOT to do
 
@@ -225,7 +167,7 @@ pnpm --filter @simplyfpl/{package} lint
 
 ### Diff-grep before every code-touching push
 
-Local `pnpm lint` is unreliable on Pete's machine (issue #157 — OOM/hang on prettier-plugin-sort-imports), so violations have slipped past pre-commit and been caught by CI several times. Until #157 is fixed, every push that adds or modifies source code must grep its own diff for the patterns CLAUDE.md forbids:
+Local `pnpm lint` is unreliable on Pete's machine (issue #157 — OOM/hang on prettier-plugin-sort-imports), so violations have slipped past pre-commit and been caught by CI several times. Until #157 is fixed, every push that adds or modifies source code must grep its own diff for the forbidden patterns:
 
 ```
 git diff origin/<base>..HEAD -- 'apps/' 'packages/' 'tests/' | \
