@@ -4,6 +4,7 @@ import { liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
+  computeDefConProgress,
   computeRankDetails,
   getClubColor,
   getKitUrl,
@@ -42,8 +43,15 @@ import { StadiumGradient } from '@/components/stadium-gradient';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { useLiveRankEstimate } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, setLiveLastUpdate } = liveRank;
 const { computeLiveBattle } = liveBattle;
+
+function formatLiveAgo(ms: number | null): string {
+  if (ms === null || ms < 5_000) return 'just now';
+  if (ms < 60_000) return `${Math.floor(ms / 1000)}s ago`;
+  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
+  return `${Math.floor(ms / 3_600_000)}h ago`;
+}
 
 const POSITION: Record<number, ShirtKind> = { 1: 'gk', 2: 'def', 3: 'mid', 4: 'fwd' };
 
@@ -236,11 +244,16 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const entry = snapshot?.entry;
   const picks = snapshot?.picks;
   const currentGw = snapshot?.gw ?? null;
-  const { data: liveGw } = useLiveGameweek(currentGw);
+  const { data: liveGw, dataUpdatedAt: liveGwUpdatedAt } = useLiveGameweek(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
   const aggregates = useCohortAggregates(currentGw);
   const { estimate } = useLiveRankEstimate(entryId);
+  const agoMs = useLiveAgoMs();
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
+
+  useEffect(() => {
+    if (liveGwUpdatedAt) setLiveLastUpdate(liveGwUpdatedAt);
+  }, [liveGwUpdatedAt]);
 
   if (isError) {
     return (
@@ -343,6 +356,22 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const overallAvg = aggregates?.tiers.overall?.avg_event_points;
   const legendaryAvg = aggregates?.tiers.legendary?.avg_event_points;
 
+  const defconGwPoints =
+    ready && picks && bootstrap && liveGw
+      ? picks.picks
+          .filter((p) => p.position <= 11)
+          .reduce((sum, p) => {
+            const player = bootstrap.elements.find((e) => e.id === p.element);
+            const live = liveGw.elements.find((e) => e.id === p.element);
+            if (!player || !live) return sum;
+            const progress = computeDefConProgress(player.element_type, {
+              clearances_blocks_interceptions: live.stats.clearances_blocks_interceptions,
+              tackles: live.stats.tackles,
+            });
+            return sum + (progress.awarded ? 2 : 0);
+          }, 0)
+      : 0;
+
   let gwSub = 'live points';
   if (ready && autosubsApply) {
     gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
@@ -411,6 +440,17 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
       sub: captainSub,
       tone: 'negative',
     },
+    ...(ready && defconGwPoints > 0
+      ? [
+          {
+            label: 'DefCon',
+            value: String(defconGwPoints),
+            tick: defconGwPoints,
+            sub: 'def contribution pts',
+            tone: 'positive' as const,
+          },
+        ]
+      : []),
   ];
 
   const cohortRows: CohortTableRow[] =
@@ -557,7 +597,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
         <XStack alignItems="center" gap={10} marginTop={12}>
           <RefreshBar paused={isLoading} />
           <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
-            {isLoading ? 'loading…' : 'refreshes every 60s'}
+            {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
           </Text>
         </XStack>
       </StadiumGradient>
