@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual run, for the one case a PR cannot cover. `wrangler versions upload`
+  # refuses to run against a Worker that does not exist, and only a deploy
+  # creates one — but a PR always takes the upload path, so a brand-new Worker
+  # can never be created from a PR. Dispatching on the branch takes the deploy
+  # path and creates it. The API-worker job stays skipped; it requires a push.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
