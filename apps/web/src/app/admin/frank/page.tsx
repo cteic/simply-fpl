@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-
 const FRANK_ADMIN_EMAILS = (process.env['FRANK_ADMIN_EMAILS'] ?? '')
   .split(',')
   .map((e) => e.trim())
