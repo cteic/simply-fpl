@@ -2,8 +2,10 @@ import { Suspense } from 'react';
 
 import type { Metadata } from 'next';
 
+import { JsonLd } from '@/components/json-ld';
 import { HomeChooser } from '@/components/views/home-chooser';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/site-url';
+import { buildWebApplicationSchema } from '@/lib/structured-data';
 
 const TITLE = 'SimplyFPL — Live FPL Rank & Mini-League Tracker';
 
@@ -17,8 +19,11 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <Suspense>
-      <HomeChooser />
-    </Suspense>
+    <>
+      <JsonLd nodes={[buildWebApplicationSchema()]} />
+      <Suspense>
+        <HomeChooser />
+      </Suspense>
+    </>
   );
 }
