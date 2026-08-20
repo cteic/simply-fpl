@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
+import { JsonLd } from '@/components/json-ld';
 import { PlannerView } from '@/components/views/planner-view';
 import { FEATURE_PLANNER } from '@/lib/feature-flags';
+import { buildBreadcrumbSchema } from '@/lib/structured-data';
 
 const TITLE = 'Transfer Planner';
 const DESCRIPTION =
@@ -18,5 +20,17 @@ export const metadata: Metadata = {
 
 export default function PlannerPage() {
   if (!FEATURE_PLANNER) redirect('/');
-  return <PlannerView />;
+  return (
+    <>
+      <JsonLd
+        nodes={[
+          buildBreadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: TITLE, path: '/planner' },
+          ]),
+        ]}
+      />
+      <PlannerView />
+    </>
+  );
 }

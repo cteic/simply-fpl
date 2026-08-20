@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 
+import { JsonLd } from '@/components/json-ld';
 import { LeaguesShowcase } from '@/components/views/leagues-showcase';
+import { buildBreadcrumbSchema } from '@/lib/structured-data';
 
 const TITLE = 'My Leagues';
 const DESCRIPTION =
@@ -15,5 +17,17 @@ export const metadata: Metadata = {
 };
 
 export default function LeaguesPage() {
-  return <LeaguesShowcase />;
+  return (
+    <>
+      <JsonLd
+        nodes={[
+          buildBreadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: TITLE, path: '/leagues' },
+          ]),
+        ]}
+      />
+      <LeaguesShowcase />
+    </>
+  );
 }
