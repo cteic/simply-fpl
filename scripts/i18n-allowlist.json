@@ -1,4 +1,5 @@
 [
   { "file": "live-rank-real-view.tsx", "text": "p.position" },
-  { "file": "rivals-view.tsx", "text": "s.rank" }
+  { "file": "rivals-view.tsx", "text": "s.rank" },
+  { "file": "webmcp-registration.tsx", "text": "): Promise" }
 ]
