@@ -39,6 +39,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Workflow timeouts
+        run: node scripts/check-workflow-timeouts.mjs
       - run: pnpm format:check
       - run: pnpm lint
       - name: PostHog PII check
