@@ -45,6 +45,8 @@ export { predictBonusPoints } from './bonus-points';
 export type { BonusPrediction } from './bonus-points';
 export { applyAutosubs } from './autosubs';
 export { collateTeamNews, filterNewsForPicks, hasPlayerNews } from './news';
+export { deriveScoutEvents } from './scout-events';
+export type { DeriveScoutEventsOptions } from './scout-events';
 export { simulateWhatIf } from './what-if-simulator';
 export type { WhatIfResult, WhatIfSwap, WhatIfSwapType } from './what-if-simulator';
 export {
