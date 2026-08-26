@@ -24,4 +24,14 @@ describe('buildNavLinks', () => {
       'Planner',
     ]);
   });
+
+  it('shows Scout only when its flag is on', () => {
+    expect(labels({ hasEntry: false, prices: false, planner: false })).not.toContain('Scout');
+    expect(labels({ hasEntry: true, prices: true, planner: true, scout: true })).toEqual([
+      'Leagues',
+      'Prices',
+      'Planner',
+      'Scout',
+    ]);
+  });
 });
