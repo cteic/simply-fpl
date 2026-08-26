@@ -1,5 +1,6 @@
 import { formatPrice } from '@simplyfpl/fpl-client';
-import { t } from '@simplyfpl/i18n';
+import type { SupportedLocale, TranslationKey } from '@simplyfpl/i18n';
+import { DEFAULT_LOCALE, formatNumber, t } from '@simplyfpl/i18n';
 import type { ScoutEvent } from '@simplyfpl/types';
 import type { ScoutEventTone } from '@simplyfpl/ui';
 
@@ -11,12 +12,16 @@ export interface ScoutRowModel {
   meta: string;
 }
 
-function formatNet(net: number): string {
-  const formatted = Math.abs(net).toLocaleString('en-GB');
+function formatNet(net: number, locale: SupportedLocale): string {
+  const formatted = formatNumber(Math.abs(net), locale);
   return net < 0 ? `−${formatted}` : `+${formatted}`;
 }
 
-export function buildScoutRow(event: ScoutEvent): ScoutRowModel {
+export function buildScoutRow(
+  event: ScoutEvent,
+  locale: SupportedLocale = DEFAULT_LOCALE
+): ScoutRowModel {
+  const tr = (key: TranslationKey, vars?: Record<string, string | number>) => t(key, vars, locale);
   const player = event.player.webName;
   const base = `${event.player.teamShortName} · ${formatPrice(event.player.nowCost)}`;
 
@@ -26,34 +31,34 @@ export function buildScoutRow(event: ScoutEvent): ScoutRowModel {
       id: event.id,
       tone: event.severity,
       chipLabel:
-        event.kind === 'price_fall' ? t('scout.chip_price_fall') : t('scout.chip_price_rise'),
+        event.kind === 'price_fall' ? tr('scout.chip_price_fall') : tr('scout.chip_price_rise'),
       title:
         event.kind === 'price_fall'
-          ? t('scout.event_price_fall_title', { player })
-          : t('scout.event_price_rise_title', { player }),
-      meta: `${base} · ${t('scout.meta_probability', {
+          ? tr('scout.event_price_fall_title', { player })
+          : tr('scout.event_price_rise_title', { player }),
+      meta: `${base} · ${tr('scout.meta_probability', {
         probability,
-        net: formatNet(event.netTransfers ?? 0),
+        net: formatNet(event.netTransfers ?? 0, locale),
       })}`,
     };
   }
 
   const chipByKind = {
-    injury: t('scout.chip_injury'),
-    doubt: t('scout.chip_doubt'),
-    suspension: t('scout.chip_suspension'),
-    unavailable: t('scout.chip_unavailable'),
-  } as const;
+    injury: tr('scout.chip_injury'),
+    doubt: tr('scout.chip_doubt'),
+    suspension: tr('scout.chip_suspension'),
+    unavailable: tr('scout.chip_unavailable'),
+  };
   const titleByKind = {
-    injury: t('scout.event_injury_title', { player }),
-    doubt: t('scout.event_doubt_title', { player }),
-    suspension: t('scout.event_suspension_title', { player }),
-    unavailable: t('scout.event_unavailable_title', { player }),
-  } as const;
+    injury: tr('scout.event_injury_title', { player }),
+    doubt: tr('scout.event_doubt_title', { player }),
+    suspension: tr('scout.event_suspension_title', { player }),
+    unavailable: tr('scout.event_unavailable_title', { player }),
+  };
 
   const metaParts = [base];
   if (event.chanceOfPlaying !== null) {
-    metaParts.push(t('scout.meta_chance', { chance: event.chanceOfPlaying }));
+    metaParts.push(tr('scout.meta_chance', { chance: event.chanceOfPlaying }));
   }
   if (event.news !== null) {
     metaParts.push(event.news);
@@ -68,6 +73,9 @@ export function buildScoutRow(event: ScoutEvent): ScoutRowModel {
   };
 }
 
-export function buildScoutRows(events: ScoutEvent[]): ScoutRowModel[] {
-  return events.map(buildScoutRow);
+export function buildScoutRows(
+  events: ScoutEvent[],
+  locale: SupportedLocale = DEFAULT_LOCALE
+): ScoutRowModel[] {
+  return events.map((event) => buildScoutRow(event, locale));
 }

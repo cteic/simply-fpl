@@ -24,3 +24,8 @@ Feature: Scout inbox view
     Given a price rise scout event for Gordon
     When the row model is built
     Then the row has tone "good" and the price rise chip
+
+  Scenario: Rows are built in the active locale
+    Given an injury scout event for Isak and the French locale is active
+    When the row model is built for that locale
+    Then the title and chip are in French

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 
 import { deriveScoutEvents, getCurrentGameweek } from '@simplyfpl/fpl-client';
-import { t } from '@simplyfpl/i18n';
+import { useTranslation } from '@simplyfpl/i18n';
 import {
   Card,
   FNote,
@@ -22,6 +22,7 @@ import type { ScoutRowModel } from './scout-rows';
 import { buildScoutRows } from './scout-rows';
 
 export function ScoutView() {
+  const { t, locale } = useTranslation();
   const entryId = useSavedEntryId();
   const { data: bootstrap, isLoading: bootstrapLoading } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
@@ -33,10 +34,13 @@ export function ScoutView() {
   const rows = useMemo<ScoutRowModel[]>(() => {
     if (!bootstrap || !picks) return [];
     const pickIds = new Set(picks.picks.map((p) => p.element));
-    return buildScoutRows(deriveScoutEvents(bootstrap, pickIds));
-  }, [bootstrap, picks]);
+    return buildScoutRows(deriveScoutEvents(bootstrap, pickIds), locale);
+  }, [bootstrap, picks, locale]);
 
-  const meta = currentGw !== null ? t('scout.meta', { gw: currentGw }) : t('scout.meta_no_team');
+  const meta =
+    entryId !== null && currentGw !== null
+      ? t('scout.meta', { gw: currentGw })
+      : t('scout.meta_no_team');
   const isLoading = bootstrapLoading || (entryId !== null && picksLoading);
 
   return (

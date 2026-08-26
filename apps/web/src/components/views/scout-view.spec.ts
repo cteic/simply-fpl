@@ -1,6 +1,7 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
+import { loadLocale } from '@simplyfpl/i18n';
 import type { ScoutEvent } from '@simplyfpl/types';
 
 import type { ScoutRowModel } from './scout-rows';
@@ -123,6 +124,22 @@ describeFeature(feature, ({ Scenario }) => {
     Then('the row has tone "good" and the price rise chip', () => {
       expect(row.tone).toBe('good');
       expect(row.chipLabel).toBe('Price rise');
+    });
+  });
+
+  Scenario('Rows are built in the active locale', ({ Given, When, Then }) => {
+    Given('an injury scout event for Isak and the French locale is active', async () => {
+      event = makeEvent({ news: 'Ankle injury' });
+      await loadLocale('fr');
+    });
+
+    When('the row model is built for that locale', () => {
+      row = buildScoutRow(event, 'fr');
+    });
+
+    Then('the title and chip are in French', () => {
+      expect(row.title).toBe('Isak est blessé');
+      expect(row.chipLabel).toBe('Blessure');
     });
   });
 });
