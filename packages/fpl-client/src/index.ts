@@ -47,6 +47,15 @@ export { applyAutosubs } from './autosubs';
 export { collateTeamNews, filterNewsForPicks, hasPlayerNews } from './news';
 export { deriveScoutEvents } from './scout-events';
 export type { DeriveScoutEventsOptions } from './scout-events';
+export { buildDeadlineBrief } from './deadline-brief';
+export type { DeadlineBrief } from './deadline-brief';
+export { buildLeaguePress } from './league-press';
+export type {
+  BuildLeaguePressOptions,
+  LeaguePress,
+  LeaguePressStanding,
+  PressTeamRef,
+} from './league-press';
 export { simulateWhatIf } from './what-if-simulator';
 export type { WhatIfResult, WhatIfSwap, WhatIfSwapType } from './what-if-simulator';
 export {
