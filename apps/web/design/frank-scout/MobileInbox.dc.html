@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F7F7F5;--surface:#FFFFFF;--border:#E9E8E4;--border2:#D5D4CF;
+      --t1:#1A1A18;--t2:#6B6B63;--t3:#A8A8A0;
+      --green:#16A34A;--gbg:#F0FDF4;--gmid:#DCFCE7;
+      --red:#DC2626;--rbg:#FEF2F2;
+      --amber:#D97706;--abg:#FFFBEB;
+      --blue:#2563EB;--bbg:#EFF6FF;
+      --brand:#0F766E;--brandHover:#115E59;--brandBg:#F0FDFA;
+      --r:10px;--rs:6px;
+      --sh:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);
+    }
+    html{font-size:15px}
+    body{font-family:'DM Sans',sans-serif;background:#F7F7F5;color:#1A1A18;-webkit-font-smoothing:antialiased}
+    a{color:#0F766E}a:hover{color:#115E59}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+    .mhead{padding:18px 16px 12px;flex-shrink:0}
+    .mtitle{font-size:1.3rem;font-weight:600;letter-spacing:-.035em;display:flex;align-items:center;gap:9px}
+    .navbadge{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:500;background:var(--brand);color:#fff;border-radius:20px;padding:1px 7px;line-height:1.6}
+    .msub{font-size:.73rem;color:var(--t2);margin-top:3px}
+    .list{flex:1;overflow-y:auto;padding:0 14px 14px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+    .msgrow{display:flex;gap:10px;padding:13px 13px;border-bottom:1px solid var(--border);cursor:pointer;background:var(--surface)}
+    .msgrow:last-child{border-bottom:none}
+    .msg-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);margin-top:7px;flex-shrink:0;opacity:0}
+    .msgrow.unread .msg-dot{opacity:1}
+    .msg-main{min-width:0;flex:1}
+    .msg-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .msg-time{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--t3)}
+    .msg-title{font-size:.78rem;font-weight:500;letter-spacing:-.015em;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .msgrow.unread .msg-title{font-weight:600}
+    .msg-prev{font-size:.69rem;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kchip{font-size:.56rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:3px}
+    .k-red{color:var(--red);background:var(--rbg)}
+    .k-amber{color:var(--amber);background:var(--abg)}
+    .k-blue{color:var(--blue);background:var(--bbg)}
+    .k-green{color:var(--green);background:var(--gbg)}
+    .k-teal{color:var(--brand);background:var(--brandBg)}
+    .tabbar{display:flex;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;padding:6px 4px 10px}
+    .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--t3);font-size:.58rem;font-weight:500;letter-spacing:-.01em;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;position:relative}
+    .tab.on{color:var(--brand)}
+    .tabbadge{position:absolute;top:2px;right:24%;font-family:'DM Mono',monospace;font-size:.55rem;background:var(--brand);color:#fff;border-radius:20px;padding:0 5px;line-height:1.6}
+    .detail{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.16,1,.3,1);z-index:10}
+    .detail.open{transform:translateX(0)}
+    .dbar{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;flex-shrink:0}
+    .backbtn{display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;color:var(--brand);border:none;background:none;cursor:pointer;padding:4px 6px 4px 0}
+    .dscroll{flex:1;overflow-y:auto;padding:0 14px 20px}
+    .dethead{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid var(--border)}
+    .favatar{width:32px;height:32px;border-radius:50%;background:var(--brand);color:#fff;font-family:'DM Mono',monospace;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .detwho{font-size:.8rem;font-weight:600;letter-spacing:-.02em}
+    .detrole{font-weight:400;color:var(--t3)}
+    .dettime{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--t3);margin-top:1px}
+    .detbody{padding:15px 14px}
+    .dettitle{font-size:.95rem;font-weight:600;letter-spacing:-.025em;line-height:1.35;margin-bottom:8px}
+    .dettext{font-size:.78rem;color:var(--t2);line-height:1.6}
+    .statgrid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-top:13px}
+    .statcell{background:var(--surface);padding:9px 10px}
+    .slabel{font-size:.55rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:4px}
+    .sval2{font-family:'DM Mono',monospace;font-size:.82rem;letter-spacing:-.02em}
+    .actcol{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;letter-spacing:-.01em;padding:11px 14px;border-radius:var(--rs);cursor:pointer;border:none;white-space:nowrap;min-height:44px}
+    .btn-p{background:var(--t1);color:#fff}
+    .btn-g{background:transparent;color:var(--t2);border:1px solid var(--border2)}
+    .ack{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:11px 12px;background:var(--brandBg);border:1px solid #CCFBF1;border-radius:var(--rs);font-size:.74rem;color:var(--brandHover);line-height:1.5}
+    .ackF{width:18px;height:18px;border-radius:50%;background:var(--brand);color:#fff;font-family:'DM Mono',monospace;font-size:.52rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; background: #F7F7F5; overflow: hidden; position: relative">
+  <div class="mhead">
+    <div class="mtitle">Scout
+      <sc-if value="{{hasUnread}}" hint-placeholder-val="{{ true }}"><span class="navbadge">{{unread}}</span></sc-if>
+    </div>
+    <div class="msub">Frank&#39;s reports · Gameweek 16</div>
+  </div>
+
+  <div class="list">
+    <div class="card">
+      <sc-for list="{{list}}" as="m" hint-placeholder-count="6">
+        <div class="msgrow{{m.cls}}" onClick="{{m.open}}">
+          <div class="msg-dot"></div>
+          <div class="msg-main">
+            <div class="msg-top"><span class="kchip {{m.chipCls}}">{{m.chip}}</span><span class="msg-time">{{m.time}}</span></div>
+            <div class="msg-title">{{m.title}}</div>
+            <div class="msg-prev">{{m.preview}}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 15l4-5 3 3 4-6 3 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      Rank
+    </button>
+    <button class="tab">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 3h8v5a4 4 0 01-8 0V3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M6 5H3.5a2.5 2.5 0 002.5 4M14 5h2.5A2.5 2.5 0 0114 9M10 12v3m-3 2h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+      Leagues
+    </button>
+    <button class="tab on">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"></rect><path d="M3 7l7 4 7-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      Scout
+      <sc-if value="{{hasUnread}}" hint-placeholder-val="{{ true }}"><span class="tabbadge">{{unread}}</span></sc-if>
+    </button>
+    <button class="tab">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3.5 9.5l6-6H16v6.5l-6 6a1.5 1.5 0 01-2.1 0l-4.4-4.4a1.5 1.5 0 010-2.1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="13" cy="7" r="1.2" fill="currentColor"></circle></svg>
+      Prices
+    </button>
+    <button class="tab">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.5"></rect><rect x="11" y="3" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.5"></rect><rect x="3" y="11" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.5"></rect><rect x="11" y="11" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.5"></rect></svg>
+      Planner
+    </button>
+  </div>
+
+  <div class="detail{{openCls}}">
+    <div class="dbar">
+      <button class="backbtn" onClick="{{close}}">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M6.5 1.5L3 5l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        Inbox
+      </button>
+    </div>
+    <div class="dscroll">
+      <div class="card">
+        <div class="dethead">
+          <div class="favatar">F.</div>
+          <div>
+            <div class="detwho">Frank <span class="detrole">· Scout report</span></div>
+            <div class="dettime">{{det.time}} · Gameweek 16</div>
+          </div>
+        </div>
+        <div class="detbody">
+          <span class="kchip {{det.chipCls}}">{{det.chip}}</span>
+          <div class="dettitle" style="margin-top: 8px">{{det.title}}</div>
+          <div class="dettext">{{det.body}}</div>
+          <div class="statgrid">
+            <sc-for list="{{det.stats}}" as="s" hint-placeholder-count="3">
+              <div class="statcell"><div class="slabel">{{s.k}}</div><div class="sval2">{{s.v}}</div></div>
+            </sc-for>
+          </div>
+          <div class="actcol">
+            <button class="btn btn-p" onClick="{{det.onAct}}">{{det.act}}</button>
+            <button class="btn btn-g" onClick="{{det.onAlt}}">{{det.alt}}</button>
+          </div>
+          <sc-if value="{{det.showAck}}" hint-placeholder-val="{{ false }}">
+            <div class="ack"><span class="ackF">F.</span><span>{{det.ack}}</span></div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"tone":{"editor":"enum","default":"gaffer","options":["gaffer","dry"],"section":"Open decisions"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { openId: null, read: ['deadline', 'rank', 'tip'], acked: {} };
+  }
+
+  msgs(g) {
+    return [
+      {
+        id: 'injury', chip: 'Injury', chipCls: 'k-red', time: '08:12',
+        title: g ? "Bad news, gaffer — Isak's picked up a knock" : 'Injury: Isak (ankle) — 50% for GW16',
+        preview: g ? 'Turned an ankle in training. Howe says 50/50…' : 'Flagged at 50%. He is in your starting XI.',
+        body: g ? 'Physio room\'s busy this morning, boss. Isak turned an ankle in Thursday training and Howe is calling him "50/50 at best" for Saturday. He\'s your second-top scorer — I\'d have a replacement shortlisted before the price sharks smell blood.' : 'Isak (NEW, £9.4m) was flagged at 50% after an ankle injury in Thursday training. Expected absence: 1–2 weeks. He is in your GW16 starting XI. Net transfers today: −118,402.',
+        act: g ? 'Plan a replacement' : 'View replacements',
+        alt: g ? 'Wait for the presser' : 'Dismiss',
+        ack: g ? "Good call, gaffer. I've shortlisted three — they're in your planner." : 'Noted. Replacement shortlist added to your planner.',
+        stats: [['Playing', '50%'], ['Transfers', '−118k'], ['Owned', '41.2%']]
+      },
+      {
+        id: 'price', chip: 'Price', chipCls: 'k-amber', time: '07:40',
+        title: g ? "Mbeumo's about to be marked down" : 'Price fall: Mbeumo −£0.1m (87%)',
+        preview: g ? '87% he drops tonight. Sell today or ride it out…' : 'Fall probability 87% at tonight\'s change.',
+        body: g ? "Word from the market desk: Mbeumo's shedding owners fast — 87% he falls £0.1m tonight. You own him, and he's benched this week anyway. Sell before midnight and you keep the value." : 'Mbeumo (BRE, £7.8m): 87% predicted probability of a −£0.1m fall tonight, driven by −96,113 net transfers. He is on your bench for GW16.',
+        act: g ? 'Review the sale' : 'Review transfer',
+        alt: g ? 'Hold — he stays' : 'Dismiss',
+        ack: g ? "Understood, gaffer. I'll confirm once the prices land." : 'Noted. Price watch set for 00:30.',
+        stats: [['Fall prob.', '87%'], ['Transfers', '−96k'], ['Lands', '00:30']]
+      },
+      {
+        id: 'afcon', chip: 'AFCON', chipCls: 'k-blue', time: 'Yest.',
+        title: g ? "AFCON's coming for your captain" : 'AFCON: Salah out GW18–21',
+        preview: g ? 'Egypt name their squad Friday. Salah goes after GW17…' : 'Egypt squad announced Friday. Four GWs missed.',
+        body: g ? "Heads up, boss — Egypt name their AFCON squad Friday, and Salah's on the plane after GW17. Four gameweeks without your captain over Christmas. Half the league will panic-sell late; the smart money restructures early." : 'Salah (LIV, £13.1m) is expected in Egypt\'s AFCON squad, announced Friday. Projected absence: GW18–21 inclusive. He has been your captain in 9 of the last 10 gameweeks.',
+        act: g ? 'Plan the restructure' : 'Plan transfers',
+        alt: 'Remind me at GW17',
+        ack: g ? "That's the spirit. I'll draft two exit routes tonight." : 'Reminder set for the GW17 deadline.',
+        stats: [['GWs missed', '4'], ['Named', 'Fri'], ['Captained', '9/10']]
+      },
+      {
+        id: 'deadline', chip: 'Deadline', chipCls: 'k-amber', time: 'Yest.',
+        title: g ? 'Two free transfers, burning a hole' : '2 FTs unused — deadline Sat 11:00',
+        preview: g ? "Deadline's Saturday and you've not moved all week…" : '2 FTs and £1.6m in the bank. Two open issues.',
+        body: g ? "It's Thursday, gaffer, and you've still got two free transfers and £1.6m in the bank. With Isak doubtful and Mbeumo falling tonight, this isn't the week to sit on your hands. Deadline's Saturday, 11:00 sharp." : 'You have 2 free transfers and £1.6m in the bank ahead of the GW16 deadline (Saturday 11:00 GMT). Open issues: Isak (flagged 50%), Mbeumo (predicted fall).',
+        act: g ? 'Open deadline day' : 'Open deadline view',
+        alt: g ? "I know what I'm doing" : 'Dismiss',
+        ack: g ? "Fair enough — your call, boss." : 'Dismissed. Next reminder: Friday 18:00.',
+        stats: [['Free transfers', '2'], ['In the bank', '£1.6m'], ['Deadline', 'Sat 11:00']]
+      },
+      {
+        id: 'rank', chip: 'Rank', chipCls: 'k-green', time: 'Mon',
+        title: g ? 'Some weekend — up 42,000 places' : 'GW15: +42,310 to 184,203',
+        preview: g ? 'Best green arrow since GW4. The board are purring…' : '67 pts vs average 54. Palmer (C) returned 22.',
+        body: g ? "Fine work, gaffer. 67 points and your best climb since GW4 — up 42,310 places to 184,203. The Palmer captaincy did the heavy lifting. The board are purring." : 'GW15 closed at 67 points against an average of 54. Overall rank improved 42,310 places to 184,203 — your largest gain since GW4. Captain (Palmer) returned 22 points.',
+        act: g ? 'See the rank replay' : 'View rank replay',
+        alt: g ? 'Cheers, Frank' : 'Dismiss',
+        ack: g ? 'Enjoy it. Mondays like this are why we do the job.' : 'Replay opened.',
+        stats: [['GW points', '67'], ['Average', '54'], ['Rank', '184,203']]
+      },
+      {
+        id: 'tip', chip: 'Scout tip', chipCls: 'k-teal', time: 'Sun',
+        title: g ? "A little bird says Gordon's one to watch" : 'Differential: Gordon — 3.1% owned',
+        preview: g ? 'On pens, four kind fixtures, 3.1% owned…' : 'xGI 0.61/90. Next four fixtures avg FDR 2.2.',
+        body: g ? "Between us, gaffer — Gordon's numbers have gone quiet-good: on penalties since November, four kind fixtures ahead, 3.1% owned. The sort of differential that wins mini-leagues." : 'Gordon (NEW, £7.2m): xGI 0.61 per 90 across six gameweeks, penalty duty confirmed, next four fixtures average FDR 2.2. Ownership: 3.1%.',
+        act: 'Add to watchlist',
+        alt: g ? 'Not for us' : 'Dismiss',
+        ack: g ? "On the watchlist. I'll nudge you if his price stirs." : 'Added to watchlist.',
+        stats: [['Owned', '3.1%'], ['xGI /90', '0.61'], ['Next 4 FDR', '2.2']]
+      }
+    ];
+  }
+
+  renderVals() {
+    const g = this.props.tone !== 'dry';
+    const all = this.msgs(g);
+    const read = this.state.read;
+    const openId = this.state.openId;
+    const unread = all.filter((m) => read.indexOf(m.id) === -1).length;
+
+    const list = all.map((m) => ({
+      title: m.title, preview: m.preview, time: m.time,
+      chip: m.chip, chipCls: m.chipCls,
+      cls: read.indexOf(m.id) === -1 ? ' unread' : '',
+      open: () => {
+        const r = read.indexOf(m.id) === -1 ? read.concat(m.id) : read;
+        this.setState({ openId: m.id, read: r });
+      }
+    }));
+
+    const m = all.filter((x) => x.id === openId)[0] || all[0];
+    const markAcked = () => {
+      const a = {};
+      for (const k in this.state.acked) { a[k] = this.state.acked[k]; }
+      a[m.id] = true;
+      this.setState({ acked: a });
+    };
+    const det = {
+      title: m.title, body: m.body, time: m.time, chip: m.chip, chipCls: m.chipCls,
+      stats: m.stats.map((s) => ({ k: s[0], v: s[1] })),
+      act: m.act, alt: m.alt, ack: m.ack,
+      showAck: this.state.acked[m.id] === true,
+      onAct: markAcked, onAlt: markAcked
+    };
+
+    return {
+      list: list,
+      det: det,
+      unread: unread,
+      hasUnread: unread > 0,
+      openCls: openId ? ' open' : '',
+      close: () => this.setState({ openId: null })
+    };
+  }
+}
+</script>
+</body>
+</html>
