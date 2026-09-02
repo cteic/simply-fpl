@@ -24,6 +24,9 @@ export function buildNavLinks({
   if (hasEntry) links.push({ label: 'Leagues', href: '/leagues' });
   if (prices) links.push({ label: 'Prices', href: '/prices' });
   if (planner) links.push({ label: 'Planner', href: '/planner' });
-  if (scout) links.push({ label: 'Scout', href: '/scout' });
+  if (scout) {
+    links.push({ label: 'Scout', href: '/scout' });
+    links.push({ label: 'Deadline', href: '/deadline' });
+  }
   return links;
 }
