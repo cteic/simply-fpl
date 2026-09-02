@@ -157,7 +157,7 @@ export function PressView() {
                 >
                   {copied ? t('press.share_copied') : t('press.share_cta')}
                 </button>
-                {press.yourRank !== null ? (
+                {press.complete && press.yourRank !== null ? (
                   <Text fontFamily="$mono" fontSize={11} color="$colorSubtle">
                     {t('press.your_rank', { rank: press.yourRank, count: press.memberCount })}
                   </Text>

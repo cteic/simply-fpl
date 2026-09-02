@@ -53,15 +53,17 @@ export function buildPressModel(
     });
   }
 
-  stories.push({
-    id: 'top-score',
-    tone: 'good',
-    chipLabel: tr('press.chip_top_score'),
-    text: tr('press.story_top_score', {
-      team: press.topScore.entryName,
-      points: press.topScore.eventTotal,
-    }),
-  });
+  if (press.topScore !== null) {
+    stories.push({
+      id: 'top-score',
+      tone: 'good',
+      chipLabel: tr('press.chip_top_score'),
+      text: tr('press.story_top_score', {
+        team: press.topScore.entryName,
+        points: press.topScore.eventTotal,
+      }),
+    });
+  }
 
   if (press.sackWatch !== null) {
     stories.push({
@@ -107,7 +109,14 @@ export function buildPressShareText(
   lines.push(model.headline);
   lines.push('');
   for (const row of press.standingsTop) {
-    lines.push(`${row.rank}. ${row.entryName} — ${row.total} (GW ${row.eventTotal})`);
+    lines.push(
+      tr('press.share_row', {
+        rank: row.rank,
+        team: row.entryName,
+        total: row.total,
+        gwPoints: row.eventTotal,
+      })
+    );
   }
   lines.push('');
   for (const story of model.stories) {

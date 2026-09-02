@@ -302,14 +302,14 @@
   "press.masthead": "快报",
   "press.issue_no": "第 {{gw}} 期",
   "press.byline": "Frank · 联赛记者",
-  "press.headline": "{{team}} 以 {{points}} 分的一周登顶 {{league}}",
+  "press.headline": "{{team}} 本周拿下 {{points}} 分，登顶 {{league}}",
   "press.lede_clear": "{{team}} 以 {{total}} 分领跑联赛。",
   "press.lede_chase": "{{team}} 以 {{total}} 分领跑联赛，领先 {{chaser}} {{gap}} 分。",
   "press.chip_rivalry": "对决周",
   "press.chip_top_score": "最高分",
   "press.chip_sack_watch": "下课警报",
   "press.chip_climb": "上升势头",
-  "press.story_rivalry": "榜首仅差 {{gap}} 分 — 下周 {{chaser}} 对 {{leader}} 就是德比。",
+  "press.story_rivalry": "{{chaser}} 与 {{leader}} 仅差 {{gap}} 分 — 下周将上演两队的德比。",
   "press.story_top_score": "本周最佳：{{team}}，{{points}} 分。",
   "press.story_sack_watch": "本周垫底：{{team}}，{{points}} 分。管理层正在关注。",
   "press.story_climb": "{{team}} 上升 {{places}} 位。",
@@ -321,5 +321,6 @@
   "press.review_heading": "{{league}} — GW{{gw}} 回顾",
   "press.empty": "该联赛暂无排名。",
   "press.error": "无法加载该联赛。",
-  "press.fnote": "快报每个游戏周根据您联赛的实时 FPL 数据撰写。"
+  "press.fnote": "快报每个游戏周根据您联赛的实时 FPL 数据撰写。",
+  "press.share_row": "{{rank}}. {{team}} — {{total}}（GW {{gwPoints}}）"
 }

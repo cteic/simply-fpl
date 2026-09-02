@@ -8,8 +8,9 @@ Mono, warm neutral, stadium teal).
 Each `.dc.html` file is one artboard; `canvas.json` lays them out. The files
 use a component-template dialect (`{{holes}}`, `<sc-for>`, `<sc-if>`, a logic
 class in `<script data-dc-script>`), so they don't open as plain HTML — read
-them as annotated design source. Sample data throughout; player names and
-prices are illustrative.
+them as annotated design source. The `./support.js` reference in each file is
+resolved by the canvas tool at render time and is intentionally not stored
+here. Sample data throughout; player names and prices are illustrative.
 
 | File                  | Screen                                                     |
 | --------------------- | ---------------------------------------------------------- |

@@ -302,7 +302,7 @@
   "press.masthead": "ガゼット",
   "press.issue_no": "第 {{gw}} 号",
   "press.byline": "フランク · リーグ特派員",
-  "press.headline": "{{team}} が {{points}} 点の週で {{league}} の首位に",
+  "press.headline": "{{team}} が今週 {{points}} 点を挙げ、{{league}} の首位に立ちました",
   "press.lede_clear": "{{team}} が {{total}} 点でリーグ首位です。",
   "press.lede_chase": "{{team}} が {{total}} 点で首位、{{chaser}} に {{gap}} 点差をつけています。",
   "press.chip_rivalry": "ライバル週間",
@@ -321,5 +321,6 @@
   "press.review_heading": "{{league}} — GW{{gw}} レビュー",
   "press.empty": "このリーグの順位表はまだありません。",
   "press.error": "このリーグを読み込めませんでした。",
-  "press.fnote": "ガゼットは毎ゲームウィーク、リーグのライブ FPL データから作成されます。"
+  "press.fnote": "ガゼットは毎ゲームウィーク、リーグのライブ FPL データから作成されます。",
+  "press.share_row": "{{rank}}. {{team}} — {{total}}（GW {{gwPoints}}）"
 }

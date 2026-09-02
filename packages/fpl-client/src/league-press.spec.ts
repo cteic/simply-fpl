@@ -23,7 +23,7 @@ function makeStanding(overrides: Partial<FplLeagueStanding> = {}): FplLeagueStan
   };
 }
 
-function makeLeague(results: FplLeagueStanding[]): FplLeague {
+function makeLeague(results: FplLeagueStanding[], hasNext = false): FplLeague {
   return {
     league: {
       id: 99,
@@ -33,7 +33,7 @@ function makeLeague(results: FplLeagueStanding[]): FplLeague {
       start_event: 1,
       league_type: 'c',
     },
-    standings: { has_next: false, page: 1, results },
+    standings: { has_next: hasNext, page: 1, results },
   };
 }
 
@@ -111,8 +111,8 @@ describeFeature(feature, ({ Scenario }) => {
     });
 
     Then('the top score names the best gameweek and sack watch names the worst', () => {
-      expect(press?.topScore.entryName).toBe('Saka Boom');
-      expect(press?.topScore.eventTotal).toBe(89);
+      expect(press?.topScore?.entryName).toBe('Saka Boom');
+      expect(press?.topScore?.eventTotal).toBe(89);
       expect(press?.sackWatch?.entryName).toBe('Palmer FC');
       expect(press?.sackWatch?.eventTotal).toBe(31);
     });
@@ -169,6 +169,31 @@ describeFeature(feature, ({ Scenario }) => {
 
     Then('your rank is 2', () => {
       expect(press?.yourRank).toBe(2);
+    });
+  });
+
+  Scenario('A paginated league suppresses week-wide beats', ({ Given, When, Then }) => {
+    Given('a league whose standings continue onto another page', () => {
+      league = makeLeague(
+        [
+          makeStanding({ id: 1, entry: 1, rank: 1, last_rank: 3, event_total: 80 }),
+          makeStanding({ id: 2, entry: 2, entry_name: 'Saka Boom', rank: 2, event_total: 20 }),
+          makeStanding({ id: 3, entry: 3, entry_name: 'Palmer FC', rank: 3, event_total: 50 }),
+        ],
+        true
+      );
+    });
+
+    When('buildLeaguePress is called', () => {
+      press = buildLeaguePress(league, null);
+    });
+
+    Then('top score, sack watch and biggest climb are absent', () => {
+      expect(press?.complete).toBe(false);
+      expect(press?.topScore).toBeNull();
+      expect(press?.sackWatch).toBeNull();
+      expect(press?.biggestClimb).toBeNull();
+      expect(press?.leader.entryName).toBe('GW King FC');
     });
   });
 

@@ -321,5 +321,6 @@
   "press.review_heading": "{{league}} — GW{{gw}} REVIEW",
   "press.empty": "No standings yet for this league.",
   "press.error": "Couldn't load this league.",
-  "press.fnote": "The Gazette is written from your league's live FPL data every gameweek."
+  "press.fnote": "The Gazette is written from your league's live FPL data every gameweek.",
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
 }
