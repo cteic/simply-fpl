@@ -321,5 +321,6 @@
   "press.review_heading": "{{league}} — RESUMEN GW{{gw}}",
   "press.empty": "Aún no hay clasificación para esta liga.",
   "press.error": "No se pudo cargar esta liga.",
-  "press.fnote": "La Gaceta se escribe cada gameweek con los datos FPL en vivo de tu liga."
+  "press.fnote": "La Gaceta se escribe cada gameweek con los datos FPL en vivo de tu liga.",
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
 }

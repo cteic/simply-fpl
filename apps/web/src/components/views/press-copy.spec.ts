@@ -12,6 +12,7 @@ function makePress(overrides: Partial<LeaguePress> = {}): LeaguePress {
   return {
     leagueName: 'The Gibbingtons',
     memberCount: 5,
+    complete: true,
     leader: {
       entryId: 1,
       entryName: 'GW King FC',
@@ -110,6 +111,7 @@ describeFeature(feature, ({ Scenario }) => {
       expect(shareText).toContain('THE GIBBINGTONS');
       expect(shareText).toContain('GW16');
       expect(shareText).toContain('1. GW King FC — 1000 (GW 71)');
+      expect(shareText).toContain('2. Saka Boom — 997 (GW 89)');
       expect(shareText).toContain('3. Palmer FC — 950 (GW 31)');
       expect(shareText).toContain('via simplyfpl.com');
     });

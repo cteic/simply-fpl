@@ -304,7 +304,7 @@
   "press.byline": "Frank · correspondant de la ligue",
   "press.headline": "{{team}} en tête de {{league}} après une semaine à {{points}} points",
   "press.lede_clear": "{{team}} mène la ligue avec {{total}} points.",
-  "press.lede_chase": "{{team}} mène la ligue avec {{total}} points, {{gap}} devant {{chaser}}.",
+  "press.lede_chase": "{{team}} mène la ligue avec {{total}} points, avec {{gap}} points d'avance sur {{chaser}}.",
   "press.chip_rivalry": "Semaine de rivalité",
   "press.chip_top_score": "Meilleur score",
   "press.chip_sack_watch": "Siège éjectable",
@@ -321,5 +321,6 @@
   "press.review_heading": "{{league}} — BILAN GW{{gw}}",
   "press.empty": "Pas encore de classement pour cette ligue.",
   "press.error": "Impossible de charger cette ligue.",
-  "press.fnote": "La Gazette est écrite chaque gameweek à partir des données FPL en direct de votre ligue."
+  "press.fnote": "La Gazette est écrite chaque gameweek à partir des données FPL en direct de votre ligue.",
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
 }

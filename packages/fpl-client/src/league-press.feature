@@ -38,6 +38,11 @@ Feature: League press derivation
     When buildLeaguePress is called for entry 42
     Then your rank is 2
 
+  Scenario: A paginated league suppresses week-wide beats
+    Given a league whose standings continue onto another page
+    When buildLeaguePress is called
+    Then top score, sack watch and biggest climb are absent
+
   Scenario: An empty standings page yields no press
     Given a league with no standings results
     When buildLeaguePress is called
