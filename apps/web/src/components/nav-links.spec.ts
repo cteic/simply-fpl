@@ -32,6 +32,7 @@ describe('buildNavLinks', () => {
       'Prices',
       'Planner',
       'Scout',
+      'Deadline',
     ]);
   });
 });
