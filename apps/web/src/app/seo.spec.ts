@@ -10,10 +10,13 @@ import { metadata as loginMetadata } from './login/page';
 import { metadata as homeMetadata } from './page';
 import { metadata as plannerMetadata } from './planner/page';
 import { metadata as pricesMetadata } from './prices/page';
+import { metadata as privacyMetadata } from './privacy/page';
 import { metadata as replayMetadata } from './replay/page';
 import { generateMetadata as rivalsMetadata } from './rivals/[leagueId]/page';
 import { metadata as settingsMetadata } from './settings/page';
 import sitemap, { SITEMAP_ROUTES } from './sitemap';
+import { metadata as supportMetadata } from './support/page';
+import { metadata as termsMetadata } from './terms/page';
 import { metadata as upgradeMetadata } from './upgrade/page';
 import { metadata as vsLivefplMetadata } from './vs-livefpl/page';
 
@@ -47,6 +50,9 @@ describe('per-page canonicals', () => {
     ['/login', String(loginMetadata.alternates?.canonical)],
     ['/settings', String(settingsMetadata.alternates?.canonical)],
     ['/upgrade', String(upgradeMetadata.alternates?.canonical)],
+    ['/privacy', String(privacyMetadata.alternates?.canonical)],
+    ['/terms', String(termsMetadata.alternates?.canonical)],
+    ['/support', String(supportMetadata.alternates?.canonical)],
   ];
 
   it.each(selfReferencing)('%s canonicalises to itself', (route, canonical) => {
@@ -93,6 +99,9 @@ describe('sitemap', () => {
         '/h2h',
         '/vs-livefpl',
         '/frank',
+        '/privacy',
+        '/terms',
+        '/support',
       ])
     );
   });
