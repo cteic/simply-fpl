@@ -261,5 +261,14 @@
   "live_rank.cohort_section_title": "分组对比",
   "live_rank.provisional_bonus_aria": "临时奖励分说明",
   "team_news.title": "球队新闻",
-  "team_news.all_available": "你的所有球员均可出场"
+  "team_news.all_available": "你的所有球员均可出场",
+  "footer.privacy": "隐私",
+  "footer.terms": "条款",
+  "footer.support": "支持",
+  "legal.privacy_title": "隐私政策",
+  "legal.terms_title": "服务条款",
+  "legal.support_title": "支持",
+  "legal.last_updated": "最后更新：{{date}}",
+  "support.section_contact": "联系我们",
+  "support.section_faq": "常见问题"
 }

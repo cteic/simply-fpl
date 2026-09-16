@@ -261,5 +261,14 @@
   "live_rank.cohort_section_title": "Сравнение когорт",
   "live_rank.provisional_bonus_aria": "Примечание о предварительном бонусе",
   "team_news.title": "Новости команд",
-  "team_news.all_available": "Все ваши игроки доступны"
+  "team_news.all_available": "Все ваши игроки доступны",
+  "footer.privacy": "Конфиденциальность",
+  "footer.terms": "Условия",
+  "footer.support": "Поддержка",
+  "legal.privacy_title": "Политика конфиденциальности",
+  "legal.terms_title": "Условия использования",
+  "legal.support_title": "Поддержка",
+  "legal.last_updated": "Последнее обновление: {{date}}",
+  "support.section_contact": "Контакты",
+  "support.section_faq": "Часто задаваемые вопросы"
 }
