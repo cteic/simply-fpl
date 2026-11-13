@@ -61,7 +61,7 @@ A Fantasy Premier League companion app that competes directly with [livefpl.net]
 | Service                 | Use                                          |
 | ----------------------- | -------------------------------------------- |
 | Cloudflare Workers + KV | FPL proxy, caching                           |
-| Cloudflare Pages        | Web app hosting (auto-deploy from GitHub)    |
+| Cloudflare Workers      | Web app hosting (auto-deploy from GitHub)    |
 | Supabase                | Auth (email + Google OAuth), Postgres DB     |
 | Stripe                  | Payments, subscription management            |
 | EAS Build               | Expo iOS + Android builds                    |
