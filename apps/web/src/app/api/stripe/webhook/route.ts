@@ -9,8 +9,6 @@ import { getStripeEnv } from '@/lib/env';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 
-export const runtime = 'edge';
-
 function tierFromPriceId(priceId: string, env: ReturnType<typeof getStripeEnv>): Tier | null {
   if (
     priceId === env.pricePROMonthly ||
