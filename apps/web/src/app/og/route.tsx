@@ -5,7 +5,7 @@ import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
 import { OG_SIZE } from './og-config';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 const SIZE = OG_SIZE;
 
@@ -18,9 +18,9 @@ const COLORS = {
   accent: '#0F766E',
 };
 
-const DM_MONO_URL = 'https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2';
+const DM_MONO_URL = 'https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzIYQ.ttf';
 const DM_SANS_URL =
-  'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAop0.woff2';
+  'https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTg.ttf';
 // TODO: bundle DM Mono + DM Sans as local woff2 assets to eliminate this runtime network dep
 const FONT_TIMEOUT_MS = 3000;
 
@@ -177,7 +177,7 @@ export async function GET(request: NextRequest) {
     {
       ...SIZE,
       headers: { 'Cache-Control': 'public, max-age=600, s-maxage=3600' },
-      fonts,
+      ...(fonts.length > 0 ? { fonts } : {}),
     }
   );
 }
