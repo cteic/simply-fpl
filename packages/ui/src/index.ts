@@ -28,6 +28,7 @@ export * from './components/fnote';
 export * from './components/input';
 export * from './components/league-card';
 export * from './components/league-table';
+export * from './components/legal-document';
 export * from './components/live-battle-panel';
 export * from './components/live-pill';
 export * from './components/live-rank-pill';
