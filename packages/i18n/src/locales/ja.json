@@ -261,5 +261,14 @@
   "live_rank.cohort_section_title": "コホート比較",
   "live_rank.provisional_bonus_aria": "暫定ボーナスの注記",
   "team_news.title": "チームニュース",
-  "team_news.all_available": "あなたの選手は全員出場可能です"
+  "team_news.all_available": "あなたの選手は全員出場可能です",
+  "footer.privacy": "プライバシー",
+  "footer.terms": "利用規約",
+  "footer.support": "サポート",
+  "legal.privacy_title": "プライバシーポリシー",
+  "legal.terms_title": "利用規約",
+  "legal.support_title": "サポート",
+  "legal.last_updated": "最終更新日: {{date}}",
+  "support.section_contact": "お問い合わせ",
+  "support.section_faq": "よくある質問"
 }

@@ -261,5 +261,14 @@
   "live_rank.cohort_section_title": "Kohortenvergleich",
   "live_rank.provisional_bonus_aria": "Hinweis zum vorläufigen Bonus",
   "team_news.title": "Team-News",
-  "team_news.all_available": "Alle deine Spieler sind verfügbar"
+  "team_news.all_available": "Alle deine Spieler sind verfügbar",
+  "footer.privacy": "Datenschutz",
+  "footer.terms": "Nutzungsbedingungen",
+  "footer.support": "Support",
+  "legal.privacy_title": "Datenschutzerklärung",
+  "legal.terms_title": "Nutzungsbedingungen",
+  "legal.support_title": "Support",
+  "legal.last_updated": "Zuletzt aktualisiert am {{date}}",
+  "support.section_contact": "Kontakt",
+  "support.section_faq": "Häufig gestellte Fragen"
 }
