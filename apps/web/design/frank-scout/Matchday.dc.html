@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F7F7F5;--surface:#FFFFFF;--border:#E9E8E4;--border2:#D5D4CF;
+      --t1:#1A1A18;--t2:#6B6B63;--t3:#A8A8A0;
+      --green:#16A34A;--gbg:#F0FDF4;--gmid:#DCFCE7;
+      --red:#DC2626;--rbg:#FEF2F2;
+      --amber:#D97706;--abg:#FFFBEB;
+      --blue:#2563EB;--bbg:#EFF6FF;
+      --brand:#0F766E;--brandHover:#115E59;--brandBg:#F0FDFA;
+      --r:10px;--rs:6px;
+      --sh:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);
+    }
+    html{font-size:15px}
+    body{font-family:'DM Sans',sans-serif;background:#F7F7F5;color:#1A1A18;-webkit-font-smoothing:antialiased}
+    a{color:#0F766E}a:hover{color:#115E59}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    .mnav{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px;border-bottom:1px solid var(--border);background:rgba(247,247,245,.92);flex-shrink:0}
+    .logo{display:flex;align-items:center;gap:8px;color:var(--t1);font-size:.86rem;font-weight:600;letter-spacing:-.025em}
+    .logomark{width:24px;height:24px;background:var(--t1);border-radius:6px;display:flex;align-items:center;justify-content:center}
+    .logomark svg{width:13px;height:13px}
+    .livepill{display:inline-flex;align-items:center;gap:5px;font-size:.65rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:3px 9px;border-radius:20px}
+    .ldot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulseDot 1.5s ease-in-out infinite}
+    .rankcard{margin:14px 14px 0;border-radius:var(--r);padding:20px 20px 18px;background:radial-gradient(140% 200% at 18% 0%, #1A8A6E 0%, #0F766E 34%, #0B4F49 68%, #082E2A 100%);color:#FFFFFF;box-shadow:var(--sh);flex-shrink:0}
+    .eyebrow{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#5EEAD4;margin-bottom:9px}
+    .rankval{font-family:'DM Mono',monospace;font-size:2.3rem;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+    .ranksub{display:flex;align-items:center;gap:8px;margin-top:9px}
+    .rdelta{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;font-weight:600;color:#34D399;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:4px;font-variant-numeric:tabular-nums}
+    .rmeta{font-size:.7rem;color:rgba(255,255,255,.72)}
+    .feedhead{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px;flex-shrink:0}
+    .stitle{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+    .feedlive{display:inline-flex;align-items:center;gap:5px;font-size:.62rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--green)}
+    .feed{flex:1;overflow-y:auto;padding:0 14px 18px}
+    .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+    .ev{display:flex;gap:10px;padding:11px 13px;border-bottom:1px solid var(--border);animation:slideIn .3s ease both}
+    .ev:last-child{border-bottom:none}
+    .evtime{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--t3);width:26px;flex-shrink:0;text-align:right;padding-top:2px}
+    .evmain{flex:1;min-width:0}
+    .kchip{display:inline-block;font-size:.56rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:3px;margin-bottom:4px}
+    .k-goal{color:var(--green);background:var(--gbg)}
+    .k-rank{color:var(--brand);background:var(--brandBg)}
+    .k-bonus{color:var(--amber);background:var(--abg)}
+    .k-rival{color:var(--red);background:var(--rbg)}
+    .k-sub{color:var(--blue);background:var(--bbg)}
+    .evtext{font-size:.76rem;line-height:1.5;letter-spacing:-.01em;color:var(--t1)}
+    .evpts{font-family:'DM Mono',monospace;font-weight:500}
+    .ev.frank{background:var(--brandBg)}
+    .favatar{width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;font-family:'DM Mono',monospace;font-size:.6rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .franktext{font-size:.76rem;line-height:1.5;letter-spacing:-.01em;color:var(--brandHover)}
+    .frankwho{font-size:.6rem;color:var(--t3);margin-top:2px}
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; background: #F7F7F5; overflow: hidden">
+  <div class="mnav">
+    <div class="logo">
+      <div class="logomark">
+        <svg viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="5" height="5" rx="1.3" fill="white"></rect>
+          <rect x="8" y="1" width="5" height="5" rx="1.3" fill="white" opacity=".4"></rect>
+          <rect x="1" y="8" width="5" height="5" rx="1.3" fill="white" opacity=".4"></rect>
+          <rect x="8" y="8" width="5" height="5" rx="1.3" fill="white"></rect>
+        </svg>
+      </div>
+      SimplyFPL
+    </div>
+    <div class="livepill"><div class="ldot"></div>GW16 Live</div>
+  </div>
+
+  <div class="rankcard">
+    <div class="eyebrow">Overall rank — live</div>
+    <div class="rankval">{{rank}}</div>
+    <div class="ranksub">
+      <span class="rdelta">↑ {{climb}}</span>
+      <span class="rmeta">today · {{pts}} pts · 2 to play</span>
+    </div>
+  </div>
+
+  <div class="feedhead">
+    <span class="stitle">Matchday feed</span>
+    <span class="feedlive"><span class="ldot"></span>Live</span>
+  </div>
+
+  <div class="feed">
+    <div class="fcard">
+      <sc-for list="{{events}}" as="e" hint-placeholder-count="4">
+        <sc-if value="{{e.isFrank}}" hint-placeholder-val="{{ false }}">
+          <div class="ev frank">
+            <div class="evtime">{{e.time}}</div>
+            <div class="favatar">F.</div>
+            <div class="evmain">
+              <div class="franktext">{{e.text}}</div>
+              <div class="frankwho">Frank · your scout</div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{e.isPlain}}" hint-placeholder-val="{{ true }}">
+          <div class="ev">
+            <div class="evtime">{{e.time}}</div>
+            <div class="evmain">
+              <span class="kchip {{e.chipCls}}">{{e.chip}}</span>
+              <div class="evtext">{{e.text}}</div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"tone":{"editor":"enum","default":"gaffer","options":["gaffer","dry"],"section":"Open decisions"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { shown: 4 };
+  }
+
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      if (this.state.shown < 10) {
+        this.setState({ shown: this.state.shown + 1 });
+      }
+    }, 3500);
+  }
+
+  componentWillUnmount() {
+    if (this.timer) { clearInterval(this.timer); }
+  }
+
+  script(g) {
+    return [
+      { time: "45'", chip: 'Goal', chipCls: 'k-goal', text: 'Palmer scores — CHE 1–0 BHA. +5 pts, he starts in your XI.', dRank: 3200 },
+      { time: "46'", frank: true, dRank: 0,
+        text: g ? 'Palmer again. Told you he was worth keeping, gaffer.' : 'Palmer: 8 pts live. Effective ownership 24% — net gain vs the field.' },
+      { time: "52'", chip: 'Rank', chipCls: 'k-rank', text: 'Up 3,200 places since kick-off — 181,003 overall.', dRank: 0 },
+      { time: "63'", chip: 'Bonus', chipCls: 'k-bonus', text: 'Palmer moves top of the BPS — 3pt bonus provisional.', dRank: 1400 },
+      { time: "71'", chip: 'Rival', chipCls: 'k-rival', text: 'Haaland scores — MCI 2–0. Saka Boom (2nd in your league) has the captaincy.', dRank: -900 },
+      { time: "72'", frank: true, dRank: 0,
+        text: g ? "Ah. Your rival's captain just scored. Look away now, gaffer." : 'Rival gain: Saka Boom +14 live. Your league lead is now 3 pts.' },
+      { time: "78'", chip: 'Rank', chipCls: 'k-rank', text: 'Climbing again — 179,903 overall.', dRank: 600 },
+      { time: "84'", frank: true, dRank: 0,
+        text: g ? "Isak's warming up on the touchline. Late cameo coming — stay by the phone." : 'Isak preparing to enter at NEW 1–0 CHE, 84 minutes.' },
+      { time: "88'", chip: 'Sub', chipCls: 'k-sub', text: 'Isak comes on for the final minutes — NEW 1–0 CHE.', dRank: 0 },
+      { time: 'FT', frank: true, dRank: 8100,
+        text: g ? "That'll do, gaffer. Up 12,400 on the day — the board are pleased. Same again Sunday." : 'Full time. Net today: +12,400 places. Live rank: 171,803.' }
+    ];
+  }
+
+  renderVals() {
+    const g = this.props.tone !== 'dry';
+    const all = this.script(g);
+    const shown = all.slice(0, this.state.shown);
+
+    const dayStart = 184203;
+    let rank = dayStart;
+    for (const e of shown) { rank = rank - e.dRank; }
+    const pts = 55 + shown.filter((e) => e.chip === 'Goal' || e.chip === 'Bonus').length * 4;
+
+    const events = shown.map((e) => ({
+      time: e.time, text: e.text,
+      chip: e.chip || '', chipCls: e.chipCls || '',
+      isFrank: e.frank === true,
+      isPlain: e.frank !== true
+    })).reverse();
+
+    return {
+      events: events,
+      rank: rank.toLocaleString('en-GB'),
+      climb: (dayStart - rank).toLocaleString('en-GB'),
+      pts: pts
+    };
+  }
+}
+</script>
+</body>
+</html>

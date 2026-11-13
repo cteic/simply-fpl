@@ -1,17 +1,73 @@
 import { describe, expect, it } from 'vitest';
 
-import { rootMetadata } from '@/lib/metadata';
+import { buildRootRobots, rootMetadata } from '@/lib/metadata';
 
+import { metadata as brandMetadata } from './brand/page';
+import { metadata as frankMetadata } from './frank/page';
+import { generateMetadata as h2hMetadata } from './h2h/page';
+import { metadata as leaguesMetadata } from './leagues/page';
+import { metadata as loginMetadata } from './login/page';
 import { metadata as homeMetadata } from './page';
-import robots from './robots';
-import sitemap from './sitemap';
+import { metadata as plannerMetadata } from './planner/page';
+import { metadata as pricesMetadata } from './prices/page';
+import { metadata as privacyMetadata } from './privacy/page';
+import { metadata as replayMetadata } from './replay/page';
+import { generateMetadata as rivalsMetadata } from './rivals/[leagueId]/page';
+import { metadata as settingsMetadata } from './settings/page';
+import sitemap, { SITEMAP_ROUTES } from './sitemap';
+import { metadata as supportMetadata } from './support/page';
+import { metadata as termsMetadata } from './terms/page';
+import { metadata as upgradeMetadata } from './upgrade/page';
+import { metadata as vsLivefplMetadata } from './vs-livefpl/page';
 
 describe('root layout metadata', () => {
   it('declares twitter, openGraph and a canonical alternate', () => {
     expect(rootMetadata.twitter).toMatchObject({ card: 'summary_large_image' });
     expect(rootMetadata.openGraph).toMatchObject({ type: 'website' });
-    expect(rootMetadata.alternates).toMatchObject({ canonical: '/' });
     expect(rootMetadata.metadataBase).toBeInstanceOf(URL);
+  });
+
+  it('does not declare a canonical, so pages cannot inherit the homepage URL', () => {
+    expect(rootMetadata.alternates?.canonical).toBeUndefined();
+  });
+
+  it('only allows indexing on the production domain', () => {
+    expect(buildRootRobots(true)).toEqual({ index: true, follow: true });
+    expect(buildRootRobots(false)).toEqual({ index: false, follow: false });
+  });
+});
+
+describe('per-page canonicals', () => {
+  const selfReferencing: Array<[string, string]> = [
+    ['/', String(homeMetadata.alternates?.canonical)],
+    ['/leagues', String(leaguesMetadata.alternates?.canonical)],
+    ['/prices', String(pricesMetadata.alternates?.canonical)],
+    ['/planner', String(plannerMetadata.alternates?.canonical)],
+    ['/frank', String(frankMetadata.alternates?.canonical)],
+    ['/h2h', String(h2hMetadata().alternates?.canonical)],
+    ['/vs-livefpl', String(vsLivefplMetadata.alternates?.canonical)],
+    ['/replay', String(replayMetadata.alternates?.canonical)],
+    ['/login', String(loginMetadata.alternates?.canonical)],
+    ['/settings', String(settingsMetadata.alternates?.canonical)],
+    ['/upgrade', String(upgradeMetadata.alternates?.canonical)],
+    ['/privacy', String(privacyMetadata.alternates?.canonical)],
+    ['/terms', String(termsMetadata.alternates?.canonical)],
+    ['/support', String(supportMetadata.alternates?.canonical)],
+  ];
+
+  it.each(selfReferencing)('%s canonicalises to itself', (route, canonical) => {
+    expect(canonical).toBe(route);
+  });
+});
+
+describe('non-public pages', () => {
+  it('are marked noindex', () => {
+    expect(brandMetadata.robots).toMatchObject({ index: false, follow: false });
+    expect(settingsMetadata.robots).toMatchObject({ index: false, follow: false });
+    expect(upgradeMetadata.robots).toMatchObject({ index: false, follow: false });
+    expect(loginMetadata.robots).toMatchObject({ index: false, follow: false });
+    expect(replayMetadata.robots).toMatchObject({ index: false, follow: false });
+    expect(rivalsMetadata().robots).toMatchObject({ index: false, follow: false });
   });
 });
 
@@ -31,30 +87,43 @@ describe('home page metadata', () => {
 });
 
 describe('sitemap', () => {
-  it('lists the indexable public routes', () => {
-    const entries = sitemap();
-    const urls = entries.map((e) => e.url);
-    expect(urls.some((u) => u.endsWith('/'))).toBe(true);
-    expect(urls.some((u) => u.endsWith('/leagues'))).toBe(true);
-    expect(urls.some((u) => u.endsWith('/prices'))).toBe(true);
-    expect(urls.some((u) => u.endsWith('/planner'))).toBe(true);
-    for (const entry of entries) {
-      expect(entry.lastModified).toBeInstanceOf(Date);
+  const paths = SITEMAP_ROUTES.map((route) => route.path);
+
+  it('lists every indexable public route', () => {
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        '/',
+        '/leagues',
+        '/prices',
+        '/planner',
+        '/h2h',
+        '/vs-livefpl',
+        '/frank',
+        '/privacy',
+        '/terms',
+        '/support',
+      ])
+    );
+  });
+
+  it('excludes private, internal and noindex routes', () => {
+    for (const excluded of [
+      '/login',
+      '/settings',
+      '/upgrade',
+      '/brand',
+      '/replay',
+      '/admin/frank',
+    ]) {
+      expect(paths).not.toContain(excluded);
     }
   });
-});
 
-describe('robots', () => {
-  it('allows search bots and references the sitemap', () => {
-    const result = robots();
-    expect(result.sitemap).toMatch(/\/sitemap\.xml$/);
-    const rules = Array.isArray(result.rules) ? result.rules : [result.rules];
-    const first = rules[0];
-    expect(first).toBeDefined();
-    expect(first?.userAgent).toBe('*');
-    expect(first?.allow).toBe('/');
-    expect(first?.disallow).toContain('/auth/');
-    expect(first?.disallow).toContain('/api/');
+  it('emits absolute URLs with a lastModified date', () => {
+    for (const entry of sitemap()) {
+      expect(entry.url).toMatch(/^https?:\/\//);
+      expect(entry.lastModified).toBeInstanceOf(Date);
+    }
   });
 });
 

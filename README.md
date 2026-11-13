@@ -65,3 +65,9 @@ SQL migrations are in `docs/supabase/`. Run them in order via the Supabase dashb
 
 Conventional commits with scope: `feat(web)`, `fix(worker)`, `refactor(fpl-client)`.  
 PRs and branches target `dev`.
+
+## Licence
+
+Copyright (c) 2026 Pete Watters. Licensed under the GNU Affero General Public License v3.0 only (AGPL-3.0-only). See [LICENSE](./LICENSE).
+
+A commercial licence for use without the AGPL obligations is available from cteic. Contact [Pete Watters](https://github.com/pete-watters).

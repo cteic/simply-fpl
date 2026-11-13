@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
+import { JsonLd } from '@/components/json-ld';
 import { PricesView } from '@/components/views/prices-view';
 import { FEATURE_PRICES } from '@/lib/feature-flags';
+import { buildBreadcrumbSchema, buildPriceChangesDatasetSchema } from '@/lib/structured-data';
 
 const TITLE = 'Price Changes';
 const DESCRIPTION =
@@ -18,5 +20,18 @@ export const metadata: Metadata = {
 
 export default function PricesPage() {
   if (!FEATURE_PRICES) redirect('/');
-  return <PricesView />;
+  return (
+    <>
+      <JsonLd
+        nodes={[
+          buildPriceChangesDatasetSchema(new Date()),
+          buildBreadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: TITLE, path: '/prices' },
+          ]),
+        ]}
+      />
+      <PricesView />
+    </>
+  );
 }

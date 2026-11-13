@@ -1,0 +1,350 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F7F7F5;--surface:#FFFFFF;--border:#E9E8E4;--border2:#D5D4CF;
+      --t1:#1A1A18;--t2:#6B6B63;--t3:#A8A8A0;
+      --green:#16A34A;--gbg:#F0FDF4;--gmid:#DCFCE7;
+      --red:#DC2626;--rbg:#FEF2F2;
+      --amber:#D97706;--abg:#FFFBEB;--amid:#FDE68A;
+      --blue:#2563EB;--bbg:#EFF6FF;
+      --brand:#0F766E;--brandHover:#115E59;--brandBg:#F0FDFA;
+      --r:10px;--rs:6px;
+      --sh:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);
+    }
+    html{font-size:15px}
+    body{font-family:'DM Sans',sans-serif;background:#F7F7F5;color:#1A1A18;-webkit-font-smoothing:antialiased}
+    a{color:#0F766E}a:hover{color:#115E59}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+    nav{position:sticky;top:0;z-index:200;background:rgba(247,247,245,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:54px}
+    .nav-l{display:flex;align-items:center;gap:26px}
+    .nav-r{display:flex;align-items:center;gap:9px}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--t1);font-size:.9rem;font-weight:600;letter-spacing:-.025em}
+    .logomark{width:26px;height:26px;background:var(--t1);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .logomark svg{width:14px;height:14px}
+    .navlinks{display:flex;gap:1px}
+    .nl{font-size:.815rem;font-weight:450;color:var(--t2);text-decoration:none;padding:5px 11px;border-radius:var(--rs);transition:all .12s;letter-spacing:-.01em;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px}
+    .nl:hover,.nl.on{color:var(--t1);background:var(--border);font-weight:500}
+    .navbadge{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:500;background:var(--brand);color:#fff;border-radius:20px;padding:1px 6px;line-height:1.5}
+    .btn{display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:500;letter-spacing:-.01em;padding:6px 14px;border-radius:var(--rs);cursor:pointer;transition:all .12s;border:none;white-space:nowrap}
+    .btn-g{background:transparent;color:var(--t2);border:1px solid var(--border2)}
+    .btn-g:hover{background:var(--border);color:var(--t1)}
+    .btn-p{background:var(--t1);color:#fff}
+    .btn-p:hover{background:#2d2d2a}
+    .livepill{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:3px 9px;border-radius:20px}
+    .ldot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulseDot 1.5s ease-in-out infinite}
+    .page{max-width:960px;margin:0 auto;padding:32px 28px 60px}
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;animation:fadeUp .35s ease both}
+    .pt{font-size:1.4rem;font-weight:600;letter-spacing:-.035em;line-height:1.2;display:flex;align-items:center;gap:10px}
+    .aichip{font-size:.6rem;font-weight:700;letter-spacing:.055em;color:var(--brand);background:var(--brandBg);border:1px solid var(--brand);border-radius:4px;padding:2px 6px}
+    .pm{display:flex;align-items:center;gap:8px;margin-top:5px}
+    .gl{font-size:.78rem;color:var(--t2);letter-spacing:-.01em}
+    .teampill{display:inline-flex;align-items:center;gap:6px;font-size:.73rem;font-weight:500;color:var(--t2);background:var(--surface);border:1px solid var(--border2);padding:5px 12px;border-radius:20px;cursor:pointer}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+    .inbox{display:grid;grid-template-columns:352px minmax(0,1fr);gap:20px;align-items:start;animation:fadeUp .35s .05s ease both}
+    .listhead{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border)}
+    .listtitle{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+    .msgrow{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;background:var(--surface);transition:background .1s}
+    .msgrow:last-child{border-bottom:none}
+    .msgrow:hover{background:var(--bg)}
+    .msgrow.on{background:var(--brandBg)}
+    .msg-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);margin-top:7px;flex-shrink:0;opacity:0}
+    .msgrow.unread .msg-dot{opacity:1}
+    .msg-main{min-width:0;flex:1}
+    .msg-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .msg-time{font-family:'DM Mono',monospace;font-size:.64rem;color:var(--t3)}
+    .msg-title{font-size:.78rem;font-weight:500;letter-spacing:-.015em;color:var(--t1);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .msgrow.unread .msg-title{font-weight:600}
+    .msg-prev{font-size:.7rem;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .kchip{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:3px}
+    .k-red{color:var(--red);background:var(--rbg)}
+    .k-amber{color:var(--amber);background:var(--abg)}
+    .k-blue{color:var(--blue);background:var(--bbg)}
+    .k-green{color:var(--green);background:var(--gbg)}
+    .k-teal{color:var(--brand);background:var(--brandBg)}
+    .dethead{display:flex;align-items:center;gap:11px;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .favatar{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-family:'DM Mono',monospace;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .detwho{font-size:.82rem;font-weight:600;letter-spacing:-.02em}
+    .detrole{font-weight:400;color:var(--t3)}
+    .dettime{font-family:'DM Mono',monospace;font-size:.64rem;color:var(--t3);margin-top:1px}
+    .dethead-r{margin-left:auto}
+    .detbody{padding:18px}
+    .dettitle{font-size:1.05rem;font-weight:600;letter-spacing:-.025em;line-height:1.3;margin-bottom:10px}
+    .dettext{font-size:.82rem;color:var(--t2);line-height:1.65;max-width:56ch}
+    .pchip{display:flex;align-items:center;gap:10px;margin-top:16px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs)}
+    .pcshirt{width:30px;height:30px;border-radius:7px;background:var(--gmid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .pcname{font-size:.78rem;font-weight:600;letter-spacing:-.015em}
+    .pcclub{font-size:.66rem;color:var(--t3);margin-top:1px}
+    .statgrid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-top:14px}
+    .statcell{background:var(--surface);padding:10px 12px}
+    .slabel{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:5px}
+    .sval2{font-family:'DM Mono',monospace;font-size:.95rem;letter-spacing:-.02em}
+    .actrow{display:flex;gap:8px;margin-top:16px}
+    .ack{display:flex;align-items:flex-start;gap:9px;margin-top:14px;padding:11px 13px;background:var(--brandBg);border:1px solid #CCFBF1;border-radius:var(--rs);font-size:.76rem;color:var(--brandHover);line-height:1.5}
+    .ackF{width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-family:'DM Mono',monospace;font-size:.58rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .followup{border-top:1px solid var(--border);padding:14px 18px 16px}
+    .fu-head{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:9px}
+    .fu-row{display:flex;gap:8px}
+    .input{flex:1;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--t1);background:var(--bg);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;outline:none;letter-spacing:-.01em}
+    .input::placeholder{color:var(--t3)}
+    .fu-note{display:flex;align-items:center;gap:7px;margin-top:9px;font-size:.7rem;color:var(--t2)}
+    .propill{font-size:.62rem;font-weight:600;color:var(--amber);background:var(--abg);border:1px solid var(--amid);padding:2px 8px;border-radius:20px;white-space:nowrap}
+    .freepill{font-size:.62rem;font-weight:600;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:2px 8px;border-radius:20px;white-space:nowrap}
+    .fnote{text-align:center;margin-top:36px;font-size:.7rem;color:var(--t3);line-height:1.9}
+  </style>
+</helmet>
+<div style="min-height: 900px; display: flex; flex-direction: column; background: #F7F7F5">
+  <nav>
+    <div class="nav-l">
+      <a href="#" class="logo">
+        <div class="logomark">
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1.3" fill="white"></rect>
+            <rect x="8" y="1" width="5" height="5" rx="1.3" fill="white" opacity=".4"></rect>
+            <rect x="1" y="8" width="5" height="5" rx="1.3" fill="white" opacity=".4"></rect>
+            <rect x="8" y="8" width="5" height="5" rx="1.3" fill="white"></rect>
+          </svg>
+        </div>
+        SimplyFPL
+      </a>
+      <div class="navlinks">
+        <button class="nl">Live Rank</button>
+        <button class="nl">Leagues</button>
+        <button class="nl">Prices</button>
+        <button class="nl">Planner</button>
+        <button class="nl on">Scout
+          <sc-if value="{{hasUnread}}" hint-placeholder-val="{{ true }}"><span class="navbadge">{{unread}}</span></sc-if>
+        </button>
+      </div>
+    </div>
+    <div class="nav-r">
+      <div class="livepill"><div class="ldot"></div>GW16 Live</div>
+      <button class="btn btn-g">Settings</button>
+      <button class="btn btn-p">Peter's United</button>
+    </div>
+  </nav>
+
+  <div class="page" style="width: 100%">
+    <div class="ph">
+      <div>
+        <div class="pt">Scout <span class="aichip">AI-POWERED</span></div>
+        <div class="pm"><span class="gl">{{meta}}</span></div>
+      </div>
+      <div class="teampill">
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="4.5" r="3.5" stroke="currentColor" stroke-width="1.1"></circle><path d="M4.5 2.5v2l1.2 1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path></svg>
+        Team ID: 4821039
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M2.5 3.5l2 2 2-2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path></svg>
+      </div>
+    </div>
+
+    <div class="inbox">
+      <div class="card">
+        <div class="listhead">
+          <span class="listtitle">Reports</span>
+          <span style="font-family: 'DM Mono', monospace; font-size: .64rem; color: #A8A8A0">{{unread}} unread</span>
+        </div>
+        <sc-for list="{{list}}" as="m" hint-placeholder-count="6">
+          <div class="msgrow{{m.cls}}" onClick="{{m.open}}">
+            <div class="msg-dot"></div>
+            <div class="msg-main">
+              <div class="msg-top"><span class="kchip {{m.chipCls}}">{{m.chip}}</span><span class="msg-time">{{m.time}}</span></div>
+              <div class="msg-title">{{m.title}}</div>
+              <div class="msg-prev">{{m.preview}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div class="card">
+        <div class="dethead">
+          <div class="favatar">F.</div>
+          <div>
+            <div class="detwho">Frank <span class="detrole">· Scout report</span></div>
+            <div class="dettime">{{det.time}} · Gameweek 16</div>
+          </div>
+          <div class="dethead-r"><span class="kchip {{det.chipCls}}">{{det.chip}}</span></div>
+        </div>
+        <div class="detbody">
+          <div class="dettitle">{{det.title}}</div>
+          <div class="dettext">{{det.body}}</div>
+          <sc-if value="{{det.hasPlayer}}" hint-placeholder-val="{{ true }}">
+            <div class="pchip">
+              <div class="pcshirt">
+                <svg viewBox="0 0 28 28" fill="none" width="19" height="19"><path d="M8 8h12l2 4v8H6v-8l2-4z" fill="#0F766E"></path><path d="M11 8v12M17 8v12" stroke="white" stroke-width="1.3"></path></svg>
+              </div>
+              <div>
+                <div class="pcname">{{det.player}}</div>
+                <div class="pcclub">{{det.club}}</div>
+              </div>
+            </div>
+          </sc-if>
+          <div class="statgrid">
+            <sc-for list="{{det.stats}}" as="s" hint-placeholder-count="3">
+              <div class="statcell"><div class="slabel">{{s.k}}</div><div class="sval2">{{s.v}}</div></div>
+            </sc-for>
+          </div>
+          <div class="actrow">
+            <button class="btn btn-p" onClick="{{det.onAct}}">{{det.act}}</button>
+            <button class="btn btn-g" onClick="{{det.onAlt}}">{{det.alt}}</button>
+          </div>
+          <sc-if value="{{det.showAck}}" hint-placeholder-val="{{ false }}">
+            <div class="ack"><span class="ackF">F.</span><span>{{det.ack}}</span></div>
+          </sc-if>
+        </div>
+        <div class="followup">
+          <div class="fu-head">Ask Frank a follow-up</div>
+          <div class="fu-row">
+            <input class="input" placeholder="e.g. Who replaces Isak under £8.0m?">
+            <button class="btn btn-p">Ask Frank</button>
+          </div>
+          <sc-if value="{{isPro}}" hint-placeholder-val="{{ true }}">
+            <div class="fu-note"><span class="propill">✦ Pro</span> On-demand follow-ups are part of Pro — €4/mo or €25/yr. Weekly scout reports are included on every plan.</div>
+          </sc-if>
+          <sc-if value="{{isFree}}" hint-placeholder-val="{{ false }}">
+            <div class="fu-note"><span class="freepill">Free</span> The full scout service is included free for every manager.</div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <div class="fnote">Frank is an AI scout. Reports are generated from live FPL data and may lag late-breaking team news.<br>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"tone":{"editor":"enum","default":"gaffer","options":["gaffer","dry"],"section":"Open decisions"},"proGate":{"editor":"boolean","default":true,"section":"Open decisions"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 'injury', read: ['injury', 'deadline', 'rank', 'tip'], acked: {} };
+  }
+
+  msgs(g) {
+    return [
+      {
+        id: 'injury', chip: 'Injury', chipCls: 'k-red', time: '08:12',
+        player: 'Alexander Isak', club: 'FWD · Newcastle · £9.4m',
+        title: g ? "Bad news, gaffer — Isak's picked up a knock" : 'Injury: Isak (ankle) — 50% for GW16',
+        preview: g ? 'Turned an ankle in training. Howe says 50/50 for Saturday…' : 'Flagged at 50% after a training injury. He is in your starting XI.',
+        body: g ? 'Physio room\'s busy this morning, boss. Isak turned an ankle in Thursday training and Howe is calling him "50/50 at best" for Saturday. He\'s your second-top scorer and 41% of the game owns him — I\'d have a replacement shortlisted before the price sharks smell blood.' : 'Isak (NEW, £9.4m) was flagged at 50% after an ankle injury in Thursday training. Expected absence: 1–2 weeks. He is in your GW16 starting XI. Net transfers today: −118,402.',
+        act: g ? 'Plan a replacement' : 'View replacements',
+        alt: g ? 'Wait for the presser' : 'Dismiss',
+        ack: g ? "Good call, gaffer. I've shortlisted three — they're waiting in your planner." : 'Noted. Replacement shortlist added to your planner.',
+        stats: [['Chance of playing', '50%'], ['Net transfers', '−118k'], ['Ownership', '41.2%']]
+      },
+      {
+        id: 'price', chip: 'Price', chipCls: 'k-amber', time: '07:40',
+        player: 'Bryan Mbeumo', club: 'MID · Brentford · £7.8m',
+        title: g ? "Mbeumo's about to be marked down" : 'Price fall predicted: Mbeumo −£0.1m (87%)',
+        preview: g ? '87% he drops £0.1m at tonight\'s change. Sell today or ride it out…' : 'Fall probability 87% at tonight\'s price change. You own him.',
+        body: g ? "Word from the market desk: Mbeumo's shedding owners fast — 87% he falls £0.1m at tonight's price change. You own him, and he's on your bench this week anyway. Sell before midnight and you keep the value; hold, and you're a tenth down by morning." : 'Mbeumo (BRE, £7.8m) has an 87% predicted probability of a −£0.1m fall at tonight\'s price change, driven by −96,113 net transfers. He is on your bench for GW16.',
+        act: g ? 'Review the sale' : 'Review transfer',
+        alt: g ? 'Hold — he stays' : 'Dismiss',
+        ack: g ? "Understood, gaffer. I'll confirm either way once the prices land." : 'Noted. Price watch set for 00:30.',
+        stats: [['Fall probability', '87%'], ['Net transfers', '−96k'], ['Change lands', '00:30']]
+      },
+      {
+        id: 'afcon', chip: 'AFCON', chipCls: 'k-blue', time: 'Yesterday',
+        player: 'Mohamed Salah', club: 'MID · Liverpool · £13.1m',
+        title: g ? "AFCON's coming for your captain" : 'AFCON: Salah unavailable GW18–21',
+        preview: g ? 'Egypt name their squad Friday. Salah goes after GW17…' : 'Egypt squad announced Friday. Projected absence spans four GWs.',
+        body: g ? "Heads up, boss — Egypt name their AFCON squad on Friday, and Salah's on the plane after GW17. That's four gameweeks without your captain over Christmas. Half the league will panic-sell late; the smart money restructures early." : 'Salah (LIV, £13.1m) is expected in Egypt\'s AFCON squad, announced Friday. Projected absence: GW18–21 inclusive. He has been your captain in 9 of the last 10 gameweeks.',
+        act: g ? 'Plan the restructure' : 'Plan transfers',
+        alt: g ? 'Remind me at GW17' : 'Remind me at GW17',
+        ack: g ? "That's the spirit. I'll draft two exit routes tonight." : 'Reminder set for the GW17 deadline.',
+        stats: [['GWs missed', '4'], ['Squad named', 'Fri'], ['Your captain', '9/10 GWs']]
+      },
+      {
+        id: 'deadline', chip: 'Deadline', chipCls: 'k-amber', time: 'Yesterday',
+        player: null, club: '',
+        title: g ? 'Two free transfers, burning a hole in your pocket' : '2 free transfers unused — deadline Sat 11:00',
+        preview: g ? "Deadline's Saturday 11:00 and you've not moved all week…" : '2 FTs and £1.6m in the bank. Two open squad issues.',
+        body: g ? "It's Thursday, gaffer, and you've still got two free transfers and £1.6m sitting in the bank. With Isak doubtful and Mbeumo falling tonight, this isn't the week to sit on your hands. Deadline's Saturday, 11:00 sharp." : 'You have 2 free transfers and £1.6m in the bank ahead of the GW16 deadline (Saturday 11:00 GMT). Open squad issues: Isak (flagged 50%), Mbeumo (predicted price fall).',
+        act: g ? 'Open deadline day' : 'Open deadline view',
+        alt: g ? "I know what I'm doing" : 'Dismiss',
+        ack: g ? "Fair enough — your call, boss. I'll keep the file open." : 'Dismissed. Next reminder: Friday 18:00.',
+        stats: [['Free transfers', '2'], ['In the bank', '£1.6m'], ['Deadline', 'Sat 11:00']]
+      },
+      {
+        id: 'rank', chip: 'Rank', chipCls: 'k-green', time: 'Mon',
+        player: 'Cole Palmer', club: 'MID · Chelsea · £11.1m',
+        title: g ? 'Some weekend, that — up 42,000 places' : 'GW15 review: +42,310 to 184,203',
+        preview: g ? 'Best green arrow since GW4. The board are purring…' : '67 pts against an average of 54. Captain Palmer returned 22.',
+        body: g ? "Fine work, gaffer. 67 points and your best rank climb since GW4 — up 42,310 places to 184,203. The Palmer captaincy did the heavy lifting. The board are purring. Don't let it go to your head." : 'GW15 closed at 67 points against an average of 54. Overall rank improved 42,310 places to 184,203 — your largest single-gameweek gain since GW4. Captain (Palmer) returned 22 points.',
+        act: g ? 'See the rank replay' : 'View rank replay',
+        alt: g ? 'Cheers, Frank' : 'Dismiss',
+        ack: g ? 'Enjoy it. Mondays like this are why we do the job.' : 'Replay opened.',
+        stats: [['GW points', '67'], ['GW average', '54'], ['Rank now', '184,203']]
+      },
+      {
+        id: 'tip', chip: 'Scout tip', chipCls: 'k-teal', time: 'Sun',
+        player: 'Anthony Gordon', club: 'MID · Newcastle · £7.2m',
+        title: g ? "A little bird says Gordon's one to watch" : 'Differential: Gordon (NEW) — 3.1% owned',
+        preview: g ? 'On pens since November, four kind fixtures, 3.1% owned…' : 'xGI 0.61/90 over six GWs. Next four fixtures average FDR 2.2.',
+        body: g ? "Between us, gaffer — Gordon's numbers have gone quiet-good: on penalties since November, four kind fixtures ahead, and 3.1% of the game owns him. That's the sort of differential that wins mini-leagues. Just saying." : 'Gordon (NEW, £7.2m): xGI 0.61 per 90 across the last six gameweeks, penalty duty confirmed, next four fixtures average FDR 2.2. Ownership: 3.1%.',
+        act: 'Add to watchlist',
+        alt: g ? 'Not for us' : 'Dismiss',
+        ack: g ? "On the watchlist. I'll nudge you the moment his price stirs." : 'Added to watchlist.',
+        stats: [['Ownership', '3.1%'], ['xGI per 90', '0.61'], ['Next 4 FDR', '2.2']]
+      }
+    ];
+  }
+
+  renderVals() {
+    const g = this.props.tone !== 'dry';
+    const proGate = this.props.proGate !== false;
+    const all = this.msgs(g);
+    const read = this.state.read;
+    const sel = this.state.sel;
+    const unread = all.filter((m) => read.indexOf(m.id) === -1).length;
+
+    const list = all.map((m) => ({
+      id: m.id, title: m.title, preview: m.preview, time: m.time,
+      chip: m.chip, chipCls: m.chipCls,
+      cls: (m.id === sel ? ' on' : '') + (read.indexOf(m.id) === -1 ? ' unread' : ''),
+      open: () => {
+        const r = read.indexOf(m.id) === -1 ? read.concat(m.id) : read;
+        this.setState({ sel: m.id, read: r });
+      }
+    }));
+
+    const m = all.filter((x) => x.id === sel)[0] || all[0];
+    const markAcked = () => {
+      const a = {};
+      for (const k in this.state.acked) { a[k] = this.state.acked[k]; }
+      a[m.id] = true;
+      this.setState({ acked: a });
+    };
+    const det = {
+      title: m.title, body: m.body, time: m.time, chip: m.chip, chipCls: m.chipCls,
+      hasPlayer: !!m.player, player: m.player || '', club: m.club,
+      stats: m.stats.map((s) => ({ k: s[0], v: s[1] })),
+      act: m.act, alt: m.alt, ack: m.ack,
+      showAck: this.state.acked[m.id] === true,
+      onAct: markAcked, onAlt: markAcked
+    };
+
+    return {
+      list: list,
+      det: det,
+      unread: unread,
+      hasUnread: unread > 0,
+      meta: "Frank's reports · Gameweek 16 · " + unread + ' unread',
+      isPro: proGate,
+      isFree: !proGate
+    };
+  }
+}
+</script>
+</body>
+</html>

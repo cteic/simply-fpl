@@ -503,7 +503,7 @@ export function FrankView() {
 
   const title = (
     <XStack alignItems="center" gap={10}>
-      <Text fontFamily="$body" fontSize={21} fontWeight="600" color="#FFFFFF">
+      <Text render="h1" fontFamily="$body" fontSize={21} fontWeight="600" color="#FFFFFF">
         Frank
       </Text>
       <AiChip />
