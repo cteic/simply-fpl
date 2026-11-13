@@ -3,9 +3,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
-const FONT_URL = 'https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2';
+const FONT_URL = 'https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzIYQ.ttf';
 const FONT_TIMEOUT_MS = 3000;
 
 const SUPPORTED_SIZES = new Set([192, 512]);
@@ -55,7 +55,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ siz
     {
       width: size,
       height: size,
-      fonts,
+      ...(fonts.length > 0 ? { fonts } : {}),
     }
   );
 }

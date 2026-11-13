@@ -128,7 +128,7 @@ export class LiveGwDO {
       origin === 'http://localhost:3000' ||
       origin === 'https://simplyfpl.com' ||
       origin === 'https://www.simplyfpl.com' ||
-      /^https:\/\/[a-z0-9-]+\.simply-fpl\.pages\.dev$/.test(origin);
+      /^https:\/\/([a-z0-9-]+-)?simply-fpl\.[a-z0-9-]+\.workers\.dev$/.test(origin);
     if (!isAllowedOrigin) {
       return new Response('Origin not allowed', { status: 403 });
     }

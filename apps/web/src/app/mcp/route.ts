@@ -9,8 +9,6 @@ import {
   jsonRpcError,
 } from './protocol';
 
-export const runtime = 'edge';
-
 const MAX_BODY_BYTES = 16 * 1024;
 const SERVER_VERSION = '1.0.0';
 const API_BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
