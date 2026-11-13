@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F7F7F5;--surface:#FFFFFF;--border:#E9E8E4;--border2:#D5D4CF;
+      --t1:#1A1A18;--t2:#6B6B63;--t3:#A8A8A0;
+      --green:#16A34A;--gbg:#F0FDF4;--gmid:#DCFCE7;
+      --red:#DC2626;--rbg:#FEF2F2;
+      --amber:#D97706;--abg:#FFFBEB;--amid:#FDE68A;
+      --blue:#2563EB;--bbg:#EFF6FF;
+      --brand:#0F766E;--brandHover:#115E59;--brandBg:#F0FDFA;
+      --r:10px;--rs:6px;
+      --sh:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);
+    }
+    html{font-size:15px}
+    body{font-family:'DM Sans',sans-serif;background:#F7F7F5;color:#1A1A18;-webkit-font-smoothing:antialiased}
+    a{color:#0F766E}a:hover{color:#115E59}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+    nav{position:sticky;top:0;z-index:200;background:rgba(247,247,245,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:54px}
+    .nav-l{display:flex;align-items:center;gap:26px}
+    .nav-r{display:flex;align-items:center;gap:9px}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--t1);font-size:.9rem;font-weight:600;letter-spacing:-.025em}
+    .logomark{width:26px;height:26px;background:var(--t1);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .logomark svg{width:14px;height:14px}
+    .navlinks{display:flex;gap:1px}
+    .nl{font-size:.815rem;font-weight:450;color:var(--t2);padding:5px 11px;border-radius:var(--rs);letter-spacing:-.01em;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif}
+    .nl:hover,.nl.on{color:var(--t1);background:var(--border);font-weight:500}
+    .btn{display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:500;letter-spacing:-.01em;padding:6px 14px;border-radius:var(--rs);cursor:pointer;transition:all .12s;border:none;white-space:nowrap}
+    .btn-g{background:transparent;color:var(--t2);border:1px solid var(--border2)}
+    .btn-g:hover{background:var(--border);color:var(--t1)}
+    .btn-p{background:var(--t1);color:#fff}
+    .btn-p:hover{background:#2d2d2a}
+    .livepill{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:3px 9px;border-radius:20px}
+    .ldot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulseDot 1.5s ease-in-out infinite}
+    .page{max-width:960px;margin:0 auto;padding:32px 28px 60px}
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;animation:fadeUp .35s ease both}
+    .pt{font-size:1.4rem;font-weight:600;letter-spacing:-.035em;line-height:1.2}
+    .pm{display:flex;align-items:center;gap:8px;margin-top:5px}
+    .gl{font-size:.78rem;color:var(--t2);letter-spacing:-.01em}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+    .twocol{display:grid;grid-template-columns:1.6fr 1fr;gap:20px;align-items:start;animation:fadeUp .35s .05s ease both}
+    .masthead{display:flex;align-items:baseline;justify-content:space-between;padding:16px 22px 13px;border-bottom:1px solid var(--border)}
+    .mast-title{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+    .mast-issue{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--t3)}
+    .pressbody{padding:20px 22px 22px}
+    .headline{font-size:1.5rem;font-weight:700;letter-spacing:-.035em;line-height:1.15;max-width:24ch}
+    .lede{font-size:.84rem;color:var(--t2);line-height:1.65;margin-top:12px;max-width:58ch}
+    .byline{font-family:'DM Mono',monospace;font-size:.64rem;color:var(--t3);margin-top:10px}
+    .stories{margin-top:20px;border-top:1px solid var(--border)}
+    .story{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+    .story:last-child{border-bottom:none}
+    .kchip{flex-shrink:0;font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:3px;margin-top:2px}
+    .k-red{color:var(--red);background:var(--rbg)}
+    .k-amber{color:var(--amber);background:var(--abg)}
+    .k-green{color:var(--green);background:var(--gbg)}
+    .k-teal{color:var(--brand);background:var(--brandBg)}
+    .story-text{font-size:.8rem;line-height:1.55;letter-spacing:-.01em;color:var(--t1)}
+    .shead{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border)}
+    .stitle{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+    .boardbody{padding:16px}
+    .board-expect{font-size:.95rem;font-weight:600;letter-spacing:-.02em}
+    .board-status{display:inline-flex;font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--green);background:var(--gbg);border:1px solid var(--gmid);padding:2px 8px;border-radius:20px;margin-top:8px}
+    .progtrack{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:14px}
+    .progfill{height:100%;background:var(--brand);border-radius:2px;width:78%}
+    .proglabels{display:flex;justify-content:space-between;font-size:.61rem;color:var(--t3);margin-top:6px}
+    .board-note{font-size:.73rem;color:var(--t2);line-height:1.55;margin-top:12px}
+    .sharebody{padding:16px}
+    .share-note{font-size:.75rem;color:var(--t2);line-height:1.55;margin-bottom:12px}
+    .waspreview{margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:12px 13px;font-family:'DM Mono',monospace;font-size:.66rem;line-height:1.7;color:var(--t2);white-space:pre-wrap}
+    .stack{margin-top:20px}
+    .fnote{text-align:center;margin-top:36px;font-size:.7rem;color:var(--t3);line-height:1.9}
+  </style>
+</helmet>
+<div style="min-height: 980px; display: flex; flex-direction: column; background: #F7F7F5">
+  <nav>
+    <div class="nav-l">
+      <a href="#" class="logo">
+        <div class="logomark">
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1.3" fill="white"></rect>
+            <rect x="8" y="1" width="5" height="5" rx="1.3" fill="white" opacity=".4"></rect>
+            <rect x="1" y="8" width="5" height="5" rx="1.3" fill="white" opacity=".4"></rect>
+            <rect x="8" y="8" width="5" height="5" rx="1.3" fill="white"></rect>
+          </svg>
+        </div>
+        SimplyFPL
+      </a>
+      <div class="navlinks">
+        <button class="nl">Live Rank</button>
+        <button class="nl on">Leagues</button>
+        <button class="nl">Prices</button>
+        <button class="nl">Planner</button>
+        <button class="nl">Scout</button>
+      </div>
+    </div>
+    <div class="nav-r">
+      <div class="livepill"><div class="ldot"></div>GW16 Final</div>
+      <button class="btn btn-g">Settings</button>
+      <button class="btn btn-p">Peter's United</button>
+    </div>
+  </nav>
+
+  <div class="page" style="width: 100%">
+    <div class="ph">
+      <div>
+        <div class="pt">League Press</div>
+        <div class="pm"><span class="gl">The Gibbingtons · GW16 review · written every Monday morning</span></div>
+      </div>
+    </div>
+
+    <div class="twocol">
+      <div class="card">
+        <div class="masthead">
+          <span class="mast-title">The Gibbingtons Gazette</span>
+          <span class="mast-issue">No. 16 · Mon 14 Dec</span>
+        </div>
+        <div class="pressbody">
+          <div class="headline">{{headline}}</div>
+          <div class="lede">{{lede}}</div>
+          <div class="byline">Frank · league correspondent</div>
+          <div class="stories">
+            <sc-for list="{{stories}}" as="s" hint-placeholder-count="4">
+              <div class="story">
+                <span class="kchip {{s.chipCls}}">{{s.chip}}</span>
+                <div class="story-text">{{s.text}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="shead"><span class="stitle">Board confidence · Peter's United</span></div>
+          <div class="boardbody">
+            <div class="board-expect">The board expects: a top-3 finish</div>
+            <div class="board-status">Confident</div>
+            <div class="progtrack"><div class="progfill"></div></div>
+            <div class="proglabels"><span>Sack watch</span><span>Statue territory</span></div>
+            <div class="board-note">{{boardNote}}</div>
+          </div>
+        </div>
+
+        <div class="card stack">
+          <div class="shead"><span class="stitle">Send to the group chat</span></div>
+          <div class="sharebody">
+            <div class="share-note">One tap copies the week&#39;s review as plain text, formatted for WhatsApp.</div>
+            <button class="btn btn-p" onClick="{{copy}}">{{copyLabel}}</button>
+            <sc-if value="{{showPreview}}" hint-placeholder-val="{{ false }}">
+              <div class="waspreview">{{waText}}</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fnote">The Gazette is written by Frank, the SimplyFPL AI scout, from your league&#39;s live data every Monday.<br>SimplyFPL is not affiliated with the Premier League or Fantasy Premier League</div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"tone":{"editor":"enum","default":"gaffer","options":["gaffer","dry"],"section":"Open decisions"},"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { copied: false };
+  }
+
+  renderVals() {
+    const g = this.props.tone !== 'dry';
+
+    const headline = g
+      ? "Palmer masterclass fires Peter's United top"
+      : "GW16: Peter's United go top, three clear of Saka Boom";
+    const lede = g
+      ? "Sixty-seven points and a fearless Palmer captaincy sent Peter's United to the summit of The Gibbingtons on Sunday night — and set up a title derby with Saka Boom that already has the group chat at boiling point."
+      : "Peter's United lead The Gibbingtons on 1,804 points after a 67-point GW16 (league average: 58). Saka Boom trail by 3 points. The GW17 deadline is Saturday 11:00 GMT.";
+
+    const stories = [
+      {
+        chip: 'Rivalry week', chipCls: 'k-red',
+        text: g
+          ? "Three points in it at the top: Saka Boom v Peter's United is next week's derby. Loser buys the pints."
+          : 'Gap at the top: 3 pts. GW17 gets head-to-head billing: Saka Boom v Peter\'s United.'
+      },
+      {
+        chip: 'Manager of the Month', chipCls: 'k-green',
+        text: g
+          ? "November's award goes to James O'Brien — four green arrows and not a single hit taken. The committee suspects a spreadsheet."
+          : "Manager of the Month (November): James O'Brien, +212 pts, 0 transfer hits, 4 consecutive rank rises."
+      },
+      {
+        chip: 'Sack watch', chipCls: 'k-amber',
+        text: g
+          ? 'Palmer FC: four red arrows running. The board have seen enough; the fans are chanting for the wildcard.'
+          : 'Bottom of the form table: Palmer FC, 4 consecutive rank falls. Wildcard still available.'
+      },
+      {
+        chip: 'League record', chipCls: 'k-teal',
+        text: g
+          ? "Record alert: Haaland's Heroes' 89-pointer is the biggest single-week haul in league history. Scenes."
+          : "League record broken: 89 pts (Haaland's Heroes, GW16). Previous best: 84 (GW7)."
+      }
+    ];
+
+    const boardNote = g
+      ? 'Keep this up and nobody mentions the GW12 wildcard again.'
+      : 'Current position: 1st. Expectation: top 3. Confidence: 78%.';
+
+    const waText = [
+      'THE GIBBINGTONS — GW16 REVIEW',
+      headline,
+      '',
+      "1. Peter's United — 1,804 (GW 67)",
+      '2. Saka Boom — 1,801 (GW 68)',
+      '3. GW King FC — 1,799 (GW 71)',
+      '',
+      "Derby next week: Saka Boom v Peter's United (3 pts in it)",
+      "MOTM November: James O'Brien",
+      'Sack watch: Palmer FC (4 red arrows)',
+      '',
+      'via simplyfpl.com'
+    ].join('\n');
+
+    return {
+      headline: headline,
+      lede: lede,
+      stories: stories,
+      boardNote: boardNote,
+      waText: waText,
+      copyLabel: this.state.copied ? 'Copied — paste it in the chat' : 'Copy for the group chat',
+      showPreview: this.state.copied,
+      copy: () => this.setState({ copied: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

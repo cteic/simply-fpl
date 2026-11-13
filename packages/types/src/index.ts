@@ -343,6 +343,7 @@ export interface DetailedLeagueRowData {
 export * from './db';
 export * from './frank';
 export * from './notifications';
+export * from './scout';
 
 export type PlayerNewsStatus = 'available' | 'doubt' | 'suspended' | 'injured' | 'unavailable';
 
