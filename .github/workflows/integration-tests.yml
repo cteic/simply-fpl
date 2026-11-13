@@ -14,6 +14,7 @@ concurrency:
 jobs:
   playwright:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +30,25 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:packages
       - run: pnpm build:web
-      - run: pnpm exec playwright install --with-deps
+      # Browsers are cached on the Playwright version, so a normal run does no
+      # download at all. The 2026-08-19 six-hour hang was `install --with-deps`
+      # stuck in apt against an unreachable Ubuntu mirror; a cache hit skips the
+      # download half of that entirely, and timeout-minutes caps the rest.
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Install Playwright browsers and system deps
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system deps only
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps
       - run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS: '1'
@@ -44,6 +63,7 @@ jobs:
     if: ${{ !cancelled() }}
     needs: [playwright]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
