@@ -35,7 +35,7 @@ When prod breaks, the fix PR creates an incident issue _first_ (`gh issue create
 
 ## Branching (simplified GitFlow)
 
-- `main` is production. Auto-deploys to Cloudflare Pages + Worker on push.
+- `main` is production. Auto-deploys to Cloudflare Workers (web + API worker) on push.
 - `dev` is the integration branch and the **default branch**. PRs target `dev`.
 - Feature branches branch from `dev`. Naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`, `docs/<slug>`.
 - Releases are PRs `dev → main` merged with a **merge commit** (preserves per-feature history). Tag the merge commit on main `v0.X.0`.
