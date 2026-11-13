@@ -3,8 +3,6 @@ import { NextResponse } from 'next/server';
 import { hashUserId } from '@/lib/analytics';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
-export const runtime = 'edge';
-
 export async function GET() {
   const salt = process.env['POSTHOG_HASH_SALT'];
   if (!salt) {
