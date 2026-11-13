@@ -120,7 +120,7 @@ General TypeScript style is global; these are the rules particular to this repo.
 
 ## Branching + release process (simplified GitFlow)
 
-- `main` is production. Auto-deploys to Cloudflare Pages + the Worker on every push.
+- `main` is production. Auto-deploys to Cloudflare Workers (web + the API worker) on every push.
 - `dev` is the integration branch and the **default branch** of the repo. PRs target `dev`.
 - Feature/fix/docs branches (`feat/*`, `fix/*`, `docs/*`, `chore/*`) branch from `dev` and PR back to `dev`.
 - **No stacked PRs.** Every PR branches off `dev` and targets `dev` directly — never branch a PR off another open PR's branch. Stacked PRs have repeatedly stranded work here: a PR gets merged into its parent branch instead of `dev`, the parent is then superseded, and the commits never reach `dev`/`main`. When several pieces of work are genuinely shared or dependent, put them in **one larger PR off `dev` with separate, well-scoped commits** rather than a stack.
