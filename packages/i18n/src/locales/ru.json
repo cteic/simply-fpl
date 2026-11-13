@@ -322,5 +322,14 @@
   "press.empty": "Для этой лиги пока нет таблицы.",
   "press.error": "Не удалось загрузить лигу.",
   "press.fnote": "Газета создаётся каждую игровую неделю из живых данных FPL вашей лиги.",
-  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})",
+  "footer.privacy": "Конфиденциальность",
+  "footer.terms": "Условия",
+  "footer.support": "Поддержка",
+  "legal.privacy_title": "Политика конфиденциальности",
+  "legal.terms_title": "Условия использования",
+  "legal.support_title": "Поддержка",
+  "legal.last_updated": "Последнее обновление: {{date}}",
+  "support.section_contact": "Контакты",
+  "support.section_faq": "Часто задаваемые вопросы"
 }
