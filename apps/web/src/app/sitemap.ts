@@ -16,6 +16,9 @@ export const SITEMAP_ROUTES: readonly SitemapRoute[] = [
   { path: '/planner', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/frank', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/vs-livefpl', changeFrequency: 'weekly', priority: 0.5 },
+  { path: '/privacy', changeFrequency: 'monthly', priority: 0.3 },
+  { path: '/terms', changeFrequency: 'monthly', priority: 0.3 },
+  { path: '/support', changeFrequency: 'monthly', priority: 0.3 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
