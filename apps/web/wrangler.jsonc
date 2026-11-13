@@ -8,6 +8,9 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "routes": [{ "pattern": "simplyfpl.com/*", "zone_name": "simplyfpl.com" }],
+  "workers_dev": true,
+  "preview_urls": true,
   "observability": {
     "enabled": true
   }
