@@ -2,7 +2,7 @@
   "name": "@simplyfpl/features",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "description": "React-aware business logic and hooks for SimplyFPL",
   "exports": {
