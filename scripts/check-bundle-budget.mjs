@@ -13,10 +13,10 @@ const WEB_DIR = join(REPO_ROOT, 'apps', 'web');
 const NEXT_DIR = join(WEB_DIR, '.next');
 
 const BUDGETS = {
-  // CI measurement runs ~3-5 kB higher than local because of CF-specific
-  // transforms; budget is set against the CI number with ~5 kB headroom.
-  '/': 205 * 1024,
-  '/h2h': 149 * 1024,
+  // Measured from prerendered HTML on Next 16.4 (464.6 kB and 450.2 kB
+  // locally). CI runs ~3-5 kB higher, so each budget has ~10 kB headroom.
+  '/': 475 * 1024,
+  '/h2h': 460 * 1024,
 };
 
 const KB = 1024;
@@ -33,13 +33,15 @@ function formatDelta(delta) {
   return `${sign}${(abs / KB).toFixed(1)} kB`;
 }
 
-function manifestKeyForRoute(route) {
-  if (route === '/') return '/page';
-  return `${route}/page`;
+// Next 16 no longer writes app-build-manifest.json, so read the script tags
+// from each route's prerendered HTML: that is exactly the JS a first load fetches.
+function htmlPathForRoute(route) {
+  if (route === '/') return join(NEXT_DIR, 'server', 'app', 'index.html');
+  return join(NEXT_DIR, 'server', 'app', `${route.slice(1)}.html`);
 }
 
 async function ensureBuild() {
-  if (existsSync(NEXT_DIR) && existsSync(join(NEXT_DIR, 'app-build-manifest.json'))) {
+  if (existsSync(NEXT_DIR) && existsSync(join(NEXT_DIR, 'build-manifest.json'))) {
     console.log(`Reusing existing build at ${NEXT_DIR}`);
     return;
   }
@@ -55,12 +57,16 @@ async function ensureBuild() {
   }
 }
 
-async function loadManifests() {
-  const [appManifest, buildManifest] = await Promise.all([
-    readFile(join(NEXT_DIR, 'app-build-manifest.json'), 'utf8').then(JSON.parse),
-    readFile(join(NEXT_DIR, 'build-manifest.json'), 'utf8').then(JSON.parse),
-  ]);
-  return { appManifest, buildManifest };
+async function routeScripts(route) {
+  const htmlPath = htmlPathForRoute(route);
+  if (!existsSync(htmlPath)) return null;
+  const html = await readFile(htmlPath, 'utf8');
+  // Skip noModule polyfills: modern browsers never download them.
+  return [...html.matchAll(/<script\b[^>]*>/g)]
+    .map((m) => m[0])
+    .filter((tag) => !/\bnoModule\b/i.test(tag))
+    .map((tag) => tag.match(/src="\/_next\/(static\/[^"]+\.js)"/)?.[1])
+    .filter((src) => src !== undefined);
 }
 
 async function gzippedSize(relPath) {
@@ -68,11 +74,10 @@ async function gzippedSize(relPath) {
   return gzipSync(buf).byteLength;
 }
 
-async function firstLoadGzipped(routeKey, appManifest, buildManifest) {
-  const routeChunks = appManifest.pages[routeKey];
-  if (!routeChunks) return null;
-  const shared = buildManifest.rootMainFiles ?? [];
-  const all = Array.from(new Set([...shared, ...routeChunks])).filter((p) => p.endsWith('.js'));
+async function firstLoadGzipped(route) {
+  const scripts = await routeScripts(route);
+  if (!scripts || scripts.length === 0) return null;
+  const all = Array.from(new Set(scripts));
   let total = 0;
   for (const chunk of all) {
     total += await gzippedSize(chunk);
@@ -82,15 +87,14 @@ async function firstLoadGzipped(routeKey, appManifest, buildManifest) {
 
 async function main() {
   await ensureBuild();
-  const { appManifest, buildManifest } = await loadManifests();
 
   const rows = [];
   let overBudget = false;
   const missing = [];
 
   for (const [route, budget] of Object.entries(BUDGETS)) {
-    const key = manifestKeyForRoute(route);
-    const size = await firstLoadGzipped(key, appManifest, buildManifest);
+    const key = htmlPathForRoute(route);
+    const size = await firstLoadGzipped(route);
     if (size == null) {
       missing.push({ route, key });
       continue;
@@ -112,8 +116,8 @@ async function main() {
   console.log('');
 
   if (missing.length > 0) {
-    console.warn('Warning: routes not found in app-build-manifest.json:');
-    for (const m of missing) console.warn(`  - ${m.route} (key tried: ${m.key})`);
+    console.warn('Warning: no prerendered HTML found for routes:');
+    for (const m of missing) console.warn(`  - ${m.route} (looked for: ${m.key})`);
     console.warn('');
   }
 

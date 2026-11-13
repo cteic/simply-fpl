@@ -26,8 +26,6 @@ const FRANK_QUOTA_SOFT = 50;
 const FRANK_QUOTA_HARD = 80;
 const FRANK_PARSE_ERROR = 'Frank had trouble formatting that answer — try rephrasing';
 
-export const runtime = 'edge';
-
 interface AskBody {
   question: string;
 }

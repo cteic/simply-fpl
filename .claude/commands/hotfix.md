@@ -40,5 +40,5 @@ This is the **only** workflow where a PR targets `main` directly. Every other PR
 
 - The repo defaults to `dev` as the integration branch. Hotfixes are the only PRs that bypass it.
 - Branch protection is not enforced via GitHub (Free tier). Discipline replaces enforcement — never direct-push to `main` or `dev`.
-- If the user is mobile-only during an outage, the only action they need to take is hitting "Merge" on the PR. Cloudflare Pages auto-deploys `main`.
+- If the user is mobile-only during an outage, the only action they need to take is hitting "Merge" on the PR. Cloudflare Workers auto-deploys `main`.
 - If `gh pr create` returns a URL, surface it prominently in the user-facing message so they can tap to merge.
