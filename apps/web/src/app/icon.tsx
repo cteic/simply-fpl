@@ -11,7 +11,7 @@ const FONT_TIMEOUT_MS = 3000;
 
 export default async function Icon() {
   const dmMonoResult = await fetchWithTimeout(
-    new URL('https://fonts.gstatic.com/s/dmmono/v14/aFTU7PB1QTsUX8KYthSQBK6POlIuxg.woff2'),
+    new URL('https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzIYQ.ttf'),
     FONT_TIMEOUT_MS
   );
 
@@ -40,7 +40,7 @@ export default async function Icon() {
     </div>,
     {
       ...size,
-      fonts,
+      ...(fonts.length > 0 ? { fonts } : {}),
     }
   );
 }
