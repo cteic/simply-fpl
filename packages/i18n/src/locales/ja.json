@@ -322,5 +322,14 @@
   "press.empty": "このリーグの順位表はまだありません。",
   "press.error": "このリーグを読み込めませんでした。",
   "press.fnote": "ガゼットは毎ゲームウィーク、リーグのライブ FPL データから作成されます。",
-  "press.share_row": "{{rank}}. {{team}} — {{total}}（GW {{gwPoints}}）"
+  "press.share_row": "{{rank}}. {{team}} — {{total}}（GW {{gwPoints}}）",
+  "footer.privacy": "プライバシー",
+  "footer.terms": "利用規約",
+  "footer.support": "サポート",
+  "legal.privacy_title": "プライバシーポリシー",
+  "legal.terms_title": "利用規約",
+  "legal.support_title": "サポート",
+  "legal.last_updated": "最終更新日: {{date}}",
+  "support.section_contact": "お問い合わせ",
+  "support.section_faq": "よくある質問"
 }

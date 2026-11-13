@@ -322,5 +322,14 @@
   "press.empty": "Noch keine Tabelle für diese Liga.",
   "press.error": "Liga konnte nicht geladen werden.",
   "press.fnote": "Die Gazette wird jede Gameweek aus den Live-FPL-Daten deiner Liga geschrieben.",
-  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})",
+  "footer.privacy": "Datenschutz",
+  "footer.terms": "Nutzungsbedingungen",
+  "footer.support": "Support",
+  "legal.privacy_title": "Datenschutzerklärung",
+  "legal.terms_title": "Nutzungsbedingungen",
+  "legal.support_title": "Support",
+  "legal.last_updated": "Zuletzt aktualisiert am {{date}}",
+  "support.section_contact": "Kontakt",
+  "support.section_faq": "Häufig gestellte Fragen"
 }

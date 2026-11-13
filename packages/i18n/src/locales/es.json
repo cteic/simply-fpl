@@ -322,5 +322,14 @@
   "press.empty": "Aún no hay clasificación para esta liga.",
   "press.error": "No se pudo cargar esta liga.",
   "press.fnote": "La Gaceta se escribe cada gameweek con los datos FPL en vivo de tu liga.",
-  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})",
+  "footer.privacy": "Privacidad",
+  "footer.terms": "Términos",
+  "footer.support": "Soporte",
+  "legal.privacy_title": "Política de privacidad",
+  "legal.terms_title": "Términos del servicio",
+  "legal.support_title": "Soporte",
+  "legal.last_updated": "Última actualización: {{date}}",
+  "support.section_contact": "Contacto",
+  "support.section_faq": "Preguntas frecuentes"
 }

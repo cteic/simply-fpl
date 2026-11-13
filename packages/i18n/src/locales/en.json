@@ -322,5 +322,14 @@
   "press.empty": "No standings yet for this league.",
   "press.error": "Couldn't load this league.",
   "press.fnote": "The Gazette is written from your league's live FPL data every gameweek.",
-  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})",
+  "footer.privacy": "Privacy",
+  "footer.terms": "Terms",
+  "footer.support": "Support",
+  "legal.privacy_title": "Privacy Policy",
+  "legal.terms_title": "Terms of Service",
+  "legal.support_title": "Support",
+  "legal.last_updated": "Last updated {{date}}",
+  "support.section_contact": "Contact",
+  "support.section_faq": "Frequently asked questions"
 }

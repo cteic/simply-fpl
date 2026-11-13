@@ -322,5 +322,14 @@
   "press.empty": "该联赛暂无排名。",
   "press.error": "无法加载该联赛。",
   "press.fnote": "快报每个游戏周根据您联赛的实时 FPL 数据撰写。",
-  "press.share_row": "{{rank}}. {{team}} — {{total}}（GW {{gwPoints}}）"
+  "press.share_row": "{{rank}}. {{team}} — {{total}}（GW {{gwPoints}}）",
+  "footer.privacy": "隐私",
+  "footer.terms": "条款",
+  "footer.support": "支持",
+  "legal.privacy_title": "隐私政策",
+  "legal.terms_title": "服务条款",
+  "legal.support_title": "支持",
+  "legal.last_updated": "最后更新：{{date}}",
+  "support.section_contact": "联系我们",
+  "support.section_faq": "常见问题"
 }

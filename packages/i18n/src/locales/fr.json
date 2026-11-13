@@ -322,5 +322,14 @@
   "press.empty": "Pas encore de classement pour cette ligue.",
   "press.error": "Impossible de charger cette ligue.",
   "press.fnote": "La Gazette est écrite chaque gameweek à partir des données FPL en direct de votre ligue.",
-  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})"
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})",
+  "footer.privacy": "Confidentialité",
+  "footer.terms": "Conditions",
+  "footer.support": "Assistance",
+  "legal.privacy_title": "Politique de confidentialité",
+  "legal.terms_title": "Conditions d’utilisation",
+  "legal.support_title": "Assistance",
+  "legal.last_updated": "Dernière mise à jour : {{date}}",
+  "support.section_contact": "Contact",
+  "support.section_faq": "Questions fréquentes"
 }
