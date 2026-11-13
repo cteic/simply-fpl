@@ -1,0 +1,3 @@
+# Copy to .dev.vars (gitignored) for `pnpm preview`.
+# Runtime secrets are Worker secrets in production, not committed here.
+NEXTJS_ENV=development
