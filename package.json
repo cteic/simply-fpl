@@ -3,7 +3,7 @@
   "author": "SimplyFPL",
   "description": "SimplyFPL monorepo — FPL companion app",
   "version": "0.1.0",
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "private": true,
   "type": "module",
   "scripts": {
