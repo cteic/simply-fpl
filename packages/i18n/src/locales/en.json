@@ -2,7 +2,6 @@
   "common.loading": "Loading…",
   "common.cta_enter_team_id": "Enter team ID",
   "common.disclaimer": "SimplyFPL is not affiliated with the Premier League or Fantasy Premier League",
-
   "login.title": "Sign in",
   "login.meta": "Magic link via email",
   "login.signed_in_title": "Signed in",
@@ -14,7 +13,6 @@
   "login.already_signed_in_prefix": "You're already signed in. Head to ",
   "login.already_signed_in_link": "Leagues",
   "login.already_signed_in_suffix": " to start tracking.",
-
   "home_search.meta": "Live FPL companion · GW30",
   "home_search.section_find": "Find your team",
   "home_search.description": "Enter your FPL team ID or paste your team URL to see your live rank, gameweek points, and pitch.",
@@ -26,7 +24,6 @@
   "home_search.feature_leagues": "• Mini-league standings with live captain and bench points",
   "home_search.feature_h2h": "• Head-to-head comparison against any rival in your leagues",
   "home_search.feature_free": "• Free, no sign-up needed — just paste your team ID",
-
   "settings.title": "Settings",
   "settings.section_account": "Account",
   "settings.label_email": "Email",
@@ -44,7 +41,6 @@
   "settings.section_notifications": "Notifications",
   "settings.cta_sign_out": "Sign out",
   "settings.fnote": "More account controls coming once subscriptions launch.",
-
   "rivals.title": "Rivals",
   "rivals.meta_invalid_id": "Invalid league ID in URL",
   "rivals.invalid_id_body": "The URL needs a positive integer league ID, like /rivals/123456.",
@@ -59,7 +55,6 @@
   "rivals.top_of_window": "You're top of the rivals window — no manager above to compare against.",
   "rivals.fnote": "Live GW points refresh every 60s. Bonus shown is provisional until confirmed.",
   "rivals.pro_banner_title": "Track multiple leagues",
-
   "threats.title": "Threats",
   "threats.section_top": "Top threats ({{count}})",
   "threats.empty": "No threats match this filter.",
@@ -74,12 +69,10 @@
   "threats.col_score_pct": "score%",
   "threats.col_lost": "lost",
   "threats.col_haul_impact": "if 8 pt",
-
   "prices.title": "Price Changes",
   "prices.meta": "Predictions update daily at midnight · Based on net transfers",
   "prices.empty": "No price changes match this filter.",
   "prices.fnote": "Price predictions are estimates based on FPL transfer data. Not guaranteed.",
-
   "planner.title": "Transfer Planner",
   "planner.meta_no_team": "Enter your FPL team ID to start",
   "planner.meta_xi": "Your XI · GW{{startGw}}–{{endGw}}",
@@ -88,13 +81,11 @@
   "planner.loading_body": "Loading fixtures and your XI…",
   "planner.no_fixture_data": "No fixture data yet for the next 5 GWs.",
   "planner.fnote": "Fixture difficulty ratings (FDR) are based on FPL's official data.",
-
   "h2h.title": "Head to Head",
   "h2h.error_meta": "Couldn't load this matchup",
   "h2h.captains_label": "Captains",
   "h2h.meta_invalid": "Invalid team IDs in URL",
   "h2h.invalid_body": "The URL needs two different positive integer team IDs, like /h2h/123456/789012.",
-
   "hero.eyebrow": "Live FPL companion",
   "hero.headline_lead": "Feel every ",
   "hero.headline_accent": "green arrow.",
@@ -113,7 +104,6 @@
   "hero.feature_reliable_body": "Served from the edge — fast and up when everyone rushes in at once.",
   "hero.feature_cohort_title": "Cohort & rivals insight",
   "hero.feature_cohort_body": "See where you stand vs the top 10k and the rivals next to you in your leagues.",
-
   "leagues.title": "My Leagues",
   "leagues.meta_no_team": "Enter your FPL team ID to see your leagues",
   "leagues.meta_loading_team": "Team {{entryId}} · Live mini-league standings",
@@ -124,29 +114,23 @@
   "leagues.cta_view_rivals": "View rivals →",
   "leagues.error_load_team": "Couldn't load this team. Check the team ID and try again.",
   "leagues.empty_leagues": "No mini-leagues found for this team yet.",
-
   "league_card.loading": "Loading league {{leagueId}}…",
   "league_card.error": "Couldn't load league {{leagueId}}",
   "league_card.empty": "No managers in this league yet.",
   "league_card.cta_rivals": "Rivals",
   "league_card.show_all": "Show all {{count}}",
   "league_card.show_top_10": "Show top 10",
-
   "stale_data.message": "Live updates paused — showing last data",
-
   "error.title": "Something went wrong",
   "error.meta": "An unexpected error occurred",
   "error.body": "We hit an error rendering this page. Try again, or head back to the home page.",
   "error.cta_retry": "Try again",
   "error.fnote": "If this keeps happening, please refresh or come back in a few minutes.",
-
   "not_found.title": "Page not found",
   "not_found.body": "We couldn't find that page. It may have moved, or the link could be wrong.",
   "not_found.cta_home": "Back to home",
-
   "demo_banner.badge": "Preview",
   "demo_banner.message": "This is a design demo of SimplyFPL — data is illustrative.",
-
   "live_battle.section_title": "Live Battle",
   "live_battle.subtitle": "Players moving your rank right now · currently playing",
   "live_battle.gains": "Gains",
@@ -155,19 +139,15 @@
   "live_battle.net_vs_field": "Net vs field",
   "live_battle.empty_gains": "No live gains yet.",
   "live_battle.empty_losses": "No live losses yet.",
-
   "differentials.section_title": "Differentials",
   "differentials.yours_header": "You have",
   "differentials.theirs_header": "They have",
   "differentials.captaincy_label": "Captaincy",
   "differentials.same_captain": "Same captain",
   "differentials.empty": "No unique picks vs this rival.",
-
   "pitch.bench_divider": "Bench",
-
   "nav.sign_in": "Sign in",
   "nav.sign_out": "Sign out",
-
   "team_id_help.label": "How do I find my team ID?",
   "team_id_help.step_1": "Open the FPL site and go to your Points page.",
   "team_id_help.step_2": "Copy the URL from your browser's address bar.",
@@ -177,7 +157,6 @@
   "team_id_help.example_suffix": "/event/38",
   "team_id_help.id_note": "That number is your team ID.",
   "team_id_help.open_fpl": "Open the FPL site →",
-
   "vs_livefpl.title": "SimplyFPL vs livefpl.net",
   "vs_livefpl.error_title": "Could not load comparison",
   "vs_livefpl.error_meta": "Speed data unavailable",
@@ -189,13 +168,11 @@
   "vs_livefpl.methodology_title": "Methodology",
   "vs_livefpl.test_title": "Test it yourself",
   "vs_livefpl.test_label": "Network response time (5-run average from your location)",
-
   "frank.ask_section_title": "Ask Frank",
   "frank.ask_placeholder": "Should I captain Salah or Haaland this week?",
   "frank.page_meta": "Your AI FPL coach · Updated weekly after the deadline",
   "frank.chip_watch_title": "Chip watch",
   "frank.transfer_targets_title": "Transfer targets",
-
   "upgrade.title": "Upgrade",
   "upgrade.loading_meta": "Choose a plan",
   "upgrade.page_meta": "Unlock Pro or Ultimate to get the most out of SimplyFPL",
@@ -203,12 +180,9 @@
   "upgrade.fnote": "Payments are processed by Stripe. Cancel or change plan any time from your account settings.",
   "upgrade.plan_pro_title": "Pro",
   "upgrade.plan_ultimate_title": "Ultimate",
-
   "rivals_section.loading_meta": "Loading your leagues…",
   "rivals_section.empty_meta": "No mini-leagues found for this team",
-
   "replay.seek_aria": "Jump to gameweek",
-
   "shared.you": "You",
   "shared.them": "Them",
   "shared.cap": "Cap",
@@ -216,21 +190,15 @@
   "shared.pts": "Pts",
   "shared.rank": "Rank",
   "shared.team": "Team",
-
   "cohort.col_top10k": "Top 10k",
   "cohort.col_overall": "Overall",
   "cohort.col_top1k": "Top 1k",
-
   "detailed_league_row.transfers_label": "Transfers",
   "detailed_league_row.played_label": "Played",
-
   "league_table.col_manager": "Manager",
   "league_table.col_gw": "GW",
-
   "live_status_pill.deselect_title": "Deselect team",
-
   "logo.aria_label": "SimplyFPL home",
-
   "notifications.pro_only": "Push notifications are a Pro feature. Upgrade to get notified when your captain scores and before the transfer deadline.",
   "notifications.not_supported": "Push notifications are not supported in this browser.",
   "notifications.blocked": "Notifications are blocked. Re-enable them in your browser settings, then reload.",
@@ -275,19 +243,14 @@
   "notifications.quiet_hours_disabled": "Disabled",
   "notifications.quiet_hours_cta_disable": "Disable",
   "notifications.quiet_hours_cta_enable": "Enable",
-
   "theme_picker.aria_label": "Theme",
-
   "what_if.search_placeholder": "Search by name…",
-
   "analytics_consent.aria_label": "Analytics consent",
   "analytics_consent.body": "We use anonymous analytics to make SimplyFPL better. No personal data is sent.",
   "analytics_consent.cta_decline": "Decline",
   "analytics_consent.cta_accept": "Accept",
-
   "settings.section_language": "Language",
   "settings.language_description": "Choose the language for SimplyFPL. Your choice is saved on this device.",
-
   "live_rank.title": "Live Rank",
   "live_rank.no_team_meta": "No team selected",
   "live_rank.error_meta": "Could not load this team",
@@ -297,10 +260,69 @@
   "live_rank.freshness_aria": "Live data freshness",
   "live_rank.cohort_section_title": "Cohort comparison",
   "live_rank.provisional_bonus_aria": "Provisional bonus note",
-
   "team_news.title": "Team News",
   "team_news.all_available": "All your players are available",
-
+  "scout.title": "Scout",
+  "scout.meta": "Frank's reports · Gameweek {{gw}}",
+  "scout.meta_no_team": "Frank's reports",
+  "scout.section_inbox": "Inbox",
+  "scout.empty": "Nothing to flag in your squad. Frank posts price moves and fitness news here as they break.",
+  "scout.link_body": "Enter your Team ID on the home page and Frank will watch your squad for injuries and price moves.",
+  "scout.fnote": "Frank is an AI scout. Reports are derived from live FPL data and may lag late-breaking team news.",
+  "scout.event_injury_title": "{{player}} is injured",
+  "scout.event_doubt_title": "{{player}} is a doubt",
+  "scout.event_suspension_title": "{{player}} is suspended",
+  "scout.event_unavailable_title": "{{player}} is unavailable",
+  "scout.event_price_fall_title": "{{player}} is predicted to fall in price tonight",
+  "scout.event_price_rise_title": "{{player}} is predicted to rise in price tonight",
+  "scout.chip_injury": "Injury",
+  "scout.chip_doubt": "Doubt",
+  "scout.chip_suspension": "Suspended",
+  "scout.chip_unavailable": "Unavailable",
+  "scout.chip_price_fall": "Price fall",
+  "scout.chip_price_rise": "Price rise",
+  "scout.meta_chance": "{{chance}}% chance of playing",
+  "scout.meta_probability": "{{probability}}% likely · net transfers {{net}}",
+  "league_card.cta_press": "League press",
+  "deadline.title": "Deadline Day",
+  "deadline.hero_sub": "until the Gameweek {{gw}} deadline",
+  "deadline.closed": "Deadline passed — squads are locked",
+  "deadline.issues_title": "Unresolved squad issues",
+  "deadline.issues_empty": "No open issues. Your squad is ready.",
+  "deadline.open_count": "{{count}} open",
+  "deadline.good_title": "Good news",
+  "deadline.brief_title": "Deadline brief",
+  "deadline.brief_rises": "Predicted rises tonight",
+  "deadline.brief_falls": "Predicted falls tonight",
+  "deadline.brief_falls_you_own": "Falls in your squad",
+  "deadline.brief_rises_you_own": "Risers in your squad",
+  "deadline.fnote": "Price predictions are estimates based on FPL transfer data — not guaranteed.",
+  "press.title": "League Press",
+  "press.meta": "{{league}} · Gameweek {{gw}} review",
+  "press.masthead": "The Gazette",
+  "press.issue_no": "No. {{gw}}",
+  "press.byline": "Frank · league correspondent",
+  "press.headline": "{{team}} top {{league}} after a {{points}}-point week",
+  "press.lede_clear": "{{team}} lead the league on {{total}} points.",
+  "press.lede_chase": "{{team}} lead the league on {{total}} points, {{gap}} ahead of {{chaser}}.",
+  "press.chip_rivalry": "Rivalry week",
+  "press.chip_top_score": "Top score",
+  "press.chip_sack_watch": "Sack watch",
+  "press.chip_climb": "On the rise",
+  "press.story_rivalry": "{{gap}} points in it at the top — {{chaser}} v {{leader}} is next week's derby.",
+  "press.story_top_score": "Week's best: {{team}} with {{points}} points.",
+  "press.story_sack_watch": "Bottom of the week: {{team}} on {{points}} points. The board are watching.",
+  "press.story_climb": "{{team}} climb {{places}} places.",
+  "press.share_title": "Send to the group chat",
+  "press.share_note": "One tap copies this review as plain text for WhatsApp.",
+  "press.share_cta": "Copy for the group chat",
+  "press.share_copied": "Copied — paste it in the chat",
+  "press.your_rank": "You: {{rank}} of {{count}}",
+  "press.review_heading": "{{league}} — GW{{gw}} REVIEW",
+  "press.empty": "No standings yet for this league.",
+  "press.error": "Couldn't load this league.",
+  "press.fnote": "The Gazette is written from your league's live FPL data every gameweek.",
+  "press.share_row": "{{rank}}. {{team}} — {{total}} (GW {{gwPoints}})",
   "footer.privacy": "Privacy",
   "footer.terms": "Terms",
   "footer.support": "Support",

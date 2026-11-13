@@ -7,6 +7,7 @@ import { t } from '@simplyfpl/i18n';
 import { AdSlot, Button, Card, LeagueCard, LeagueTable, Text, XStack, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
 
+import { FEATURE_SCOUT } from '@/lib/feature-flags';
 import { useClassicLeague } from '@/queries/fpl';
 
 const AD_FREQUENCY = 8;
@@ -117,6 +118,17 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
         >
           {t('league_card.cta_rivals')}
         </Button>
+        {FEATURE_SCOUT ? (
+          <Button
+            tone="ghost"
+            size="sm"
+            onPress={() => {
+              window.location.href = `/press/${leagueId}`;
+            }}
+          >
+            {t('league_card.cta_press')}
+          </Button>
+        ) : null}
         {totalRows > 10 ? (
           <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
             {expanded

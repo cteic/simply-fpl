@@ -53,6 +53,7 @@ export * from './components/league-switcher';
 export * from './components/locale-switcher';
 export * from './components/rival-cell';
 export * from './components/rivals-window-selector';
+export * from './components/scout-event-row';
 export * from './components/section-header';
 export * from './components/speed-metric-bar';
 export * from './components/shirt';

@@ -8,7 +8,7 @@ import { auth, liveRank } from '@simplyfpl/features';
 import { getCurrentGameweek, getNextDeadline } from '@simplyfpl/fpl-client';
 import { LiveStatusPill, Nav } from '@simplyfpl/ui';
 
-import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES } from '@/lib/feature-flags';
+import { FEATURE_AUTH, FEATURE_PLANNER, FEATURE_PRICES, FEATURE_SCOUT } from '@/lib/feature-flags';
 import { setSavedEntryId, useSavedEntryId } from '@/lib/saved-entry-id';
 import { useBootstrap } from '@/queries/fpl';
 
@@ -52,6 +52,7 @@ export function NavBar() {
     hasEntry: entryId !== null,
     prices: FEATURE_PRICES,
     planner: FEATURE_PLANNER,
+    scout: FEATURE_SCOUT,
   });
   const allLinks =
     FEATURE_AUTH && session ? [...baseLinks, { label: 'Settings', href: '/settings' }] : baseLinks;

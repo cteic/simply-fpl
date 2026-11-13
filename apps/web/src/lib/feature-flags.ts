@@ -23,4 +23,5 @@ export const SHOW_AD_PLACEHOLDERS = process.env.NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS
 export const FEATURE_FRANK_ONDEMAND = process.env.NEXT_PUBLIC_FEATURE_FRANK_ONDEMAND === 'true';
 export const FEATURE_WEB_PUSH = process.env.NEXT_PUBLIC_FEATURE_WEB_PUSH === 'true';
 export const FEATURE_NEWS = process.env.NEXT_PUBLIC_FEATURE_NEWS === 'true';
+export const FEATURE_SCOUT = process.env.NEXT_PUBLIC_FEATURE_SCOUT === 'true';
 export const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '';
