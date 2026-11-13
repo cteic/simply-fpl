@@ -299,5 +299,15 @@
   "live_rank.provisional_bonus_aria": "Provisional bonus note",
 
   "team_news.title": "Team News",
-  "team_news.all_available": "All your players are available"
+  "team_news.all_available": "All your players are available",
+
+  "footer.privacy": "Privacy",
+  "footer.terms": "Terms",
+  "footer.support": "Support",
+  "legal.privacy_title": "Privacy Policy",
+  "legal.terms_title": "Terms of Service",
+  "legal.support_title": "Support",
+  "legal.last_updated": "Last updated {{date}}",
+  "support.section_contact": "Contact",
+  "support.section_faq": "Frequently asked questions"
 }

@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual run, for the one case a PR cannot cover. `wrangler versions upload`
+  # refuses to run against a Worker that does not exist, and only a deploy
+  # creates one — but a PR always takes the upload path, so a brand-new Worker
+  # can never be created from a PR. Dispatching on the branch takes the deploy
+  # path and creates it. The API-worker job stays skipped; it requires a push.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -67,33 +73,23 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:packages
-      - name: Build web with @cloudflare/next-on-pages
+      - name: Deploy web worker (push) or upload preview version (PR)
+        id: deploy
         working-directory: apps/web
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
-        run: pnpm exec next-on-pages
-      - name: Create Pages project if needed
-        working-directory: apps/web
-        run: pnpm exec wrangler pages project create simply-fpl --production-branch main 2>/dev/null || true
-      - name: Deploy to Cloudflare Pages
-        id: deploy
-        working-directory: apps/web
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
         run: |
           set -o pipefail
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            pnpm exec wrangler pages deploy .vercel/output/static \
-              --project-name=simply-fpl \
-              --branch="${{ github.head_ref }}" \
-              --commit-dirty=true 2>&1 | tee deploy.log
+            pnpm run upload 2>&1 | tee deploy.log
           else
-            pnpm exec wrangler pages deploy .vercel/output/static \
-              --project-name=simply-fpl \
-              --commit-dirty=true 2>&1 | tee deploy.log
+            pnpm run deploy 2>&1 | tee deploy.log
           fi
-          URL=$(grep -oE 'https://[a-z0-9-]+\.simply-fpl\.pages\.dev' deploy.log | head -1)
+          URL=$(grep -oE 'https://[a-z0-9.-]*simply-fpl[a-z0-9.-]*\.workers\.dev' deploy.log | head -1)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
       - name: Comment preview URL on PR
         if: github.event_name == 'pull_request' && steps.deploy.outputs.url
