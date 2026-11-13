@@ -18,6 +18,7 @@ jobs:
     if: >
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.message, 'from pete-watters/dev') ||
+      contains(github.event.head_commit.message, 'from cteic/dev') ||
       startsWith(github.event.head_commit.message, 'release:')
     runs-on: ubuntu-latest
     timeout-minutes: 15
