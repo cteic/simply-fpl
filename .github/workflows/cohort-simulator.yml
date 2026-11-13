@@ -18,6 +18,7 @@ concurrency:
 jobs:
   simulator:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

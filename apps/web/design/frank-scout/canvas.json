@@ -1,0 +1,89 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "title": "Scout Inbox · Web",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "is_interactive": true
+    },
+    {
+      "file": "Deadline.dc.html",
+      "title": "Deadline Day",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 860,
+      "is_interactive": true
+    },
+    {
+      "file": "Matchday.dc.html",
+      "title": "Matchday Live · Mobile",
+      "x": 0,
+      "y": 1080,
+      "w": 390,
+      "h": 844,
+      "is_interactive": true
+    },
+    {
+      "file": "MobileInbox.dc.html",
+      "title": "Scout Inbox · Mobile",
+      "x": 520,
+      "y": 1080,
+      "w": 390,
+      "h": 844,
+      "is_interactive": true
+    },
+    {
+      "file": "LeaguePress.dc.html",
+      "title": "League Press · Web",
+      "x": 1560,
+      "y": 1080,
+      "w": 1440,
+      "h": 980,
+      "is_interactive": true
+    }
+  ],
+  "annotations": [
+    {
+      "id": "tone-tweak",
+      "x": 3120,
+      "y": 0,
+      "w": 300,
+      "text": "OPEN DECISION — Frank's tone (issue #486).\nEvery artboard has a 'tone' tweak: 'gaffer' (full Championship Manager personality) vs 'dry' (data-first). Flip it live to compare every line of copy side by side."
+    },
+    {
+      "id": "pricing-decision",
+      "x": 3120,
+      "y": 260,
+      "w": 300,
+      "text": "OPEN DECISION — pricing.\nThe follow-up box on the web inbox is Pro-gated in this mockup. Flip the 'proGate' tweak on the Scout Inbox · Web artboard to preview the fully-free version. This decision shapes v1 scope — flagged to Pete before any build."
+    },
+    {
+      "id": "v1-slice",
+      "x": 3120,
+      "y": 560,
+      "w": 300,
+      "text": "Thinnest v1 slice: the inbox list alone — price-fall + injury events from data already in packages/fpl-client (price-changes.ts, player status flags). No detail pane, no follow-ups. Deadline view and matchday feed are phase 2."
+    },
+    {
+      "id": "channel-mvp",
+      "x": 1040,
+      "y": 1080,
+      "w": 300,
+      "text": "Notification channel MVP: the in-app inbox ships first (no new infra — Worker cron writes events, web reads them). Web push next, email digest via the Worker later. The two phone artboards preview the post-launch Expo app."
+    },
+    {
+      "id": "league-press-loop",
+      "x": 1560,
+      "y": 2140,
+      "w": 340,
+      "text": "CM features applied to MINI LEAGUES (the growth angle): League Press is the weekly auto-written gazette — headlines, rivalry week, Manager of the Month, sack watch, league records — with one button that copies a plain-text version for the league WhatsApp group. Every other CM feature serves the individual manager; this one serves the group chat, which is where FPL actually lives. Board confidence (right column) is the CM expectations meter applied to your mini-league finish."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

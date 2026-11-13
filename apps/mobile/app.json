@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0f1117"
+      "backgroundColor": "#0B4F49"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -21,12 +21,16 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0f1117"
+        "backgroundColor": "#0B4F49"
       },
       "package": "com.simplyfpl.app",
-      "versionCode": 1
+      "versionCode": 1,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
-    "plugins": ["expo-router", "expo-secure-store"],
+    "plugins": ["expo-router", ["expo-secure-store", { "faceIDPermission": false }]],
     "experiments": {
       "typedRoutes": true
     }

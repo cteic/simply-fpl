@@ -127,6 +127,7 @@ export function HeroPreSaveView({ onSave }: HeroPreSaveViewProps = {}) {
         </Text>
 
         <Text
+          render="h1"
           fontFamily="$body"
           fontWeight="700"
           fontSize={56}
