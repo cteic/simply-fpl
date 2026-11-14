@@ -80,6 +80,8 @@ export async function PUT(request: NextRequest) {
     assist?: boolean;
     red_card?: boolean;
     rank_swing?: boolean;
+    price_drop?: boolean;
+    player_availability_changed?: boolean;
     rank_swing_threshold?: number;
     quiet_hours_start?: number | null;
     quiet_hours_end?: number | null;
@@ -98,6 +100,9 @@ export async function PUT(request: NextRequest) {
   if (typeof updates['assist'] === 'boolean') safeUpdate.assist = updates['assist'];
   if (typeof updates['red_card'] === 'boolean') safeUpdate.red_card = updates['red_card'];
   if (typeof updates['rank_swing'] === 'boolean') safeUpdate.rank_swing = updates['rank_swing'];
+  if (typeof updates['price_drop'] === 'boolean') safeUpdate.price_drop = updates['price_drop'];
+  if (typeof updates['player_availability_changed'] === 'boolean')
+    safeUpdate.player_availability_changed = updates['player_availability_changed'];
   if (typeof updates['rank_swing_threshold'] === 'number')
     safeUpdate.rank_swing_threshold = updates['rank_swing_threshold'];
   if (
