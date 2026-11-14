@@ -592,7 +592,7 @@ export default {
       return;
     }
     if (event.cron === DEADLINE_REMINDER_CRON) {
-      await runDeadlineReminder(env).catch(() => undefined);
+      await runDeadlineReminder(env, event.scheduledTime).catch(() => undefined);
       return;
     }
     if (event.cron === RIVALS_WARM_CRON) {
@@ -602,6 +602,7 @@ export default {
     await warmPricesCache(env, ctx).catch(() => undefined);
     await warmNewsCache(env).catch(() => undefined);
     await runPlayerAvailabilityCheck(env).catch(() => undefined);
+    await runDeadlineReminder(env, event.scheduledTime).catch(() => undefined);
     await runScheduled(event.scheduledTime, env, ctx);
     await runCaptainScoredCheck(env).catch(() => undefined);
     await runPlayerEventsCheck(env).catch(() => undefined);
