@@ -146,7 +146,10 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     mockStripeChargesRetrieve = vi.fn().mockResolvedValue(makeCharge());
     mockSupabaseInsert = vi.fn().mockResolvedValue({ error: null });
     mockSupabaseUpdate = vi.fn();
-    mockSupabaseSelect = vi.fn().mockResolvedValue({ data: { id: FAKE_USER_ID }, error: null });
+    mockSupabaseSelect = vi.fn().mockResolvedValue({
+      data: { id: FAKE_USER_ID, stripe_subscription_id: FAKE_SUBSCRIPTION_ID },
+      error: null,
+    });
   });
 
   Scenario(
@@ -255,6 +258,43 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
 
       Then("the user's profile tier becomes 'free'", () => {
         expect(updatedData?.['tier']).toBe('free');
+      });
+    }
+  );
+
+  Scenario(
+    'events for a subscription the profile no longer holds leave the tier alone',
+    ({ Given, When, Then }) => {
+      let updateCalls = 0;
+
+      Given('a lifetime buyer whose old Pro subscription is still live', () => {
+        mockSupabaseSelect = vi.fn().mockResolvedValue({
+          data: { id: FAKE_USER_ID, stripe_subscription_id: null },
+          error: null,
+        });
+        mockSupabaseUpdate = vi.fn().mockImplementation(() => {
+          updateCalls += 1;
+          return { eq: () => Promise.resolve({ error: null }) };
+        });
+      });
+
+      When('the webhook receives updated and deleted events for the old subscription', async () => {
+        const { POST } = await import('./route');
+        for (const [i, type] of [
+          'customer.subscription.updated',
+          'customer.subscription.deleted',
+        ].entries()) {
+          mockStripeConstructEventAsync.mockResolvedValue({
+            id: `${FAKE_EVENT_ID}-old-${i}`,
+            type,
+            data: { object: makeSubscription() },
+          });
+          await POST(makeRequest('{}'));
+        }
+      });
+
+      Then('the profile is not updated', () => {
+        expect(updateCalls).toBe(0);
       });
     }
   );
