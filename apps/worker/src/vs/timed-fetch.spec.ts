@@ -145,4 +145,22 @@ describeFeature(feature, ({ Scenario }) => {
       expect(result.retryAfterSeconds).toBe(0);
     });
   });
+
+  Scenario('A full window that has run its length starts a new window', ({ Given, When, Then }) => {
+    let kv: KvStore;
+    let result: { allowed: boolean; retryAfterSeconds: number };
+    const now = Date.now();
+
+    Given('the IP "2.3.4.5" used all 3 requests in a window that opened 61 seconds ago', () => {
+      kv = makeKv({ 'vs:rl:2.3.4.5': { count: 3, windowStart: now - 61_000 } });
+    });
+
+    When('checkRateLimit is called with limit 3 for IP "2.3.4.5"', async () => {
+      result = await checkRateLimit(kv, '2.3.4.5', now, 3);
+    });
+
+    Then('the check result is allowed', () => {
+      expect(result.allowed).toBe(true);
+    });
+  });
 });
