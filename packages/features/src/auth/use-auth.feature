@@ -19,3 +19,13 @@ Feature: Pro status determination
     Given a profile with is_pro false and no pro_until date
     When I compute the Pro status
     Then the result should not be Pro
+
+  Scenario: Signing out clears the saved team so the next account does not inherit it
+    Given a saved team 123 on this device for a signed-in user
+    When that user signs out
+    Then the saved team is cleared
+
+  Scenario: Blocked storage does not break the saved team helpers
+    Given storage that throws on every access
+    When the saved team is read and cleared
+    Then no error escapes and no team is returned

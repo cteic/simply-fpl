@@ -65,6 +65,22 @@ async function setProfileTier(
   if (error) throw new Error(`profiles update failed: ${error.message}`);
 }
 
+// Subscription events only apply to the subscription the profile currently holds. An older
+// subscription on the same customer (for example after a lifetime upgrade) must not change the tier.
+async function findProfileForSubscription(
+  admin: ReturnType<typeof getSupabaseAdminClient>,
+  customerId: string,
+  subscriptionId: string
+): Promise<{ id: string } | null> {
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('id, stripe_subscription_id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+  if (!profile || profile.stripe_subscription_id !== subscriptionId) return null;
+  return { id: profile.id };
+}
+
 async function revertTierToFree(customerId: string) {
   const admin = getSupabaseAdminClient();
   const { data: profile } = await admin
@@ -115,12 +131,7 @@ async function handleSubscriptionUpdated(
   if (!tier) return;
 
   const admin = getSupabaseAdminClient();
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .maybeSingle();
-
+  const profile = await findProfileForSubscription(admin, customerId, subscription.id);
   if (!profile) return;
 
   await setProfileTier(admin, profile.id, tier, customerId, subscription.id);
@@ -131,12 +142,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   if (!customerId) return;
 
   const admin = getSupabaseAdminClient();
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .maybeSingle();
-
+  const profile = await findProfileForSubscription(admin, customerId, subscription.id);
   if (!profile) return;
 
   const { error } = await admin

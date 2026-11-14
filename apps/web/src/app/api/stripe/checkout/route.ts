@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+import type Stripe from 'stripe';
+
 import type { Tier } from '@simplyfpl/types';
 
 import { getStripeEnv } from '@/lib/env';
@@ -55,6 +57,21 @@ function isLifetime(plan: PlanId): boolean {
   return plan.endsWith('lifetime');
 }
 
+// Reuse the Stripe customer so the portal, refunds and disputes all resolve to this profile.
+// A lifetime purchase is a one-off payment, which only creates a customer when asked to.
+function customerParams(
+  existingCustomerId: string | null,
+  email: string | undefined,
+  lifetime: boolean
+): Pick<Stripe.Checkout.SessionCreateParams, 'customer' | 'customer_email' | 'customer_creation'> {
+  if (existingCustomerId) return { customer: existingCustomerId };
+  const params: Pick<Stripe.Checkout.SessionCreateParams, 'customer_email' | 'customer_creation'> =
+    {};
+  if (email) params.customer_email = email;
+  if (lifetime) params.customer_creation = 'always';
+  return params;
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await getSupabaseServerClient();
   const {
@@ -84,10 +101,19 @@ export async function POST(request: NextRequest) {
   const baseUrl = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000';
   const stripe = getStripe();
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('stripe_customer_id')
+    .eq('id', user.id)
+    .maybeSingle();
+  const existingCustomerId =
+    typeof profile?.stripe_customer_id === 'string' ? profile.stripe_customer_id : null;
+  const lifetime = isLifetime(plan);
+
   const session = await stripe.checkout.sessions.create({
-    mode: isLifetime(plan) ? 'payment' : 'subscription',
+    mode: lifetime ? 'payment' : 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    ...(user.email ? { customer_email: user.email } : {}),
+    ...customerParams(existingCustomerId, user.email, lifetime),
     success_url: `${baseUrl}/settings?checkout=success`,
     cancel_url: `${baseUrl}/upgrade`,
     metadata: { user_id: user.id, target_tier: targetTier },

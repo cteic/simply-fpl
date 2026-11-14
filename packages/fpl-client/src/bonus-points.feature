@@ -7,6 +7,16 @@ Feature: Live bonus point prediction
     And the second player gets 2 predicted bonus
     And both third-place players get 1 predicted bonus
 
+  Scenario: A tie for first place pushes the next player down to one bonus point
+    Given an in-play fixture with bps values 40, 40, 35, 30
+    When I predict bonus points for the fixture
+    Then the bonus points are 3, 3, 1 and 0
+
+  Scenario: A tie for second place gives both players two bonus points
+    Given an in-play fixture with bps values 40, 35, 35, 30
+    When I predict bonus points for the fixture
+    Then the bonus points are 3, 2, 2 and 0
+
   Scenario: Players with zero bps receive no bonus
     Given an in-play fixture with bps values 25, 0, 0
     When I predict bonus points for the fixture

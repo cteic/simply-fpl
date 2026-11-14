@@ -68,16 +68,15 @@ export function predictBonusPoints(
     const withBps = els.filter((e) => e.stats.bps > 0).sort((a, b) => b.stats.bps - a.stats.bps);
     if (withBps.length === 0) continue;
 
-    const uniqueBps: number[] = [];
-    for (const el of withBps) {
-      if (!uniqueBps.includes(el.stats.bps)) uniqueBps.push(el.stats.bps);
-      if (uniqueBps.length >= 3) break;
-    }
-
+    // FPL ranks by position, not by distinct BPS value: a tie for first gives 3, 3, 1 and a tie
+    // for second gives 3, 2, 2. A player's place is one more than the number ahead of them.
+    const BONUS_BY_PLACE = [3, 2, 1];
     const tierBonus = new Map<number, number>();
-    if (uniqueBps[0] !== undefined) tierBonus.set(uniqueBps[0], 3);
-    if (uniqueBps[1] !== undefined) tierBonus.set(uniqueBps[1], 2);
-    if (uniqueBps[2] !== undefined) tierBonus.set(uniqueBps[2], 1);
+    for (const el of withBps) {
+      if (tierBonus.has(el.stats.bps)) continue;
+      const ahead = withBps.filter((other) => other.stats.bps > el.stats.bps).length;
+      tierBonus.set(el.stats.bps, BONUS_BY_PLACE[ahead] ?? 0);
+    }
 
     for (const el of withBps) {
       const bonus = tierBonus.get(el.stats.bps) ?? 0;

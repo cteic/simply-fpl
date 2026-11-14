@@ -13,15 +13,18 @@ const ExpoSecureStoreAdapter = {
   removeItem: (key: string) => SecureStore.deleteItemAsync(key),
 };
 
+// The magic-link callback exchanges a `?code=` for a session, which only the PKCE flow returns.
+// supabase-js defaults to the implicit flow, which puts tokens in the URL fragment instead.
+export const SUPABASE_AUTH_OPTIONS = {
+  storage: ExpoSecureStoreAdapter,
+  autoRefreshToken: true,
+  persistSession: true,
+  detectSessionInUrl: false,
+  flowType: 'pkce',
+} satisfies NonNullable<Parameters<typeof createClient>[2]>['auth'];
+
 export const supabaseClient = createClient<Database>(
   process.env['EXPO_PUBLIC_SUPABASE_URL'] ?? PLACEHOLDER_URL,
   process.env['EXPO_PUBLIC_SUPABASE_ANON_KEY'] ?? PLACEHOLDER_KEY,
-  {
-    auth: {
-      storage: ExpoSecureStoreAdapter,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-    },
-  }
+  { auth: SUPABASE_AUTH_OPTIONS }
 );

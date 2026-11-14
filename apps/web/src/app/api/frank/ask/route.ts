@@ -327,6 +327,9 @@ export async function POST(request: NextRequest) {
   const writer = writable.getWriter();
 
   const reservationId = String(reservation.id);
+  // A client that closes the tab rejects every later write. That must not abort the run: the
+  // tokens are already spent, so the reservation and its usage still have to be recorded.
+  const send = (chunk: Uint8Array) => writer.write(chunk).catch(() => undefined);
 
   void (async () => {
     try {
@@ -345,7 +348,7 @@ export async function POST(request: NextRequest) {
           event.delta.text
         ) {
           fullText += event.delta.text;
-          await writer.write(sseChunk('token', { text: event.delta.text }));
+          await send(sseChunk('token', { text: event.delta.text }));
         }
       }
 
@@ -354,7 +357,9 @@ export async function POST(request: NextRequest) {
       const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
       const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
 
-      if (FRANK_CACHE_WRITE_SECRET) {
+      // Only a well-formed answer is shared through the cache. Caching the parse-error text would
+      // serve it to everyone who asks the same question.
+      if (FRANK_CACHE_WRITE_SECRET && parsed) {
         fetch(`${API_BASE_URL}/frank/ask-cache?key=${encodeURIComponent(cacheKey)}`, {
           method: 'PUT',
           headers: {
@@ -379,7 +384,7 @@ export async function POST(request: NextRequest) {
         // best-effort
       }
 
-      await writer.write(
+      await send(
         sseChunk('done', {
           advice,
           follow_up_question: parsed?.follow_up_question ?? null,
@@ -390,7 +395,7 @@ export async function POST(request: NextRequest) {
       );
     } catch {
       await admin.from('frank_queries').delete().eq('id', reservationId);
-      await writer.write(sseChunk('error', { error: 'AI service unavailable' }));
+      await send(sseChunk('error', { error: 'AI service unavailable' }));
     } finally {
       writer.close().catch(() => undefined);
     }

@@ -7,6 +7,7 @@ import type { LeagueAlertRule } from '@simplyfpl/types';
 
 import { Text, XStack, YStack } from '../../tamagui-primitives';
 import { Button } from '../button';
+import { LeagueInput } from './league-input';
 
 export type NotificationPermissionState = 'default' | 'granted' | 'denied' | 'unsupported';
 
@@ -311,35 +312,6 @@ function LeagueAlertList({ alerts, onRemove, onAdd }: LeagueAlertListProps) {
         </XStack>
       )}
     </YStack>
-  );
-}
-
-interface LeagueInputProps {
-  value: string;
-  placeholder: string;
-  onChange: (value: string) => void;
-}
-
-function LeagueInput({ value, placeholder, onChange: _onChange }: LeagueInputProps) {
-  return (
-    <XStack
-      borderWidth={1}
-      borderColor="$borderColor"
-      borderRadius={4}
-      paddingHorizontal={8}
-      paddingVertical={6}
-    >
-      <Text
-        fontFamily="$mono"
-        fontSize={13}
-        color="$color"
-        flex={1}
-        onPress={() => {}}
-        suppressHighlighting
-      >
-        {value || <Text color="$colorSubtle">{placeholder}</Text>}
-      </Text>
-    </XStack>
   );
 }
 

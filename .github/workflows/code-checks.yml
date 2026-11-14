@@ -45,6 +45,8 @@ jobs:
       - run: pnpm lint
       - name: PostHog PII check
         run: pnpm check:pii
+      - name: Supabase RLS check
+        run: pnpm check:rls
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build:packages

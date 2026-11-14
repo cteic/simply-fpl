@@ -21,6 +21,11 @@ Feature: Stripe webhook handler
     When the webhook receives customer.subscription.deleted
     Then the user's profile tier becomes 'free'
 
+  Scenario: events for a subscription the profile no longer holds leave the tier alone
+    Given a lifetime buyer whose old Pro subscription is still live
+    When the webhook receives updated and deleted events for the old subscription
+    Then the profile is not updated
+
   Scenario: customer.subscription.updated with status canceled reverts the user to the free tier
     Given a customer.subscription.updated event with status canceled
     When the webhook handler processes the event

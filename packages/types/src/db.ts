@@ -128,6 +128,7 @@ export interface Database {
           captain_scored: boolean;
           bonus_confirmed: boolean;
           price_drop: boolean;
+          player_availability_changed: boolean;
           rank_swing: boolean;
           rank_swing_threshold: number;
           goal_scored: boolean;
@@ -143,6 +144,7 @@ export interface Database {
           captain_scored?: boolean;
           bonus_confirmed?: boolean;
           price_drop?: boolean;
+          player_availability_changed?: boolean;
           rank_swing?: boolean;
           rank_swing_threshold?: number;
           goal_scored?: boolean;
@@ -157,6 +159,7 @@ export interface Database {
           captain_scored?: boolean;
           bonus_confirmed?: boolean;
           price_drop?: boolean;
+          player_availability_changed?: boolean;
           rank_swing?: boolean;
           rank_swing_threshold?: number;
           goal_scored?: boolean;
