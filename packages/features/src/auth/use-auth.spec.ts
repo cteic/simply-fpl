@@ -1,7 +1,28 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
-import { computeIsPro } from './use-auth';
+import {
+  clearLocalEntryId,
+  computeIsPro,
+  readLocalEntryId,
+  shouldClearEntryIdOnSessionChange,
+} from './use-auth';
+
+function memoryStorage(initial: Record<string, string> = {}) {
+  const map = new Map(Object.entries(initial));
+  return {
+    getItem: (key: string) => map.get(key) ?? null,
+    setItem: (key: string, value: string) => void map.set(key, value),
+    removeItem: (key: string) => void map.delete(key),
+  };
+}
+
+function throwingStorage() {
+  const fail = (): never => {
+    throw new Error('SecurityError');
+  };
+  return { getItem: fail, setItem: fail, removeItem: fail };
+}
 
 const feature = await loadFeature('./use-auth.feature');
 
@@ -73,6 +94,45 @@ describeFeature(feature, ({ Scenario }) => {
 
     Then('the result should not be Pro', () => {
       expect(result).toBe(false);
+    });
+  });
+
+  Scenario(
+    'Signing out clears the saved team so the next account does not inherit it',
+    ({ Given, When, Then }) => {
+      const storage = memoryStorage();
+
+      Given('a saved team 123 on this device for a signed-in user', () => {
+        storage.setItem('simplyfpl:lastEntryId', '123');
+      });
+
+      When('that user signs out', () => {
+        if (shouldClearEntryIdOnSessionChange('user-a', null)) clearLocalEntryId(storage);
+      });
+
+      Then('the saved team is cleared', () => {
+        expect(readLocalEntryId(storage)).toBeNull();
+        expect(shouldClearEntryIdOnSessionChange(null, 'user-b')).toBe(false);
+        expect(shouldClearEntryIdOnSessionChange('user-a', 'user-a')).toBe(false);
+      });
+    }
+  );
+
+  Scenario('Blocked storage does not break the saved team helpers', ({ Given, When, Then }) => {
+    let storage: ReturnType<typeof throwingStorage>;
+    let read: number | null = 0;
+
+    Given('storage that throws on every access', () => {
+      storage = throwingStorage();
+    });
+
+    When('the saved team is read and cleared', () => {
+      read = readLocalEntryId(storage);
+      clearLocalEntryId(storage);
+    });
+
+    Then('no error escapes and no team is returned', () => {
+      expect(read).toBeNull();
     });
   });
 });
