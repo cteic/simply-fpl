@@ -155,6 +155,66 @@ describeFeature(feature, ({ Scenario }) => {
     });
   });
 
+  Scenario(
+    'A tie for first place pushes the next player down to one bonus point',
+    ({ Given, When, Then }) => {
+      let liveData: FplLiveGameweek;
+      let fixtures: FplFixture[];
+      let result: ReturnType<typeof predictBonusPoints>;
+
+      Given('an in-play fixture with bps values 40, 40, 35, 30', () => {
+        liveData = makeLive([
+          makeElement(301, 40),
+          makeElement(302, 40),
+          makeElement(303, 35),
+          makeElement(304, 30),
+        ]);
+        fixtures = [makeFixture()];
+      });
+
+      When('I predict bonus points for the fixture', () => {
+        result = predictBonusPoints(liveData, fixtures, EMPTY_BOOTSTRAP);
+      });
+
+      Then('the bonus points are 3, 3, 1 and 0', () => {
+        expect(result.get(301)?.bonus ?? 0).toBe(3);
+        expect(result.get(302)?.bonus ?? 0).toBe(3);
+        expect(result.get(303)?.bonus ?? 0).toBe(1);
+        expect(result.get(304)?.bonus ?? 0).toBe(0);
+      });
+    }
+  );
+
+  Scenario(
+    'A tie for second place gives both players two bonus points',
+    ({ Given, When, Then }) => {
+      let liveData: FplLiveGameweek;
+      let fixtures: FplFixture[];
+      let result: ReturnType<typeof predictBonusPoints>;
+
+      Given('an in-play fixture with bps values 40, 35, 35, 30', () => {
+        liveData = makeLive([
+          makeElement(301, 40),
+          makeElement(302, 35),
+          makeElement(303, 35),
+          makeElement(304, 30),
+        ]);
+        fixtures = [makeFixture()];
+      });
+
+      When('I predict bonus points for the fixture', () => {
+        result = predictBonusPoints(liveData, fixtures, EMPTY_BOOTSTRAP);
+      });
+
+      Then('the bonus points are 3, 2, 2 and 0', () => {
+        expect(result.get(301)?.bonus ?? 0).toBe(3);
+        expect(result.get(302)?.bonus ?? 0).toBe(2);
+        expect(result.get(303)?.bonus ?? 0).toBe(2);
+        expect(result.get(304)?.bonus ?? 0).toBe(0);
+      });
+    }
+  );
+
   Scenario('Players with zero bps receive no bonus', ({ Given, When, Then, And }) => {
     let liveData: FplLiveGameweek;
     let fixtures: FplFixture[];
