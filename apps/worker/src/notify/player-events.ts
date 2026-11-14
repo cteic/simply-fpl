@@ -257,10 +257,6 @@ export async function runPlayerEventsCheck(env: Env): Promise<void> {
       const diff = elementsWithNewEvents.get(pick.element);
       if (!diff) continue;
 
-      if (diff.newGoals > 0 && !prefs.goal_scored) continue;
-      if (diff.newAssists > 0 && !prefs.assist && diff.newGoals === 0 && !diff.redCard) continue;
-      if (diff.redCard && !prefs.red_card && diff.newGoals === 0 && diff.newAssists === 0) continue;
-
       const playerEl = bootstrap.elements.find((e) => e.id === pick.element);
       const playerName = playerEl ? playerEl.web_name : `Player ${pick.element}`;
       const liveEl = liveByElement.get(pick.element);
