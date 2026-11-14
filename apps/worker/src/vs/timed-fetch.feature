@@ -27,3 +27,8 @@ Feature: /vs/timed-fetch — live byte-timing endpoint
     Given the IP "2.3.4.5" has made 3 requests in a window with limit 10
     When checkRateLimit is called with limit 10 for IP "2.3.4.5"
     Then the check result is allowed
+
+  Scenario: A full window that has run its length starts a new window
+    Given the IP "2.3.4.5" used all 3 requests in a window that opened 61 seconds ago
+    When checkRateLimit is called with limit 3 for IP "2.3.4.5"
+    Then the check result is allowed
