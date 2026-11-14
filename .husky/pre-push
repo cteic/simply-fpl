@@ -9,6 +9,7 @@ pnpm format:check
 # Static scan for PII inside PostHog capture/identify calls (~0.2s, grep only).
 # Re-checked in CI; this is the fast local copy.
 pnpm check:pii
+pnpm check:rls
 
 # Optional opt-in pre-push checks via PRE_PUSH env var in .env, e.g.
 # PRE_PUSH=typecheck,lint,test:unit
