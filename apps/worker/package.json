@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
-    "@cloudflare/puppeteer": "^1.1.0",
+    "@cloudflare/puppeteer": "^2.0.0",
     "@simplyfpl/fpl-client": "workspace:*",
     "@simplyfpl/types": "workspace:*",
     "web-push": "^3.6.7"
@@ -27,6 +27,6 @@
     "msw": "^2.7.5",
     "typescript": "^5.7.0",
     "vitest": "^3.2.6",
-    "wrangler": "^4.108.0"
+    "wrangler": "^4.161.0"
   }
 }
