@@ -385,4 +385,57 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
     });
   });
+
+  Scenario(
+    'an answer that cannot be parsed is not written to the shared cache',
+    ({ Given, And, When, Then }) => {
+      Given('a signed-in Ultimate user with 0 queries this month', () => {
+        seedRows(0);
+        vi.stubEnv('FRANK_CACHE_WRITE_SECRET', 'cache-secret');
+      });
+
+      And('the model replies with text that is not JSON', () => {
+        mockAnthropicStream = vi
+          .fn()
+          .mockReturnValue(new MockMessageStream(['```json\n{"advice": "Captain Salah."}\n```']));
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        await drainStream(await POST(makeRequest()));
+      });
+
+      Then('the ask-cache is never written', () => {
+        const fetchMock = vi.mocked(fetch);
+        const cacheWrites = fetchMock.mock.calls.filter(
+          ([url, init]) => String(url).includes('/frank/ask-cache') && init?.method === 'PUT'
+        );
+        expect(cacheWrites).toHaveLength(0);
+      });
+    }
+  );
+
+  Scenario(
+    'a client that disconnects mid-stream keeps its quota reservation',
+    ({ Given, When, Then }) => {
+      Given('a signed-in Ultimate user with 0 queries this month', () => {
+        seedRows(0);
+      });
+
+      When('they ask Frank a question and close the stream straight away', async () => {
+        const { POST } = await importRoute();
+        const response = await POST(makeRequest());
+        await response.body?.cancel();
+        await vi.waitFor(() => {
+          expect(frankRows[0]?.tokens_out).toBeDefined();
+        });
+      });
+
+      Then('the reservation stays and records the token usage', () => {
+        expect(frankRows).toHaveLength(1);
+        expect(frankRows[0]?.tokens_in).toBe(10);
+        expect(frankRows[0]?.tokens_out).toBe(20);
+      });
+    }
+  );
 });

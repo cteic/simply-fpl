@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
@@ -32,16 +32,59 @@ export function computeIsPro(profile: { is_pro: boolean; pro_until: string | nul
   return profile.is_pro && stillValid;
 }
 
-function readLocalEntryId(): number | null {
-  if (typeof window === 'undefined') return null;
-  const raw = window.localStorage.getItem(ENTRY_ID_STORAGE_KEY);
-  const parsed = raw ? Number(raw) : NaN;
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+interface EntryIdStorage {
+  getItem: (key: string) => string | null;
+  setItem: (key: string, value: string) => void;
+  removeItem: (key: string) => void;
 }
 
-function writeLocalEntryId(id: number) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(ENTRY_ID_STORAGE_KEY, String(id));
+// React Native defines `window` without `localStorage`, and browsers throw when storage is blocked.
+function getEntryIdStorage(): EntryIdStorage | null {
+  try {
+    if (typeof window === 'undefined') return null;
+    const storage: unknown = window.localStorage;
+    if (typeof storage !== 'object' || storage === null) return null;
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function readLocalEntryId(
+  storage: EntryIdStorage | null = getEntryIdStorage()
+): number | null {
+  try {
+    const raw = storage?.getItem(ENTRY_ID_STORAGE_KEY) ?? null;
+    const parsed = raw ? Number(raw) : NaN;
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalEntryId(id: number, storage: EntryIdStorage | null = getEntryIdStorage()) {
+  try {
+    storage?.setItem(ENTRY_ID_STORAGE_KEY, String(id));
+  } catch {
+    // storage unavailable: the profile keeps the value
+  }
+}
+
+export function clearLocalEntryId(storage: EntryIdStorage | null = getEntryIdStorage()) {
+  try {
+    storage?.removeItem(ENTRY_ID_STORAGE_KEY);
+  } catch {
+    // storage unavailable: nothing to clear
+  }
+}
+
+// The saved team belongs to whoever set it. Once a signed-in user signs out, clear it so the
+// next account to sign in on this device does not inherit it and overwrite its own profile.
+export function shouldClearEntryIdOnSessionChange(
+  previousUserId: string | null,
+  nextUserId: string | null
+): boolean {
+  return previousUserId !== null && previousUserId !== nextUserId;
 }
 
 export function AuthProvider({ client, children }: AuthProviderProps) {
@@ -49,17 +92,24 @@ export function AuthProvider({ client, children }: AuthProviderProps) {
   const [isPro, setIsPro] = useState(false);
   const [tier, setTier] = useState<Tier>('free');
   const [isLoading, setIsLoading] = useState(true);
+  const lastUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     client.auth.getSession().then(({ data }) => {
       if (cancelled) return;
+      lastUserIdRef.current = data.session?.user.id ?? null;
       setSession(data.session);
       setIsLoading(false);
     });
 
     const { data } = client.auth.onAuthStateChange((_event, nextSession) => {
+      const nextUserId = nextSession?.user.id ?? null;
+      if (shouldClearEntryIdOnSessionChange(lastUserIdRef.current, nextUserId)) {
+        clearLocalEntryId();
+      }
+      lastUserIdRef.current = nextUserId;
       setSession(nextSession);
     });
 

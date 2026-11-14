@@ -46,3 +46,14 @@ Feature: Frank on-demand ask quota and streaming
     Then the response is a stream
     And the stream contains a done event with Frank's advice
     And exactly one AI call is made
+
+  Scenario: an answer that cannot be parsed is not written to the shared cache
+    Given a signed-in Ultimate user with 0 queries this month
+    And the model replies with text that is not JSON
+    When they ask Frank a question
+    Then the ask-cache is never written
+
+  Scenario: a client that disconnects mid-stream keeps its quota reservation
+    Given a signed-in Ultimate user with 0 queries this month
+    When they ask Frank a question and close the stream straight away
+    Then the reservation stays and records the token usage

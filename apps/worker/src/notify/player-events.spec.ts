@@ -436,6 +436,38 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
   );
 
   Scenario(
+    'An assist still notifies when goal alerts are off and the player also scored',
+    ({ Given, When, Then, And }) => {
+      let env: ReturnType<typeof makeEnv>;
+
+      Given('a live tick where a squad player scored and assisted', () => {
+        const prevStats = JSON.stringify({
+          [String(PLAYER_A_ID)]: { goals: 0, assists: 0, red_cards: 0 },
+          [String(PLAYER_B_ID)]: { goals: 0, assists: 0, red_cards: 0 },
+        });
+        const kvStore: Record<string, string> = {
+          'fpl:/bootstrap-static/': makeBootstrap(GW_ID),
+          [`fpl:/event/${GW_ID}/live/`]: makeLiveGw(0, 1, 0, 1),
+          [`notify:pstats:gw${GW_ID}`]: prevStats,
+          [`fpl:/entry/${ENTRY_ID}/event/${GW_ID}/picks/`]: makePicks(PLAYER_B_ID),
+        };
+        env = makeEnv(kvStore);
+        setupFetchMock(makePrefsResponse({ goal_scored: false, assist: true, red_card: false }));
+      });
+
+      And('the user has goal_scored disabled and assist enabled', () => undefined);
+
+      When('runPlayerEventsCheck is called', async () => {
+        await runPlayerEventsCheck(env);
+      });
+
+      Then('one push is sent for that user', () => {
+        expect(mockSendNotification).toHaveBeenCalledTimes(1);
+      });
+    }
+  );
+
+  Scenario(
     'First tick with no previous stats does not trigger notifications',
     ({ Given, When, Then, And }) => {
       let env: ReturnType<typeof makeEnv>;

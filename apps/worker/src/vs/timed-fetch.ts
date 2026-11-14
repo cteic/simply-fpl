@@ -70,7 +70,12 @@ export async function checkRateLimit(
   const key = `${RATE_KEY_PREFIX}${ip}`;
   const existing = await kv.get(key, 'json');
 
-  if (!isRateLimitRecord(existing)) {
+  // A fixed window: once it has run its full length, the next request opens a new one. The KV
+  // expiry alone cannot close it, because every allowed request renews that expiry.
+  const windowOpen =
+    isRateLimitRecord(existing) && now - existing.windowStart < RATE_WINDOW_SECS * 1000;
+
+  if (!windowOpen) {
     await kv.put(key, JSON.stringify({ count: 1, windowStart: now }), {
       expirationTtl: RATE_WINDOW_SECS,
     });

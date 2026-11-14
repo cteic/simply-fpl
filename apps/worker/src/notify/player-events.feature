@@ -42,6 +42,12 @@ Feature: Player event notifications
     When runPlayerEventsCheck is called
     Then no push is sent for that user
 
+  Scenario: An assist still notifies when goal alerts are off and the player also scored
+    Given a live tick where a squad player scored and assisted
+    And the user has goal_scored disabled and assist enabled
+    When runPlayerEventsCheck is called
+    Then one push is sent for that user
+
   Scenario: First tick with no previous stats does not trigger notifications
     Given no stored stats exist for the current gameweek
     And the live tick shows a player with 2 goals
