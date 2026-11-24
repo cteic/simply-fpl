@@ -57,3 +57,7 @@ apps/web/playwright-report
 # OpenNext (Cloudflare Workers) build output and local Worker vars
 .open-next
 .dev.vars
+
+# Lighthouse CI output
+.lighthouseci
+lighthouse-report
