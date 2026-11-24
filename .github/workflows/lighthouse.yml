@@ -68,7 +68,7 @@ jobs:
 
       - name: Save reports
         if: ${{ !cancelled() }}
-        run: npx --yes "@lhci/cli@$LHCI_VERSION" upload --config="$CONFIG"
+        run: npx --yes "@lhci/cli@$LHCI_VERSION" upload --target=filesystem --outputDir=lighthouse-report
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -79,7 +79,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Report
-        if: ${{ !cancelled() && hashFiles('.lighthouseci/lhr-*.json') != '' }}
+        if: ${{ !cancelled() && hashFiles('lighthouse-report/manifest.json') != '' }}
         uses: actions/github-script@v7
         env:
           STATUS: ${{ steps.assert.outcome }}
@@ -105,13 +105,14 @@ jobs:
               return entry?.assertions?.[id]?.[1]?.maxNumericValue;
             }
 
+            // The upload step writes one report per run, listed in manifest.json.
+            const manifest = JSON.parse(fs.readFileSync('lighthouse-report/manifest.json', 'utf8'));
             const runsByUrl = new Map();
-            for (const file of fs.readdirSync('.lighthouseci')) {
-              if (!/^lhr-\d+\.json$/.test(file)) continue;
-              const lhr = JSON.parse(fs.readFileSync(`.lighthouseci/${file}`, 'utf8'));
-              const runs = runsByUrl.get(lhr.requestedUrl) ?? [];
+            for (const entry of manifest) {
+              const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, 'utf8'));
+              const runs = runsByUrl.get(entry.url) ?? [];
               runs.push(lhr);
-              runsByUrl.set(lhr.requestedUrl, runs);
+              runsByUrl.set(entry.url, runs);
             }
 
             const lines = [
