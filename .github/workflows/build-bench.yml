@@ -1,0 +1,200 @@
+name: Build Bench
+
+# One self-contained workflow for the build time report, so it can move to
+# cteic/foundry as a reusable workflow. It times a cold and a cached build with
+# hyperfine, compares with the base branch and comments the difference. The
+# `turbo --summarize` report is saved as an artefact.
+#
+# This is a report, not a budget: times on shared runners vary too much to fail
+# a PR on.
+#
+# The base timing is cached by commit. A push to dev stores it, so most PRs
+# time one branch. A PR whose base has no stored timing times the base too.
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.github/ISSUE_TEMPLATE/**'
+  push:
+    branches: [dev]
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version
+        type: string
+        default: '22'
+      bench-script:
+        description: Script that honours BENCH_RUNS and writes summary.json to BENCH_OUT
+        type: string
+        default: scripts/bench-build.sh
+      runs:
+        description: Timed runs per case
+        type: string
+        default: '3'
+      hyperfine-version:
+        description: Version of hyperfine
+        type: string
+        default: 2.0.0
+
+concurrency:
+  group: build-bench-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: ${{ inputs.node-version || '22' }}
+  BENCH_SCRIPT: ${{ inputs.bench-script || 'scripts/bench-build.sh' }}
+  BENCH_RUNS: ${{ inputs.runs || '3' }}
+  HYPERFINE_VERSION: ${{ inputs.hyperfine-version || '2.0.0' }}
+
+jobs:
+  build-bench:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install hyperfine
+        run: |
+          deb="hyperfine_${HYPERFINE_VERSION}_amd64.deb"
+          curl --fail --silent --show-error --location --retry 3 --output "$RUNNER_TEMP/$deb" \
+            "https://github.com/sharkdp/hyperfine/releases/download/v${HYPERFINE_VERSION}/$deb"
+          sudo dpkg --install "$RUNNER_TEMP/$deb"
+
+      - name: Restore the base timing
+        if: github.event_name == 'pull_request'
+        id: base-cache
+        uses: actions/cache@v4
+        with:
+          path: bench-base
+          key: build-bench-${{ github.event.pull_request.base.sha }}-${{ env.BENCH_RUNS }}-${{ hashFiles(env.BENCH_SCRIPT) }}
+
+      # The base is timed with this branch's script, on this runner, so both
+      # sides of the comparison share a machine.
+      - name: Time the base
+        if: github.event_name == 'pull_request' && steps.base-cache.outputs.cache-hit != 'true'
+        # A base that no longer builds must not fail the PR. The report then
+        # has no "vs base" column.
+        continue-on-error: true
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git worktree add "$RUNNER_TEMP/base" "$BASE_SHA"
+          cp "$BENCH_SCRIPT" "$RUNNER_TEMP/base/$BENCH_SCRIPT"
+          (cd "$RUNNER_TEMP/base" && pnpm install --frozen-lockfile && BENCH_OUT="$GITHUB_WORKSPACE/bench-base" bash "$BENCH_SCRIPT")
+
+      - name: Time this branch
+        env:
+          BENCH_OUT: bench-results
+        run: bash "$BENCH_SCRIPT"
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: build-bench
+          path: |
+            bench-results
+            bench-base
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Report
+        if: ${{ !cancelled() && hashFiles('bench-results/summary.json') != '' }}
+        uses: actions/github-script@v7
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            function isTiming(value) {
+              return (
+                typeof value === 'object' &&
+                value !== null &&
+                typeof value.median === 'number' &&
+                typeof value.min === 'number' &&
+                typeof value.max === 'number'
+              );
+            }
+            function readSummary(dir) {
+              const file = `${dir}/summary.json`;
+              if (!fs.existsSync(file)) return {};
+              return JSON.parse(fs.readFileSync(file, 'utf8'));
+            }
+            function seconds(value) {
+              return `${value.toFixed(2)} s`;
+            }
+            function versusBase(head, base) {
+              if (!base) return 'no base timing';
+              const diff = head.median - base.median;
+              const sign = diff > 0 ? '+' : '';
+              return `${sign}${diff.toFixed(2)} s (${sign}${((diff / base.median) * 100).toFixed(1)}%)`;
+            }
+
+            const lines = [
+              '| Build | Median | Min | Max | Base median | vs base |',
+              '| --- | ---: | ---: | ---: | ---: | ---: |',
+            ];
+            const headSummary = readSummary('bench-results');
+            const baseSummary = readSummary('bench-base');
+            for (const name of ['cold', 'cached']) {
+              const head = headSummary[name];
+              if (!isTiming(head)) continue;
+              const base = isTiming(baseSummary[name]) ? baseSummary[name] : null;
+              lines.push(
+                `| ${name} | ${seconds(head.median)} | ${seconds(head.min)} | ${seconds(head.max)} | ${base ? seconds(base.median) : ''} | ${versusBase(head, base)} |`
+              );
+            }
+
+            const marker = '<!-- build-bench -->';
+            const body = [
+              marker,
+              '### Build time',
+              '',
+              `\`pnpm build\`, ${process.env.BENCH_RUNS} timed runs per case with hyperfine on \`ubuntu-24.04\`. Shared runners vary, so read small differences as noise. The per-task report is in the \`build-bench\` artefact.`,
+              '',
+              ...lines,
+            ].join('\n');
+            await core.summary.addRaw(body).write();
+
+            // A pull request from a fork gets a read-only token, so it only
+            // gets the job summary.
+            if (context.eventName !== 'pull_request' || process.env.IS_FORK === 'true') return;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+            });
+            const existing = comments.find((comment) => comment.body?.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+      # Stored under this commit so PRs based on it skip the base timing.
+      - name: Name the timing as a base
+        if: ${{ !cancelled() && github.event_name == 'push' && hashFiles('bench-results/summary.json') != '' }}
+        run: cp -r bench-results bench-base
+      - name: Store the timing for later PRs
+        if: ${{ !cancelled() && github.event_name == 'push' && hashFiles('bench-base/summary.json') != '' }}
+        uses: actions/cache/save@v4
+        with:
+          path: bench-base
+          key: build-bench-${{ github.sha }}-${{ env.BENCH_RUNS }}-${{ hashFiles(env.BENCH_SCRIPT) }}
