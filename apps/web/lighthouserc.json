@@ -1,0 +1,52 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 5,
+      "settings": {
+        "chromeFlags": "--headless=new --no-sandbox"
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "^https?://[^/]+/?$",
+          "assertions": {
+            "largest-contentful-paint": [
+              "error",
+              { "maxNumericValue": 4000, "aggregationMethod": "median" }
+            ],
+            "total-blocking-time": [
+              "error",
+              { "maxNumericValue": 600, "aggregationMethod": "median" }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              { "maxNumericValue": 0.1, "aggregationMethod": "median" }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "/h2h$",
+          "assertions": {
+            "largest-contentful-paint": [
+              "error",
+              { "maxNumericValue": 4000, "aggregationMethod": "median" }
+            ],
+            "total-blocking-time": [
+              "error",
+              { "maxNumericValue": 600, "aggregationMethod": "median" }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              { "maxNumericValue": 0.1, "aggregationMethod": "median" }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "lighthouse-report"
+    }
+  }
+}
