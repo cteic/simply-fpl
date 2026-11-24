@@ -91,8 +91,10 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          git fetch --no-tags --depth=1 origin "$BASE_SHA"
-          git worktree add "$RUNNER_TEMP/base" "$BASE_SHA"
+          # A clone, not a git worktree. Turborepo exits about 2.5 s faster in a
+          # linked worktree, which would skew the cached comparison.
+          git fetch --no-tags --depth=1 origin "${BASE_SHA}:refs/heads/bench-base"
+          git clone --quiet --branch bench-base "$GITHUB_WORKSPACE" "$RUNNER_TEMP/base"
           cp "$BENCH_SCRIPT" "$RUNNER_TEMP/base/$BENCH_SCRIPT"
           (cd "$RUNNER_TEMP/base" && pnpm install --frozen-lockfile && BENCH_OUT="$GITHUB_WORKSPACE/bench-base" bash "$BENCH_SCRIPT")
 
