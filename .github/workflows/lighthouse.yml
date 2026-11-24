@@ -1,0 +1,162 @@
+name: Lighthouse
+
+# One self-contained workflow for the page speed budget, so it can move to
+# cteic/foundry as a reusable workflow. The caller passes the URL of a deployed
+# preview. Lighthouse loads each path five times, and the job fails when the
+# median LCP, TBT or CLS breaks a budget in the config file.
+
+on:
+  workflow_call:
+    inputs:
+      url:
+        description: Origin of the deployed preview, with no trailing slash
+        type: string
+        required: true
+      paths:
+        description: Space-separated paths to test
+        type: string
+        default: / /h2h
+      config:
+        description: Lighthouse CI config file, relative to the repo root
+        type: string
+        default: apps/web/lighthouserc.json
+      lhci-version:
+        description: Version of @lhci/cli
+        type: string
+        default: 0.16.1
+      node-version:
+        description: Node.js version
+        type: string
+        default: '22'
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      PREVIEW_URL: ${{ inputs.url }}
+      PATHS: ${{ inputs.paths }}
+      CONFIG: ${{ inputs.config }}
+      LHCI_VERSION: ${{ inputs.lhci-version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      # A new preview version can take a few seconds to answer.
+      - name: Wait for the preview
+        run: curl --fail --silent --show-error --output /dev/null --retry 10 --retry-delay 3 --retry-all-errors "$PREVIEW_URL/"
+
+      - name: Collect
+        run: |
+          args=()
+          for path in $PATHS; do
+            args+=("--url=$PREVIEW_URL$path")
+          done
+          npx --yes "@lhci/cli@$LHCI_VERSION" collect --config="$CONFIG" "${args[@]}"
+
+      - name: Assert budgets
+        id: assert
+        run: npx --yes "@lhci/cli@$LHCI_VERSION" assert --config="$CONFIG"
+
+      - name: Save reports
+        if: ${{ !cancelled() }}
+        run: npx --yes "@lhci/cli@$LHCI_VERSION" upload --config="$CONFIG"
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: lighthouse-report
+          path: lighthouse-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Report
+        if: ${{ !cancelled() && hashFiles('.lighthouseci/lhr-*.json') != '' }}
+        uses: actions/github-script@v7
+        env:
+          STATUS: ${{ steps.assert.outcome }}
+          IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const METRICS = [
+              { id: 'largest-contentful-paint', label: 'LCP', format: (v) => `${Math.round(v)} ms` },
+              { id: 'total-blocking-time', label: 'TBT', format: (v) => `${Math.round(v)} ms` },
+              { id: 'cumulative-layout-shift', label: 'CLS', format: (v) => v.toFixed(3) },
+            ];
+            function median(values) {
+              const sorted = [...values].sort((a, b) => a - b);
+              const mid = Math.floor(sorted.length / 2);
+              return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+            }
+
+            const config = JSON.parse(fs.readFileSync(process.env.CONFIG, 'utf8'));
+            const matrix = config.ci?.assert?.assertMatrix ?? [];
+            function budgetFor(url, id) {
+              const entry = matrix.find((m) => new RegExp(m.matchingUrlPattern).test(url));
+              return entry?.assertions?.[id]?.[1]?.maxNumericValue;
+            }
+
+            const runsByUrl = new Map();
+            for (const file of fs.readdirSync('.lighthouseci')) {
+              if (!/^lhr-\d+\.json$/.test(file)) continue;
+              const lhr = JSON.parse(fs.readFileSync(`.lighthouseci/${file}`, 'utf8'));
+              const runs = runsByUrl.get(lhr.requestedUrl) ?? [];
+              runs.push(lhr);
+              runsByUrl.set(lhr.requestedUrl, runs);
+            }
+
+            const lines = [
+              '| Page | Metric | Median | Budget | Status | Runs |',
+              '| --- | --- | ---: | ---: | :---: | ---: |',
+            ];
+            for (const [url, runs] of [...runsByUrl].sort(([a], [b]) => a.localeCompare(b))) {
+              const page = new URL(url).pathname;
+              for (const metric of METRICS) {
+                const value = median(runs.map((lhr) => lhr.audits[metric.id].numericValue));
+                const budget = budgetFor(url, metric.id);
+                const hasBudget = typeof budget === 'number';
+                const status = hasBudget && value > budget ? 'FAIL' : 'PASS';
+                lines.push(
+                  `| \`${page}\` | ${metric.label} | ${metric.format(value)} | ${hasBudget ? metric.format(budget) : 'none'} | ${hasBudget ? status : ''} | ${runs.length} |`
+                );
+              }
+            }
+
+            const marker = '<!-- lighthouse -->';
+            const verdict =
+              process.env.STATUS === 'success' ? 'Within budget.' : 'Over budget. The job fails.';
+            const body = [
+              marker,
+              '### Page speed',
+              '',
+              `${verdict} Lighthouse mobile profile against ${process.env.PREVIEW_URL}.`,
+              '',
+              ...lines,
+            ].join('\n');
+            await core.summary.addRaw(body).write();
+
+            // A pull request from a fork gets a read-only token, so it only
+            // gets the job summary.
+            if (context.eventName !== 'pull_request' || process.env.IS_FORK === 'true') return;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+            });
+            const existing = comments.find((comment) => comment.body?.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
