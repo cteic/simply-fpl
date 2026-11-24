@@ -8,8 +8,9 @@ name: Build Bench
 # This is a report, not a budget: times on shared runners vary too much to fail
 # a PR on.
 #
-# The base timing is cached by commit. A push to dev stores it, so most PRs
-# time one branch. A PR whose base has no stored timing times the base too.
+# The base branch is timed in the same job, on the same runner. Cold builds on
+# two runners differed by 66% (39 s and 65 s), so a base timing stored from an
+# earlier run would not be comparable.
 
 on:
   pull_request:
@@ -17,8 +18,6 @@ on:
       - 'docs/**'
       - '**.md'
       - '.github/ISSUE_TEMPLATE/**'
-  push:
-    branches: [dev]
   workflow_call:
     inputs:
       node-version:
@@ -73,26 +72,17 @@ jobs:
             "https://github.com/sharkdp/hyperfine/releases/download/v${HYPERFINE_VERSION}/$deb"
           sudo dpkg --install "$RUNNER_TEMP/$deb"
 
-      - name: Restore the base timing
-        if: github.event_name == 'pull_request'
-        id: base-cache
-        uses: actions/cache@v4
-        with:
-          path: bench-base
-          key: build-bench-${{ github.event.pull_request.base.sha }}-${{ env.BENCH_RUNS }}-${{ hashFiles(env.BENCH_SCRIPT) }}
-
       # The base is timed with this branch's script, on this runner, so both
       # sides of the comparison share a machine.
       - name: Time the base
-        if: github.event_name == 'pull_request' && steps.base-cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'pull_request'
         # A base that no longer builds must not fail the PR. The report then
         # has no "vs base" column.
         continue-on-error: true
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          # A clone, not a git worktree. Turborepo exits about 2.5 s faster in a
-          # linked worktree, which would skew the cached comparison.
+          # A clone, so both sides are timed in the same kind of checkout.
           git fetch --no-tags --depth=1 origin "${BASE_SHA}:refs/heads/bench-base"
           git clone --quiet --branch bench-base "$GITHUB_WORKSPACE" "$RUNNER_TEMP/base"
           cp "$BENCH_SCRIPT" "$RUNNER_TEMP/base/$BENCH_SCRIPT"
@@ -189,14 +179,3 @@ jobs:
             } else {
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
-
-      # Stored under this commit so PRs based on it skip the base timing.
-      - name: Name the timing as a base
-        if: ${{ !cancelled() && github.event_name == 'push' && hashFiles('bench-results/summary.json') != '' }}
-        run: cp -r bench-results bench-base
-      - name: Store the timing for later PRs
-        if: ${{ !cancelled() && github.event_name == 'push' && hashFiles('bench-base/summary.json') != '' }}
-        uses: actions/cache/save@v4
-        with:
-          path: bench-base
-          key: build-bench-${{ github.sha }}-${{ env.BENCH_RUNS }}-${{ hashFiles(env.BENCH_SCRIPT) }}
