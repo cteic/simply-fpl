@@ -3,3 +3,4 @@ export * from './use-countdown';
 export * from './use-live-rank-estimate';
 export * from './use-live-snapshot';
 export * from './use-season-story';
+export * from './use-live-squad-events';
