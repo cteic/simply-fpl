@@ -71,7 +71,7 @@ function makeAnthropicResponse(text: string): Response {
       type: 'message',
       role: 'assistant',
       content: [{ type: 'text', text }],
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-haiku-5-5',
       stop_reason: 'end_turn',
       usage: { input_tokens: 80, output_tokens: 60 },
     }),

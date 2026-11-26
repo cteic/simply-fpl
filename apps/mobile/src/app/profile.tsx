@@ -98,7 +98,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <Screen>
+    <Screen testID="screen-profile">
       <Card paddingHorizontal={20} paddingVertical={18} gap={10}>
         <SectionHeader title="Your Team" />
         {entryId === null ? (

@@ -34,9 +34,18 @@ export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankE
   const { entry, picks, bootstrap, liveGw, fixtures, gw } = input;
   const preGwRank = entry.summary_overall_rank ?? 0;
   if (preGwRank <= 0) return null;
+
+  // An event stays `is_current` until the next deadline, so the current
+  // gameweek is often already finished. Once it is, FPL has folded its points
+  // into `summary_overall_rank`, and estimating on top of that counts the same
+  // points twice. There is also nothing left to estimate: the real rank is
+  // known. Return null so callers show the actual figure instead.
+  const event = bootstrap.events.find((e) => e.id === gw);
+  if (event?.finished === true) return null;
+
   const bonusMap = predictBonusPoints(liveGw, fixtures, bootstrap);
   const livePoints = calculateLivePoints(picks, liveGw, bootstrap, bonusMap);
-  const avgEntryScore = bootstrap.events.find((e) => e.id === gw)?.average_entry_score ?? 0;
+  const avgEntryScore = event?.average_entry_score ?? 0;
   return estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore);
 }
 

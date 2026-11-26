@@ -25,12 +25,12 @@ export function LeaguesView() {
   const { entryId, hydrated } = useSavedEntryId();
 
   if (!hydrated) {
-    return <Screen />;
+    return <Screen testID="screen-leagues" />;
   }
 
   if (entryId === null) {
     return (
-      <Screen topInset>
+      <Screen testID="screen-leagues" topInset>
         <PageHeader
           tone="stadium"
           title="My Leagues"
@@ -66,7 +66,7 @@ function EntryLeagues({ entryId }: EntryLeaguesProps) {
   const activeId = activeLeagueId ?? classicLeagues[0]?.id ?? null;
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-leagues" topInset>
       <PageHeader
         tone="stadium"
         title="My Leagues"
