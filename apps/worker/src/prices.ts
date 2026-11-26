@@ -8,6 +8,7 @@ import type {
 
 import { warmBootstrapSlim } from './bootstrap';
 import { warmFixturesSlim } from './fixtures';
+import { warmRankCurve } from './rank-curve';
 
 export interface PricesEnv {
   FPL_CACHE: KVNamespace;
@@ -181,6 +182,9 @@ export async function warmPricesCache(env: PricesEnv, ctx: ExecutionContext): Pr
   if (!bootstrap) return;
 
   ctx.waitUntil(warmBootstrapSlim(env, bootstrap));
+  // Only builds when the gameweek's curve is not already cached, so this is a
+  // no-op on all but the first warm after a gameweek settles.
+  ctx.waitUntil(warmRankCurve(env, bootstrap).catch(() => undefined));
 
   const slim = buildSlimPrices(bootstrap);
   await env.FPL_CACHE.put(PRICES_SLIM_CACHE_KEY, JSON.stringify(slim), {

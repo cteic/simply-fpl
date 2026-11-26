@@ -51,17 +51,54 @@ Sampling pages logarithmically builds the real points-to-rank curve for all
 | sparse                | 24       | 1.17%            | 166.78%   | 166.78%     |
 | **denser at the top** | **42**   | **1.17%**        | **9.54%** | **5.03%**   |
 
-Against the models we have measured on the replay archive:
+Spot check against live data: entry 219895 has 606 points and FPL reports
+`overall_rank: 4,362,395`. The curve says 4,349,862, out by 0.29%. Entry
+4173513 on 565 points is reported at 6,464,440; the curve says 6,438,004, out
+by 0.41%.
 
-| estimator                                       | median abs error |
-| ----------------------------------------------- | ---------------- |
-| **points-to-rank curve (42 requests)**          | **1.17%**        |
-| flat-700 `estimateLiveRank`                     | 12.60%           |
-| distribution `estimateLiveRankSmart` (shipping) | 148.80%          |
+### Curve accuracy and live accuracy are two different numbers
 
-Spot check: entry 219895 has 606 points and FPL reports
-`overall_rank: 4,362,395`. The curve says 4,349,861, an error of 12,534
-places, 0.29%.
+Do not quote the 1.17% above as the live-rank error. It is not.
+
+A settled lookup, "what rank is 606 points worth", only has to read the curve.
+A live estimate also has to guess what the rest of the field has scored so far,
+and that guess is where the error lives.
+
+Measured with `scripts/measure-rank-curve.mjs` over the cohort archive: 37
+gameweeks, 92,603 (entry, gameweek) pairs, each gameweek replayed against a
+curve built from the previous gameweek's cohort.
+
+| estimator                   | median abs error, live path |
+| --------------------------- | --------------------------- |
+| **points-to-rank curve**    | **47.1%**                   |
+| flat-700 `estimateLiveRank` | 90.0%                       |
+
+The curve wins in 32 of the 37 gameweeks. Broken down by the manager's true
+rank, which is what actually matters:
+
+| band       | pairs  | curve | flat   | curve places off | flat places off |
+| ---------- | ------ | ----- | ------ | ---------------- | --------------- |
+| 1 - 1k     | 13,299 | 61.7% | 99.8%  | **222**          | 462             |
+| 1k - 10k   | 30,649 | 53.9% | 100.0% | **1,399**        | 2,581           |
+| 10k - 100k | 23,886 | 42.7% | 36.2%  | 10,691           | **9,409**       |
+| 100k - 1M  | 15,935 | 41.0% | 40.1%  | **100,956**      | 121,728         |
+| 1M+        | 8,834  | 14.8% | 31.3%  | **365,786**      | 801,391         |
+
+In places off, the curve wins four bands of five and roughly halves the error
+at the top, where managers care. The percentages read badly at the top only
+because being 222 places out at rank 360 is 62%.
+
+The 10k-100k band is the one place flat still wins on places. Worth a look
+before this is called finished.
+
+The residual error is the approximation that every rival scores exactly the
+field average. That ignores the spread of gameweek scores, and it is now the
+dominant term, rather than the slope being a made-up constant.
+
+The distribution model that shipped before this measured 148.8% on the replay
+harness, against the flat model's 12.6% there. Those two figures come from a
+different harness than the table above and are not comparable to it; what they
+establish is the ordering between those two models, not the curve's error.
 
 This is not a better model. It is FPL's own data, so it removes the modelling
 problem rather than improving it. 42 requests per gameweek, cached in KV, is
