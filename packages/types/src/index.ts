@@ -377,6 +377,26 @@ export interface RankCurvePoint {
   rank: number;
 }
 
+/** `pre`: before the deadline. `live`: in progress. `settled`: finished. */
+export type GameweekPhase = 'pre' | 'live' | 'settled';
+
+/** A manager's standing in one mini-league. */
+export interface LeaguePosition {
+  rank: number;
+  /** Managers on the page of standings this was read from. */
+  managers: number;
+  /** Places gained since last gameweek. Negative when they dropped. */
+  movement: number;
+  /** The manager directly above, and the points needed to draw level. */
+  above: { name: string; gap: number } | null;
+  /** The manager directly below, and the cushion over them. */
+  below: { name: string; gap: number } | null;
+  /** Points behind first place. Zero when leading. */
+  gapToLeader: number;
+  /** Place within the league on this gameweek's score alone. */
+  gameweekPlace: number;
+}
+
 export type LiveSquadEventKind = 'goal' | 'assist' | 'bonus' | 'red_card' | 'clean_sheet_lost';
 
 /** Something that just happened to one of the manager's players. */
