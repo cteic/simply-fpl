@@ -15,7 +15,13 @@ import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const FEATURE_FRANK_ONDEMAND_SERVER = process.env['FEATURE_FRANK_ONDEMAND'] === 'true';
-const FRANK_MODEL = 'claude-haiku-4-5-20251001';
+const FRANK_MODEL = 'claude-haiku-5-5';
+// Haiku 5.5 runs adaptive thinking by default, and thinking counts toward
+// max_tokens. Frank answers in under 200 words, but at the old 512 cap a
+// response can stop after a thinking block having produced no text at all,
+// so leave headroom. Lowering effort would be the better lever; that needs
+// an @anthropic-ai/sdk major upgrade, which this SDK version predates.
+const FRANK_MAX_TOKENS = 1536;
 const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 const FRANK_CACHE_WRITE_SECRET = process.env['FRANK_CACHE_WRITE_SECRET'];
 const FRANK_DAILY_SPEND_CAP = process.env['FRANK_DAILY_SPEND_CAP_TOKENS']
@@ -335,7 +341,7 @@ export async function POST(request: NextRequest) {
     try {
       const anthropicStream = client.messages.stream({
         model: FRANK_MODEL,
-        max_tokens: 512,
+        max_tokens: FRANK_MAX_TOKENS,
         system: systemParts,
         messages: [{ role: 'user', content: question }],
       });
