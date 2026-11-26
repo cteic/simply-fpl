@@ -61,3 +61,6 @@ apps/web/playwright-report
 # OpenNext (Cloudflare Workers) build output and local Worker vars
 .open-next
 .dev.vars
+
+# Output of scripts/bench-build.sh
+bench-results
