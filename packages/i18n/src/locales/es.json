@@ -230,6 +230,7 @@
   "press.title": "Prensa de la liga",
   "press.your_rank": "Tú: {{rank}} de {{count}}",
   "prices.empty": "Ningún cambio de precio coincide con este filtro.",
+  "prices.error": "No se pudieron cargar los precios ahora.",
   "prices.fnote": "Las predicciones de precios son estimaciones basadas en datos de transferencias de FPL. Sin garantías.",
   "prices.meta": "El rastreador de cambios de precio de FPL · 100% significa que el cambio es inminente",
   "prices.title": "Cambios de precio",

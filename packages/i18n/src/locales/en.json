@@ -230,6 +230,7 @@
   "press.title": "League Press",
   "press.your_rank": "You: {{rank}} of {{count}}",
   "prices.empty": "No price changes match this filter.",
+  "prices.error": "Couldn’t load price data right now.",
   "prices.fnote": "Price predictions are estimates based on FPL transfer data. Not guaranteed.",
   "prices.meta": "FPL’s own price-change tracker · 100% means a change is due",
   "prices.title": "Price Changes",

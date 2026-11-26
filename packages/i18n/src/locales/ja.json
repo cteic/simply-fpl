@@ -230,6 +230,7 @@
   "press.title": "リーグ新聞",
   "press.your_rank": "あなた: {{count}} 人中 {{rank}} 位",
   "prices.empty": "このフィルターに一致する価格変動はありません。",
+  "prices.error": "価格データを読み込めませんでした。",
   "prices.fnote": "価格予測は FPL の移籍データに基づく推定です。保証はありません。",
   "prices.meta": "FPL公式の価格変動トラッカー · 100%で変動が迫る",
   "prices.title": "価格変動",
