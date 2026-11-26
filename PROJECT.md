@@ -46,15 +46,14 @@ A Fantasy Premier League companion app that competes directly with [livefpl.net]
 
 ### Packages (shared)
 
-| Package                    | Purpose                                         |
-| -------------------------- | ----------------------------------------------- |
-| `packages/types`           | All FPL domain types — no logic                 |
-| `packages/fpl-client`      | API client, live rank calc, price change logic  |
-| `packages/utils`           | Pure helpers (formatRank, formatDeadline, etc.) |
-| `packages/ui`              | Shared components (cross-platform, future)      |
-| `packages/tsconfig-config` | Shared TS configs (base, react, react-native)   |
-| `packages/eslint-config`   | Shared ESLint flat config                       |
-| `packages/prettier-config` | Shared Prettier + import ordering               |
+| Package                    | Purpose                                        |
+| -------------------------- | ---------------------------------------------- |
+| `packages/types`           | All FPL domain types — no logic                |
+| `packages/fpl-client`      | API client, live rank calc, price change logic |
+| `packages/ui`              | Shared components (cross-platform, future)     |
+| `packages/tsconfig-config` | Shared TS configs (base, react, react-native)  |
+| `packages/eslint-config`   | Shared ESLint flat config                      |
+| `packages/prettier-config` | Shared Prettier + import ordering              |
 
 ### Infrastructure
 

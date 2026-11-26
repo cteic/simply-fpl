@@ -40,7 +40,7 @@ Turborepo monorepo using `pnpm`, following **clean architecture** layers:
 **Application**: React Query hooks in `apps/*/src/queries/`, auth hooks in `apps/*/src/hooks/`, cross-platform business logic in `packages/features`
 **Domain/Logic**: `packages/fpl-client` (FPL API client + live rank + price change logic, no React)
 **Types**: `packages/types` (all shared domain types — no logic here)
-**Foundation**: `packages/utils` (pure helpers), `packages/tsconfig-config`, `packages/eslint-config`, `packages/prettier-config`
+**Foundation**: `packages/tsconfig-config`, `packages/eslint-config`, `packages/prettier-config`
 **Infrastructure**: `apps/worker` (Cloudflare Worker — FPL proxy + KV cache)
 
 ```
@@ -54,7 +54,6 @@ Turborepo monorepo using `pnpm`, following **clean architecture** layers:
 │   ├── features/               React-aware business logic, hooks, orchestration
 │   ├── fpl-client/             Pure FPL API client + live rank / price logic (no React)
 │   ├── types/                  Shared domain types
-│   ├── utils/                  Pure helpers
 │   ├── tsconfig-config/        Shared TS configs
 │   ├── eslint-config/          Shared ESLint config
 │   └── prettier-config/        Shared Prettier config
@@ -82,7 +81,6 @@ everything under that directory:
 | `packages/fpl-client` | FPL client, rank + price logic | depends on `types` only; no React          |
 | `packages/features`   | React-aware business logic     | no platform-specific imports               |
 | `packages/ui`         | cross-platform components      | Tamagui only; no business logic            |
-| `packages/utils`      | pure helpers                   | pure functions, no deps                    |
 | `apps/*`              | routing, layouts, env config   | thin shells; packages never depend on apps |
 
 ## Design system
