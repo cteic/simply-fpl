@@ -22,8 +22,14 @@ export function useReducedMotion(): boolean {
     function onChange(event: MediaQueryListEvent): void {
       setReduced(event.matches);
     }
-    media.addEventListener('change', onChange);
     setReduced(media.matches);
+
+    // Some environments provide a partial matchMedia whose MediaQueryList has
+    // no listener methods. Read the value, then subscribe only if we can.
+    if (typeof media.addEventListener !== 'function') {
+      return undefined;
+    }
+    media.addEventListener('change', onChange);
     return () => {
       media.removeEventListener('change', onChange);
     };
