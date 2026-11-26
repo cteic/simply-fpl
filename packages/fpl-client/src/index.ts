@@ -13,6 +13,7 @@ export {
   getCurrentSeasonYear,
   getNextDeadline,
   getNextGameweek,
+  getRankedEntryCount,
 } from './live-rank';
 export type {
   EstimateLiveRankSmartOptions,

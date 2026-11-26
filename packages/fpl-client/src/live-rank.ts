@@ -175,6 +175,21 @@ export function getCurrentSeasonYear(bootstrap: FplBootstrapStatic): number | nu
 
 export const APPROX_TOTAL_FPL_ENTRIES = 11_000_000;
 
+export function getRankedEntryCount(bootstrap: FplBootstrapStatic | undefined): number {
+  if (!bootstrap || !Array.isArray(bootstrap.events)) return APPROX_TOTAL_FPL_ENTRIES;
+  const current = bootstrap.events.find((e) => e.is_current);
+  if (current && typeof current.ranked_count === 'number' && current.ranked_count > 0) {
+    return current.ranked_count;
+  }
+  let latest = 0;
+  for (const event of bootstrap.events) {
+    if (typeof event.ranked_count === 'number' && event.ranked_count > latest) {
+      latest = event.ranked_count;
+    }
+  }
+  return latest > 0 ? latest : APPROX_TOTAL_FPL_ENTRIES;
+}
+
 export interface EstimateLiveRankSmartOptions {
   totalEntries?: number;
   liveAggregate?: ScoreDistribution;
@@ -210,7 +225,8 @@ export function estimateLiveRankSmart(
   avgEntryScore: number,
   opts: EstimateLiveRankSmartOptions = {}
 ): LiveRankEstimate {
-  const { totalEntries = APPROX_TOTAL_FPL_ENTRIES, liveAggregate, bootstrap } = opts;
+  const { liveAggregate, bootstrap } = opts;
+  const totalEntries = opts.totalEntries ?? getRankedEntryCount(bootstrap);
 
   if (liveAggregate) {
     const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
