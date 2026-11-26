@@ -364,6 +364,32 @@ export interface RankCurvePoint {
   rank: number;
 }
 
+export type SeasonArrow = 'green' | 'red' | 'flat';
+
+export interface SeasonStoryPoint {
+  gw: number;
+  /** Overall rank after this gameweek. */
+  rank: number;
+  /** Points scored in this gameweek. */
+  points: number;
+  arrow: SeasonArrow;
+}
+
+/** A manager's season so far, built from settled gameweek history. */
+export interface SeasonStory {
+  trajectory: SeasonStoryPoint[];
+  bestRank: { gw: number; rank: number } | null;
+  bestGameweek: { gw: number; points: number; gwRank: number } | null;
+  greenArrows: number;
+  redArrows: number;
+  /** The current run of same-coloured arrows, counted back from the latest gameweek. */
+  streak: { direction: 'green' | 'red' | 'none'; length: number };
+  /** Points left on the bench across the season. */
+  benchPoints: number;
+  /** Points spent on transfer hits across the season. */
+  hitPoints: number;
+}
+
 export interface RankTarget {
   /** The rank being aimed at. */
   rank: number;

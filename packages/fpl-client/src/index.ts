@@ -65,6 +65,8 @@ export {
 } from './estimate-rank';
 export type { DistributionRankEstimate, LoadDistributionOptions } from './estimate-rank';
 export { DISTRIBUTION_GAMEWEEKS } from './score-distributions/distributions.generated';
+export { buildSeasonStory, seasonSparklinePoints } from './season-story';
+export type { SparklineBox } from './season-story';
 export { buildSlimBootstrap } from './slim-bootstrap';
 export { buildSlimFixtures } from './slim-fixtures';
 export { buildSlimLeague } from './slim-league';
