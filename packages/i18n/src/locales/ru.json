@@ -74,6 +74,7 @@
   "prices.empty": "Нет изменений цен, соответствующих этому фильтру.",
   "prices.fnote": "Прогнозы цен — оценки на основе данных трансферов FPL. Не гарантировано.",
   "planner.title": "Планировщик трансферов",
+  "planner.col_player": "Игрок",
   "planner.meta_no_team": "Введите ID вашей FPL-команды, чтобы начать",
   "planner.meta_xi": "Ваш XI · GW{{startGw}}–{{endGw}}",
   "planner.section_link_team": "Привязать FPL-команду",

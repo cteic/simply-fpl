@@ -3,6 +3,7 @@
 import { Text, XStack, YStack, styled } from 'tamagui';
 
 import { FdrBadge } from '../fdr-badge';
+import type { PlannerGwCell } from './planner-grid.types';
 
 const Grid = styled(XStack, {
   display: 'grid' as never,
@@ -72,17 +73,6 @@ const Name = styled(Text, {
   color: '$color',
   numberOfLines: 1,
 });
-
-export interface PlannerPlayer {
-  name: string;
-  form: 'good' | 'avg' | 'warning' | 'bad' | 'none';
-  fdr: 1 | 2 | 3 | 4 | 5;
-}
-
-export interface PlannerGwCell {
-  label: string;
-  players: PlannerPlayer[];
-}
 
 interface PlannerGridProps {
   cells: PlannerGwCell[];
