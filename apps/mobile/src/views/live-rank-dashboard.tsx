@@ -257,7 +257,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
 
   if (isError) {
     return (
-      <Screen>
+      <Screen testID="screen-home">
         <Text fontFamily="$body" fontSize={14} color="$danger" marginTop={40}>
           Couldn't load this team. Check the team ID and try again.
         </Text>
@@ -318,8 +318,15 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const bench = picks && bootstrap && liveGw ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
 
+  // No estimate means the gameweek has finished and FPL has published the real
+  // overall rank, so show that rather than an empty hero.
+  const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
+  const settledRank = entry?.summary_overall_rank ?? null;
   const heroRank =
-    showPostSubs && rankDetails ? rankDetails.postSubsRank : (estimate?.liveRank ?? null);
+    showPostSubs && rankDetails
+      ? rankDetails.postSubsRank
+      : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
+  const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
@@ -485,7 +492,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const isLoading = snapshotLoading || liveGw === undefined;
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-home" topInset>
       <StadiumGradient borderRadius={14} paddingHorizontal={22} paddingVertical={22}>
         <YStack marginBottom={12}>
           <Logo variant="lockup" tone="stadium" size="md" />
@@ -499,7 +506,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             letterSpacing={1.4}
             color="#34D399"
           >
-            est. live rank
+            {heroLabel}
           </Text>
           {autosubsApply ? (
             <XStack
@@ -526,6 +533,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
         </XStack>
 
         <NumberTicker
+          testID="live-rank-value"
           value={heroRank}
           format={(n) => n.toLocaleString()}
           fontFamily="$mono"

@@ -13,7 +13,11 @@ concurrency:
 
 jobs:
   playwright:
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: that image rolled to Ubuntu 26.04, which
+    # Playwright 1.59.1 cannot install browsers on ("does not support chromium
+    # on ubuntu26.04-x64"), so every PR failed before a test ran. Revisit when
+    # Playwright is next upgraded, and move the snapshots in the same change.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -62,7 +66,8 @@ jobs:
   merge-reports:
     if: ${{ !cancelled() }}
     needs: [playwright]
-    runs-on: ubuntu-latest
+    # Same pin: this job runs the Playwright CLI to merge the shard reports.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

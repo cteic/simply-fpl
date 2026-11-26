@@ -27,7 +27,7 @@ export function PlannerView() {
 
   if (!hydrated) {
     return (
-      <Screen>
+      <Screen testID="screen-planner">
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
           Loading…
         </Text>
@@ -71,9 +71,14 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       grid.map((cell) => ({
         label: cell.label,
         players: cell.players.map((p) => ({
-          name: p.doubleGameweek ? `${p.name} ×2` : p.name,
+          // The native ticker writes each name once per row and marks doubles
+          // on the gameweek chip, so the name stays clean here.
+          name: p.name,
           form: p.form,
           fdr: p.fdr,
+          opponent: p.opponent,
+          blank: p.blank,
+          doubleGameweek: p.doubleGameweek,
         })),
       })),
     [grid]
@@ -82,7 +87,7 @@ function RealPlannerView({ entryId }: { entryId: number }) {
   const isLoading = picksLoading || fixturesLoading || !bootstrap || currentGw === null;
 
   return (
-    <Screen>
+    <Screen testID="screen-planner">
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Transfer Planner
@@ -111,7 +116,7 @@ function RealPlannerView({ entryId }: { entryId: number }) {
 
 function NoTeamView() {
   return (
-    <Screen>
+    <Screen testID="screen-planner">
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Transfer Planner

@@ -53,7 +53,7 @@ export function HeadToHeadView() {
 
   if (yourEntryId === null || theirEntryId === null || yourEntryId === theirEntryId) {
     return (
-      <Screen topInset>
+      <Screen testID="screen-h2h" topInset>
         <PageHeader
           tone="stadium"
           title="Head to Head"
@@ -126,7 +126,7 @@ function HeadToHeadInner({
 
   if (yourLoading || theirLoading || !result) {
     return (
-      <Screen topInset>
+      <Screen testID="screen-h2h" topInset>
         <PageHeader tone="stadium" title="Head to Head" meta="Loading…" />
       </Screen>
     );
@@ -135,7 +135,7 @@ function HeadToHeadInner({
   const { you, them, scoreDelta, differentialYou, differentialThem, commonPicks } = result;
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-h2h" topInset>
       <PageHeader
         tone="stadium"
         title="Head to Head"

@@ -61,6 +61,8 @@ jobs:
       contents: read
       deployments: write
       pull-requests: write
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -119,3 +121,14 @@ jobs:
                 body,
               });
             }
+
+  # Page speed budget for the preview the web job just uploaded.
+  lighthouse:
+    if: github.event_name == 'pull_request' && needs.web.outputs.url != ''
+    needs: web
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/lighthouse.yml
+    with:
+      url: ${{ needs.web.outputs.url }}

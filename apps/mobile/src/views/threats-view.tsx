@@ -215,7 +215,7 @@ export function ThreatsView() {
   const headline = entryId === null ? 'Save a team on Home to personalise' : `For team ${entryId}`;
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-threats" topInset>
       <PageHeader
         tone="stadium"
         title="Threats"

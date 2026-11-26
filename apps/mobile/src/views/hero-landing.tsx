@@ -82,6 +82,7 @@ export function HeroLanding({ onSave }: HeroLandingProps) {
     <>
       <StatusBar style="light" />
       <ScrollView
+        testID="screen-home"
         style={{ flex: 1, backgroundColor: '#0B4F49' }}
         contentContainerStyle={{ flexGrow: 1 }}
       >
@@ -140,6 +141,7 @@ export function HeroLanding({ onSave }: HeroLandingProps) {
 
             <YStack width="100%" gap={10} marginTop={6}>
               <Input
+                testID="team-id-input"
                 value={input}
                 onChangeText={setInput}
                 onSubmitEditing={handleSubmit}
@@ -153,6 +155,7 @@ export function HeroLanding({ onSave }: HeroLandingProps) {
                 focusStyle={{ borderColor: '#34D399' }}
               />
               <Text
+                testID="search-button"
                 onPress={handleSubmit}
                 textAlign="center"
                 fontFamily="$body"
