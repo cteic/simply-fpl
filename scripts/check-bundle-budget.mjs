@@ -1,16 +1,30 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { gzipSync } from 'node:zlib';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const REPO_ROOT = resolve(__dirname, '..');
 const WEB_DIR = join(REPO_ROOT, 'apps', 'web');
-const NEXT_DIR = join(WEB_DIR, '.next');
+
+// --next-dir  measure another build, e.g. a checkout of the base branch
+// --json      write the measurements to a file
+// --base      a --json file from the base branch; adds a "vs base" column
+// --markdown  write the table to a file, for a PR comment or job summary
+const { values: ARGS } = parseArgs({
+  options: {
+    'next-dir': { type: 'string' },
+    json: { type: 'string' },
+    base: { type: 'string' },
+    markdown: { type: 'string' },
+  },
+});
+const NEXT_DIR = ARGS['next-dir'] ? resolve(ARGS['next-dir']) : join(WEB_DIR, '.next');
 
 const BUDGETS = {
   // Measured from prerendered HTML on Next 16.4 (464.6 kB and 450.2 kB
@@ -18,6 +32,12 @@ const BUDGETS = {
   '/': 475 * 1024,
   '/h2h': 460 * 1024,
 };
+
+// Every .js file under .next/static, gzipped. The route budgets above only see
+// first-load chunks, so growth in a lazy-loaded chunk would pass them unnoticed.
+// Measured at 753.5 kB on Next 16.4 (same figure locally and in CI), plus 2%.
+const TOTAL_NAME = 'All client JS';
+const TOTAL_BUDGET = 769 * 1024;
 
 const KB = 1024;
 
@@ -85,8 +105,65 @@ async function firstLoadGzipped(route) {
   return total;
 }
 
+async function jsFiles(dir) {
+  const entries = await readdir(dir, { withFileTypes: true, recursive: true });
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.js'))
+    .map((entry) => join(entry.parentPath, entry.name));
+}
+
+async function totalGzipped() {
+  let total = 0;
+  for (const file of await jsFiles(join(NEXT_DIR, 'static'))) {
+    total += gzipSync(await readFile(file)).byteLength;
+  }
+  return total;
+}
+
+function isMeasurement(value) {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof value.name === 'string' &&
+    typeof value.size === 'number'
+  );
+}
+
+// Returns name -> gzipped bytes for the base branch, or null without --base.
+async function readBaseSizes() {
+  if (!ARGS.base) return null;
+  const parsed = JSON.parse(await readFile(ARGS.base, 'utf8'));
+  if (!Array.isArray(parsed)) throw new Error(`${ARGS.base} is not a list of measurements`);
+  return new Map(parsed.filter(isMeasurement).map((m) => [m.name, m.size]));
+}
+
+function baseCell(baseSizes, row) {
+  const base = baseSizes.get(row.name);
+  if (base === undefined) return 'new';
+  const diff = row.size - base;
+  if (diff === 0) return 'no change';
+  return `${formatDelta(diff)} (${((diff / base) * 100).toFixed(2)}%)`;
+}
+
+function renderTable(rows, baseSizes) {
+  const lines = baseSizes
+    ? [
+        '| Measured | JS (gz) | vs base | Budget | Delta | Status |',
+        '| --- | ---: | ---: | ---: | ---: | :---: |',
+      ]
+    : ['| Measured | JS (gz) | Budget | Delta | Status |', '| --- | ---: | ---: | ---: | :---: |'];
+  for (const r of rows) {
+    const name = r.name.startsWith('/') ? `\`${r.name}\` first load` : r.name;
+    const base = baseSizes ? ` ${baseCell(baseSizes, r)} |` : '';
+    lines.push(
+      `| ${name} | ${formatBytes(r.size)} |${base} ${formatBytes(r.budget)} | ${formatDelta(r.delta)} | ${r.status} |`
+    );
+  }
+  return lines.join('\n');
+}
+
 async function main() {
-  await ensureBuild();
+  if (!ARGS['next-dir']) await ensureBuild();
 
   const rows = [];
   let overBudget = false;
@@ -102,18 +179,27 @@ async function main() {
     const delta = size - budget;
     const status = delta <= 0 ? 'PASS' : 'FAIL';
     if (delta > 0) overBudget = true;
-    rows.push({ route, size, budget, delta, status });
+    rows.push({ name: route, size, budget, delta, status });
   }
 
+  const total = await totalGzipped();
+  const totalDelta = total - TOTAL_BUDGET;
+  if (totalDelta > 0) overBudget = true;
+  rows.push({
+    name: TOTAL_NAME,
+    size: total,
+    budget: TOTAL_BUDGET,
+    delta: totalDelta,
+    status: totalDelta <= 0 ? 'PASS' : 'FAIL',
+  });
+
+  const table = renderTable(rows, await readBaseSizes());
   console.log('');
-  console.log('| Route | First-load JS (gz) | Budget | Delta | Status |');
-  console.log('| --- | ---: | ---: | ---: | :---: |');
-  for (const r of rows) {
-    console.log(
-      `| \`${r.route}\` | ${formatBytes(r.size)} | ${formatBytes(r.budget)} | ${formatDelta(r.delta)} | ${r.status} |`
-    );
-  }
+  console.log(table);
   console.log('');
+
+  if (ARGS.json) await writeFile(ARGS.json, `${JSON.stringify(rows, null, 2)}\n`);
+  if (ARGS.markdown) await writeFile(ARGS.markdown, `${table}\n`);
 
   if (missing.length > 0) {
     console.warn('Warning: no prerendered HTML found for routes:');
@@ -124,7 +210,7 @@ async function main() {
   if (overBudget) {
     console.error('Bundle size budget exceeded.');
     console.error(
-      'One or more routes exceed their gzipped first-load JS budget. ' +
+      'One or more rows exceed their gzipped JS budget. ' +
         'See the table above for the offending routes.'
     );
     console.error(
