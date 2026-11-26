@@ -28,6 +28,11 @@ const ELEMENT_FIELDS = [
   'transfers_out_event',
   'chance_of_playing_next_round',
   'news',
+  'price_change_percent',
+  'price_change_hourly_rate',
+  'price_change_projections',
+  'price_change_locked_until',
+  'price_change_calibrating',
 ];
 
 function makeRawBootstrap(): FplBootstrapStatic {
@@ -46,6 +51,11 @@ function makeRawBootstrap(): FplBootstrapStatic {
     transfers_out_event: 50_000,
     chance_of_playing_next_round: 75,
     news: 'Knock - 75% chance of playing',
+    price_change_percent: '102.1',
+    price_change_hourly_rate: 10_958,
+    price_change_projections: [{ offset: 0, projected_percent: '123.4', likelihood: 5 }],
+    price_change_locked_until: null,
+    price_change_calibrating: false,
     ict_index: '180.5',
     expected_goals: '12.34',
     photo: '118748.jpg',
@@ -69,6 +79,8 @@ function makeRawBootstrap(): FplBootstrapStatic {
     average_entry_score: 52,
     highest_score: 121,
     finished: false,
+    data_checked: true,
+    ranked_count: 11_261_396,
     chip_plays: [{ chip_name: 'bboost', num_played: 100 }],
   };
   const rawType: FplElementType & Record<string, unknown> = {
@@ -84,6 +96,7 @@ function makeRawBootstrap(): FplBootstrapStatic {
     teams: [rawTeam],
     events: [rawEvent],
     element_types: [rawType],
+    total_players: 11_332_858,
   };
 }
 
@@ -147,5 +160,45 @@ describeFeature(feature, ({ Scenario }) => {
       expect(Object.keys(slim.events[0] ?? {})).not.toContain('chip_plays');
       expect(Object.keys(slim.element_types[0] ?? {})).not.toContain('squad_select');
     });
+
+    And('the fields the rank estimator and price view read survive the trip', () => {
+      expect(slim.events[0]?.ranked_count).toBe(11_261_396);
+      expect(slim.elements[0]?.price_change_percent).toBe('102.1');
+    });
   });
+
+  Scenario(
+    'Slim bootstrap carries the fields our own features depend on',
+    ({ Given, When, Then, And }) => {
+      let raw: FplBootstrapStatic;
+      let slim: FplBootstrapStatic;
+
+      Given('a raw bootstrap with heavy upstream-only fields', () => {
+        raw = makeRawBootstrap();
+      });
+
+      When('the worker slims the bootstrap', () => {
+        slim = buildSlimBootstrap(raw);
+      });
+
+      Then('the event keeps ranked_count and data_checked', () => {
+        const event = slim.events[0];
+        expect(event?.ranked_count).toBe(11_261_396);
+        expect(event?.data_checked).toBe(true);
+      });
+
+      And("the element keeps FPL's own price-change fields", () => {
+        const element = slim.elements[0];
+        expect(element?.price_change_percent).toBe('102.1');
+        expect(element?.price_change_hourly_rate).toBe(10_958);
+        expect(element?.price_change_projections?.[0]?.likelihood).toBe(5);
+        expect(element?.price_change_locked_until).toBeNull();
+        expect(element?.price_change_calibrating).toBe(false);
+      });
+
+      And('the bootstrap keeps total_players', () => {
+        expect(slim.total_players).toBe(11_332_858);
+      });
+    }
+  );
 });
