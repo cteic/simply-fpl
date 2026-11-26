@@ -257,7 +257,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
 
   if (isError) {
     return (
-      <Screen>
+      <Screen testID="screen-home">
         <Text fontFamily="$body" fontSize={14} color="$danger" marginTop={40}>
           Couldn't load this team. Check the team ID and try again.
         </Text>
@@ -485,7 +485,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const isLoading = snapshotLoading || liveGw === undefined;
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-home" topInset>
       <StadiumGradient borderRadius={14} paddingHorizontal={22} paddingVertical={22}>
         <YStack marginBottom={12}>
           <Logo variant="lockup" tone="stadium" size="md" />
@@ -526,6 +526,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
         </XStack>
 
         <NumberTicker
+          testID="live-rank-value"
           value={heroRank}
           format={(n) => n.toLocaleString()}
           fontFamily="$mono"

@@ -154,7 +154,7 @@ export function FrankView() {
   const { isPro } = useAuth();
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-frank" topInset>
       <XStack alignItems="center" gap={10} marginBottom={4}>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" color="$color">
           Frank
