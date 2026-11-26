@@ -36,20 +36,31 @@ interface PageHeaderProps {
   meta?: string;
   right?: ReactNode;
   tone?: 'plain' | 'stadium';
+  /**
+   * Phone density: a slim band rather than a hero. The full-height header cost
+   * every mobile screen roughly a fifth of its first fold.
+   */
+  compact?: boolean;
 }
 
 const STADIUM_STOPS = [colors.stadium1, colors.stadium2, colors.stadium3] as const;
 const STADIUM_LOCATIONS = [0, 0.45, 1] as const;
 
-export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  meta,
+  right,
+  tone = 'plain',
+  compact = false,
+}: PageHeaderProps) {
   if (tone === 'stadium') {
     return (
       <YStack
-        borderRadius={14}
+        borderRadius={compact ? 12 : 14}
         overflow="hidden"
-        marginBottom={20}
-        paddingHorizontal={22}
-        paddingVertical={20}
+        marginBottom={compact ? 0 : 20}
+        paddingHorizontal={compact ? 14 : 22}
+        paddingVertical={compact ? 10 : 20}
         backgroundColor="$brand"
       >
         <LinearGradient
@@ -60,11 +71,11 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
           style={StyleSheet.absoluteFill}
         />
         <XStack alignItems="center" justifyContent="space-between" gap={12} flexWrap="wrap">
-          <YStack>
+          <YStack flexShrink={1}>
             {typeof title === 'string' ? (
               <Text
                 fontFamily="$body"
-                fontSize="$13"
+                fontSize={compact ? 17 : '$13'}
                 fontWeight="600"
                 letterSpacing="$2"
                 color="#FFFFFF"
@@ -77,7 +88,8 @@ export function PageHeader({ title, meta, right, tone = 'plain' }: PageHeaderPro
             {meta ? (
               <Text
                 fontFamily="$body"
-                fontSize="$4"
+                fontSize={compact ? 11.5 : '$4'}
+                {...(compact ? { numberOfLines: 2 } : {})}
                 letterSpacing="$6"
                 color="rgba(255,255,255,0.72)"
                 marginTop={5}
