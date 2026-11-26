@@ -300,6 +300,31 @@ export interface ScoreHistogramBin {
   count: number;
 }
 
+/**
+ * One sampled row from the global league: an exact rank and the total points
+ * the entry at that rank had when the gameweek settled.
+ */
+export interface RankCurveSample {
+  rank: number;
+  totalPoints: number;
+}
+
+export interface RankCurvePoint {
+  totalPoints: number;
+  rank: number;
+}
+
+/**
+ * FPL's own points-to-rank mapping for the whole field, sampled from the
+ * global classic league. `points` is sorted by totalPoints descending.
+ */
+export interface RankCurve {
+  gw: number;
+  rankedCount: number;
+  builtAt: string;
+  points: RankCurvePoint[];
+}
+
 export interface ScoreDistribution {
   sampleSize: number;
   min: number;
