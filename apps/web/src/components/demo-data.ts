@@ -144,15 +144,15 @@ export interface DemoPriceRow {
   club: string;
   flow: 'rise' | 'fall';
   value: string;
-  probability: number;
+  progressPercent: number;
 }
 
 export const DEMO_PRICE_ROWS: DemoPriceRow[] = [
-  { name: 'M. Salah', club: 'MID · LIV', flow: 'rise', value: '£13.2m', probability: 91 },
-  { name: 'E. Haaland', club: 'FWD · MCI', flow: 'rise', value: '£14.7m', probability: 78 },
-  { name: 'C. Palmer', club: 'MID · CHE', flow: 'rise', value: '£11.1m', probability: 61 },
-  { name: 'B. Mbeumo', club: 'MID · BRE', flow: 'fall', value: '£7.8m', probability: 44 },
-  { name: 'A. Isak', club: 'FWD · NEW', flow: 'fall', value: '£9.2m', probability: 28 },
+  { name: 'M. Salah', club: 'MID · LIV', flow: 'rise', value: '£13.2m', progressPercent: 91 },
+  { name: 'E. Haaland', club: 'FWD · MCI', flow: 'rise', value: '£14.7m', progressPercent: 78 },
+  { name: 'C. Palmer', club: 'MID · CHE', flow: 'rise', value: '£11.1m', progressPercent: 61 },
+  { name: 'B. Mbeumo', club: 'MID · BRE', flow: 'fall', value: '£7.8m', progressPercent: 44 },
+  { name: 'A. Isak', club: 'FWD · NEW', flow: 'fall', value: '£9.2m', progressPercent: 28 },
 ];
 
 export const DEMO_BIG_PRICE_ROWS: DemoPriceRow[] = [
@@ -161,50 +161,56 @@ export const DEMO_BIG_PRICE_ROWS: DemoPriceRow[] = [
     club: 'MID · Liverpool · £13.2m',
     flow: 'rise',
     value: '+0.1m',
-    probability: 91,
+    progressPercent: 91,
   },
   {
     name: 'E. Haaland',
     club: 'FWD · Man City · £14.7m',
     flow: 'rise',
     value: '+0.1m',
-    probability: 78,
+    progressPercent: 78,
   },
   {
     name: 'C. Palmer',
     club: 'MID · Chelsea · £11.1m',
     flow: 'rise',
     value: '+0.1m',
-    probability: 61,
+    progressPercent: 61,
   },
   {
     name: 'L. Díaz',
     club: 'MID · Liverpool · £7.6m',
     flow: 'rise',
     value: '+0.1m',
-    probability: 55,
+    progressPercent: 55,
   },
-  { name: 'B. Saka', club: 'MID · Arsenal · £9.8m', flow: 'rise', value: '+0.1m', probability: 48 },
+  {
+    name: 'B. Saka',
+    club: 'MID · Arsenal · £9.8m',
+    flow: 'rise',
+    value: '+0.1m',
+    progressPercent: 48,
+  },
   {
     name: 'B. Mbeumo',
     club: 'MID · Brentford · £7.8m',
     flow: 'fall',
     value: '−0.1m',
-    probability: 44,
+    progressPercent: 44,
   },
   {
     name: 'A. Isak',
     club: 'FWD · Newcastle · £9.2m',
     flow: 'fall',
     value: '−0.1m',
-    probability: 28,
+    progressPercent: 28,
   },
   {
     name: 'D. Solanke',
     club: 'FWD · Tottenham · £7.4m',
     flow: 'fall',
     value: '−0.1m',
-    probability: 21,
+    progressPercent: 21,
   },
 ];
 

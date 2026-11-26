@@ -6,6 +6,7 @@ import type {
   FplFixture,
   FplLeague,
   FplLiveGameweek,
+  RankCurve,
 } from '@simplyfpl/types';
 
 // In production this points to your Cloudflare Worker
@@ -53,6 +54,14 @@ export function createFplClient(config: FplClientConfig = {}) {
 
     getClassicLeague(leagueId: number, page = 1): Promise<FplLeague> {
       return get<FplLeague>(`/fpl/leagues/${leagueId}/summary?page=${page}`);
+    },
+
+    /**
+     * FPL's own points-to-rank curve for the latest settled gameweek. Settled
+     * data, so it only changes when a gameweek is checked.
+     */
+    getRankCurve(): Promise<RankCurve> {
+      return get<RankCurve>('/fpl/rank-curve');
     },
 
     getFixtures(eventId?: number): Promise<FplFixture[]> {

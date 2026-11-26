@@ -17,6 +17,7 @@ import { runPlayerAvailabilityCheck } from './notify/player-availability';
 import { runPlayerEventsCheck } from './notify/player-events';
 import { buildFplPassthroughTarget, matchFplRoute } from './passthrough';
 import { handlePrices, warmPricesCache } from './prices';
+import { handleRankCurve } from './rank-curve';
 import { RIVALS_WARM_CRON, runRivalsWarm } from './rivals-warm';
 import { handleEntrySnapshot } from './snapshot';
 import {
@@ -473,6 +474,22 @@ export default {
     // Returns ~5KB instead of shipping the full 200KB bootstrap to the client.
     if (url.pathname === '/fpl/prices' || url.pathname === '/fpl/prices/') {
       const result = await handlePrices(env, ctx);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json',
+          'X-Cache': result.cache,
+        },
+      });
+    }
+
+    // Route: /fpl/rank-curve → FPL's own points-to-rank curve for the latest
+    // settled gameweek, sampled from the global league and cached per GW. This
+    // is what the live-rank estimate reads instead of modelling a
+    // distribution.
+    if (url.pathname === '/fpl/rank-curve' || url.pathname === '/fpl/rank-curve/') {
+      const result = await handleRankCurve(env, ctx);
       return new Response(JSON.stringify(result.body), {
         status: result.status,
         headers: {

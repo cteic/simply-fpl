@@ -12,3 +12,11 @@ Feature: Slim bootstrap projection
     And unread element fields are blanked
     And heavy upstream-only fields are dropped from elements
     And teams, events and element types keep their declared fields only
+    And the fields the rank estimator and price view read survive the trip
+
+  Scenario: Slim bootstrap carries the fields our own features depend on
+    Given a raw bootstrap with heavy upstream-only fields
+    When the worker slims the bootstrap
+    Then the event keeps ranked_count and data_checked
+    And the element keeps FPL's own price-change fields
+    And the bootstrap keeps total_players
