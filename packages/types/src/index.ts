@@ -23,6 +23,19 @@ export interface FplPlayer {
   price_change_projections?: FplPriceChangeProjection[];
   price_change_locked_until?: string | null;
   price_change_calibrating?: boolean;
+  scout_risks?: FplScoutRisk[];
+}
+
+/**
+ * A risk FPL itself flags on a player: `suspension_risk` when one more booking
+ * brings a ban, `loan_ineligible` when they cannot face their parent club in a
+ * named gameweek.
+ */
+export interface FplScoutRisk {
+  property: string;
+  notes: string;
+  gameweek: number | null;
+  url: string | null;
 }
 
 export interface FplPriceChangeProjection {
