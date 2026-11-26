@@ -6,8 +6,14 @@ import type { RankCurve, RankCurvePoint, RankCurveSample } from '@simplyfpl/type
  * Each page holds 50 entries, so page N starts at rank (N-1)*50+1. The plan is
  * dense at the top, where a handful of points separates thousands of ranks and
  * where managers care most, and sparse through the middle where the curve is
- * close to straight. Measured against 20 held-out pages it gives a 1.17%
- * median absolute error with a 9.54% worst case.
+ * close to straight.
+ *
+ * Against 20 held-out pages the sampled curve reproduces the real one to a
+ * 1.17% median absolute error, worst case 9.54%. That is the sampling cost,
+ * not the live-rank error: a live estimate also has to guess what the field
+ * has scored, which is the larger term. See
+ * scripts/measure-rank-curve.mjs and
+ * docs/notes/fpl-api-surface-2026-11-26.md.
  */
 export const RANK_CURVE_SAMPLE_PAGES: readonly number[] = [
   1, 2, 3, 4, 6, 8, 10, 13, 17, 20, 25, 32, 40, 48, 60, 80, 100, 120, 150, 200, 250, 320, 400, 1000,

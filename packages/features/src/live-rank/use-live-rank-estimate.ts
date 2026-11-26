@@ -119,8 +119,18 @@ export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimate
     staleTime: 5 * 60 * 1000,
   });
 
+  // Settled data: it only changes when a gameweek is checked, so it is fetched
+  // once and reused for every refresh of the live figures.
+  const curveQuery = useQuery({
+    queryKey: ['rank-curve'],
+    queryFn: () => fplClient.getRankCurve(),
+    staleTime: 6 * 60 * 60 * 1000,
+    retry: 1,
+  });
+
   const liveGw = liveQuery.data;
   const fixtures = fixturesQuery.data;
+  const curve = curveQuery.data;
 
   const estimate = useMemo(() => {
     if (!snapshot || !snapshot.picks || gw === null || !liveGw) return null;
@@ -131,8 +141,9 @@ export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimate
       liveGw,
       fixtures: fixtures ?? [],
       gw,
+      curve,
     });
-  }, [snapshot, gw, liveGw, fixtures]);
+  }, [snapshot, gw, liveGw, fixtures, curve]);
 
   return { estimate };
 }
