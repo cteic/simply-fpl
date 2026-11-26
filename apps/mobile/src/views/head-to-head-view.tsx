@@ -55,6 +55,7 @@ export function HeadToHeadView() {
     return (
       <Screen testID="screen-h2h" topInset>
         <PageHeader
+          compact
           tone="stadium"
           title="Head to Head"
           meta="Compare your live gameweek against any rival"
@@ -127,7 +128,7 @@ function HeadToHeadInner({
   if (yourLoading || theirLoading || !result) {
     return (
       <Screen testID="screen-h2h" topInset>
-        <PageHeader tone="stadium" title="Head to Head" meta="Loading…" />
+        <PageHeader compact tone="stadium" title="Head to Head" meta="Loading…" />
       </Screen>
     );
   }
@@ -137,6 +138,7 @@ function HeadToHeadInner({
   return (
     <Screen testID="screen-h2h" topInset>
       <PageHeader
+        compact
         tone="stadium"
         title="Head to Head"
         meta={`${you.managerName || you.teamName} vs ${them.managerName || them.teamName} · GW${currentGw ?? '—'}`}

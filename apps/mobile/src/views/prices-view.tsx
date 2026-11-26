@@ -78,6 +78,7 @@ export function PricesView() {
   return (
     <Screen testID="screen-prices" topInset>
       <PageHeader
+        compact
         tone="stadium"
         title="Price Changes"
         meta="FPL\u2019s own price-change tracker \u00b7 100% means a change is due"
