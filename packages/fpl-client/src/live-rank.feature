@@ -118,3 +118,13 @@ Feature: Live points calculation
     Given no captured distribution exists for gw 999
     When I call estimateLiveRankSmart for gw 999 with no live aggregate
     Then the estimate source is "flat-heuristic"
+
+  Scenario: The rank denominator comes from the gameweek's own ranked_count
+    Given a bootstrap whose current gameweek reports 11261396 ranked entries
+    When I read the ranked entry count
+    Then it is 11261396 rather than the hardcoded approximation
+
+  Scenario: The rank denominator falls back when FPL omits ranked_count
+    Given a bootstrap whose events carry no ranked_count
+    When I read the ranked entry count
+    Then it is the hardcoded approximation

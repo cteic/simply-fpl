@@ -43,7 +43,7 @@ nodeModule.registerHooks({
   resolve(specifier, context, nextResolve) {
     if (
       (specifier.startsWith('./') || specifier.startsWith('../')) &&
-      !/\.[a-z]+$/.test(specifier)
+      !/\.(ts|tsx|js|mjs|cjs|json)$/.test(specifier)
     ) {
       const parentPath = context.parentURL ? fileURLToPath(context.parentURL) : process.cwd();
       const candidate = join(dirname(parentPath), `${specifier}.ts`);
@@ -100,7 +100,14 @@ function padRight(value, width) {
 }
 
 function printResult(result) {
-  process.stdout.write(`\n=== points mode: ${result.pointsMode.toUpperCase()} ===\n`);
+  process.stdout.write(
+    `\n=== ${result.estimator} estimator, points mode: ${result.pointsMode.toUpperCase()} ===\n`
+  );
+  const sources = Object.entries(result.sourceCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([source, count]) => `${source}=${count}`)
+    .join(' ');
+  if (sources) process.stdout.write(`estimate sources: ${sources}\n`);
   process.stdout.write(`scored pairs: ${result.count}\n`);
   process.stdout.write(`median abs error:      ${fmtRank(result.medianAbsError)} ranks\n`);
   process.stdout.write(`median abs % error:    ${fmtPct(result.medianAbsPctError)}\n`);
@@ -145,17 +152,29 @@ async function main() {
     `Loaded ${archive.entries.length} entries, total_players=${archive.bootstrap.totalPlayers.toLocaleString('en-US')}\n`
   );
 
-  const net = replayArchive(archive.entries, archive.bootstrap, 'net');
-  const gross = replayArchive(archive.entries, archive.bootstrap, 'gross');
+  const net = replayArchive(archive.entries, archive.bootstrap, 'net', 'flat');
+  const gross = replayArchive(archive.entries, archive.bootstrap, 'gross', 'flat');
+  const smartNet = replayArchive(archive.entries, archive.bootstrap, 'net', 'smart');
+  const smartGross = replayArchive(archive.entries, archive.bootstrap, 'gross', 'smart');
 
   printResult(net);
   printResult(gross);
+  printResult(smartNet);
+  printResult(smartGross);
 
   const better =
     net.medianAbsError <= gross.medianAbsError ? 'net (points - transfer hit)' : 'gross (points)';
   process.stdout.write(
     `\nLower overall median abs error: ${better}` +
       ` (net ${fmtRank(net.medianAbsError)} vs gross ${fmtRank(gross.medianAbsError)})\n`
+  );
+
+  const flatPct = net.medianAbsPctError;
+  const smartPct = smartNet.medianAbsPctError;
+  const verdict = smartPct < flatPct ? 'smart beats flat' : 'smart does NOT beat flat';
+  process.stdout.write(
+    `\nShipping model check (net mode): ${verdict}` +
+      ` (smart ${fmtPct(smartPct)} vs flat ${fmtPct(flatPct)})\n`
   );
 
   if (args.write === false || args['no-write']) {
@@ -176,7 +195,7 @@ async function main() {
         leagueId,
         entries: archive.entries.length,
         totalPlayers: archive.bootstrap.totalPlayers,
-        results: { net, gross },
+        results: { net, gross, smartNet, smartGross },
       },
       replacer,
       2
