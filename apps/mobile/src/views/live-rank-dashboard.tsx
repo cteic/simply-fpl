@@ -6,6 +6,7 @@ import {
   calculateLivePoints,
   computeDefConProgress,
   computeRankDetails,
+  formatCompactRank,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
@@ -238,6 +239,19 @@ interface LiveRankDashboardProps {
   onChangeTeam: () => void;
 }
 
+/**
+ * The hold line: what is still needed to keep position, or how clear they are.
+ *
+ * Zero gets its own wording. At kickoff nothing has been scored and the field
+ * average is zero too, so the difference is zero, and "holding, 0 clear" reads
+ * as a bug.
+ */
+function describeHold(holdFromHere: number): string {
+  if (holdFromHere > 0) return `${holdFromHere} more to hold`;
+  if (holdFromHere === 0) return 'level with the field';
+  return `holding \u00b7 ${Math.abs(holdFromHere)} clear`;
+}
+
 export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardProps) {
   const { data: snapshot, isLoading: snapshotLoading, isError } = useEntrySnapshot(entryId);
   const bootstrap = snapshot?.bootstrap;
@@ -247,7 +261,9 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const { data: liveGw, dataUpdatedAt: liveGwUpdatedAt } = useLiveGameweek(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
   const aggregates = useCohortAggregates(currentGw);
-  const { estimate } = useLiveRankEstimate(entryId);
+  // targets is null until FPL's curve has loaded. Without it there is nothing
+  // to invert, so the line is hidden rather than showing a guessed target.
+  const { estimate, targets } = useLiveRankEstimate(entryId);
   const agoMs = useLiveAgoMs();
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
 
@@ -597,6 +613,19 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
               {rankDetails.changePct >= 0 ? '+' : ''}
               {rankDetails.changePct.toFixed(1)}%
             </Text>
+          </XStack>
+        ) : null}
+
+        {targets ? (
+          <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap" testID="rank-targets">
+            <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
+              {describeHold(targets.holdFromHere)}
+            </Text>
+            {targets.nextTarget ? (
+              <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.55)">
+                {`top ${formatCompactRank(targets.nextTarget.rank)} needs ${targets.nextTarget.pointsFromHere} more`}
+              </Text>
+            ) : null}
           </XStack>
         ) : null}
 

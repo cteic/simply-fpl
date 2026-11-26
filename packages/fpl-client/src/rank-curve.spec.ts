@@ -6,7 +6,7 @@ import { expect } from 'vitest';
 import type { RankCurve, RankCurveSample } from '@simplyfpl/types';
 
 import { estimateLiveRankFromCurve } from './live-rank';
-import { buildRankCurve, pointsForRank, rankForPoints } from './rank-curve';
+import { buildRankCurve, formatCompactRank, pointsForRank, rankForPoints } from './rank-curve';
 
 const feature = await loadFeature('./rank-curve.feature');
 
@@ -211,4 +211,26 @@ describeFeature(feature, ({ Scenario }) => {
       });
     }
   );
+
+  Scenario('Ranks shorten for a label only when they are round', ({ Given, When, Then, And }) => {
+    let shortened: string[];
+
+    Given('no curve is needed', () => {
+      shortened = [];
+    });
+
+    When('I shorten some ranks', () => {
+      shortened = [10_000, 1_000_000, 4_362_395, 0].map(formatCompactRank);
+    });
+
+    Then('10000 reads as 10k and 1000000 as 1M', () => {
+      expect(shortened[0]).toBe('10k');
+      expect(shortened[1]).toBe('1M');
+    });
+
+    And('an arbitrary rank keeps all its digits', () => {
+      expect(shortened[2]).toBe((4_362_395).toLocaleString());
+      expect(shortened[3]).toBe('\u2014');
+    });
+  });
 });

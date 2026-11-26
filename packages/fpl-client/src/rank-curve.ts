@@ -163,3 +163,21 @@ export function pointsForRank(curve: RankCurve, rank: number): number {
 
   return last.totalPoints;
 }
+
+/**
+ * Shorten a rank for a label: 10000 reads as 10k, 1000000 as 1M.
+ *
+ * Only exact thousands and millions shorten. 4,362,395 stays as 4,362,395,
+ * because "4M" in a target line would read as a target rather than a rounding
+ * of where someone already is.
+ *
+ * This sits beside the curve rather than in packages/utils because neither app
+ * declares utils as a dependency, and formatPrice and formatTimeRemaining
+ * already live in this package for the same reason.
+ */
+export function formatCompactRank(rank: number): string {
+  if (!Number.isFinite(rank) || rank <= 0) return '\u2014';
+  if (rank % 1_000_000 === 0) return `${rank / 1_000_000}M`;
+  if (rank % 1_000 === 0) return `${rank / 1_000}k`;
+  return rank.toLocaleString();
+}

@@ -374,6 +374,8 @@ export interface RankTarget {
   /** Further points needed from the live position. Zero or less means reached. */
   pointsFromHere: number;
   achieved: boolean;
+  /** Whether the points still needed are plausible in one gameweek. */
+  reachable: boolean;
 }
 
 export interface RankTargets {

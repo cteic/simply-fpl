@@ -3,10 +3,21 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect } from 'vitest';
 
-import type { RankCurve, RankCurveSample, RankTargets } from '@simplyfpl/types';
+import type {
+  FplBootstrapStatic,
+  FplEvent,
+  RankCurve,
+  RankCurveSample,
+  RankTargets,
+} from '@simplyfpl/types';
 
 import { buildRankCurve, rankForPoints } from './rank-curve';
-import { DEFAULT_TARGET_RANKS, computeRankTargets } from './rank-targets';
+import {
+  DEFAULT_TARGET_RANKS,
+  REACHABLE_GW_POINTS,
+  computeRankTargets,
+  seasonHighestGwScore,
+} from './rank-targets';
 
 const feature = await loadFeature('./rank-targets.feature');
 
@@ -276,4 +287,83 @@ describeFeature(feature, ({ Scenario }) => {
       ).not.toBeNull();
     });
   });
+
+  Scenario('An unreachable milestone is not offered as a target', ({ Given, When, Then, And }) => {
+    let curve: RankCurve;
+    let deep: RankTargets | null;
+
+    Given('the GW11 curve and a manager deep in the field', () => {
+      curve = gw11Curve();
+    });
+
+    When('I compute their rank targets', () => {
+      // 300 points puts them around 10.7M. Before the reachability guard they
+      // were told the top million needed 382 more points in one gameweek.
+      deep = computeRankTargets({
+        curve,
+        gw: 12,
+        preGwTotal: 300,
+        livePoints: 0,
+        fieldLiveAverage: 0,
+        preGwRank: 10_700_000,
+        maxReachableGwPoints: 106,
+      });
+    });
+
+    Then('the milestones they cannot reach in a gameweek are flagged', () => {
+      expect(deep).not.toBeNull();
+      if (deep === null) return;
+      const result = deep;
+      const aheadOfThem = result.targets.filter((t) => t.rank < result.liveRank);
+      expect(aheadOfThem.length).toBeGreaterThan(0);
+      for (const target of aheadOfThem) {
+        expect(target.reachable).toBe(target.pointsFromHere <= 106);
+      }
+    });
+
+    And('no next target is offered when none is reachable', () => {
+      if (deep === null) return;
+      expect(deep.nextTarget).toBeNull();
+    });
+  });
+
+  Scenario(
+    "The reachable bound comes from FPL's own highest score",
+    ({ Given, When, Then, And }) => {
+      function event(id: number, highest: number | null): FplEvent {
+        return {
+          id,
+          name: `Gameweek ${id}`,
+          deadline_time: '2026-11-21T11:00:00Z',
+          is_current: false,
+          is_next: false,
+          is_previous: false,
+          average_entry_score: 35,
+          highest_score: highest,
+          finished: true,
+        };
+      }
+      function bootstrap(events: FplEvent[]): FplBootstrapStatic {
+        return { elements: [], teams: [], element_types: [], events };
+      }
+      let highest = 0;
+
+      Given('a bootstrap whose best gameweek score is 106', () => {
+        highest = seasonHighestGwScore(bootstrap([event(10, 98), event(11, 106), event(12, null)]));
+      });
+
+      When("I ask for the season's highest gameweek score", () => {
+        expect(highest).toBeGreaterThan(0);
+      });
+
+      Then('it is 106', () => {
+        expect(highest).toBe(106);
+      });
+
+      And('a bootstrap with no scores yet falls back to the constant', () => {
+        expect(seasonHighestGwScore(bootstrap([event(1, null)]))).toBe(REACHABLE_GW_POINTS);
+        expect(seasonHighestGwScore(bootstrap([]))).toBe(REACHABLE_GW_POINTS);
+      });
+    }
+  );
 });
