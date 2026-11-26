@@ -27,7 +27,7 @@ export function PlannerView() {
 
   if (!hydrated) {
     return (
-      <Screen>
+      <Screen testID="screen-planner">
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
           Loading…
         </Text>
@@ -87,7 +87,7 @@ function RealPlannerView({ entryId }: { entryId: number }) {
   const isLoading = picksLoading || fixturesLoading || !bootstrap || currentGw === null;
 
   return (
-    <Screen>
+    <Screen testID="screen-planner">
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Transfer Planner
@@ -116,7 +116,7 @@ function RealPlannerView({ entryId }: { entryId: number }) {
 
 function NoTeamView() {
   return (
-    <Screen>
+    <Screen testID="screen-planner">
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Transfer Planner

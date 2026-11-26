@@ -75,7 +75,7 @@ export function PricesView() {
   );
 
   return (
-    <Screen topInset>
+    <Screen testID="screen-prices" topInset>
       <PageHeader
         tone="stadium"
         title="Price Changes"

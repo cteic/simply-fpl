@@ -1,0 +1,101 @@
+# Maestro E2E — whole-app smoke
+#
+# Guards the crash class that took the app down after the Expo SDK 58 upgrade:
+# a render error inside a shared component (useReducedMotion calling
+# matchMedia on a partial shim) blanked the Home tab on launch with
+# "undefined is not a function". Typecheck, lint, unit tests and even a
+# successful Metro bundle all passed. Only opening the app caught it.
+#
+# This flow opens every tab and asserts that tab's screen rendered. It asserts
+# on screen-level testIDs rather than visible copy: copy is styled, split
+# across nodes and uppercased by the theme, so text matching is brittle, while
+# a screen that throws renders nothing and fails here either way.
+#
+# Run against a dev build, with the worker up so the data-backed tabs resolve:
+#   pnpm dev:worker
+#   maestro --device <simulator-udid> test .maestro/app-smoke.yaml
+
+appId: com.simplyfpl.app
+---
+- launchApp:
+    clearState: false
+
+# Home renders either the saved-team dashboard or the landing form. Both carry
+# screen-home, so this passes regardless of stored state.
+- extendedWaitUntil:
+    visible:
+      id: 'screen-home'
+    timeout: 30000
+
+- tapOn:
+    text: 'Leagues, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-leagues'
+    timeout: 20000
+
+- tapOn:
+    text: 'H2H, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-h2h'
+    timeout: 20000
+
+- tapOn:
+    text: 'Planner, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-planner'
+    timeout: 20000
+
+- tapOn:
+    text: 'Prices, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-prices'
+    timeout: 20000
+
+- tapOn:
+    text: 'Threats, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-threats'
+    timeout: 20000
+
+- tapOn:
+    text: 'Frank, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-frank'
+    timeout: 20000
+
+- tapOn:
+    text: 'Profile, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-profile'
+    timeout: 20000
+
+# Back to Home, so a repeat run starts where it began.
+- tapOn:
+    text: 'Home, tab.*'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: 'screen-home'
+    timeout: 20000

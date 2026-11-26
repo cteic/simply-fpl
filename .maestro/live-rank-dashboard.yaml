@@ -8,7 +8,7 @@
 # Mirrors scenario: "Entry snapshot endpoint is called for the given team ID"
 # and the happy-path of: "Dashboard shows error state when snapshot endpoint returns 500"
 
-appId: com.simplyfpl.mobile
+appId: com.simplyfpl.app
 ---
 - launchApp:
     clearState: true
