@@ -182,7 +182,10 @@ describe('computeLiveRankEstimate', () => {
     const estimate = computeLiveRankEstimate({
       ...input,
       curve: {
-        gw: 7,
+        // The curve must be the gameweek before the live one. A stale curve
+        // shifts the whole x-axis by a gameweek of scoring, so the estimator
+        // refuses it rather than reporting a confident wrong answer.
+        gw: 6,
         rankedCount: 11_261_396,
         builtAt: '2026-11-26T00:00:00Z',
         points: [
@@ -251,6 +254,36 @@ describe('computeLiveRankEstimate', () => {
     if (withCount && withoutCount) {
       expect(withCount.liveRank).toBeLessThan(withoutCount.liveRank);
     }
+  });
+
+  it('refuses a curve from the wrong gameweek rather than estimating off it', () => {
+    const base = buildInput();
+    const input: LiveRankEstimateInput = {
+      ...base,
+      picks: {
+        ...base.picks,
+        entry_history: { ...base.picks.entry_history, points: 25, total_points: 606 },
+      },
+    };
+    const points = [
+      { totalPoints: 855, rank: 1 },
+      { totalPoints: 748, rank: 49_929 },
+      { totalPoints: 605, rank: 4_399_904 },
+      { totalPoints: 541, rank: 7_498_198 },
+      { totalPoints: 153, rank: 11_099_560 },
+    ];
+    const builtAt = '2026-11-26T00:00:00Z';
+    // gw on the fixture is 7, so only a GW6 curve is on the right scale.
+    const right = computeLiveRankEstimate({
+      ...input,
+      curve: { gw: 6, rankedCount: 11_261_396, builtAt, points },
+    });
+    const stale = computeLiveRankEstimate({
+      ...input,
+      curve: { gw: 5, rankedCount: 11_261_396, builtAt, points },
+    });
+    expect(right?.source).toBe('official-curve');
+    expect(stale?.source).toBe('flat-heuristic');
   });
 
   it('returns null when the pre-GW rank is unknown', () => {

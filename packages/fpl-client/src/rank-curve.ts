@@ -27,6 +27,19 @@ export const RANK_CURVE_PAGE_SIZE = 50;
 /** Fewer points than this and interpolation is not worth trusting. */
 export const RANK_CURVE_MIN_SAMPLES = 8;
 
+/**
+ * Whether this curve describes the gameweek immediately before the live one.
+ *
+ * The curve maps settled cumulative totals, and a manager's pre-gameweek total
+ * is on that same scale only for the gameweek that just finished. Serving a
+ * curve one gameweek stale shifts the whole x-axis by a gameweek's scoring,
+ * which moved estimates by around 40% when measured, with nothing to show
+ * anything was wrong. So mismatches are refused rather than estimated.
+ */
+export function curveMatchesGameweek(curve: RankCurve, gw: number): boolean {
+  return Number.isFinite(gw) && curve.gw === gw - 1;
+}
+
 function isUsableSample(sample: RankCurveSample): boolean {
   return (
     Number.isFinite(sample.rank) &&
