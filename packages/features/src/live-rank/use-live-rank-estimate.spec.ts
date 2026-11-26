@@ -8,7 +8,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { LiveRankEstimateInput } from './use-live-rank-estimate';
-import { computeLiveRankEstimate } from './use-live-rank-estimate';
+import { computeLiveRankEstimate, computeLiveRankTargets } from './use-live-rank-estimate';
 
 function liveEl(id: number, totalPoints: number): FplLiveElement {
   return {
@@ -145,16 +145,66 @@ describe('computeLiveRankEstimate', () => {
     });
   });
 
-  it('uses the captured distribution when one exists for the gw', () => {
-    // gw=7 has a captured `overall` distribution; the result diverges from
-    // the flat-700 baseline (993_000) — it's clamped against ~11M entries.
+  it('ignores a captured distribution unless the caller opts in', () => {
+    // gw=7 has a captured `overall` distribution, but it measured 12x worse
+    // than the flat model, so it no longer runs by default.
     const estimate = computeLiveRankEstimate(buildInput());
+    expect(estimate?.source).toBe('flat-heuristic');
+    expect(estimate?.liveRank).toBe(993_000);
+  });
+
+  it('uses the captured distribution when the caller opts in', () => {
+    const estimate = computeLiveRankEstimate({
+      ...buildInput(),
+      useDistributionModel: true,
+    });
     expect(estimate).not.toBeNull();
     if (estimate) {
       expect(estimate.liveRank).not.toBe(993_000);
       expect(estimate.liveRank).toBeGreaterThanOrEqual(1);
       expect(estimate.liveRank).toBeLessThanOrEqual(11_000_000);
     }
+  });
+
+  it("reads live rank off FPL's own curve when one is supplied", () => {
+    const base = buildInput();
+    // preGwTotal is derived from the picks payload, not passed in: a manager on
+    // 606 total who has banked 25 of it this gameweek went in on 581.
+    const input: LiveRankEstimateInput = {
+      ...base,
+      picks: {
+        ...base.picks,
+        entry_history: { ...base.picks.entry_history, points: 25, total_points: 606 },
+      },
+    };
+    const preGwTotal = input.picks.entry_history.total_points - input.picks.entry_history.points;
+    expect(preGwTotal).toBe(581);
+    const estimate = computeLiveRankEstimate({
+      ...input,
+      curve: {
+        // The curve must be the gameweek before the live one. A stale curve
+        // shifts the whole x-axis by a gameweek of scoring, so the estimator
+        // refuses it rather than reporting a confident wrong answer.
+        gw: 6,
+        rankedCount: 11_261_396,
+        builtAt: '2026-11-26T00:00:00Z',
+        points: [
+          { totalPoints: 855, rank: 1 },
+          { totalPoints: 748, rank: 49_929 },
+          { totalPoints: 700, rank: 548_847 },
+          { totalPoints: 605, rank: 4_399_904 },
+          { totalPoints: 541, rank: 7_498_198 },
+          { totalPoints: 153, rank: 11_099_560 },
+        ],
+      },
+    });
+    expect(estimate?.source).toBe('official-curve');
+    expect(estimate?.liveRank).toBeGreaterThanOrEqual(1);
+    expect(estimate?.liveRank).toBeLessThanOrEqual(11_261_396);
+    // 581 + 60 - 50 = 591 lands between the 605 and 541 samples, so the
+    // estimate must sit between their ranks rather than clamping to an end.
+    expect(estimate?.liveRank).toBeGreaterThan(4_399_904);
+    expect(estimate?.liveRank).toBeLessThan(7_498_198);
   });
 
   it('returns identical values for the nav-bar pill and the live-rank page (no desync)', () => {
@@ -182,7 +232,7 @@ describe('computeLiveRankEstimate', () => {
         current,
       ],
     };
-    const estimate = computeLiveRankEstimate(input);
+    const estimate = computeLiveRankEstimate({ ...input, useDistributionModel: true });
     expect(estimate?.source).toBe('captured-prior-season-scaled');
   });
 
@@ -192,17 +242,48 @@ describe('computeLiveRankEstimate', () => {
     if (!event) throw new Error('fixture must have an event');
     const withCount = computeLiveRankEstimate({
       ...base,
+      useDistributionModel: true,
       bootstrap: {
         ...base.bootstrap,
         events: [{ ...event, ranked_count: 5_500_000 }],
       },
     });
-    const withoutCount = computeLiveRankEstimate(base);
+    const withoutCount = computeLiveRankEstimate({ ...base, useDistributionModel: true });
     expect(withCount).not.toBeNull();
     expect(withoutCount).not.toBeNull();
     if (withCount && withoutCount) {
       expect(withCount.liveRank).toBeLessThan(withoutCount.liveRank);
     }
+  });
+
+  it('refuses a curve from the wrong gameweek rather than estimating off it', () => {
+    const base = buildInput();
+    const input: LiveRankEstimateInput = {
+      ...base,
+      picks: {
+        ...base.picks,
+        entry_history: { ...base.picks.entry_history, points: 25, total_points: 606 },
+      },
+    };
+    const points = [
+      { totalPoints: 855, rank: 1 },
+      { totalPoints: 748, rank: 49_929 },
+      { totalPoints: 605, rank: 4_399_904 },
+      { totalPoints: 541, rank: 7_498_198 },
+      { totalPoints: 153, rank: 11_099_560 },
+    ];
+    const builtAt = '2026-11-26T00:00:00Z';
+    // gw on the fixture is 7, so only a GW6 curve is on the right scale.
+    const right = computeLiveRankEstimate({
+      ...input,
+      curve: { gw: 6, rankedCount: 11_261_396, builtAt, points },
+    });
+    const stale = computeLiveRankEstimate({
+      ...input,
+      curve: { gw: 5, rankedCount: 11_261_396, builtAt, points },
+    });
+    expect(right?.source).toBe('official-curve');
+    expect(stale?.source).toBe('flat-heuristic');
   });
 
   it('returns null when the pre-GW rank is unknown', () => {
@@ -234,5 +315,70 @@ describe('computeLiveRankEstimate', () => {
       events: [{ ...event, is_current: true, finished: false }],
     };
     expect(computeLiveRankEstimate(input)).not.toBeNull();
+  });
+});
+
+describe('computeLiveRankTargets', () => {
+  function withCurve(curveGw: number): LiveRankEstimateInput {
+    const base = buildInput();
+    const points = [
+      { totalPoints: 855, rank: 1 },
+      { totalPoints: 793, rank: 948 },
+      { totalPoints: 748, rank: 49_929 },
+      { totalPoints: 700, rank: 548_847 },
+      { totalPoints: 605, rank: 4_399_904 },
+      { totalPoints: 541, rank: 7_498_198 },
+      { totalPoints: 153, rank: 11_099_560 },
+    ];
+    return {
+      ...base,
+      picks: {
+        ...base.picks,
+        entry_history: { ...base.picks.entry_history, points: 25, total_points: 606 },
+      },
+      curve: {
+        gw: curveGw,
+        rankedCount: 11_261_396,
+        builtAt: '2026-11-26T00:00:00Z',
+        points,
+      },
+    };
+  }
+
+  it('says what holding position costs and what the next milestone costs', () => {
+    const targets = computeLiveRankTargets(withCurve(6));
+    expect(targets).not.toBeNull();
+    if (targets === null) return;
+
+    // Holding costs the field average, which the fixture event puts at 50.
+    expect(targets.holdPoints).toBe(50);
+
+    // Live points come from the live feed and predicted bonus, not from
+    // entry_history.points, which FPL only updates on confirmation and which
+    // is used solely to work back to the pre-gameweek total. The fixture
+    // scores 60 live, so this manager is already 10 clear of the average and
+    // needs nothing more to hold.
+    expect(targets.holdFromHere).toBe(-10);
+
+    expect(targets.nextTarget).not.toBeNull();
+    expect(targets.nextTarget?.rank).toBeLessThan(targets.liveRank);
+    expect(targets.nextTarget?.pointsFromHere).toBeGreaterThan(0);
+  });
+
+  it('agrees with the live estimate on where the manager stands', () => {
+    const input = withCurve(6);
+    const estimate = computeLiveRankEstimate(input);
+    const targets = computeLiveRankTargets(input);
+    expect(estimate?.source).toBe('official-curve');
+    expect(targets?.liveRank).toBe(estimate?.liveRank);
+  });
+
+  it('returns nothing without a curve, rather than guessing a target', () => {
+    const base = buildInput();
+    expect(computeLiveRankTargets(base)).toBeNull();
+  });
+
+  it('returns nothing when the curve is from the wrong gameweek', () => {
+    expect(computeLiveRankTargets(withCurve(5))).toBeNull();
   });
 });

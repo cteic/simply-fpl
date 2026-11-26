@@ -80,6 +80,11 @@ function rawBootstrapJson(): string {
         transfers_out_event: 50_000,
         chance_of_playing_next_round: 75,
         news: 'Knock',
+        price_change_percent: '102.1',
+        price_change_hourly_rate: 10_958,
+        price_change_projections: [{ offset: 0, projected_percent: '123.4', likelihood: 5 }],
+        price_change_locked_until: null,
+        price_change_calibrating: false,
         ict_index: '180.5',
         expected_goals: '12.34',
         photo: '118748.jpg',
@@ -128,6 +133,11 @@ const EXPECTED_ELEMENT_KEYS = [
   'transfers_out_event',
   'chance_of_playing_next_round',
   'news',
+  'price_change_percent',
+  'price_change_hourly_rate',
+  'price_change_projections',
+  'price_change_locked_until',
+  'price_change_calibrating',
 ];
 
 const ORIGINAL_FETCH = globalThis.fetch;
@@ -205,7 +215,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
         expect(topKeys).not.toContain('game_settings');
         expect(topKeys).not.toContain('phases');
         expect(topKeys).not.toContain('element_stats');
-        expect(topKeys).not.toContain('total_players');
+        // total_players is kept on purpose: it is the ownership denominator the
+        // price fallback needs, and it is a single number.
+        expect(topKeys).toContain('total_players');
       });
 
       And('the slim payload is written back to KV with a 1-hour TTL', async () => {

@@ -7,7 +7,7 @@ import type {
 } from '@simplyfpl/types';
 
 function projectPlayer(p: FplPlayer): FplPlayer {
-  return {
+  const slim: FplPlayer = {
     id: p.id,
     web_name: p.web_name,
     first_name: '',
@@ -23,6 +23,20 @@ function projectPlayer(p: FplPlayer): FplPlayer {
     chance_of_playing_next_round: p.chance_of_playing_next_round,
     news: '',
   };
+  if (p.price_change_percent !== undefined) slim.price_change_percent = p.price_change_percent;
+  if (p.price_change_hourly_rate !== undefined) {
+    slim.price_change_hourly_rate = p.price_change_hourly_rate;
+  }
+  if (p.price_change_projections !== undefined) {
+    slim.price_change_projections = p.price_change_projections;
+  }
+  if (p.price_change_locked_until !== undefined) {
+    slim.price_change_locked_until = p.price_change_locked_until;
+  }
+  if (p.price_change_calibrating !== undefined) {
+    slim.price_change_calibrating = p.price_change_calibrating;
+  }
+  return slim;
 }
 
 function projectTeam(t: FplTeam): FplTeam {
@@ -30,7 +44,7 @@ function projectTeam(t: FplTeam): FplTeam {
 }
 
 function projectEvent(e: FplEvent): FplEvent {
-  return {
+  const slim: FplEvent = {
     id: e.id,
     name: e.name,
     deadline_time: e.deadline_time,
@@ -41,6 +55,9 @@ function projectEvent(e: FplEvent): FplEvent {
     highest_score: e.highest_score,
     finished: e.finished,
   };
+  if (e.data_checked !== undefined) slim.data_checked = e.data_checked;
+  if (e.ranked_count !== undefined) slim.ranked_count = e.ranked_count;
+  return slim;
 }
 
 function projectElementType(et: FplElementType): FplElementType {
@@ -54,10 +71,12 @@ function projectElementType(et: FplElementType): FplElementType {
 }
 
 export function buildSlimBootstrap(bootstrap: FplBootstrapStatic): FplBootstrapStatic {
-  return {
+  const slim: FplBootstrapStatic = {
     elements: bootstrap.elements.map(projectPlayer),
     teams: bootstrap.teams.map(projectTeam),
     events: bootstrap.events.map(projectEvent),
     element_types: bootstrap.element_types.map(projectElementType),
   };
+  if (bootstrap.total_players !== undefined) slim.total_players = bootstrap.total_players;
+  return slim;
 }

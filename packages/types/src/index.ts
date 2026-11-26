@@ -18,6 +18,17 @@ export interface FplPlayer {
   minutes?: number;
   clearances_blocks_interceptions?: number;
   tackles?: number;
+  price_change_percent?: string;
+  price_change_hourly_rate?: number;
+  price_change_projections?: FplPriceChangeProjection[];
+  price_change_locked_until?: string | null;
+  price_change_calibrating?: boolean;
+}
+
+export interface FplPriceChangeProjection {
+  offset: number;
+  projected_percent: string;
+  likelihood: number;
 }
 
 export interface FplTeam {
@@ -32,6 +43,7 @@ export interface FplBootstrapStatic {
   teams: FplTeam[];
   events: FplEvent[];
   element_types: FplElementType[];
+  total_players?: number;
 }
 
 export interface FplEvent {
@@ -260,12 +272,62 @@ export interface LiveRankEntry {
   picks: FplEntryPick[];
 }
 
+export type PriceChangeSource = 'fpl-official' | 'net-transfer-estimate';
+
+/**
+ * The worker's price payload, as /fpl/prices serves it.
+ *
+ * Shared so the worker and both apps agree on the wire shape. It was
+ * previously declared three times and the copies drifted.
+ */
+export interface SlimPriceChange {
+  id: number;
+  web_name: string;
+  element_type: number;
+  team_name: string;
+  now_cost: number;
+  ownership: number;
+  direction: 'rise' | 'fall';
+  probability: number;
+  /** FPL's threshold progress. 100 means a change is due. */
+  progress_percent: number;
+  /** FPL's own confidence, -5 to +5. */
+  likelihood: number;
+  /** Threshold progress FPL projects by end of today. */
+  projected_percent: number;
+  hourly_rate: number;
+  locked_until: string | null;
+  calibrating: boolean;
+  source: PriceChangeSource;
+}
+
+export interface SlimPricesResponse {
+  generated_at: string;
+  changes: SlimPriceChange[];
+}
+
 export interface PriceChange {
   player: FplPlayer;
   team: FplTeam;
   netTransfers: number;
   direction: 'rise' | 'fall' | 'none';
   probability: number; // 0-1
+  /**
+   * How far along FPL's own threshold the player is, as a percentage. 100 means
+   * a change is due. Can exceed 100 while a change is pending or locked.
+   */
+  progressPercent: number;
+  /** FPL's own confidence, -5 (certain fall) to +5 (certain rise). */
+  likelihood: number;
+  /** Threshold progress FPL projects by the end of today. */
+  projectedPercent: number;
+  /** Points of threshold movement per hour, signed. */
+  hourlyRate: number;
+  /** No further change until this time, or null when unlocked. */
+  lockedUntil: string | null;
+  /** FPL is still settling this player's rate, so treat the figure as soft. */
+  calibrating: boolean;
+  source: PriceChangeSource;
 }
 
 export type ThemeName = 'stadium' | 'bold' | 'quiet';
@@ -286,6 +348,59 @@ export interface ScoreHistogramBin {
   min: number;
   max: number;
   count: number;
+}
+
+/**
+ * One sampled row from the global league: an exact rank and the total points
+ * the entry at that rank had when the gameweek settled.
+ */
+export interface RankCurveSample {
+  rank: number;
+  totalPoints: number;
+}
+
+export interface RankCurvePoint {
+  totalPoints: number;
+  rank: number;
+}
+
+export interface RankTarget {
+  /** The rank being aimed at. */
+  rank: number;
+  /** Cumulative total needed to finish the gameweek on that rank. */
+  totalPointsNeeded: number;
+  /** Gameweek points needed in all, including what is already banked. */
+  gwPointsNeeded: number;
+  /** Further points needed from the live position. Zero or less means reached. */
+  pointsFromHere: number;
+  achieved: boolean;
+  /** Whether the points still needed are plausible in one gameweek. */
+  reachable: boolean;
+}
+
+export interface RankTargets {
+  /** Where the manager stands right now, off the same curve. */
+  liveRank: number;
+  /** The curve's view of where they started, for comparison with FPL's rank. */
+  holdRank: number;
+  /** Gameweek points that leave them on their pre-gameweek rank. */
+  holdPoints: number;
+  /** Further points needed from here to hold. Zero or less means already safe. */
+  holdFromHere: number;
+  targets: RankTarget[];
+  /** The nearest milestone still ahead of them, or null when none is. */
+  nextTarget: RankTarget | null;
+}
+
+/**
+ * FPL's own points-to-rank mapping for the whole field, sampled from the
+ * global classic league. `points` is sorted by totalPoints descending.
+ */
+export interface RankCurve {
+  gw: number;
+  rankedCount: number;
+  builtAt: string;
+  points: RankCurvePoint[];
 }
 
 export interface ScoreDistribution {

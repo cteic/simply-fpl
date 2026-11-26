@@ -35,6 +35,24 @@ function makeBootstrap(players: FplPlayer[], teams: FplTeam[] = [makeTeam()]): F
   return { elements: players, teams, events: [], element_types: [] };
 }
 
+/**
+ * A player carrying FPL's own price-change fields. `progress` is percent of
+ * the threshold covered, signed: positive rises, negative falls.
+ */
+function withPriceProgress(progress: number, overrides: Partial<FplPlayer> = {}): FplPlayer {
+  const likelihood = Math.max(-5, Math.min(5, Math.round(progress / 20)));
+  return makePlayer({
+    price_change_percent: progress.toFixed(1),
+    price_change_hourly_rate: Math.round(progress * 10),
+    price_change_projections: [
+      { offset: 0, projected_percent: (progress * 1.05).toFixed(1), likelihood },
+    ],
+    price_change_locked_until: null,
+    price_change_calibrating: false,
+    ...overrides,
+  });
+}
+
 let bootstrap: FplBootstrapStatic;
 let picks: Set<number>;
 let events: ScoutEvent[] = [];
@@ -107,8 +125,8 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   Scenario(
     'Predicted fall on a picked player yields a warn price event',
     ({ Given, When, Then, And }) => {
-      Given('a bootstrap where a picked player has heavy net transfers out', () => {
-        bootstrap = makeBootstrap([makePlayer({ transfers_out_event: 20_000 })]);
+      Given('a bootstrap where a picked player is close to a fall', () => {
+        bootstrap = makeBootstrap([withPriceProgress(-92, { transfers_out_event: 20_000 })]);
       });
 
       When('deriveScoutEvents is called', () => {
@@ -128,28 +146,25 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     }
   );
 
-  Scenario(
-    'Predicted fall below the probability threshold is excluded',
-    ({ Given, When, Then }) => {
-      Given('a bootstrap where a picked player has mild net transfers out', () => {
-        bootstrap = makeBootstrap([makePlayer({ transfers_out_event: 12_000 })]);
-      });
+  Scenario('A barely moving player is not reported', ({ Given, When, Then }) => {
+    Given('a bootstrap where a picked player is barely moving', () => {
+      bootstrap = makeBootstrap([withPriceProgress(-8)]);
+    });
 
-      When('deriveScoutEvents is called', () => {
-        events = deriveScoutEvents(bootstrap, picks);
-      });
+    When('deriveScoutEvents is called', () => {
+      events = deriveScoutEvents(bootstrap, picks);
+    });
 
-      Then('no events are returned', () => {
-        expect(events).toHaveLength(0);
-      });
-    }
-  );
+    Then('no events are returned', () => {
+      expect(events).toHaveLength(0);
+    });
+  });
 
   Scenario(
     'Predicted rise on a picked player yields a good price event',
     ({ Given, When, Then }) => {
-      Given('a bootstrap where a picked player has heavy net transfers in', () => {
-        bootstrap = makeBootstrap([makePlayer({ transfers_in_event: 20_000 })]);
+      Given('a bootstrap where a picked player is close to a rise', () => {
+        bootstrap = makeBootstrap([withPriceProgress(92)]);
       });
 
       When('deriveScoutEvents is called', () => {
@@ -165,10 +180,10 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
   );
 
   Scenario('Price prediction for a non-picked player is excluded', ({ Given, When, Then }) => {
-    Given('a bootstrap where only a non-picked player has heavy net transfers out', () => {
+    Given('a bootstrap where only a non-picked player is close to a fall', () => {
       bootstrap = makeBootstrap([
         makePlayer(),
-        makePlayer({ id: 2, web_name: 'Havertz', transfers_out_event: 20_000 }),
+        withPriceProgress(-92, { id: 2, web_name: 'Havertz' }),
       ]);
     });
 
@@ -185,7 +200,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     Given('a bootstrap with an injured pick, a doubtful pick and a rising pick', () => {
       picks = new Set([1, 2, 3]);
       bootstrap = makeBootstrap([
-        makePlayer({ id: 3, web_name: 'Gordon', transfers_in_event: 20_000 }),
+        withPriceProgress(92, { id: 3, web_name: 'Gordon' }),
         makePlayer({ id: 2, web_name: 'Palmer', chance_of_playing_next_round: 75, news: 'Knock' }),
         makePlayer({ id: 1, web_name: 'Isak', status: 'i', news: 'Ankle injury' }),
       ]);
@@ -205,10 +220,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     ({ Given, When, Then }) => {
       Given('a bootstrap where a picked player is doubtful and falling in price', () => {
         bootstrap = makeBootstrap([
-          makePlayer({
+          withPriceProgress(-92, {
             chance_of_playing_next_round: 50,
             news: 'Knock - 50% chance of playing',
-            transfers_out_event: 20_000,
           }),
         ]);
       });

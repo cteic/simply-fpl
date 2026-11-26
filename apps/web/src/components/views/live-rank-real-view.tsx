@@ -13,6 +13,7 @@ import {
   calculateLivePoints,
   computeDefConProgress,
   computeRankDetails,
+  formatCompactRank,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
@@ -308,6 +309,19 @@ interface LiveRankRealViewProps {
   dataOverride?: LiveRankDataOverride;
 }
 
+/**
+ * The hold line: what is still needed to keep position, or how clear they are.
+ *
+ * Zero gets its own wording. At kickoff nothing has been scored and the field
+ * average is zero too, so the difference is zero, and "holding, 0 clear" reads
+ * as a bug.
+ */
+function describeHold(holdFromHere: number): string {
+  if (holdFromHere > 0) return t('live_rank.hold_needs', { count: holdFromHere });
+  if (holdFromHere === 0) return t('live_rank.hold_level');
+  return t('live_rank.holding_clear', { count: Math.abs(holdFromHere) });
+}
+
 export function LiveRankRealView({
   entryId: entryIdProp,
   dataOverride,
@@ -494,6 +508,9 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const teamName = entry?.name ?? '—';
   const liveEstimate = useLiveRankEstimate(dataOverride ? null : entryId);
   const estimate = dataOverride ? dataOverride.estimate : liveEstimate.estimate;
+  // Null until FPL's curve has loaded. Without it there is nothing to invert,
+  // so the line is hidden rather than showing a guessed target.
+  const targets = dataOverride ? null : liveEstimate.targets;
   // No estimate means the gameweek has finished and FPL has published the real
   // overall rank, so show that rather than an empty hero.
   const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
@@ -825,6 +842,22 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                   {rankDetails.changePct >= 0 ? '+' : ''}
                   {rankDetails.changePct.toFixed(1)}%
                 </Text>
+              </XStack>
+            ) : null}
+
+            {targets ? (
+              <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
+                <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
+                  {describeHold(targets.holdFromHere)}
+                </Text>
+                {targets.nextTarget ? (
+                  <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.55)">
+                    {t('live_rank.target_needs', {
+                      rank: formatCompactRank(targets.nextTarget.rank),
+                      count: targets.nextTarget.pointsFromHere,
+                    })}
+                  </Text>
+                ) : null}
               </XStack>
             ) : null}
 

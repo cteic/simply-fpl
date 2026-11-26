@@ -2,23 +2,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fplClient } from '@simplyfpl/fpl-client';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
-import type { FplBootstrapStatic } from '@simplyfpl/types';
+import type { FplBootstrapStatic, SlimPricesResponse } from '@simplyfpl/types';
 
-export interface SlimPriceChange {
-  id: number;
-  web_name: string;
-  element_type: number;
-  team_name: string;
-  now_cost: number;
-  ownership: number;
-  direction: 'rise' | 'fall';
-  probability: number;
-}
-
-export interface SlimPricesResponse {
-  generated_at: string;
-  changes: SlimPriceChange[];
-}
+export type { SlimPriceChange, SlimPricesResponse } from '@simplyfpl/types';
 
 const API_BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
 

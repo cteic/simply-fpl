@@ -6,11 +6,22 @@
       "dependsOn": ["^build"]
     },
     "build:watch": {},
-    "lint": {},
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+    "lint": {
+      "dependsOn": ["topo"]
+    },
     "lint:fix": {},
-    "test:unit": {},
-    "test:coverage": {},
-    "typecheck": {},
+    "test:unit": {
+      "dependsOn": ["topo"]
+    },
+    "test:coverage": {
+      "dependsOn": ["topo"]
+    },
+    "typecheck": {
+      "dependsOn": ["topo"]
+    },
     "check:all": {
       "dependsOn": ["build", "typecheck"]
     },

@@ -21,23 +21,23 @@ Feature: Scout event derivation
     Then no events are returned
 
   Scenario: Predicted fall on a picked player yields a warn price event
-    Given a bootstrap where a picked player has heavy net transfers out
+    Given a bootstrap where a picked player is close to a fall
     When deriveScoutEvents is called
     Then one event of kind "price_fall" with severity "warn" is returned
     And the event carries a probability and net transfers
 
-  Scenario: Predicted fall below the probability threshold is excluded
-    Given a bootstrap where a picked player has mild net transfers out
+  Scenario: A barely moving player is not reported
+    Given a bootstrap where a picked player is barely moving
     When deriveScoutEvents is called
     Then no events are returned
 
   Scenario: Predicted rise on a picked player yields a good price event
-    Given a bootstrap where a picked player has heavy net transfers in
+    Given a bootstrap where a picked player is close to a rise
     When deriveScoutEvents is called
     Then one event of kind "price_rise" with severity "good" is returned
 
   Scenario: Price prediction for a non-picked player is excluded
-    Given a bootstrap where only a non-picked player has heavy net transfers out
+    Given a bootstrap where only a non-picked player is close to a fall
     When deriveScoutEvents is called
     Then no events are returned
 
