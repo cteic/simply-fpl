@@ -13,7 +13,7 @@ import {
   hasDistribution,
   loadDistribution,
 } from './estimate-rank';
-import { rankForPoints } from './rank-curve';
+import { curveMatchesGameweek, rankForPoints } from './rank-curve';
 
 /**
  * Calculate live points for a set of picks against live gameweek data.
@@ -261,8 +261,9 @@ export interface EstimateLiveRankSmartOptions {
  * Live-rank estimator with a confidence chain, best source first.
  *
  * Priority (highest to lowest):
- *   1. official-curve — `opts.curve` plus `opts.preGwTotal`. FPL's own
- *      points-to-rank mapping for the whole field. 1.17% median absolute error.
+ *   1. official-curve — `opts.curve` plus `opts.preGwTotal`, when the curve is
+ *      the one from the gameweek before `gw`. FPL's own points-to-rank mapping
+ *      for the whole field.
  *   2. live-cohort — `opts.liveAggregate`, a score distribution sampled from
  *      the worker cohort for the current GW.
  *   3. flat-heuristic — `estimateLiveRank`, the flat 700-places-per-point
@@ -286,7 +287,11 @@ export function estimateLiveRankSmart(
   const { liveAggregate, bootstrap, curve, preGwTotal } = opts;
   const totalEntries = opts.totalEntries ?? getRankedEntryCount(bootstrap);
 
-  if (curve && typeof preGwTotal === 'number') {
+  // A curve from the wrong gameweek shifts the whole x-axis by a gameweek's
+  // scoring. Measured, that moved estimates by around 40% while still
+  // reporting the curve as its source, so a mismatch falls through to the next
+  // level instead of being used.
+  if (curve && typeof preGwTotal === 'number' && curveMatchesGameweek(curve, gw)) {
     return estimateLiveRankFromCurve({
       curve,
       preGwTotal,

@@ -364,6 +364,32 @@ export interface RankCurvePoint {
   rank: number;
 }
 
+export interface RankTarget {
+  /** The rank being aimed at. */
+  rank: number;
+  /** Cumulative total needed to finish the gameweek on that rank. */
+  totalPointsNeeded: number;
+  /** Gameweek points needed in all, including what is already banked. */
+  gwPointsNeeded: number;
+  /** Further points needed from the live position. Zero or less means reached. */
+  pointsFromHere: number;
+  achieved: boolean;
+}
+
+export interface RankTargets {
+  /** Where the manager stands right now, off the same curve. */
+  liveRank: number;
+  /** The curve's view of where they started, for comparison with FPL's rank. */
+  holdRank: number;
+  /** Gameweek points that leave them on their pre-gameweek rank. */
+  holdPoints: number;
+  /** Further points needed from here to hold. Zero or less means already safe. */
+  holdFromHere: number;
+  targets: RankTarget[];
+  /** The nearest milestone still ahead of them, or null when none is. */
+  nextTarget: RankTarget | null;
+}
+
 /**
  * FPL's own points-to-rank mapping for the whole field, sampled from the
  * global classic league. `points` is sorted by totalPoints descending.
