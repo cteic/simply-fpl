@@ -44,6 +44,22 @@ export function latestSettledEvent(bootstrap: FplBootstrapStatic): FplEvent | nu
   return latest;
 }
 
+function isBootstrap(value: unknown): value is FplBootstrapStatic {
+  if (typeof value !== 'object' || value === null) return false;
+  const candidate: { events?: unknown } = value;
+  return Array.isArray(candidate.events);
+}
+
+function isRankCurve(value: unknown): value is RankCurve {
+  if (typeof value !== 'object' || value === null) return false;
+  const candidate: { gw?: unknown; rankedCount?: unknown; points?: unknown } = value;
+  return (
+    typeof candidate.gw === 'number' &&
+    typeof candidate.rankedCount === 'number' &&
+    Array.isArray(candidate.points)
+  );
+}
+
 interface StandingsRow {
   rank?: unknown;
   total?: unknown;
@@ -51,7 +67,8 @@ interface StandingsRow {
 
 function readPage(payload: unknown): RankCurveSample | null {
   if (typeof payload !== 'object' || payload === null) return null;
-  const standings = (payload as { standings?: { results?: unknown } }).standings;
+  const envelope: { standings?: { results?: unknown } } = payload;
+  const { standings } = envelope;
   if (typeof standings !== 'object' || standings === null) return null;
   const results = standings.results;
   if (!Array.isArray(results) || results.length === 0) return null;
@@ -105,8 +122,8 @@ async function readBootstrap(env: RankCurveEnv): Promise<FplBootstrapStatic | nu
   const cached = await env.FPL_CACHE.get('fpl:/bootstrap-static/', 'text');
   if (cached !== null) {
     try {
-      const parsed = JSON.parse(cached) as FplBootstrapStatic;
-      if (Array.isArray(parsed.events)) return parsed;
+      const parsed: unknown = JSON.parse(cached);
+      if (isBootstrap(parsed)) return parsed;
     } catch {
       // fall through and fetch
     }
@@ -115,10 +132,8 @@ async function readBootstrap(env: RankCurveEnv): Promise<FplBootstrapStatic | nu
     headers: { 'User-Agent': 'SimplyFPL/1.0', Accept: 'application/json' },
   }).catch(() => null);
   if (!res || !res.ok) return null;
-  const parsed = await res.json().catch(() => null);
-  if (typeof parsed !== 'object' || parsed === null) return null;
-  const bootstrap = parsed as FplBootstrapStatic;
-  return Array.isArray(bootstrap.events) ? bootstrap : null;
+  const parsed: unknown = await res.json().catch(() => null);
+  return isBootstrap(parsed) ? parsed : null;
 }
 
 export async function handleRankCurve(
@@ -139,7 +154,8 @@ export async function handleRankCurve(
   const cached = await env.FPL_CACHE.get(cacheKey, 'text');
   if (cached !== null) {
     try {
-      return { status: 200, body: JSON.parse(cached) as RankCurve, cache: 'HIT' };
+      const parsed: unknown = JSON.parse(cached);
+      if (isRankCurve(parsed)) return { status: 200, body: parsed, cache: 'HIT' };
     } catch {
       // fall through and rebuild
     }
