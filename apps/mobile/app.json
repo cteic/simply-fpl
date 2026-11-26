@@ -7,11 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "simplyfpl",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0B4F49"
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
@@ -30,7 +25,23 @@
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "plugins": ["expo-router", ["expo-secure-store", { "faceIDPermission": false }]],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0B4F49"
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }
