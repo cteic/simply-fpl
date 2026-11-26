@@ -24,7 +24,7 @@ import type { ShirtKind } from '@simplyfpl/ui';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useBootstrap, useEntryPicks, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { computeThreats, filterThreatsByStatus } = threatsNs;
+const { filterThreatsByStatus, resolveThreats } = threatsNs;
 
 const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }> = [
   { label: t('threats.filter_all'), value: 'all' },
@@ -36,93 +36,10 @@ const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }
 
 const STORAGE_KEY = 'simplyfpl:lastEntryId';
 
-const PLACEHOLDER_THREATS: Threat[] = [
-  {
-    elementId: 351,
-    name: 'Haaland',
-    teamShort: 'MCI',
-    teamCode: 43,
-    position: 'fwd',
-    ownedByCount: 78,
-    ownedByPct: 78,
-    captainPct: 41,
-    effectiveOwnershipPct: 119,
-    livePoints: 13,
-    minutes: 90,
-    liveRankImpactIfTheyHaul: 9.52,
-    pointsLostToThreat: 15.47,
-    scorePct: 26,
-    playingStatus: 'played',
-  },
-  {
-    elementId: 328,
-    name: 'M.Salah',
-    teamShort: 'LIV',
-    teamCode: 14,
-    position: 'mid',
-    ownedByCount: 72,
-    ownedByPct: 72,
-    captainPct: 18,
-    effectiveOwnershipPct: 90,
-    livePoints: 6,
-    minutes: 64,
-    liveRankImpactIfTheyHaul: 7.2,
-    pointsLostToThreat: 5.4,
-    scorePct: 9,
-    playingStatus: 'playing',
-  },
-  {
-    elementId: 401,
-    name: 'Saka',
-    teamShort: 'ARS',
-    teamCode: 3,
-    position: 'mid',
-    ownedByCount: 54,
-    ownedByPct: 54,
-    captainPct: 4,
-    effectiveOwnershipPct: 58,
-    livePoints: 2,
-    minutes: 31,
-    liveRankImpactIfTheyHaul: 4.64,
-    pointsLostToThreat: 1.16,
-    scorePct: 2,
-    playingStatus: 'playing',
-  },
-  {
-    elementId: 220,
-    name: 'Palmer',
-    teamShort: 'CHE',
-    teamCode: 8,
-    position: 'mid',
-    ownedByCount: 49,
-    ownedByPct: 49,
-    captainPct: 7,
-    effectiveOwnershipPct: 56,
-    livePoints: 0,
-    minutes: 0,
-    liveRankImpactIfTheyHaul: 4.48,
-    pointsLostToThreat: 0,
-    scorePct: 0,
-    playingStatus: 'to-play',
-  },
-  {
-    elementId: 182,
-    name: 'Watkins',
-    teamShort: 'AVL',
-    teamCode: 7,
-    position: 'fwd',
-    ownedByCount: 36,
-    ownedByPct: 36,
-    captainPct: 3,
-    effectiveOwnershipPct: 39,
-    livePoints: 0,
-    minutes: 0,
-    liveRankImpactIfTheyHaul: 3.12,
-    pointsLostToThreat: 0,
-    scorePct: 0,
-    playingStatus: 'didnt-play',
-  },
-];
+const EMPTY_THREATS: Threat[] = [];
+
+/** Rows shown before the list is cut off. Past this the impact is negligible. */
+const MAX_ROWS = 25;
 
 const POSITION_TO_SHIRT: Record<ThreatPosition, ShirtKind> = {
   gk: 'gk',
@@ -155,33 +72,42 @@ export function ThreatsView() {
   const { data: liveGw } = useLiveGameweek(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
 
-  const rows = useMemo<Threat[]>(() => {
-    if (cohort && bootstrap && liveGw && yourPicks) {
-      return computeThreats({
-        yourPicks,
-        cohort,
-        bootstrap,
-        liveGw,
-        fixtures: fixtures ?? [],
-      });
-    }
-    return PLACEHOLDER_THREATS;
-  }, [cohort, bootstrap, liveGw, yourPicks, fixtures]);
+  // Real ownership or nothing. This used to fall back to invented rows, with
+  // made-up players and percentages, whenever the sampled cohort was missing.
+  const resolved = useMemo(() => {
+    if (!bootstrap || !liveGw || !yourPicks || currentGw === null) return null;
+    return resolveThreats({
+      yourPicks,
+      cohort,
+      bootstrap,
+      liveGw,
+      fixtures: fixtures ?? [],
+      gw: currentGw,
+    });
+  }, [cohort, bootstrap, liveGw, yourPicks, fixtures, currentGw]);
 
+  const rows = resolved?.threats ?? EMPTY_THREATS;
   const visibleRows = useMemo(
-    () => filterThreatsByStatus(rows, statusFilter),
+    () => filterThreatsByStatus(rows, statusFilter).slice(0, MAX_ROWS),
     [rows, statusFilter]
   );
 
-  const headline = entryId === null ? 'Save a team on Home to personalise' : `For team ${entryId}`;
+  const meta =
+    entryId === null
+      ? t('threats.meta_no_team')
+      : t('threats.meta_team', { gw: currentGw ?? '\u2014' });
+
+  let emptyMessage = t('threats.empty_filter');
+  if (entryId === null) emptyMessage = t('threats.empty_no_team');
+  else if (resolved === null) emptyMessage = t('threats.empty_loading');
+
+  let footnote = '';
+  if (resolved?.source === 'top_10k') footnote = t('threats.note_top10k');
+  else if (resolved?.source === 'field') footnote = t('threats.note_field');
 
   return (
     <PageShell>
-      <PageHeader
-        tone="stadium"
-        title={t('threats.title')}
-        meta={`${headline} · GW${currentGw ?? '—'} · Players nearby managers own that you don't`}
-      />
+      <PageHeader tone="stadium" title={t('threats.title')} meta={meta} />
 
       <XStack gap={8} flexWrap="wrap" marginBottom={16}>
         {STATUS_FILTERS.map((f) => (
@@ -202,7 +128,7 @@ export function ThreatsView() {
         {visibleRows.length === 0 ? (
           <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
             <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-              {t('threats.empty')}
+              {emptyMessage}
             </Text>
           </YStack>
         ) : (
@@ -214,7 +140,7 @@ export function ThreatsView() {
         )}
       </Card>
 
-      <FNote>{cohort ? t('threats.fnote_live') : t('threats.fnote_placeholder')}</FNote>
+      {footnote ? <FNote>{footnote}</FNote> : null}
     </PageShell>
   );
 }
