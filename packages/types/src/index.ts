@@ -18,6 +18,17 @@ export interface FplPlayer {
   minutes?: number;
   clearances_blocks_interceptions?: number;
   tackles?: number;
+  price_change_percent?: string;
+  price_change_hourly_rate?: number;
+  price_change_projections?: FplPriceChangeProjection[];
+  price_change_locked_until?: string | null;
+  price_change_calibrating?: boolean;
+}
+
+export interface FplPriceChangeProjection {
+  offset: number;
+  projected_percent: string;
+  likelihood: number;
 }
 
 export interface FplTeam {
@@ -32,6 +43,7 @@ export interface FplBootstrapStatic {
   teams: FplTeam[];
   events: FplEvent[];
   element_types: FplElementType[];
+  total_players?: number;
 }
 
 export interface FplEvent {

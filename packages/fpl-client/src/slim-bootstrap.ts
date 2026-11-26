@@ -22,6 +22,11 @@ function projectPlayer(p: FplPlayer): FplPlayer {
     transfers_out_event: 0,
     chance_of_playing_next_round: p.chance_of_playing_next_round,
     news: '',
+    price_change_percent: p.price_change_percent,
+    price_change_hourly_rate: p.price_change_hourly_rate,
+    price_change_projections: p.price_change_projections,
+    price_change_locked_until: p.price_change_locked_until,
+    price_change_calibrating: p.price_change_calibrating,
   };
 }
 
@@ -40,6 +45,8 @@ function projectEvent(e: FplEvent): FplEvent {
     average_entry_score: e.average_entry_score,
     highest_score: e.highest_score,
     finished: e.finished,
+    data_checked: e.data_checked,
+    ranked_count: e.ranked_count,
   };
 }
 
@@ -59,5 +66,6 @@ export function buildSlimBootstrap(bootstrap: FplBootstrapStatic): FplBootstrapS
     teams: bootstrap.teams.map(projectTeam),
     events: bootstrap.events.map(projectEvent),
     element_types: bootstrap.element_types.map(projectElementType),
+    total_players: bootstrap.total_players,
   };
 }
