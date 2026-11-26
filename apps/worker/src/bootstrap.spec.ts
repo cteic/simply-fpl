@@ -134,10 +134,7 @@ const EXPECTED_ELEMENT_KEYS = [
   'chance_of_playing_next_round',
   'news',
   'price_change_percent',
-  'price_change_hourly_rate',
   'price_change_projections',
-  'price_change_locked_until',
-  'price_change_calibrating',
 ];
 
 const ORIGINAL_FETCH = globalThis.fetch;
