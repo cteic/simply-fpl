@@ -46,7 +46,7 @@ export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankE
   const bonusMap = predictBonusPoints(liveGw, fixtures, bootstrap);
   const livePoints = calculateLivePoints(picks, liveGw, bootstrap, bonusMap);
   const avgEntryScore = event?.average_entry_score ?? 0;
-  return estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore);
+  return estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore, { bootstrap });
 }
 
 export interface UseLiveRankEstimateResult {
