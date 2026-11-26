@@ -56,7 +56,8 @@ export function PricesView() {
         accentColor: getClubColor(change.team_name),
         flow: change.direction,
         value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
-        probability: Math.round(change.probability * 100),
+        progressPercent: change.progress_percent,
+        locked: change.locked_until !== null,
         position: positionLabel,
         defconBar,
       };
@@ -79,7 +80,7 @@ export function PricesView() {
       <PageHeader
         tone="stadium"
         title="Price Changes"
-        meta="Predictions update daily at midnight · Based on net transfers"
+        meta="FPL\u2019s own price-change tracker \u00b7 100% means a change is due"
       />
 
       <XStack gap={8} flexWrap="wrap">
@@ -117,7 +118,8 @@ export function PricesView() {
                 club={row.club}
                 flow={row.flow}
                 value={row.value}
-                probability={row.probability}
+                progressPercent={row.progressPercent}
+                locked={row.locked}
                 accentColor={row.accentColor}
                 defconBar={row.defconBar}
                 last={i === visibleRows.length - 1}

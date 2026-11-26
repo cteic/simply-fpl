@@ -7,6 +7,7 @@ import {
   estimateLiveRankSmart,
   fplClient,
   predictBonusPoints,
+  resolveFieldLiveAverage,
 } from '@simplyfpl/fpl-client';
 import type { LiveRankEstimate } from '@simplyfpl/fpl-client';
 import type {
@@ -15,6 +16,8 @@ import type {
   FplEntryGameweekPicks,
   FplFixture,
   FplLiveGameweek,
+  RankCurve,
+  ScoreDistribution,
 } from '@simplyfpl/types';
 
 export interface LiveRankEstimateInput {
@@ -24,6 +27,12 @@ export interface LiveRankEstimateInput {
   liveGw: FplLiveGameweek;
   fixtures: FplFixture[];
   gw: number;
+  /** FPL's own points-to-rank curve, when the worker has one for this GW. */
+  curve?: RankCurve | undefined;
+  /** A sampled score distribution for the field, if the cohort is running. */
+  liveAggregate?: ScoreDistribution | undefined;
+  /** Opt into the captured distribution chain. Measured 12x worse than flat. */
+  useDistributionModel?: boolean | undefined;
 }
 
 /**
@@ -45,8 +54,33 @@ export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankE
 
   const bonusMap = predictBonusPoints(liveGw, fixtures, bootstrap);
   const livePoints = calculateLivePoints(picks, liveGw, bootstrap, bonusMap);
-  const avgEntryScore = event?.average_entry_score ?? 0;
-  return estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore, { bootstrap });
+
+  // FPL reports average_entry_score as 0 until a gameweek settles, and a zero
+  // average claims the whole field scored nothing, which credits this manager
+  // with their entire score as a gain. Resolve it from the best source going.
+  const { average } = resolveFieldLiveAverage({
+    event,
+    liveGw,
+    bootstrap,
+    liveAggregate: input.liveAggregate,
+  });
+
+  // The curve is keyed on cumulative totals, so it needs where this manager
+  // stood before the gameweek, not their rank. A payload without a real total
+  // would read as zero and place them last, so the curve only runs when the
+  // figure is usable.
+  const preGwTotal = picks.entry_history.total_points - picks.entry_history.points;
+  const canUseCurve = input.curve !== undefined && preGwTotal > 0;
+
+  return estimateLiveRankSmart(gw, preGwRank, livePoints, average, {
+    bootstrap,
+    preGwTotal,
+    ...(canUseCurve && input.curve !== undefined ? { curve: input.curve } : {}),
+    ...(input.liveAggregate === undefined ? {} : { liveAggregate: input.liveAggregate }),
+    ...(input.useDistributionModel === undefined
+      ? {}
+      : { useDistributionModel: input.useDistributionModel }),
+  });
 }
 
 export interface UseLiveRankEstimateResult {

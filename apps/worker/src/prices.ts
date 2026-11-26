@@ -1,5 +1,10 @@
 import { predictPriceChanges } from '@simplyfpl/fpl-client';
-import type { FplBootstrapStatic, FplFixture } from '@simplyfpl/types';
+import type {
+  FplBootstrapStatic,
+  FplFixture,
+  SlimPriceChange,
+  SlimPricesResponse,
+} from '@simplyfpl/types';
 
 import { warmBootstrapSlim } from './bootstrap';
 import { warmFixturesSlim } from './fixtures';
@@ -9,21 +14,7 @@ export interface PricesEnv {
   FPL_BASE_URL: string;
 }
 
-export interface SlimPriceChange {
-  id: number;
-  web_name: string;
-  element_type: number;
-  team_name: string;
-  now_cost: number;
-  ownership: number;
-  direction: 'rise' | 'fall';
-  probability: number;
-}
-
-export interface SlimPricesResponse {
-  generated_at: string;
-  changes: SlimPriceChange[];
-}
+export type { SlimPriceChange, SlimPricesResponse } from '@simplyfpl/types';
 
 export interface PricesResult {
   status: number;
@@ -98,6 +89,13 @@ export function buildSlimPrices(bootstrap: FplBootstrapStatic): SlimPricesRespon
     ownership: parseFloat(change.player.selected_by_percent) || 0,
     direction: change.direction === 'fall' ? 'fall' : 'rise',
     probability: change.probability,
+    progress_percent: change.progressPercent,
+    likelihood: change.likelihood,
+    projected_percent: change.projectedPercent,
+    hourly_rate: change.hourlyRate,
+    locked_until: change.lockedUntil,
+    calibrating: change.calibrating,
+    source: change.source,
   }));
   return {
     generated_at: new Date().toISOString(),

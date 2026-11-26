@@ -145,16 +145,63 @@ describe('computeLiveRankEstimate', () => {
     });
   });
 
-  it('uses the captured distribution when one exists for the gw', () => {
-    // gw=7 has a captured `overall` distribution; the result diverges from
-    // the flat-700 baseline (993_000) — it's clamped against ~11M entries.
+  it('ignores a captured distribution unless the caller opts in', () => {
+    // gw=7 has a captured `overall` distribution, but it measured 12x worse
+    // than the flat model, so it no longer runs by default.
     const estimate = computeLiveRankEstimate(buildInput());
+    expect(estimate?.source).toBe('flat-heuristic');
+    expect(estimate?.liveRank).toBe(993_000);
+  });
+
+  it('uses the captured distribution when the caller opts in', () => {
+    const estimate = computeLiveRankEstimate({
+      ...buildInput(),
+      useDistributionModel: true,
+    });
     expect(estimate).not.toBeNull();
     if (estimate) {
       expect(estimate.liveRank).not.toBe(993_000);
       expect(estimate.liveRank).toBeGreaterThanOrEqual(1);
       expect(estimate.liveRank).toBeLessThanOrEqual(11_000_000);
     }
+  });
+
+  it("reads live rank off FPL's own curve when one is supplied", () => {
+    const base = buildInput();
+    // preGwTotal is derived from the picks payload, not passed in: a manager on
+    // 606 total who has banked 25 of it this gameweek went in on 581.
+    const input: LiveRankEstimateInput = {
+      ...base,
+      picks: {
+        ...base.picks,
+        entry_history: { ...base.picks.entry_history, points: 25, total_points: 606 },
+      },
+    };
+    const preGwTotal = input.picks.entry_history.total_points - input.picks.entry_history.points;
+    expect(preGwTotal).toBe(581);
+    const estimate = computeLiveRankEstimate({
+      ...input,
+      curve: {
+        gw: 7,
+        rankedCount: 11_261_396,
+        builtAt: '2026-11-26T00:00:00Z',
+        points: [
+          { totalPoints: 855, rank: 1 },
+          { totalPoints: 748, rank: 49_929 },
+          { totalPoints: 700, rank: 548_847 },
+          { totalPoints: 605, rank: 4_399_904 },
+          { totalPoints: 541, rank: 7_498_198 },
+          { totalPoints: 153, rank: 11_099_560 },
+        ],
+      },
+    });
+    expect(estimate?.source).toBe('official-curve');
+    expect(estimate?.liveRank).toBeGreaterThanOrEqual(1);
+    expect(estimate?.liveRank).toBeLessThanOrEqual(11_261_396);
+    // 581 + 60 - 50 = 591 lands between the 605 and 541 samples, so the
+    // estimate must sit between their ranks rather than clamping to an end.
+    expect(estimate?.liveRank).toBeGreaterThan(4_399_904);
+    expect(estimate?.liveRank).toBeLessThan(7_498_198);
   });
 
   it('returns identical values for the nav-bar pill and the live-rank page (no desync)', () => {
@@ -182,7 +229,7 @@ describe('computeLiveRankEstimate', () => {
         current,
       ],
     };
-    const estimate = computeLiveRankEstimate(input);
+    const estimate = computeLiveRankEstimate({ ...input, useDistributionModel: true });
     expect(estimate?.source).toBe('captured-prior-season-scaled');
   });
 
@@ -192,12 +239,13 @@ describe('computeLiveRankEstimate', () => {
     if (!event) throw new Error('fixture must have an event');
     const withCount = computeLiveRankEstimate({
       ...base,
+      useDistributionModel: true,
       bootstrap: {
         ...base.bootstrap,
         events: [{ ...event, ranked_count: 5_500_000 }],
       },
     });
-    const withoutCount = computeLiveRankEstimate(base);
+    const withoutCount = computeLiveRankEstimate({ ...base, useDistributionModel: true });
     expect(withCount).not.toBeNull();
     expect(withoutCount).not.toBeNull();
     if (withCount && withoutCount) {

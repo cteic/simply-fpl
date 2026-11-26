@@ -18,7 +18,7 @@ Feature: Deadline brief
     When buildDeadlineBrief is called
     Then the brief counts 2 rises and 1 fall tonight
 
-  Scenario: Price moves below the probability threshold are not counted
-    Given a bootstrap where a non-picked player has mild net transfers out
+  Scenario: A move FPL does not project past its threshold tonight is not counted
+    Given a bootstrap where a non-picked player is drifting but not due
     When buildDeadlineBrief is called
     Then the brief counts 0 rises and 0 falls tonight
