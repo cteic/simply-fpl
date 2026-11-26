@@ -6,7 +6,7 @@
 #
 # Mirrors scenario: "Score delta is positive when user outscores opponent"
 
-appId: com.simplyfpl.mobile
+appId: com.simplyfpl.app
 ---
 - launchApp:
     clearState: true

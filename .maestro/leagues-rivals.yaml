@@ -10,7 +10,7 @@
 #   leagues-view.feature: "Entry endpoint returns leagues for a valid team ID"
 #   rivals.feature: "Rivals board shows live rank with correct ordering"
 
-appId: com.simplyfpl.mobile
+appId: com.simplyfpl.app
 ---
 - launchApp:
     clearState: true
