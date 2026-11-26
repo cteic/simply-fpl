@@ -36,7 +36,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <Screen>
+    <Screen testID="screen-login">
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Sign in

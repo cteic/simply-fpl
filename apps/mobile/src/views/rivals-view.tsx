@@ -44,7 +44,7 @@ export function RivalsView() {
 
   if (leagueId === null) {
     return (
-      <Screen>
+      <Screen testID="screen-rivals">
         <Header title="Rivals" meta="Invalid league ID" />
         <Card paddingHorizontal={16} paddingVertical={14}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
@@ -57,7 +57,7 @@ export function RivalsView() {
 
   if (!hydrated) {
     return (
-      <Screen>
+      <Screen testID="screen-rivals">
         <Header title="Rivals" meta="Loading…" />
       </Screen>
     );
@@ -73,7 +73,7 @@ export function RivalsView() {
 function NoTeamView() {
   const router = useRouter();
   return (
-    <Screen>
+    <Screen testID="screen-rivals">
       <Header title="Rivals" meta="Tell us your team ID to see your rivals" />
       <Card paddingHorizontal={20} paddingVertical={20}>
         <YStack gap={10}>
@@ -140,7 +140,7 @@ function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
 
   if (leagueLoading) {
     return (
-      <Screen>
+      <Screen testID="screen-rivals">
         <Header title="Rivals" meta="Loading league…" />
       </Screen>
     );
@@ -148,7 +148,7 @@ function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
 
   if (leagueError || !league) {
     return (
-      <Screen>
+      <Screen testID="screen-rivals">
         <Header title="Rivals" meta={`League ${leagueId}`} />
         <Card paddingHorizontal={16} paddingVertical={14}>
           <Text fontFamily="$body" fontSize={13} color="$danger">
@@ -161,7 +161,7 @@ function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
 
   if (userStanding === null) {
     return (
-      <Screen>
+      <Screen testID="screen-rivals">
         <Header title="Rivals" meta={league.league.name} />
         <Card paddingHorizontal={16} paddingVertical={14}>
           <Text fontFamily="$body" fontSize={13} color="$colorMuted">
@@ -329,7 +329,7 @@ function RivalsBoardSection({
   const router = useRouter();
 
   return (
-    <Screen>
+    <Screen testID="screen-rivals">
       <Header title="Rivals" meta={meta} />
 
       {!ready ? (
