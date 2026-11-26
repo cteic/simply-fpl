@@ -165,6 +165,46 @@ describe('computeLiveRankEstimate', () => {
     expect(headerValue).toEqual(pageValue);
   });
 
+  it('passes bootstrap through so a prior-season distribution gets mean-shifted', () => {
+    const input = buildInput();
+    const current = input.bootstrap.events[0];
+    if (!current) throw new Error('fixture must have an event');
+    input.bootstrap = {
+      ...input.bootstrap,
+      events: [
+        {
+          ...current,
+          id: 1,
+          name: 'Gameweek 1',
+          deadline_time: '2026-08-14T17:30:00Z',
+          is_current: false,
+        },
+        current,
+      ],
+    };
+    const estimate = computeLiveRankEstimate(input);
+    expect(estimate?.source).toBe('captured-prior-season-scaled');
+  });
+
+  it('uses the gameweek ranked_count as the rank denominator when FPL reports one', () => {
+    const base = buildInput();
+    const event = base.bootstrap.events[0];
+    if (!event) throw new Error('fixture must have an event');
+    const withCount = computeLiveRankEstimate({
+      ...base,
+      bootstrap: {
+        ...base.bootstrap,
+        events: [{ ...event, ranked_count: 5_500_000 }],
+      },
+    });
+    const withoutCount = computeLiveRankEstimate(base);
+    expect(withCount).not.toBeNull();
+    expect(withoutCount).not.toBeNull();
+    if (withCount && withoutCount) {
+      expect(withCount.liveRank).toBeLessThan(withoutCount.liveRank);
+    }
+  });
+
   it('returns null when the pre-GW rank is unknown', () => {
     const input = buildInput();
     input.entry.summary_overall_rank = 0;

@@ -43,7 +43,7 @@ nodeModule.registerHooks({
   resolve(specifier, context, nextResolve) {
     if (
       (specifier.startsWith('./') || specifier.startsWith('../')) &&
-      !/\.[a-z]+$/.test(specifier)
+      !/\.(ts|tsx|js|mjs|cjs|json)$/.test(specifier)
     ) {
       const parentPath = context.parentURL ? fileURLToPath(context.parentURL) : process.cwd();
       const candidate = join(dirname(parentPath), `${specifier}.ts`);

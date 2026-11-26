@@ -21,6 +21,7 @@ import {
   getCurrentGameweek,
   getNextDeadline,
   getNextGameweek,
+  getRankedEntryCount,
 } from './live-rank';
 import type { LiveRankEstimate, NextDeadline, RankDetails, RankEstimateSource } from './live-rank';
 
@@ -753,6 +754,82 @@ describeFeature(feature, ({ Scenario }) => {
   );
 
   Scenario(
+    "The rank denominator comes from the gameweek's own ranked_count",
+    ({ Given, When, Then }) => {
+      let bootstrap: FplBootstrapStatic;
+      let count = 0;
+
+      Given('a bootstrap whose current gameweek reports 11261396 ranked entries', () => {
+        bootstrap = {
+          elements: [],
+          teams: [],
+          element_types: [],
+          events: [
+            {
+              id: 11,
+              name: 'Gameweek 11',
+              deadline_time: '2026-11-08T17:30:00Z',
+              is_current: true,
+              is_next: false,
+              is_previous: false,
+              average_entry_score: 35,
+              highest_score: null,
+              finished: false,
+              ranked_count: 11_261_396,
+            },
+          ],
+        };
+      });
+
+      When('I read the ranked entry count', () => {
+        count = getRankedEntryCount(bootstrap);
+      });
+
+      Then('it is 11261396 rather than the hardcoded approximation', () => {
+        expect(count).toBe(11_261_396);
+        expect(count).not.toBe(APPROX_TOTAL_FPL_ENTRIES);
+      });
+    }
+  );
+
+  Scenario(
+    'The rank denominator falls back when FPL omits ranked_count',
+    ({ Given, When, Then }) => {
+      let bootstrap: FplBootstrapStatic;
+      let count = 0;
+
+      Given('a bootstrap whose events carry no ranked_count', () => {
+        bootstrap = {
+          elements: [],
+          teams: [],
+          element_types: [],
+          events: [
+            {
+              id: 11,
+              name: 'Gameweek 11',
+              deadline_time: '2026-11-08T17:30:00Z',
+              is_current: true,
+              is_next: false,
+              is_previous: false,
+              average_entry_score: 35,
+              highest_score: null,
+              finished: false,
+            },
+          ],
+        };
+      });
+
+      When('I read the ranked entry count', () => {
+        count = getRankedEntryCount(bootstrap);
+      });
+
+      Then('it is the hardcoded approximation', () => {
+        expect(count).toBe(APPROX_TOTAL_FPL_ENTRIES);
+      });
+    }
+  );
+
+  Scenario(
     'No captured distribution and no live aggregate falls to flat heuristic',
     ({ Given, When, Then }) => {
       let estimate: LiveRankEstimate;
@@ -779,6 +856,31 @@ describe('estimateLiveRankSmart', () => {
     expect(smart.liveRank).not.toBe(flat.liveRank);
     expect(smart.liveRank).toBeGreaterThanOrEqual(1);
     expect(smart.liveRank).toBeLessThanOrEqual(APPROX_TOTAL_FPL_ENTRIES);
+  });
+
+  it('scales the estimate by the gameweek ranked_count when bootstrap carries one', () => {
+    const events = (rankedCount?: number) => [
+      {
+        id: 1,
+        name: 'Gameweek 1',
+        deadline_time: '2025-08-15T17:30:00Z',
+        is_current: true,
+        is_next: false,
+        is_previous: false,
+        average_entry_score: 50,
+        highest_score: null,
+        finished: false,
+        ...(rankedCount === undefined ? {} : { ranked_count: rankedCount }),
+      },
+    ];
+    const withCount = estimateLiveRankSmart(1, 5_000_000, 75, 50, {
+      bootstrap: { elements: [], teams: [], element_types: [], events: events(5_500_000) },
+    });
+    const withoutCount = estimateLiveRankSmart(1, 5_000_000, 75, 50, {
+      bootstrap: { elements: [], teams: [], element_types: [], events: events() },
+    });
+    expect(withCount.liveRank).toBeLessThan(withoutCount.liveRank);
+    expect(withCount.liveRank).toBeLessThanOrEqual(5_500_000);
   });
 
   it('falls back to flat-700 when no distribution exists for the gw', () => {

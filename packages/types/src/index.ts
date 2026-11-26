@@ -44,6 +44,8 @@ export interface FplEvent {
   average_entry_score: number;
   highest_score: number | null;
   finished: boolean;
+  data_checked?: boolean;
+  ranked_count?: number;
 }
 
 export interface FplElementType {
@@ -131,20 +133,45 @@ export interface FplEntryPick {
   is_vice_captain: boolean;
 }
 
+export interface FplEntryHistoryRow {
+  event: number;
+  points: number;
+  total_points: number;
+  rank: number;
+  rank_sort: number;
+  overall_rank: number;
+  percentile_rank?: number | null;
+  overall_rank_percentage?: string | null;
+  bank?: number;
+  value?: number;
+  event_transfers: number;
+  event_transfers_cost: number;
+  points_on_bench: number;
+}
+
+export interface FplEntryPastSeason {
+  season_name: string;
+  total_points: number;
+  rank: number;
+  rank_percentage?: string | null;
+}
+
+export interface FplEntryChipPlay {
+  name: string;
+  time: string;
+  event: number;
+}
+
+export interface FplEntryHistory {
+  current: FplEntryHistoryRow[];
+  past: FplEntryPastSeason[];
+  chips: FplEntryChipPlay[];
+}
+
 export interface FplEntryGameweekPicks {
   active_chip: string | null;
   automatic_subs: unknown[];
-  entry_history: {
-    event: number;
-    points: number;
-    total_points: number;
-    rank: number;
-    rank_sort: number;
-    overall_rank: number;
-    event_transfers: number;
-    event_transfers_cost: number;
-    points_on_bench: number;
-  };
+  entry_history: FplEntryHistoryRow;
   picks: FplEntryPick[];
 }
 
