@@ -16,7 +16,9 @@ export const FRANK_WEEKLY_CRON = '0 6 * * 2';
 // gameweek can't open a gap: the previous week's advice stays served across the
 // boundary until the next run overwrites it.
 const FRANK_WEEKLY_TTL_SECONDS = 10 * 24 * 60 * 60;
-const FRANK_MODEL = 'claude-haiku-4-5-20251001';
+const FRANK_MODEL = 'claude-haiku-5-5';
+// Haiku 5.5 thinks by default and thinking counts toward max_tokens, so leave
+// headroom above the JSON payload we expect back.
 
 // Gameweek-scoped key so each week's advice is addressable independently; the
 // stable FRANK_WEEKLY_CACHE_KEY is the "latest" pointer the reader serves.
@@ -153,7 +155,7 @@ export async function runFrankWeekly(env: FrankEnv): Promise<void> {
 
   const message = await client.messages.create({
     model: FRANK_MODEL,
-    max_tokens: 1024,
+    max_tokens: 2048,
     system: [
       {
         type: 'text',

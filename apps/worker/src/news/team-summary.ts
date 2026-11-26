@@ -7,7 +7,9 @@ export interface TeamSummaryEnv {
   ANTHROPIC_API_KEY?: string;
 }
 
-const SUMMARY_MODEL = 'claude-haiku-4-5-20251001';
+const SUMMARY_MODEL = 'claude-haiku-5-5';
+// Haiku 5.5 thinks by default and thinking counts toward max_tokens. At the
+// old 256 cap a summary could stop after a thinking block with no text.
 const SUMMARY_TTL_SECONDS = 48 * 60 * 60;
 const MIN_PLAYERS_FOR_SUMMARY = 3;
 const DAILY_SPEND_CAP = 20;
@@ -70,7 +72,7 @@ async function generateSummaryForTeam(
   try {
     const message = await client.messages.create({
       model: SUMMARY_MODEL,
-      max_tokens: 256,
+      max_tokens: 1024,
       messages: [{ role: 'user', content: buildSummaryPrompt(group) }],
     });
 
