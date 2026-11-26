@@ -170,4 +170,29 @@ describe('computeLiveRankEstimate', () => {
     input.entry.summary_overall_rank = 0;
     expect(computeLiveRankEstimate(input)).toBeNull();
   });
+
+  it('returns null once the current gameweek has finished', () => {
+    // An event keeps is_current until the next deadline. Once it finishes, FPL
+    // has folded its points into summary_overall_rank, so estimating again
+    // counts the same points twice and swings the figure by millions.
+    const input = buildInput();
+    const event = input.bootstrap.events[0];
+    if (!event) throw new Error('fixture must have an event');
+    input.bootstrap = {
+      ...input.bootstrap,
+      events: [{ ...event, is_current: true, finished: true }],
+    };
+    expect(computeLiveRankEstimate(input)).toBeNull();
+  });
+
+  it('still estimates while the current gameweek is unfinished', () => {
+    const input = buildInput();
+    const event = input.bootstrap.events[0];
+    if (!event) throw new Error('fixture must have an event');
+    input.bootstrap = {
+      ...input.bootstrap,
+      events: [{ ...event, is_current: true, finished: false }],
+    };
+    expect(computeLiveRankEstimate(input)).not.toBeNull();
+  });
 });

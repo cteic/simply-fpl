@@ -318,8 +318,15 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const bench = picks && bootstrap && liveGw ? benchPlayers(picks, bootstrap, liveGw) : [];
   const teamName = entry?.name ?? '—';
 
+  // No estimate means the gameweek has finished and FPL has published the real
+  // overall rank, so show that rather than an empty hero.
+  const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
+  const settledRank = entry?.summary_overall_rank ?? null;
   const heroRank =
-    showPostSubs && rankDetails ? rankDetails.postSubsRank : (estimate?.liveRank ?? null);
+    showPostSubs && rankDetails
+      ? rankDetails.postSubsRank
+      : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
+  const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
@@ -499,7 +506,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             letterSpacing={1.4}
             color="#34D399"
           >
-            est. live rank
+            {heroLabel}
           </Text>
           {autosubsApply ? (
             <XStack
