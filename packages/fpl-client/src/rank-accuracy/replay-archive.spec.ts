@@ -32,6 +32,7 @@ const ARCHIVE_ROOT = join(
 // to the new model's results.
 const BASELINE_OVERALL_MEDIAN_ABS_PCT = 0.15;
 const BASELINE_TOP_100K_MEDIAN_ABS_PCT = 0.4;
+const DISTRIBUTION_MEASURED_MEDIAN_ABS_PCT = 1.49;
 
 function topBandMedianAbsPct(result: ReplayResult): number {
   const top = result.bands.filter((band) => band.upperRank <= 100_000);
@@ -95,6 +96,7 @@ function makeSample(overrides: Partial<ReplaySample>): ReplaySample {
     netPoints: 50,
     avgEntryScore: 50,
     trueRank: 1_000_000,
+    totalEntries: 13_104_126,
     ...overrides,
   };
 }
@@ -183,6 +185,45 @@ describeFeature(feature, ({ Scenario }) => {
       expect(scored.predictedRank).toBeLessThan(sample.preGwRank);
     });
   });
+
+  Scenario(
+    'The distribution estimator is measured against the same archive',
+    ({ Given, When, Then, And }) => {
+      let entries: ArchiveEntry[];
+      let bootstrap: ArchiveBootstrap;
+      let smart: ReplayResult;
+      let flat: ReplayResult;
+
+      Given('the committed season archive', () => {
+        const archive = loadArchive(ARCHIVE_ROOT, {});
+        entries = archive.entries;
+        bootstrap = archive.bootstrap;
+        expect(entries.length).toBeGreaterThan(0);
+      });
+
+      When('I replay it against the distribution estimator in net mode', () => {
+        smart = replayArchive(entries, bootstrap, 'net', 'smart');
+        flat = replayArchive(entries, bootstrap, 'net', 'flat');
+        expect(smart.count).toBeGreaterThan(0);
+      });
+
+      Then('every sample was scored by a distribution source, not the flat fallback', () => {
+        expect(smart.sourceCounts['flat-heuristic']).toBeUndefined();
+        expect(smart.sourceCounts['captured-same-season']).toBe(smart.count);
+      });
+
+      And(
+        'the overall median absolute percent error is at or below the recorded distribution ceiling',
+        () => {
+          expect(smart.medianAbsPctError).toBeLessThanOrEqual(DISTRIBUTION_MEASURED_MEDIAN_ABS_PCT);
+        }
+      );
+
+      And('the distribution estimator is still worse than the flat baseline', () => {
+        expect(smart.medianAbsPctError).toBeGreaterThan(flat.medianAbsPctError);
+      });
+    }
+  );
 
   Scenario(
     'The flat-700 baseline error stays at or below the recorded ceiling',

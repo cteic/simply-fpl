@@ -1,6 +1,8 @@
-import { estimateLiveRank } from '../live-rank';
+import { estimateLiveRank, estimateLiveRankSmart } from '../live-rank';
 
 export type PointsMode = 'gross' | 'net';
+
+export type EstimatorKind = 'flat' | 'smart';
 
 export interface ArchiveGwHistory {
   event: number;
@@ -27,6 +29,7 @@ export interface ReplaySample {
   netPoints: number;
   avgEntryScore: number;
   trueRank: number;
+  totalEntries: number;
 }
 
 export interface ScoredSample {
@@ -34,6 +37,7 @@ export interface ScoredSample {
   gw: number;
   trueRank: number;
   predictedRank: number;
+  estimateSource: string;
   absError: number;
   signedError: number;
   absPctError: number;
@@ -53,6 +57,8 @@ export interface BandStats {
 
 export interface ReplayResult {
   pointsMode: PointsMode;
+  estimator: EstimatorKind;
+  sourceCounts: Record<string, number>;
   count: number;
   skipped: number;
   medianAbsError: number;
@@ -116,6 +122,7 @@ export function buildSamplesForEntry(
       netPoints,
       avgEntryScore,
       trueRank: row.overall_rank,
+      totalEntries: bootstrap.totalPlayers,
     });
   }
 
@@ -155,9 +162,19 @@ function mean(values: number[]): number {
  * placed the manager higher up the table (smaller rank number) than reality —
  * the over-climb symptom the RFC describes.
  */
-export function scoreSample(sample: ReplaySample, mode: PointsMode): ScoredSample {
+export function scoreSample(
+  sample: ReplaySample,
+  mode: PointsMode,
+  estimator: EstimatorKind = 'flat'
+): ScoredSample {
   const points = mode === 'gross' ? sample.grossPoints : sample.netPoints;
-  const { liveRank } = estimateLiveRank(sample.preGwRank, points, sample.avgEntryScore);
+  const estimate =
+    estimator === 'smart'
+      ? estimateLiveRankSmart(sample.gw, sample.preGwRank, points, sample.avgEntryScore, {
+          totalEntries: sample.totalEntries,
+        })
+      : estimateLiveRank(sample.preGwRank, points, sample.avgEntryScore);
+  const { liveRank } = estimate;
   const signedError = liveRank - sample.trueRank;
   const absError = Math.abs(signedError);
   return {
@@ -165,6 +182,7 @@ export function scoreSample(sample: ReplaySample, mode: PointsMode): ScoredSampl
     gw: sample.gw,
     trueRank: sample.trueRank,
     predictedRank: liveRank,
+    estimateSource: estimate.source,
     absError,
     signedError,
     absPctError: absError / sample.trueRank,
@@ -199,13 +217,20 @@ function statsForBand(band: RankBand, scored: ScoredSample[]): BandStats {
 export function replayArchive(
   entries: ArchiveEntry[],
   bootstrap: ArchiveBootstrap,
-  mode: PointsMode
+  mode: PointsMode,
+  estimator: EstimatorKind = 'flat'
 ): ReplayResult {
   const samples = buildSamples(entries, bootstrap);
-  const scored = samples.map((sample) => scoreSample(sample, mode));
+  const scored = samples.map((sample) => scoreSample(sample, mode, estimator));
+  const sourceCounts: Record<string, number> = {};
+  for (const sample of scored) {
+    sourceCounts[sample.estimateSource] = (sourceCounts[sample.estimateSource] ?? 0) + 1;
+  }
 
   return {
     pointsMode: mode,
+    estimator,
+    sourceCounts,
     count: scored.length,
     skipped: 0,
     medianAbsError: median(scored.map((sample) => sample.absError)),

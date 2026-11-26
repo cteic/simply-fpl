@@ -35,3 +35,10 @@ Feature: Offline rank-accuracy replay harness
     Then the overall median absolute percent error is at or below the recorded baseline
     And the top-100k median absolute percent error is at or below the recorded baseline
     And the top-100k signed bias is negative
+
+  Scenario: The distribution estimator is measured against the same archive
+    Given the committed season archive
+    When I replay it against the distribution estimator in net mode
+    Then every sample was scored by a distribution source, not the flat fallback
+    And the overall median absolute percent error is at or below the recorded distribution ceiling
+    And the distribution estimator is still worse than the flat baseline
