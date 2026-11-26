@@ -272,12 +272,62 @@ export interface LiveRankEntry {
   picks: FplEntryPick[];
 }
 
+export type PriceChangeSource = 'fpl-official' | 'net-transfer-estimate';
+
+/**
+ * The worker's price payload, as /fpl/prices serves it.
+ *
+ * Shared so the worker and both apps agree on the wire shape. It was
+ * previously declared three times and the copies drifted.
+ */
+export interface SlimPriceChange {
+  id: number;
+  web_name: string;
+  element_type: number;
+  team_name: string;
+  now_cost: number;
+  ownership: number;
+  direction: 'rise' | 'fall';
+  probability: number;
+  /** FPL's threshold progress. 100 means a change is due. */
+  progress_percent: number;
+  /** FPL's own confidence, -5 to +5. */
+  likelihood: number;
+  /** Threshold progress FPL projects by end of today. */
+  projected_percent: number;
+  hourly_rate: number;
+  locked_until: string | null;
+  calibrating: boolean;
+  source: PriceChangeSource;
+}
+
+export interface SlimPricesResponse {
+  generated_at: string;
+  changes: SlimPriceChange[];
+}
+
 export interface PriceChange {
   player: FplPlayer;
   team: FplTeam;
   netTransfers: number;
   direction: 'rise' | 'fall' | 'none';
   probability: number; // 0-1
+  /**
+   * How far along FPL's own threshold the player is, as a percentage. 100 means
+   * a change is due. Can exceed 100 while a change is pending or locked.
+   */
+  progressPercent: number;
+  /** FPL's own confidence, -5 (certain fall) to +5 (certain rise). */
+  likelihood: number;
+  /** Threshold progress FPL projects by the end of today. */
+  projectedPercent: number;
+  /** Points of threshold movement per hour, signed. */
+  hourlyRate: number;
+  /** No further change until this time, or null when unlocked. */
+  lockedUntil: string | null;
+  /** FPL is still settling this player's rate, so treat the figure as soft. */
+  calibrating: boolean;
+  source: PriceChangeSource;
 }
 
 export type ThemeName = 'stadium' | 'bold' | 'quiet';

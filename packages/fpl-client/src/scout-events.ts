@@ -9,8 +9,10 @@ import type {
 import { collateTeamNews, filterNewsForPicks } from './news';
 import { predictPriceChanges } from './price-changes';
 
-// Below this predicted probability a price move is noise, not a report.
-const DEFAULT_PRICE_PROBABILITY_THRESHOLD = 0.5;
+// Below this much progress toward FPL's threshold a price move is noise, not a
+// report. Expressed in the same percent as `PriceChange.progressPercent`,
+// where 100 means a change is due.
+const DEFAULT_PRICE_PROGRESS_THRESHOLD = 50;
 
 const AVAILABILITY_KIND: Partial<Record<PlayerNewsStatus, ScoutEventKind>> = {
   injured: 'injury',
@@ -36,7 +38,8 @@ function urgency(event: ScoutEvent): number {
 }
 
 export interface DeriveScoutEventsOptions {
-  priceProbabilityThreshold?: number;
+  /** Percent of FPL's price-change threshold a player must have covered. */
+  priceProgressThreshold?: number;
 }
 
 /**
@@ -48,7 +51,7 @@ export function deriveScoutEvents(
   pickIds: ReadonlySet<number>,
   options: DeriveScoutEventsOptions = {}
 ): ScoutEvent[] {
-  const threshold = options.priceProbabilityThreshold ?? DEFAULT_PRICE_PROBABILITY_THRESHOLD;
+  const threshold = options.priceProgressThreshold ?? DEFAULT_PRICE_PROGRESS_THRESHOLD;
   const teamById = new Map(bootstrap.teams.map((t) => [t.id, t]));
   const playerById = new Map(bootstrap.elements.map((p) => [p.id, p]));
 
@@ -82,7 +85,7 @@ export function deriveScoutEvents(
   for (const change of predictPriceChanges(bootstrap)) {
     if (change.direction === 'none') continue;
     if (!pickIds.has(change.player.id)) continue;
-    if (change.probability < threshold) continue;
+    if (change.progressPercent < threshold) continue;
     const kind: ScoutEventKind = change.direction === 'fall' ? 'price_fall' : 'price_rise';
     events.push({
       id: `${kind}-${change.player.id}`,
@@ -97,7 +100,9 @@ export function deriveScoutEvents(
       },
       news: null,
       chanceOfPlaying: null,
-      probability: change.probability,
+      // How close the move is, not FPL's own confidence: that is the figure a
+      // reader wants, and the one the inbox sorts on.
+      probability: Math.min(1, change.progressPercent / 100),
       netTransfers: change.netTransfers,
     });
   }

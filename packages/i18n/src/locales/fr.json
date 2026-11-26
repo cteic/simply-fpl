@@ -70,7 +70,7 @@
   "threats.col_lost": "perdu",
   "threats.col_haul_impact": "si 8 pts",
   "prices.title": "Variations de prix",
-  "prices.meta": "Prédictions mises à jour quotidiennement à minuit · Basées sur les transferts nets",
+  "prices.meta": "Le suivi officiel des changements de prix FPL · 100% signifie un changement imminent",
   "prices.empty": "Aucune variation de prix ne correspond à ce filtre.",
   "prices.fnote": "Les prédictions de prix sont des estimations basées sur les données de transfert FPL. Non garanties.",
   "planner.title": "Planificateur de transferts",

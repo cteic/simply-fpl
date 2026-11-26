@@ -32,6 +32,24 @@ function makePlayer(overrides: Partial<FplPlayer> = {}): FplPlayer {
   };
 }
 
+/**
+ * A player carrying FPL's own price-change fields. `progress` is percent of
+ * the threshold covered, signed: positive rises, negative falls.
+ */
+function withPriceProgress(progress: number, overrides: Partial<FplPlayer> = {}): FplPlayer {
+  const likelihood = Math.max(-5, Math.min(5, Math.round(progress / 20)));
+  return makePlayer({
+    price_change_percent: progress.toFixed(1),
+    price_change_hourly_rate: Math.round(progress * 10),
+    price_change_projections: [
+      { offset: 0, projected_percent: (progress * 1.05).toFixed(1), likelihood },
+    ],
+    price_change_locked_until: null,
+    price_change_calibrating: false,
+    ...overrides,
+  });
+}
+
 function makeBootstrap(players: FplPlayer[]): FplBootstrapStatic {
   return { elements: players, teams: [makeTeam()], events: [], element_types: [] };
 }
@@ -97,12 +115,12 @@ describeFeature(feature, ({ Scenario }) => {
   );
 
   Scenario(
-    'Price moves below the probability threshold are not counted',
+    'A move FPL does not project past its threshold tonight is not counted',
     ({ Given, When, Then }) => {
-      Given('a bootstrap where a non-picked player has mild net transfers out', () => {
+      Given('a bootstrap where a non-picked player is drifting but not due', () => {
         bootstrap = makeBootstrap([
           makePlayer(),
-          makePlayer({ id: 2, web_name: 'Mbeumo', transfers_out_event: 12_000 }),
+          withPriceProgress(-40, { id: 2, web_name: 'Mbeumo' }),
         ]);
       });
 

@@ -60,7 +60,8 @@ export function PricesView() {
         accentColor: getClubColor(change.team_name),
         flow: change.direction,
         value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
-        probability: Math.round(change.probability * 100),
+        progressPercent: change.progress_percent,
+        locked: change.locked_until !== null,
         position: positionLabel,
         defconBar,
       };
@@ -103,7 +104,7 @@ export function PricesView() {
               club={row.club}
               flow={row.flow}
               value={row.value}
-              probability={row.probability}
+              progressPercent={row.progressPercent}
               accentColor={getClubColor(row.club.split(' · ')[1])}
               last={i === fallbackRows.length - 1}
             />
@@ -128,7 +129,8 @@ export function PricesView() {
                 club={row.club}
                 flow={row.flow}
                 value={row.value}
-                probability={row.probability}
+                progressPercent={row.progressPercent}
+                locked={row.locked}
                 accentColor={row.accentColor}
                 defconBar={row.defconBar}
                 last={i === visibleRows.length - 1}

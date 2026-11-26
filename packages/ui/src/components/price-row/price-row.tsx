@@ -110,6 +110,9 @@ const Prob = styled(Text, {
       rise: { color: '#FFFFFF', backgroundColor: '$positive' },
       fall: { color: '#FFFFFF', backgroundColor: '$negative' },
     },
+    muted: {
+      true: { color: '$colorSubtle', backgroundColor: '$border' },
+    },
   } as const,
 });
 
@@ -124,7 +127,13 @@ interface PriceRowProps {
   club: string;
   flow: 'rise' | 'fall';
   value: string;
-  probability: number;
+  /**
+   * How far along FPL's own price-change threshold the player is. 100 means a
+   * change is due, and it can read above 100 while one is pending.
+   */
+  progressPercent: number;
+  /** FPL has locked this player, so no change lands today whatever the bar says. */
+  locked?: boolean | undefined;
   last?: boolean;
   accentColor?: string | undefined;
   defconBar?: DefConMiniBar | undefined;
@@ -136,12 +145,15 @@ export function PriceRow({
   club,
   flow,
   value,
-  probability,
+  progressPercent,
+  locked,
   last,
   accentColor,
   defconBar,
 }: PriceRowProps) {
   const arrow = flow === 'rise' ? '↑' : '↓';
+  const fillWidth = Math.max(0, Math.min(100, progressPercent));
+  const badge = locked === true ? 'locked' : `${arrow} ${Math.round(progressPercent)}%`;
   return (
     <Row last={last} flow={flow}>
       <Pos>{index}</Pos>
@@ -169,13 +181,13 @@ export function PriceRow({
       </Info>
       <Bar>
         <Track>
-          <Fill flow={flow} width={`${Math.max(0, Math.min(100, probability))}%`} />
+          <Fill flow={flow} width={`${fillWidth}%`} />
         </Track>
       </Bar>
       <Right>
         <Value>{value}</Value>
-        <Prob flow={flow}>
-          {arrow} {probability}%
+        <Prob flow={flow} muted={locked === true}>
+          {badge}
         </Prob>
       </Right>
     </Row>

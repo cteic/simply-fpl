@@ -1,16 +1,29 @@
-import type { FplBootstrapStatic, ScoutEvent } from '@simplyfpl/types';
+import type { FplBootstrapStatic, PriceChange, ScoutEvent } from '@simplyfpl/types';
 
 import { predictPriceChanges } from './price-changes';
 import type { DeriveScoutEventsOptions } from './scout-events';
 import { deriveScoutEvents } from './scout-events';
-
-const DEFAULT_PRICE_PROBABILITY_THRESHOLD = 0.5;
 
 export interface DeadlineBrief {
   openIssues: ScoutEvent[];
   goodNews: ScoutEvent[];
   risesTonight: number;
   fallsTonight: number;
+}
+
+/** Threshold progress at which FPL moves a price. */
+const CHANGE_DUE_PERCENT = 100;
+
+/**
+ * Whether this player's price moves tonight.
+ *
+ * FPL projects each player's threshold progress to the end of today, so a
+ * projection at or past 100 is a change due tonight rather than a guess. A
+ * locked player cannot move again whatever their progress reads.
+ */
+function changesTonight(change: PriceChange): boolean {
+  if (change.lockedUntil !== null) return false;
+  return Math.abs(change.projectedPercent) >= CHANGE_DUE_PERCENT;
 }
 
 /**
@@ -23,13 +36,12 @@ export function buildDeadlineBrief(
   pickIds: ReadonlySet<number>,
   options: DeriveScoutEventsOptions = {}
 ): DeadlineBrief {
-  const threshold = options.priceProbabilityThreshold ?? DEFAULT_PRICE_PROBABILITY_THRESHOLD;
   const events = deriveScoutEvents(bootstrap, pickIds, options);
 
   let risesTonight = 0;
   let fallsTonight = 0;
   for (const change of predictPriceChanges(bootstrap)) {
-    if (change.probability < threshold) continue;
+    if (!changesTonight(change)) continue;
     if (change.direction === 'rise') risesTonight += 1;
     if (change.direction === 'fall') fallsTonight += 1;
   }
