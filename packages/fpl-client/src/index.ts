@@ -32,10 +32,16 @@ export {
   RANK_CURVE_SAMPLE_PAGES,
   buildRankCurve,
   curveMatchesGameweek,
+  formatCompactRank,
   pointsForRank,
   rankForPoints,
 } from './rank-curve';
-export { DEFAULT_TARGET_RANKS, computeRankTargets } from './rank-targets';
+export {
+  DEFAULT_TARGET_RANKS,
+  REACHABLE_GW_POINTS,
+  computeRankTargets,
+  seasonHighestGwScore,
+} from './rank-targets';
 export type { RankTargetsInput } from './rank-targets';
 export {
   OWNERSHIP_WEIGHT_CALIBRATION,

@@ -4,10 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
   calculateLivePoints,
+  computeRankTargets,
   estimateLiveRankSmart,
   fplClient,
   predictBonusPoints,
   resolveFieldLiveAverage,
+  seasonHighestGwScore,
 } from '@simplyfpl/fpl-client';
 import type { LiveRankEstimate } from '@simplyfpl/fpl-client';
 import type {
@@ -17,6 +19,7 @@ import type {
   FplFixture,
   FplLiveGameweek,
   RankCurve,
+  RankTargets,
   ScoreDistribution,
 } from '@simplyfpl/types';
 
@@ -35,11 +38,20 @@ export interface LiveRankEstimateInput {
   useDistributionModel?: boolean | undefined;
 }
 
+interface LiveRankInputs {
+  preGwRank: number;
+  preGwTotal: number;
+  livePoints: number;
+  fieldLiveAverage: number;
+}
+
 /**
- * Single source of truth for the live-rank estimate. Both the nav-bar pill and
- * the live-rank page must derive their figure from this so they never diverge.
+ * The figures every live-rank view is built from.
+ *
+ * The estimate and the targets both read this, so a target can never disagree
+ * with the rank shown next to it.
  */
-export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankEstimate | null {
+function deriveLiveRankInputs(input: LiveRankEstimateInput): LiveRankInputs | null {
   const { entry, picks, bootstrap, liveGw, fixtures, gw } = input;
   const preGwRank = entry.summary_overall_rank ?? 0;
   if (preGwRank <= 0) return null;
@@ -66,25 +78,69 @@ export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankE
   });
 
   // The curve is keyed on cumulative totals, so it needs where this manager
-  // stood before the gameweek, not their rank. A payload without a real total
-  // would read as zero and place them last, so the curve only runs when the
-  // figure is usable.
+  // stood before the gameweek, not their rank.
   const preGwTotal = picks.entry_history.total_points - picks.entry_history.points;
-  const canUseCurve = input.curve !== undefined && preGwTotal > 0;
 
-  return estimateLiveRankSmart(gw, preGwRank, livePoints, average, {
-    bootstrap,
-    preGwTotal,
-    ...(canUseCurve && input.curve !== undefined ? { curve: input.curve } : {}),
-    ...(input.liveAggregate === undefined ? {} : { liveAggregate: input.liveAggregate }),
-    ...(input.useDistributionModel === undefined
-      ? {}
-      : { useDistributionModel: input.useDistributionModel }),
+  return { preGwRank, preGwTotal, livePoints, fieldLiveAverage: average };
+}
+
+/**
+ * What the manager needs to score to reach each milestone rank, and what keeps
+ * them where they are.
+ *
+ * Needs the curve: without FPL's own points-to-rank mapping there is nothing to
+ * invert, and a made-up slope gives a target that is simply wrong. Returns null
+ * rather than a guess.
+ */
+export function computeLiveRankTargets(input: LiveRankEstimateInput): RankTargets | null {
+  if (!input.curve) return null;
+  const derived = deriveLiveRankInputs(input);
+  if (!derived) return null;
+  return computeRankTargets({
+    curve: input.curve,
+    gw: input.gw,
+    preGwTotal: derived.preGwTotal,
+    livePoints: derived.livePoints,
+    fieldLiveAverage: derived.fieldLiveAverage,
+    preGwRank: derived.preGwRank,
+    // What someone has actually scored this season, not a guessed ceiling.
+    maxReachableGwPoints: seasonHighestGwScore(input.bootstrap),
   });
+}
+
+/**
+ * Single source of truth for the live-rank estimate. Both the nav-bar pill and
+ * the live-rank page must derive their figure from this so they never diverge.
+ */
+export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankEstimate | null {
+  const derived = deriveLiveRankInputs(input);
+  if (!derived) return null;
+
+  // A payload without a real pre-gameweek total would read as zero and place
+  // the manager last, so the curve only runs when the figure is usable.
+  const canUseCurve = input.curve !== undefined && derived.preGwTotal > 0;
+
+  return estimateLiveRankSmart(
+    input.gw,
+    derived.preGwRank,
+    derived.livePoints,
+    derived.fieldLiveAverage,
+    {
+      bootstrap: input.bootstrap,
+      preGwTotal: derived.preGwTotal,
+      ...(canUseCurve && input.curve !== undefined ? { curve: input.curve } : {}),
+      ...(input.liveAggregate === undefined ? {} : { liveAggregate: input.liveAggregate }),
+      ...(input.useDistributionModel === undefined
+        ? {}
+        : { useDistributionModel: input.useDistributionModel }),
+    }
+  );
 }
 
 export interface UseLiveRankEstimateResult {
   estimate: LiveRankEstimate | null;
+  /** Null until the curve has loaded: a target cannot be guessed without it. */
+  targets: RankTargets | null;
 }
 
 export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimateResult {
@@ -132,9 +188,9 @@ export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimate
   const fixtures = fixturesQuery.data;
   const curve = curveQuery.data;
 
-  const estimate = useMemo(() => {
+  const viewInput = useMemo(() => {
     if (!snapshot || !snapshot.picks || gw === null || !liveGw) return null;
-    return computeLiveRankEstimate({
+    return {
       entry: snapshot.entry,
       picks: snapshot.picks,
       bootstrap: snapshot.bootstrap,
@@ -142,8 +198,18 @@ export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimate
       fixtures: fixtures ?? [],
       gw,
       curve,
-    });
+    };
   }, [snapshot, gw, liveGw, fixtures, curve]);
 
-  return { estimate };
+  const estimate = useMemo(
+    () => (viewInput === null ? null : computeLiveRankEstimate(viewInput)),
+    [viewInput]
+  );
+
+  const targets = useMemo(
+    () => (viewInput === null ? null : computeLiveRankTargets(viewInput)),
+    [viewInput]
+  );
+
+  return { estimate, targets };
 }

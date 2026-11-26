@@ -37,3 +37,9 @@ Feature: Points-to-rank curve
     And a manager on 581 points before the gameweek scores 25 while the field averages 35
     Then the estimate comes from the official curve
     And the estimate is worse than their pre-gameweek rank
+
+  Scenario: Ranks shorten for a label only when they are round
+    Given no curve is needed
+    When I shorten some ranks
+    Then 10000 reads as 10k and 1000000 as 1M
+    And an arbitrary rank keeps all its digits

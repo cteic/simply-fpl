@@ -8,7 +8,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { LiveRankEstimateInput } from './use-live-rank-estimate';
-import { computeLiveRankEstimate } from './use-live-rank-estimate';
+import { computeLiveRankEstimate, computeLiveRankTargets } from './use-live-rank-estimate';
 
 function liveEl(id: number, totalPoints: number): FplLiveElement {
   return {
@@ -315,5 +315,70 @@ describe('computeLiveRankEstimate', () => {
       events: [{ ...event, is_current: true, finished: false }],
     };
     expect(computeLiveRankEstimate(input)).not.toBeNull();
+  });
+});
+
+describe('computeLiveRankTargets', () => {
+  function withCurve(curveGw: number): LiveRankEstimateInput {
+    const base = buildInput();
+    const points = [
+      { totalPoints: 855, rank: 1 },
+      { totalPoints: 793, rank: 948 },
+      { totalPoints: 748, rank: 49_929 },
+      { totalPoints: 700, rank: 548_847 },
+      { totalPoints: 605, rank: 4_399_904 },
+      { totalPoints: 541, rank: 7_498_198 },
+      { totalPoints: 153, rank: 11_099_560 },
+    ];
+    return {
+      ...base,
+      picks: {
+        ...base.picks,
+        entry_history: { ...base.picks.entry_history, points: 25, total_points: 606 },
+      },
+      curve: {
+        gw: curveGw,
+        rankedCount: 11_261_396,
+        builtAt: '2026-11-26T00:00:00Z',
+        points,
+      },
+    };
+  }
+
+  it('says what holding position costs and what the next milestone costs', () => {
+    const targets = computeLiveRankTargets(withCurve(6));
+    expect(targets).not.toBeNull();
+    if (targets === null) return;
+
+    // Holding costs the field average, which the fixture event puts at 50.
+    expect(targets.holdPoints).toBe(50);
+
+    // Live points come from the live feed and predicted bonus, not from
+    // entry_history.points, which FPL only updates on confirmation and which
+    // is used solely to work back to the pre-gameweek total. The fixture
+    // scores 60 live, so this manager is already 10 clear of the average and
+    // needs nothing more to hold.
+    expect(targets.holdFromHere).toBe(-10);
+
+    expect(targets.nextTarget).not.toBeNull();
+    expect(targets.nextTarget?.rank).toBeLessThan(targets.liveRank);
+    expect(targets.nextTarget?.pointsFromHere).toBeGreaterThan(0);
+  });
+
+  it('agrees with the live estimate on where the manager stands', () => {
+    const input = withCurve(6);
+    const estimate = computeLiveRankEstimate(input);
+    const targets = computeLiveRankTargets(input);
+    expect(estimate?.source).toBe('official-curve');
+    expect(targets?.liveRank).toBe(estimate?.liveRank);
+  });
+
+  it('returns nothing without a curve, rather than guessing a target', () => {
+    const base = buildInput();
+    expect(computeLiveRankTargets(base)).toBeNull();
+  });
+
+  it('returns nothing when the curve is from the wrong gameweek', () => {
+    expect(computeLiveRankTargets(withCurve(5))).toBeNull();
   });
 });

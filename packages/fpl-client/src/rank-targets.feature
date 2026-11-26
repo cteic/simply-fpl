@@ -41,3 +41,15 @@ Feature: Rank targets
     Given the GW11 curve and a manager on 606 points before the gameweek
     When the live gameweek is not the one after the curve
     Then no targets are returned
+
+  Scenario: An unreachable milestone is not offered as a target
+    Given the GW11 curve and a manager deep in the field
+    When I compute their rank targets
+    Then the milestones they cannot reach in a gameweek are flagged
+    And no next target is offered when none is reachable
+
+  Scenario: The reachable bound comes from FPL's own highest score
+    Given a bootstrap whose best gameweek score is 106
+    When I ask for the season's highest gameweek score
+    Then it is 106
+    And a bootstrap with no scores yet falls back to the constant
