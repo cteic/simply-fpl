@@ -28,6 +28,8 @@ import type {
   FplFixture,
   FplLiveGameweek,
   FplPlayer,
+  LiveSquadEvent,
+  LiveSquadEventKind,
   SeasonStory,
 } from '@simplyfpl/types';
 import {
@@ -35,6 +37,7 @@ import {
   Card,
   CohortTable,
   FNote,
+  LiveEventToast,
   Logo,
   NumberTicker,
   PageHeader,
@@ -53,6 +56,7 @@ import {
 import type {
   BadgeTone,
   CohortTableRow,
+  LiveEventTone,
   ShirtKind,
   StatTileTone,
   WhatIfCandidateOption,
@@ -76,7 +80,8 @@ export interface LiveRankDataOverride {
   replayBanner?: string;
 }
 
-const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot, useSeasonStory } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot, useLiveSquadEvents, useSeasonStory } =
+  liveRank;
 const { computeLiveBattle } = liveBattle;
 
 type SubsMode = 'pre' | 'post';
@@ -311,6 +316,33 @@ interface LiveRankRealViewProps {
   dataOverride?: LiveRankDataOverride;
 }
 
+const EVENT_LABEL_KEY = {
+  goal: 'live_event.goal',
+  assist: 'live_event.assist',
+  bonus: 'live_event.bonus',
+  red_card: 'live_event.red_card',
+  clean_sheet_lost: 'live_event.clean_sheet_lost',
+} as const satisfies Record<LiveSquadEventKind, string>;
+
+const EVENT_TONE: Record<LiveSquadEventKind, LiveEventTone> = {
+  goal: 'positive',
+  assist: 'positive',
+  bonus: 'positive',
+  red_card: 'negative',
+  clean_sheet_lost: 'negative',
+};
+
+function eventDetail(event: LiveSquadEvent): string | undefined {
+  if (event.onBench) return t('live_event.on_bench');
+  if (event.isCaptain) return t('live_event.captain');
+  return undefined;
+}
+
+function eventPoints(event: LiveSquadEvent): string | undefined {
+  if (event.pointsDelta === 0) return undefined;
+  return event.pointsDelta > 0 ? `+${event.pointsDelta}` : `\u2212${Math.abs(event.pointsDelta)}`;
+}
+
 /**
  * One line of season context under the rank chart: the current run of arrows
  * and the best rank reached. Null when there is nothing settled to report.
@@ -539,6 +571,12 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   // The manager's settled season. The chart under the rank used to be a
   // hardcoded rising line shown to every user.
   const { story } = useSeasonStory(dataOverride ? null : entryId);
+  // Alerts for what just happened to this squad: a goal, bonus, a card.
+  const { events: squadEvents } = useLiveSquadEvents({
+    picks: dataOverride ? null : picks,
+    liveGw: dataOverride ? undefined : liveGw,
+    bootstrap: dataOverride ? undefined : bootstrap,
+  });
   const sparkPoints = story
     ? seasonSparklinePoints(story.trajectory, { width: 400, height: 40 })
     : null;
@@ -766,6 +804,30 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
 
   return (
     <PageShell>
+      {squadEvents.length > 0 ? (
+        <YStack
+          position="fixed"
+          top={72}
+          right={16}
+          width={320}
+          maxWidth="calc(100vw - 32px)"
+          gap={8}
+          zIndex={50}
+          pointerEvents="none"
+          aria-live="polite"
+        >
+          {squadEvents.map((event) => (
+            <LiveEventToast
+              key={event.id}
+              kind={t(EVENT_LABEL_KEY[event.kind])}
+              title={event.playerName}
+              detail={eventDetail(event)}
+              points={eventPoints(event)}
+              tone={EVENT_TONE[event.kind]}
+            />
+          ))}
+        </YStack>
+      ) : null}
       <XStack
         gap={16}
         alignItems="flex-start"

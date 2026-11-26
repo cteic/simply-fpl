@@ -364,6 +364,21 @@ export interface RankCurvePoint {
   rank: number;
 }
 
+export type LiveSquadEventKind = 'goal' | 'assist' | 'bonus' | 'red_card' | 'clean_sheet_lost';
+
+/** Something that just happened to one of the manager's players. */
+export interface LiveSquadEvent {
+  /** Stable across re-renders, unique per occurrence. */
+  id: string;
+  kind: LiveSquadEventKind;
+  elementId: number;
+  playerName: string;
+  isCaptain: boolean;
+  onBench: boolean;
+  /** Change to the manager's score from this player in this refresh. */
+  pointsDelta: number;
+}
+
 export type SeasonArrow = 'green' | 'red' | 'flat';
 
 export interface SeasonStoryPoint {
