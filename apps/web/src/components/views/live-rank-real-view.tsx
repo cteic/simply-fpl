@@ -494,8 +494,15 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const teamName = entry?.name ?? '—';
   const liveEstimate = useLiveRankEstimate(dataOverride ? null : entryId);
   const estimate = dataOverride ? dataOverride.estimate : liveEstimate.estimate;
+  // No estimate means the gameweek has finished and FPL has published the real
+  // overall rank, so show that rather than an empty hero.
+  const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
+  const settledRank = entry?.summary_overall_rank ?? null;
   const heroRank =
-    showPostSubs && rankDetails ? rankDetails.postSubsRank : (estimate?.liveRank ?? null);
+    showPostSubs && rankDetails
+      ? rankDetails.postSubsRank
+      : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
+  const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
   const liveAgoMs = useLiveAgoMs();
   const agoMs = dataOverride ? dataOverride.agoMs : liveAgoMs;
   const movementLabel =
@@ -730,7 +737,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                 letterSpacing={1.4}
                 color="#34D399"
               >
-                est. live rank
+                {heroLabel}
               </Text>
               {autosubsApply ? (
                 <XStack
