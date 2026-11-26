@@ -74,6 +74,7 @@
   "prices.empty": "Keine Preisänderungen entsprechen diesem Filter.",
   "prices.fnote": "Preisvorhersagen sind Schätzungen basierend auf FPL-Transferdaten. Keine Garantie.",
   "planner.title": "Transfer-Planer",
+  "planner.col_player": "Spieler",
   "planner.meta_no_team": "Gib deine FPL-Team-ID ein, um zu beginnen",
   "planner.meta_xi": "Dein XI · GW{{startGw}}–{{endGw}}",
   "planner.section_link_team": "Dein FPL-Team verknüpfen",

@@ -74,6 +74,7 @@
   "prices.empty": "没有符合此筛选条件的价格变动。",
   "prices.fnote": "价格预测基于 FPL 转会数据估算，不保证准确。",
   "planner.title": "转会规划器",
+  "planner.col_player": "球员",
   "planner.meta_no_team": "输入您的 FPL 球队 ID 开始",
   "planner.meta_xi": "您的 XI · GW{{startGw}}–{{endGw}}",
   "planner.section_link_team": "关联您的 FPL 球队",

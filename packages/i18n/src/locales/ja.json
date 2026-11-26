@@ -74,6 +74,7 @@
   "prices.empty": "このフィルターに一致する価格変動はありません。",
   "prices.fnote": "価格予測は FPL の移籍データに基づく推定です。保証はありません。",
   "planner.title": "移籍プランナー",
+  "planner.col_player": "選手",
   "planner.meta_no_team": "FPL チーム ID を入力して開始",
   "planner.meta_xi": "あなたの XI · GW{{startGw}}–{{endGw}}",
   "planner.section_link_team": "FPL チームを連携",

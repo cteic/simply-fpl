@@ -71,9 +71,14 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       grid.map((cell) => ({
         label: cell.label,
         players: cell.players.map((p) => ({
-          name: p.doubleGameweek ? `${p.name} ×2` : p.name,
+          // The native ticker writes each name once per row and marks doubles
+          // on the gameweek chip, so the name stays clean here.
+          name: p.name,
           form: p.form,
           fdr: p.fdr,
+          opponent: p.opponent,
+          blank: p.blank,
+          doubleGameweek: p.doubleGameweek,
         })),
       })),
     [grid]
