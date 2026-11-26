@@ -48,12 +48,16 @@ export function buildScoutRow(
     doubt: tr('scout.chip_doubt'),
     suspension: tr('scout.chip_suspension'),
     unavailable: tr('scout.chip_unavailable'),
+    suspension_risk: tr('scout.chip_suspension_risk'),
+    ineligible: tr('scout.chip_ineligible'),
   };
   const titleByKind = {
     injury: tr('scout.event_injury_title', { player }),
     doubt: tr('scout.event_doubt_title', { player }),
     suspension: tr('scout.event_suspension_title', { player }),
     unavailable: tr('scout.event_unavailable_title', { player }),
+    suspension_risk: tr('scout.event_suspension_risk_title', { player }),
+    ineligible: tr('scout.event_ineligible_title', { player }),
   };
 
   const metaParts = [base];

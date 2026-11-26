@@ -28,6 +28,8 @@ const SEVERITY: Record<ScoutEventKind, ScoutEventSeverity> = {
   doubt: 'warn',
   price_fall: 'warn',
   price_rise: 'good',
+  suspension_risk: 'warn',
+  ineligible: 'bad',
 };
 
 const SEVERITY_ORDER: Record<ScoutEventSeverity, number> = { bad: 0, warn: 1, good: 2 };
@@ -80,6 +82,39 @@ export function deriveScoutEvents(
       probability: null,
       netTransfers: null,
     });
+  }
+
+  // Risks FPL flags itself. A suspension risk always matters: one booking and
+  // the player misses a match. Ineligibility only matters for the gameweek
+  // about to be picked for; one eleven gameweeks out is noise today.
+  const nextGw = bootstrap.events.find((e) => e.is_next)?.id ?? null;
+  for (const id of pickIds) {
+    const player = playerById.get(id);
+    if (!player || !Array.isArray(player.scout_risks)) continue;
+    const team = teamById.get(player.team);
+    if (!team) continue;
+    for (const risk of player.scout_risks) {
+      let kind: ScoutEventKind | null = null;
+      if (risk.property === 'suspension_risk') kind = 'suspension_risk';
+      else if (risk.property === 'loan_ineligible' && risk.gameweek === nextGw) kind = 'ineligible';
+      if (kind === null) continue;
+      events.push({
+        id: `${kind}-${player.id}`,
+        kind,
+        severity: SEVERITY[kind],
+        player: {
+          id: player.id,
+          webName: player.web_name,
+          teamShortName: team.short_name,
+          elementType: player.element_type,
+          nowCost: player.now_cost,
+        },
+        news: risk.notes === '' ? null : risk.notes,
+        chanceOfPlaying: null,
+        probability: null,
+        netTransfers: null,
+      });
+    }
   }
 
   for (const change of predictPriceChanges(bootstrap)) {

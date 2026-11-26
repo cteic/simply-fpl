@@ -50,3 +50,20 @@ Feature: Scout event derivation
     Given a bootstrap where a picked player is doubtful and falling in price
     When deriveScoutEvents is called
     Then two events are returned for that player
+
+  Scenario: A picked player one booking from a ban is flagged
+    Given a bootstrap where a picked player carries a suspension risk
+    When deriveScoutEvents is called
+    Then one event of kind "suspension_risk" with severity "warn" is returned
+    And the event carries FPL's own note
+
+  Scenario: A loanee who cannot play the coming gameweek is flagged
+    Given a bootstrap where a picked loanee is ineligible for the next gameweek
+    When deriveScoutEvents is called
+    Then one event of kind "ineligible" with severity "bad" is returned
+
+  Scenario: Ineligibility in a later gameweek is not reported yet
+    Given a bootstrap where a picked loanee is ineligible many gameweeks away
+    When deriveScoutEvents is called
+    Then no events are returned
+

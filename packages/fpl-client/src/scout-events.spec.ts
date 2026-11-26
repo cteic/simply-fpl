@@ -238,4 +238,97 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
       });
     }
   );
+
+  const NEXT_GW_EVENT = {
+    id: 12,
+    name: 'Gameweek 12',
+    deadline_time: '2026-11-27T18:30:00Z',
+    is_current: false,
+    is_next: true,
+    is_previous: false,
+    average_entry_score: 0,
+    highest_score: null,
+    finished: false,
+  };
+
+  Scenario('A picked player one booking from a ban is flagged', ({ Given, When, Then, And }) => {
+    const note =
+      'This player currently has 4 Premier League yellow cards and will face a 1-match suspension on receiving their next.';
+
+    Given('a bootstrap where a picked player carries a suspension risk', () => {
+      bootstrap = makeBootstrap([
+        makePlayer({
+          scout_risks: [{ property: 'suspension_risk', notes: note, gameweek: null, url: null }],
+        }),
+      ]);
+    });
+
+    When('deriveScoutEvents is called', () => {
+      events = deriveScoutEvents(bootstrap, picks);
+    });
+
+    Then('one event of kind "suspension_risk" with severity "warn" is returned', () => {
+      expect(events).toHaveLength(1);
+      expect(events[0]?.kind).toBe('suspension_risk');
+      expect(events[0]?.severity).toBe('warn');
+    });
+
+    And("the event carries FPL's own note", () => {
+      expect(events[0]?.news).toBe(note);
+    });
+  });
+
+  Scenario('A loanee who cannot play the coming gameweek is flagged', ({ Given, When, Then }) => {
+    Given('a bootstrap where a picked loanee is ineligible for the next gameweek', () => {
+      bootstrap = makeBootstrap([
+        makePlayer({
+          scout_risks: [
+            {
+              property: 'loan_ineligible',
+              notes: 'Cannot face parent club.',
+              gameweek: 12,
+              url: null,
+            },
+          ],
+        }),
+      ]);
+      bootstrap.events = [NEXT_GW_EVENT];
+    });
+
+    When('deriveScoutEvents is called', () => {
+      events = deriveScoutEvents(bootstrap, picks);
+    });
+
+    Then('one event of kind "ineligible" with severity "bad" is returned', () => {
+      expect(events).toHaveLength(1);
+      expect(events[0]?.kind).toBe('ineligible');
+      expect(events[0]?.severity).toBe('bad');
+    });
+  });
+
+  Scenario('Ineligibility in a later gameweek is not reported yet', ({ Given, When, Then }) => {
+    Given('a bootstrap where a picked loanee is ineligible many gameweeks away', () => {
+      bootstrap = makeBootstrap([
+        makePlayer({
+          scout_risks: [
+            {
+              property: 'loan_ineligible',
+              notes: 'Cannot face parent club.',
+              gameweek: 27,
+              url: null,
+            },
+          ],
+        }),
+      ]);
+      bootstrap.events = [NEXT_GW_EVENT];
+    });
+
+    When('deriveScoutEvents is called', () => {
+      events = deriveScoutEvents(bootstrap, picks);
+    });
+
+    Then('no events are returned', () => {
+      expect(events).toHaveLength(0);
+    });
+  });
 });
