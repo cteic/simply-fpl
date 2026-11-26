@@ -213,8 +213,10 @@ and `points_modification`, scoped to that entry's 15 players. The whole-field
 
 The two files behind the error table are committed:
 
-- `docs/notes/data/gw11-points-to-rank-curve.tsv` the 42 sampled pages
-- `docs/notes/data/gw11-points-to-rank-holdout.tsv` the 20 held-out pages
+- `packages/fpl-client/src/rank-accuracy/gw11-points-to-rank-curve.tsv` the 42 sampled pages
+- `packages/fpl-client/src/rank-accuracy/gw11-points-to-rank-holdout.tsv` the 20 held-out pages
+
+`rank-curve.spec.ts` replays both and fails if the median error regresses.
 
 Both are GW11 settled data. Re-sample per gameweek; the shape moves as the
 field's totals grow.

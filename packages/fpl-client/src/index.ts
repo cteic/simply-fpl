@@ -7,6 +7,7 @@ export {
   calculateLivePoints,
   computeRankDetails,
   estimateLiveRank,
+  estimateLiveRankFromCurve,
   estimateLiveRankSmart,
   formatTimeRemaining,
   getCurrentGameweek,
@@ -16,6 +17,7 @@ export {
   getRankedEntryCount,
 } from './live-rank';
 export type {
+  CurveEstimateInput,
   EstimateLiveRankSmartOptions,
   LiveRankEstimate,
   NextDeadline,
@@ -23,6 +25,25 @@ export type {
   RankEstimateSource,
 } from './live-rank';
 export { formatPrice, predictPriceChanges } from './price-changes';
+export {
+  GLOBAL_LEAGUE_ID,
+  RANK_CURVE_MIN_SAMPLES,
+  RANK_CURVE_PAGE_SIZE,
+  RANK_CURVE_SAMPLE_PAGES,
+  buildRankCurve,
+  pointsForRank,
+  rankForPoints,
+} from './rank-curve';
+export {
+  OWNERSHIP_WEIGHT_CALIBRATION,
+  estimateFieldAverageFromOwnership,
+  resolveFieldLiveAverage,
+} from './field-average';
+export type {
+  FieldAverageSource,
+  FieldLiveAverage,
+  ResolveFieldLiveAverageInput,
+} from './field-average';
 export { computeScoreDistribution } from './score-distribution';
 export type { ScoreDistributionOptions } from './score-distribution';
 export {

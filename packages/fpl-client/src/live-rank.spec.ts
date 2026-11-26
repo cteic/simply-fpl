@@ -704,7 +704,10 @@ describeFeature(feature, ({ Scenario }) => {
     });
 
     When('I call estimateLiveRankSmart with gw 1 and no live aggregate', () => {
-      estimate = estimateLiveRankSmart(1, 5_000_000, 70, 54, { bootstrap });
+      estimate = estimateLiveRankSmart(1, 5_000_000, 70, 54, {
+        bootstrap,
+        useDistributionModel: true,
+      });
     });
 
     Then('the estimate source is "captured-same-season"', () => {
@@ -744,7 +747,10 @@ describeFeature(feature, ({ Scenario }) => {
       });
 
       When('I call estimateLiveRankSmart with gw 1 and no live aggregate', () => {
-        estimate = estimateLiveRankSmart(1, 5_000_000, 70, 60, { bootstrap });
+        estimate = estimateLiveRankSmart(1, 5_000_000, 70, 60, {
+          bootstrap,
+          useDistributionModel: true,
+        });
       });
 
       Then('the estimate source is "captured-prior-season-scaled"', () => {
@@ -852,7 +858,7 @@ describeFeature(feature, ({ Scenario }) => {
 describe('estimateLiveRankSmart', () => {
   it('uses the captured distribution when one exists for the gw', () => {
     const flat = estimateLiveRank(5_000_000, 75, 50);
-    const smart = estimateLiveRankSmart(1, 5_000_000, 75, 50);
+    const smart = estimateLiveRankSmart(1, 5_000_000, 75, 50, { useDistributionModel: true });
     expect(smart.liveRank).not.toBe(flat.liveRank);
     expect(smart.liveRank).toBeGreaterThanOrEqual(1);
     expect(smart.liveRank).toBeLessThanOrEqual(APPROX_TOTAL_FPL_ENTRIES);
@@ -875,9 +881,11 @@ describe('estimateLiveRankSmart', () => {
     ];
     const withCount = estimateLiveRankSmart(1, 5_000_000, 75, 50, {
       bootstrap: { elements: [], teams: [], element_types: [], events: events(5_500_000) },
+      useDistributionModel: true,
     });
     const withoutCount = estimateLiveRankSmart(1, 5_000_000, 75, 50, {
       bootstrap: { elements: [], teams: [], element_types: [], events: events() },
+      useDistributionModel: true,
     });
     expect(withCount.liveRank).toBeLessThan(withoutCount.liveRank);
     expect(withCount.liveRank).toBeLessThanOrEqual(5_500_000);
@@ -890,14 +898,32 @@ describe('estimateLiveRankSmart', () => {
   });
 
   it('a higher score yields a better (smaller) rank for the same pre-gw rank', () => {
-    const lowScore = estimateLiveRankSmart(1, 5_000_000, 40, 50);
-    const highScore = estimateLiveRankSmart(1, 5_000_000, 90, 50);
+    const lowScore = estimateLiveRankSmart(1, 5_000_000, 40, 50, {
+      useDistributionModel: true,
+    });
+    const highScore = estimateLiveRankSmart(1, 5_000_000, 90, 50, {
+      useDistributionModel: true,
+    });
     expect(highScore.liveRank).toBeLessThan(lowScore.liveRank);
   });
 
+  it('ignores a captured distribution unless the caller opts in', () => {
+    const flat = estimateLiveRank(5_000_000, 75, 50);
+    const defaulted = estimateLiveRankSmart(1, 5_000_000, 75, 50);
+    expect(hasDistribution(1, 'overall')).toBe(true);
+    expect(defaulted).toEqual(flat);
+    expect(defaulted.source).toBe('flat-heuristic' satisfies RankEstimateSource);
+  });
+
   it('respects a totalEntries override', () => {
-    const small = estimateLiveRankSmart(1, 50_000, 70, 50, { totalEntries: 100_000 });
-    const large = estimateLiveRankSmart(1, 5_000_000, 70, 50, { totalEntries: 10_000_000 });
+    const small = estimateLiveRankSmart(1, 50_000, 70, 50, {
+      totalEntries: 100_000,
+      useDistributionModel: true,
+    });
+    const large = estimateLiveRankSmart(1, 5_000_000, 70, 50, {
+      totalEntries: 10_000_000,
+      useDistributionModel: true,
+    });
     expect(small.liveRank).toBeLessThanOrEqual(100_000);
     expect(large.liveRank).toBeLessThanOrEqual(10_000_000);
     expect(large.liveRank).toBeGreaterThan(small.liveRank);
@@ -907,7 +933,9 @@ describe('estimateLiveRankSmart', () => {
 describe('computeRankDetails with gw arg', () => {
   it('uses the smart estimator when gw points at a captured distribution', () => {
     const flat = computeRankDetails(2_000_000, 75, 80, 50);
-    const smart = computeRankDetails(2_000_000, 75, 80, 50, 1);
+    const smart = computeRankDetails(2_000_000, 75, 80, 50, 1, {
+      useDistributionModel: true,
+    });
     expect(smart).not.toBeNull();
     expect(flat).not.toBeNull();
     if (smart && flat) {

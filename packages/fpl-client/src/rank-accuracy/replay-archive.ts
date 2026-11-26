@@ -172,6 +172,7 @@ export function scoreSample(
     estimator === 'smart'
       ? estimateLiveRankSmart(sample.gw, sample.preGwRank, points, sample.avgEntryScore, {
           totalEntries: sample.totalEntries,
+          useDistributionModel: true,
         })
       : estimateLiveRank(sample.preGwRank, points, sample.avgEntryScore);
   const { liveRank } = estimate;

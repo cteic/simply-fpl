@@ -3,6 +3,7 @@ import type {
   FplEntryGameweekPicks,
   FplLiveGameweek,
   LiveRankEntry,
+  RankCurve,
   ScoreDistribution,
 } from '@simplyfpl/types';
 
@@ -12,6 +13,7 @@ import {
   hasDistribution,
   loadDistribution,
 } from './estimate-rank';
+import { rankForPoints } from './rank-curve';
 
 /**
  * Calculate live points for a set of picks against live gameweek data.
@@ -139,6 +141,7 @@ export function formatTimeRemaining(ms: number): string {
 }
 
 export type RankEstimateSource =
+  | 'official-curve'
   | 'live-cohort'
   | 'captured-same-season'
   | 'captured-prior-season-scaled'
@@ -165,6 +168,51 @@ export function estimateLiveRank(
   if (movement > 0) direction = 'up';
   else if (movement < 0) direction = 'down';
   return { liveRank, movement, direction, source: 'flat-heuristic' };
+}
+
+export interface CurveEstimateInput {
+  curve: RankCurve;
+  /** The manager's cumulative total before this gameweek's points. */
+  preGwTotal: number;
+  /** The manager's points so far this gameweek, after any transfer hit. */
+  livePoints: number;
+  /** What the field has averaged so far this gameweek. */
+  fieldLiveAverage: number;
+  /** The manager's settled rank going into the gameweek, for movement only. */
+  preGwRank: number;
+}
+
+/**
+ * Live rank read straight off FPL's own points-to-rank curve.
+ *
+ * The curve maps a cumulative total to an exact rank, captured when the
+ * previous gameweek settled. During a live gameweek every entry's total grows,
+ * so the whole distribution slides right by roughly what the field has scored.
+ * Subtracting the field's live average from this manager's live total puts them
+ * back on the curve's own scale:
+ *
+ *   liveRank = curve(preGwTotal + livePoints - fieldLiveAverage)
+ *
+ * This is the same shape as the flat heuristic, which moves a fixed 700 places
+ * per point above average. The difference is that the slope here is the field's
+ * real local density instead of a constant, which is why it is roughly ten
+ * times more accurate. It also works from the manager's total rather than their
+ * rank, so two managers on the same score but far apart in the table no longer
+ * collapse to the same answer.
+ *
+ * Treating every rival as scoring exactly the average ignores the spread of
+ * gameweek scores, which compresses the estimate slightly toward the middle.
+ * That error is second-order next to getting the slope right.
+ */
+export function estimateLiveRankFromCurve(input: CurveEstimateInput): LiveRankEstimate {
+  const liveTotal = input.preGwTotal + input.livePoints;
+  const shifted = liveTotal - input.fieldLiveAverage;
+  const liveRank = rankForPoints(input.curve, shifted);
+  const movement = input.preGwRank - liveRank;
+  let direction: LiveRankEstimate['direction'] = 'flat';
+  if (movement > 0) direction = 'up';
+  else if (movement < 0) direction = 'down';
+  return { liveRank, movement, direction, source: 'official-curve' };
 }
 
 export function getCurrentSeasonYear(bootstrap: FplBootstrapStatic): number | null {
@@ -194,26 +242,36 @@ export interface EstimateLiveRankSmartOptions {
   totalEntries?: number;
   liveAggregate?: ScoreDistribution;
   bootstrap?: FplBootstrapStatic;
+  /** FPL's own points-to-rank curve. Used whenever `preGwTotal` is also set. */
+  curve?: RankCurve;
+  /** The manager's cumulative total before this gameweek. Required by `curve`. */
+  preGwTotal?: number;
+  /**
+   * Opt into the captured score-distribution chain.
+   *
+   * Off by default. Replaying the archive put the distribution estimator at a
+   * 148.8% median absolute error against the flat heuristic's 12.6%, because
+   * `estimateRankFromScore` maps one gameweek's score to a rank and discards
+   * the manager's standing. See docs/notes/fpl-live-percentile-2026-11-26.md.
+   */
+  useDistributionModel?: boolean;
 }
 
 /**
- * Distribution-aware live-rank estimator with a four-level confidence chain.
+ * Live-rank estimator with a confidence chain, best source first.
  *
  * Priority (highest to lowest):
- *   1. live-cohort — `opts.liveAggregate` (score distribution from the worker
- *      cohort for the current GW, season-correct by construction).
- *   2. captured-same-season — a captured `overall` distribution whose `season`
- *      matches the current season year derived from `opts.bootstrap`.
- *   3. captured-prior-season-scaled — the captured distribution for the GW from
- *      a previous season, reused with a linear mean-shift: the query score is
- *      multiplied by (prior_mean / current_avg) before lookup so that the
- *      distribution median maps to the current season's known average. This
- *      preserves shape while anchoring to the live average.
- *   4. flat-heuristic — `estimateLiveRank`, the flat 700-places-per-point model.
+ *   1. official-curve — `opts.curve` plus `opts.preGwTotal`. FPL's own
+ *      points-to-rank mapping for the whole field. 1.17% median absolute error.
+ *   2. live-cohort — `opts.liveAggregate`, a score distribution sampled from
+ *      the worker cohort for the current GW.
+ *   3. flat-heuristic — `estimateLiveRank`, the flat 700-places-per-point
+ *      model. 12.6% median absolute error, and the default fallback.
  *
- * Without `opts.bootstrap` the estimator cannot verify season match, so any
- * captured distribution for `gw` is treated as same-season (backward-compat).
- * Without `opts.liveAggregate` step 1 is skipped.
+ * The captured score-distribution chain sits behind `useDistributionModel`
+ * because it measured 12x worse than the flat model it replaced. With the flag
+ * set, levels 2a and 2b are a same-season captured distribution and a
+ * prior-season one rescaled by (prior_mean / current_avg).
  *
  * The returned `source` field tells callers which level was used so the UI can
  * display a confidence hint.
@@ -225,8 +283,18 @@ export function estimateLiveRankSmart(
   avgEntryScore: number,
   opts: EstimateLiveRankSmartOptions = {}
 ): LiveRankEstimate {
-  const { liveAggregate, bootstrap } = opts;
+  const { liveAggregate, bootstrap, curve, preGwTotal } = opts;
   const totalEntries = opts.totalEntries ?? getRankedEntryCount(bootstrap);
+
+  if (curve && typeof preGwTotal === 'number') {
+    return estimateLiveRankFromCurve({
+      curve,
+      preGwTotal,
+      livePoints,
+      fieldLiveAverage: avgEntryScore,
+      preGwRank,
+    });
+  }
 
   if (liveAggregate) {
     const { liveRank, movement, direction } = estimateLiveRankFromDistribution(
@@ -238,7 +306,7 @@ export function estimateLiveRankSmart(
     return { liveRank, movement, direction, source: 'live-cohort' };
   }
 
-  if (!hasDistribution(gw, 'overall')) {
+  if (opts.useDistributionModel !== true || !hasDistribution(gw, 'overall')) {
     return estimateLiveRank(preGwRank, livePoints, avgEntryScore);
   }
 
@@ -281,16 +349,17 @@ export function computeRankDetails(
   livePoints: number,
   postSubsPoints: number,
   avgEntryScore: number,
-  gw?: number
+  gw?: number,
+  opts: EstimateLiveRankSmartOptions = {}
 ): RankDetails | null {
   if (preGwRank <= 0) return null;
   const preSubs =
     gw !== undefined
-      ? estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore)
+      ? estimateLiveRankSmart(gw, preGwRank, livePoints, avgEntryScore, opts)
       : estimateLiveRank(preGwRank, livePoints, avgEntryScore);
   const postSubs =
     gw !== undefined
-      ? estimateLiveRankSmart(gw, preGwRank, postSubsPoints, avgEntryScore)
+      ? estimateLiveRankSmart(gw, preGwRank, postSubsPoints, avgEntryScore, opts)
       : estimateLiveRank(preGwRank, postSubsPoints, avgEntryScore);
   return {
     oldRank: preGwRank,
