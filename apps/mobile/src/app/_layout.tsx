@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import type { ColorValue } from 'react-native';
+
 import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +16,8 @@ import { auth } from '@simplyfpl/features';
 import { TamaguiProvider } from '@simplyfpl/ui';
 import { config } from '@simplyfpl/ui/tamagui.config';
 
+import { TabIcon } from '@/components/tab-icon';
+import type { TabIconName } from '@/components/tab-icon';
 import { MobileLocaleProvider } from '@/lib/mobile-locale-provider';
 import { MobileThemeModeProvider, useMobileThemeMode } from '@/lib/mobile-theme-provider';
 import { supabaseClient } from '@/lib/supabase';
@@ -28,6 +32,12 @@ const COLORS = {
   text: '#1A1A18',
   inactive: '#A8A8A0',
 };
+
+function tabIcon(name: TabIconName) {
+  return function Icon({ color }: { color: ColorValue }) {
+    return <TabIcon name={name} color={color} />;
+  };
+}
 
 interface AppContentProps {
   queryClient: QueryClient;
@@ -51,6 +61,9 @@ function AppContent({ queryClient }: AppContentProps) {
                   },
                   tabBarActiveTintColor: COLORS.brand,
                   tabBarInactiveTintColor: COLORS.inactive,
+                  // Eight tabs share a phone's width, so the label has to be
+                  // small enough for "Leagues" and "Planner" not to truncate.
+                  tabBarLabelStyle: { fontSize: 9.5, fontFamily: 'DMSans-Medium' },
                   headerStyle: { backgroundColor: COLORS.bg },
                   headerTintColor: COLORS.text,
                   headerShadowVisible: false,
@@ -58,35 +71,73 @@ function AppContent({ queryClient }: AppContentProps) {
               >
                 <Tabs.Screen
                   name="index"
-                  options={{ title: 'Live Rank', tabBarLabel: 'Home', headerShown: false }}
+                  options={{
+                    tabBarIcon: tabIcon('home'),
+                    title: 'Live Rank',
+                    tabBarLabel: 'Home',
+                    headerShown: false,
+                  }}
                 />
                 <Tabs.Screen
                   name="leagues"
-                  options={{ title: 'Mini-Leagues', tabBarLabel: 'Leagues', headerShown: false }}
+                  options={{
+                    tabBarIcon: tabIcon('leagues'),
+                    title: 'Mini-Leagues',
+                    tabBarLabel: 'Leagues',
+                    headerShown: false,
+                  }}
                 />
                 <Tabs.Screen
                   name="h2h"
-                  options={{ title: 'Head to Head', tabBarLabel: 'H2H', headerShown: false }}
+                  options={{
+                    tabBarIcon: tabIcon('h2h'),
+                    title: 'Head to Head',
+                    tabBarLabel: 'H2H',
+                    headerShown: false,
+                  }}
                 />
                 <Tabs.Screen
                   name="planner"
-                  options={{ title: 'Transfer Planner', tabBarLabel: 'Planner' }}
+                  options={{
+                    tabBarIcon: tabIcon('planner'),
+                    title: 'Transfer Planner',
+                    tabBarLabel: 'Planner',
+                  }}
                 />
                 <Tabs.Screen
                   name="prices"
-                  options={{ title: 'Price Changes', tabBarLabel: 'Prices', headerShown: false }}
+                  options={{
+                    tabBarIcon: tabIcon('prices'),
+                    title: 'Price Changes',
+                    tabBarLabel: 'Prices',
+                    headerShown: false,
+                  }}
                 />
                 <Tabs.Screen
                   name="threats"
-                  options={{ title: 'Threats', tabBarLabel: 'Threats', headerShown: false }}
+                  options={{
+                    tabBarIcon: tabIcon('threats'),
+                    title: 'Threats',
+                    tabBarLabel: 'Threats',
+                    headerShown: false,
+                  }}
                 />
                 <Tabs.Screen
                   name="frank"
-                  options={{ title: 'Frank', tabBarLabel: 'Frank', headerShown: false }}
+                  options={{
+                    tabBarIcon: tabIcon('frank'),
+                    title: 'Frank',
+                    tabBarLabel: 'Frank',
+                    headerShown: false,
+                  }}
                 />
                 <Tabs.Screen
                   name="profile"
-                  options={{ title: 'Profile', tabBarLabel: 'Profile' }}
+                  options={{
+                    tabBarIcon: tabIcon('profile'),
+                    title: 'Profile',
+                    tabBarLabel: 'Profile',
+                  }}
                 />
                 <Tabs.Screen name="rivals/[leagueId]" options={{ title: 'Rivals', href: null }} />
                 <Tabs.Screen name="login" options={{ title: 'Sign In', href: null }} />

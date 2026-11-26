@@ -5,11 +5,11 @@ import {
   applyAutosubs,
   calculateLivePoints,
   computeDefConProgress,
-  computeRankDetails,
   formatCompactRank,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
+  seasonSparklinePoints,
 } from '@simplyfpl/fpl-client';
 import type { BonusPrediction } from '@simplyfpl/fpl-client';
 import type {
@@ -17,6 +17,7 @@ import type {
   FplEntryGameweekPicks,
   FplLiveGameweek,
   FplPlayer,
+  SeasonStory,
 } from '@simplyfpl/types';
 import {
   BenchDivider,
@@ -37,14 +38,14 @@ import {
 } from '@simplyfpl/ui';
 import type { BadgeTone, CohortTableRow, ShirtKind, StatTileTone } from '@simplyfpl/ui';
 
-import { RankSparkline } from '@/components/rank-sparkline';
+import { RankSparkline, SPARKLINE_HEIGHT, SPARKLINE_WIDTH } from '@/components/rank-sparkline';
 import { RefreshBar } from '@/components/refresh-bar';
 import { Screen } from '@/components/screen';
 import { StadiumGradient } from '@/components/stadium-gradient';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { useLiveAgoMs, useLiveRankEstimate, setLiveLastUpdate } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useSeasonStory, setLiveLastUpdate } = liveRank;
 const { computeLiveBattle } = liveBattle;
 
 function formatLiveAgo(ms: number | null): string {
@@ -240,6 +241,23 @@ interface LiveRankDashboardProps {
 }
 
 /**
+ * One line of season context under the rank chart: the current run of arrows
+ * and the best rank reached. Null when there is nothing settled to report.
+ */
+function describeSeason(story: SeasonStory): string | null {
+  const parts: string[] = [];
+  if (story.streak.length >= 2) {
+    parts.push(`${story.streak.length} ${story.streak.direction} arrows in a row`);
+  } else if (story.greenArrows + story.redArrows > 0) {
+    parts.push(`${story.greenArrows} green \u00b7 ${story.redArrows} red`);
+  }
+  if (story.bestRank) {
+    parts.push(`best ${story.bestRank.rank.toLocaleString()} (GW${story.bestRank.gw})`);
+  }
+  return parts.length > 0 ? parts.join(' \u00b7 ') : null;
+}
+
+/**
  * The hold line: what is still needed to keep position, or how clear they are.
  *
  * Zero gets its own wording. At kickoff nothing has been scored and the field
@@ -263,8 +281,16 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const aggregates = useCohortAggregates(currentGw);
   // targets is null until FPL's curve has loaded. Without it there is nothing
   // to invert, so the line is hidden rather than showing a guessed target.
-  const { estimate, targets } = useLiveRankEstimate(entryId);
+  const { estimate, postSubsEstimate, targets } = useLiveRankEstimate(entryId);
   const agoMs = useLiveAgoMs();
+  const { story } = useSeasonStory(entryId);
+  const sparkPoints = story
+    ? seasonSparklinePoints(story.trajectory, {
+        width: SPARKLINE_WIDTH,
+        height: SPARKLINE_HEIGHT,
+      })
+    : null;
+  const seasonLine = story ? describeSeason(story) : null;
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
 
   useEffect(() => {
@@ -304,17 +330,6 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
   const preGwRank = entry?.summary_overall_rank ?? 0;
-  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
-  const rankDetails =
-    ready && entry
-      ? computeRankDetails(
-          preGwRank,
-          livePoints,
-          postSubsPoints,
-          avgEntryScore,
-          currentGw ?? undefined
-        )
-      : null;
   const autosubsApply = postSubsPoints !== livePoints;
   const showPostSubs = autosubsApply && subsMode === 'post';
   const displayedPoints = showPostSubs ? postSubsPoints : livePoints;
@@ -339,14 +354,27 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
   const settledRank = entry?.summary_overall_rank ?? null;
   const heroRank =
-    showPostSubs && rankDetails
-      ? rankDetails.postSubsRank
+    showPostSubs && postSubsEstimate
+      ? postSubsEstimate.liveRank
       : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
+  // The other side of the pre/post toggle, from the same model as the hero.
+  let subsAltLabel: string | null = null;
+  if (estimate && postSubsEstimate && autosubsApply) {
+    subsAltLabel = showPostSubs
+      ? `Pre-subs ~${estimate.liveRank.toLocaleString()}`
+      : `Post-subs ~${postSubsEstimate.liveRank.toLocaleString()}`;
+  }
   const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
       : null;
+
+  // What the line under the rank says. A settled gameweek has no estimate, so
+  // it must not claim to be live or show movement "since GW start".
+  let heroStatus: 'final' | 'moved' | 'live' = 'live';
+  if (gwFinished && estimate === null) heroStatus = 'final';
+  else if (movementLabel) heroStatus = 'moved';
 
   const totalPointsLabel = entry?.summary_overall_points
     ? entry.summary_overall_points.toLocaleString()
@@ -395,7 +423,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           }, 0)
       : 0;
 
-  let gwSub = 'live points';
+  let gwSub = 'live';
   if (ready && autosubsApply) {
     gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
   }
@@ -414,33 +442,33 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     tone: StatTileTone;
   }[] = [
     {
-      label: 'GW Points',
+      label: 'GW pts',
       value: String(ready ? displayedPoints : '—'),
       tick: ready ? displayedPoints : null,
       sub: gwSub,
       tone: 'positive',
     },
     {
-      label: 'Total Points',
+      label: 'Total',
       value: totalPointsLabel,
       tick: entry?.summary_overall_points ?? null,
       sub: 'overall',
       tone: 'brand',
     },
     {
-      label: 'On Bench',
+      label: 'Bench',
       value: String(ready ? benchPoints : '—'),
       tick: ready ? benchPoints : null,
-      sub: 'autosubs ready',
+      sub: 'on bench',
       tone: 'neutral',
     },
     ...(showSafety
       ? [
           {
-            label: 'Safety Score',
+            label: 'Safety',
             value: safetyValue,
             tick: null,
-            sub: 'green-arrow line',
+            sub: 'green arrow',
             tone: 'positive' as const,
           },
         ]
@@ -448,10 +476,10 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     ...(showOffTop10k
       ? [
           {
-            label: 'Off Top 10k',
+            label: 'Off 10k',
             value: offTop10kValue,
             tick: null,
-            sub: 'points behind',
+            sub: 'pts behind',
             tone: 'warning' as const,
           },
         ]
@@ -469,7 +497,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             label: 'DefCon',
             value: String(defconGwPoints),
             tick: defconGwPoints,
-            sub: 'def contribution pts',
+            sub: 'def pts',
             tone: 'positive' as const,
           },
         ]
@@ -509,10 +537,11 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
 
   return (
     <Screen testID="screen-home" topInset>
-      <StadiumGradient borderRadius={14} paddingHorizontal={22} paddingVertical={22}>
-        <YStack marginBottom={12}>
-          <Logo variant="lockup" tone="stadium" size="md" />
-        </YStack>
+      <StadiumGradient borderRadius={14} paddingHorizontal={16} paddingVertical={14}>
+        <XStack alignItems="center" justifyContent="space-between" gap={8} marginBottom={8}>
+          <Logo variant="lockup" tone="stadium" size="sm" />
+          <TeamPill teamId={entryId} onPress={onChangeTeam} />
+        </XStack>
         <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
           <Text
             fontFamily="$body"
@@ -543,9 +572,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
                 onPress={() => setSubsMode('post')}
               />
             </XStack>
-          ) : (
-            <TeamPill teamId={entryId} onPress={onChangeTeam} />
-          )}
+          ) : null}
         </XStack>
 
         <NumberTicker
@@ -553,35 +580,41 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           value={heroRank}
           format={(n) => n.toLocaleString()}
           fontFamily="$mono"
-          fontSize={52}
-          lineHeight={56}
+          fontSize={44}
+          lineHeight={46}
           fontWeight="400"
           letterSpacing={-2}
           color="#FFFFFF"
-          marginTop={6}
+          marginTop={2}
         />
 
-        <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
-          {movementLabel ? (
+        <XStack alignItems="center" gap={8} marginTop={6} flexWrap="wrap">
+          {heroStatus === 'final' ? (
+            <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
+              {`final after GW${currentGw ?? ''}`}
+            </Text>
+          ) : null}
+          {heroStatus === 'moved' ? (
             <XStack
               alignItems="center"
               backgroundColor="#34D399"
-              paddingHorizontal={10}
-              paddingVertical={3}
+              paddingHorizontal={9}
+              paddingVertical={2}
               borderRadius={99}
             >
-              <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
+              <Text fontFamily="$mono" fontSize={12.5} fontWeight="500" color="#0B4F49">
                 {movementLabel}
               </Text>
             </XStack>
-          ) : (
+          ) : null}
+          {heroStatus === 'live' ? (
             <XStack
               alignItems="center"
               gap={6}
               borderWidth={1}
               borderColor="rgba(255,255,255,0.3)"
-              paddingHorizontal={10}
-              paddingVertical={3}
+              paddingHorizontal={9}
+              paddingVertical={2}
               borderRadius={99}
             >
               <LiveDot />
@@ -589,32 +622,18 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
                 live
               </Text>
             </XStack>
+          ) : null}
+          {heroStatus === 'final' ? null : (
+            <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.6)">
+              {`was ${preGwRank.toLocaleString()}`}
+            </Text>
           )}
-          <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
-            since GW start
-          </Text>
+          {subsAltLabel ? (
+            <Text fontFamily="$mono" fontSize={12} color="rgba(255,255,255,0.85)">
+              {subsAltLabel}
+            </Text>
+          ) : null}
         </XStack>
-
-        {rankDetails ? (
-          <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
-            <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
-              {showPostSubs
-                ? `Pre-subs ~${rankDetails.preSubsRank.toLocaleString()}`
-                : `Post-subs ~${rankDetails.postSubsRank.toLocaleString()}`}
-            </Text>
-            <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
-              was {rankDetails.oldRank.toLocaleString()}
-            </Text>
-            <Text
-              fontFamily="$mono"
-              fontSize={12.5}
-              color={rankDetails.changePct >= 0 ? '#34D399' : 'rgba(255,255,255,0.8)'}
-            >
-              {rankDetails.changePct >= 0 ? '+' : ''}
-              {rankDetails.changePct.toFixed(1)}%
-            </Text>
-          </XStack>
-        ) : null}
 
         {targets ? (
           <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap" testID="rank-targets">
@@ -629,9 +648,21 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           </XStack>
         ) : null}
 
-        <RankSparkline />
+        {sparkPoints ? <RankSparkline points={sparkPoints} /> : null}
+        {seasonLine ? (
+          <Text
+            fontFamily="$body"
+            fontSize={11}
+            color="rgba(255,255,255,0.72)"
+            marginTop={4}
+            numberOfLines={1}
+            testID="season-line"
+          >
+            {seasonLine}
+          </Text>
+        ) : null}
 
-        <XStack alignItems="center" gap={10} marginTop={12}>
+        <XStack alignItems="center" gap={10} marginTop={8}>
           <RefreshBar paused={isLoading} />
           <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
             {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
@@ -639,10 +670,11 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
         </XStack>
       </StadiumGradient>
 
-      <XStack flexWrap="wrap" gap={10}>
+      <XStack flexWrap="wrap" gap={6}>
         {tiles.map((tile) => (
           <StatTile
             key={tile.label}
+            compact
             label={tile.label}
             tone={tile.tone}
             sub={tile.sub}
@@ -653,18 +685,19 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
                   value={tile.tick}
                   format={(n) => n.toLocaleString()}
                   fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
+                  fontSize={18}
+                  lineHeight={20}
+                  fontWeight="500"
                   color="$color"
                 />
               ) : (
                 <Text
                   fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
+                  fontSize={13}
+                  lineHeight={20}
+                  fontWeight="500"
                   color="$color"
+                  numberOfLines={1}
                 >
                   {tile.value}
                 </Text>

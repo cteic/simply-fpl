@@ -20,13 +20,13 @@ interface ScreenProps {
 // bottom padding. Replaces the web <PageShell> (which centres a max-width
 // column for desktop) with a phone-width column. Pass topInset on screens
 // with no native header so content clears the status bar / notch.
-export function Screen({ children, gap = 16, topInset = false, testID }: ScreenProps) {
+export function Screen({ children, gap = 12, topInset = false, testID }: ScreenProps) {
   const insets = useSafeAreaInsets();
   return (
     <ScrollView flex={1} backgroundColor="$background" testID={testID}>
       <YStack
-        paddingHorizontal={16}
-        paddingTop={topInset ? insets.top + 16 : 16}
+        paddingHorizontal={12}
+        paddingTop={topInset ? insets.top + 6 : 12}
         paddingBottom={48}
         gap={gap}
       >
