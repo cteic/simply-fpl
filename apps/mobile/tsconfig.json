@@ -9,5 +9,5 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["src", "app.json"]
+  "include": ["src", "app.json", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
