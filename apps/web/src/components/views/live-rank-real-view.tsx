@@ -17,6 +17,7 @@ import {
   getClubColor,
   getKitUrl,
   predictBonusPoints,
+  seasonSparklinePoints,
 } from '@simplyfpl/fpl-client';
 import type { BonusPrediction, LiveRankEstimate } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
@@ -27,6 +28,7 @@ import type {
   FplFixture,
   FplLiveGameweek,
   FplPlayer,
+  SeasonStory,
 } from '@simplyfpl/types';
 import {
   AdSlot,
@@ -74,7 +76,7 @@ export interface LiveRankDataOverride {
   replayBanner?: string;
 }
 
-const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot, useSeasonStory } = liveRank;
 const { computeLiveBattle } = liveBattle;
 
 type SubsMode = 'pre' | 'post';
@@ -310,6 +312,30 @@ interface LiveRankRealViewProps {
 }
 
 /**
+ * One line of season context under the rank chart: the current run of arrows
+ * and the best rank reached. Null when there is nothing settled to report.
+ */
+function describeSeason(story: SeasonStory): string | null {
+  const parts: string[] = [];
+  if (story.streak.length >= 2) {
+    const key =
+      story.streak.direction === 'green' ? 'live_rank.streak_green' : 'live_rank.streak_red';
+    parts.push(t(key, { count: story.streak.length }));
+  } else if (story.greenArrows + story.redArrows > 0) {
+    parts.push(t('live_rank.arrows_tally', { green: story.greenArrows, red: story.redArrows }));
+  }
+  if (story.bestRank) {
+    parts.push(
+      t('live_rank.best_rank', {
+        rank: story.bestRank.rank.toLocaleString(),
+        gw: story.bestRank.gw,
+      })
+    );
+  }
+  return parts.length > 0 ? parts.join(' \u00b7 ') : null;
+}
+
+/**
  * The hold line: what is still needed to keep position, or how clear they are.
  *
  * Zero gets its own wording. At kickoff nothing has been scored and the field
@@ -462,7 +488,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
   const preGwRank = entry?.summary_overall_rank ?? 0;
-  const rankDetails = ready
+  const replayRankDetails = ready
     ? computeRankDetails(
         preGwRank,
         livePoints,
@@ -510,7 +536,29 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const estimate = dataOverride ? dataOverride.estimate : liveEstimate.estimate;
   // Null until FPL's curve has loaded. Without it there is nothing to invert,
   // so the line is hidden rather than showing a guessed target.
+  // The manager's settled season. The chart under the rank used to be a
+  // hardcoded rising line shown to every user.
+  const { story } = useSeasonStory(dataOverride ? null : entryId);
+  const sparkPoints = story
+    ? seasonSparklinePoints(story.trajectory, { width: 400, height: 40 })
+    : null;
+  const seasonLine = story ? describeSeason(story) : null;
   const targets = dataOverride ? null : liveEstimate.targets;
+  // Pre-subs and post-subs ranks come from the same model as the hero figure.
+  // They used to be worked out separately with the flat model and FPL's raw
+  // average, which is zero until a gameweek settles, so the two numbers on one
+  // screen were not comparable, and they were still shown after full time.
+  // Replay keeps the old path because it has no live hook to read.
+  const postSubsEstimate = dataOverride ? null : liveEstimate.postSubsEstimate;
+  let rankDetails: typeof replayRankDetails = dataOverride ? replayRankDetails : null;
+  if (!dataOverride && estimate && postSubsEstimate && preGwRank > 0) {
+    rankDetails = {
+      oldRank: preGwRank,
+      preSubsRank: estimate.liveRank,
+      postSubsRank: postSubsEstimate.liveRank,
+      changePct: (postSubsEstimate.movement / preGwRank) * 100,
+    };
+  }
   // No estimate means the gameweek has finished and FPL has published the real
   // overall rank, so show that rather than an empty hero.
   const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
@@ -520,6 +568,8 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       ? rankDetails.postSubsRank
       : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
   const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
+  // A finished gameweek has a real rank and nothing left to estimate.
+  const settled = estimate === null && gwFinished;
   const liveAgoMs = useLiveAgoMs();
   const agoMs = dataOverride ? dataOverride.agoMs : liveAgoMs;
   const movementLabel =
@@ -805,7 +855,8 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                     {movementLabel}
                   </Text>
                 </XStack>
-              ) : (
+              ) : null}
+              {!(estimate && movementLabel) && !settled ? (
                 <XStack
                   alignItems="center"
                   borderWidth={1}
@@ -815,12 +866,14 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                   borderRadius={99}
                 >
                   <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
-                    live
+                    {t('live_rank.status_live')}
                   </Text>
                 </XStack>
-              )}
+              ) : null}
               <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
-                since GW start
+                {settled
+                  ? t('live_rank.final_after_gw', { gw: currentGw ?? '' })
+                  : t('live_rank.since_gw_start')}
               </Text>
             </XStack>
 
@@ -861,30 +914,29 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
               </XStack>
             ) : null}
 
-            <YStack height={40} marginTop={14}>
-              <svg
-                viewBox="0 0 400 40"
-                preserveAspectRatio="none"
-                style={{ width: '100%', height: '100%', overflow: 'visible' }}
-              >
-                <polyline
-                  points="0,33 57,34 114,28 171,30 228,19 285,21 342,10 400,6"
-                  fill="none"
-                  stroke={colors.stadiumAccent}
-                  strokeWidth={2.4}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle
-                  cx={400}
-                  cy={6}
-                  r={3.4}
-                  fill={colors.inverse}
-                  stroke={colors.stadiumAccent}
-                  strokeWidth={2}
-                />
-              </svg>
-            </YStack>
+            {sparkPoints ? (
+              <YStack height={40} marginTop={14}>
+                <svg
+                  viewBox="0 0 400 40"
+                  preserveAspectRatio="none"
+                  style={{ width: '100%', height: '100%', overflow: 'visible' }}
+                >
+                  <polyline
+                    points={sparkPoints}
+                    fill="none"
+                    stroke={colors.stadiumAccent}
+                    strokeWidth={2.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </YStack>
+            ) : null}
+            {seasonLine ? (
+              <Text fontFamily="$body" fontSize={11.5} color="rgba(255,255,255,0.72)" marginTop={4}>
+                {seasonLine}
+              </Text>
+            ) : null}
 
             <XStack alignItems="center" gap={10} marginTop={12}>
               <YStack

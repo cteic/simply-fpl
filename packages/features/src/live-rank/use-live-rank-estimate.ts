@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  applyAutosubs,
   calculateLivePoints,
   computeRankTargets,
   estimateLiveRankSmart,
@@ -42,6 +43,8 @@ interface LiveRankInputs {
   preGwRank: number;
   preGwTotal: number;
   livePoints: number;
+  /** Live points once automatic substitutions are applied. */
+  postSubsPoints: number;
   fieldLiveAverage: number;
 }
 
@@ -66,6 +69,12 @@ function deriveLiveRankInputs(input: LiveRankEstimateInput): LiveRankInputs | nu
 
   const bonusMap = predictBonusPoints(liveGw, fixtures, bootstrap);
   const livePoints = calculateLivePoints(picks, liveGw, bootstrap, bonusMap);
+  const postSubsPoints = calculateLivePoints(
+    applyAutosubs(picks, liveGw, bootstrap),
+    liveGw,
+    bootstrap,
+    bonusMap
+  );
 
   // FPL reports average_entry_score as 0 until a gameweek settles, and a zero
   // average claims the whole field scored nothing, which credits this manager
@@ -81,7 +90,7 @@ function deriveLiveRankInputs(input: LiveRankEstimateInput): LiveRankInputs | nu
   // stood before the gameweek, not their rank.
   const preGwTotal = picks.entry_history.total_points - picks.entry_history.points;
 
-  return { preGwRank, preGwTotal, livePoints, fieldLiveAverage: average };
+  return { preGwRank, preGwTotal, livePoints, postSubsPoints, fieldLiveAverage: average };
 }
 
 /**
@@ -115,30 +124,47 @@ export function computeLiveRankTargets(input: LiveRankEstimateInput): RankTarget
 export function computeLiveRankEstimate(input: LiveRankEstimateInput): LiveRankEstimate | null {
   const derived = deriveLiveRankInputs(input);
   if (!derived) return null;
+  return estimateFor(input, derived, derived.livePoints);
+}
 
+/**
+ * The same estimate with automatic substitutions applied.
+ *
+ * Runs through the identical path as the headline figure. It used to be worked
+ * out separately with the flat model and FPL's raw average, which is zero
+ * until a gameweek settles, so the pre-subs and post-subs ranks on one screen
+ * came from two different models and could not be compared.
+ */
+export function computePostSubsRankEstimate(input: LiveRankEstimateInput): LiveRankEstimate | null {
+  const derived = deriveLiveRankInputs(input);
+  if (!derived) return null;
+  return estimateFor(input, derived, derived.postSubsPoints);
+}
+
+function estimateFor(
+  input: LiveRankEstimateInput,
+  derived: LiveRankInputs,
+  points: number
+): LiveRankEstimate {
   // A payload without a real pre-gameweek total would read as zero and place
   // the manager last, so the curve only runs when the figure is usable.
   const canUseCurve = input.curve !== undefined && derived.preGwTotal > 0;
 
-  return estimateLiveRankSmart(
-    input.gw,
-    derived.preGwRank,
-    derived.livePoints,
-    derived.fieldLiveAverage,
-    {
-      bootstrap: input.bootstrap,
-      preGwTotal: derived.preGwTotal,
-      ...(canUseCurve && input.curve !== undefined ? { curve: input.curve } : {}),
-      ...(input.liveAggregate === undefined ? {} : { liveAggregate: input.liveAggregate }),
-      ...(input.useDistributionModel === undefined
-        ? {}
-        : { useDistributionModel: input.useDistributionModel }),
-    }
-  );
+  return estimateLiveRankSmart(input.gw, derived.preGwRank, points, derived.fieldLiveAverage, {
+    bootstrap: input.bootstrap,
+    preGwTotal: derived.preGwTotal,
+    ...(canUseCurve && input.curve !== undefined ? { curve: input.curve } : {}),
+    ...(input.liveAggregate === undefined ? {} : { liveAggregate: input.liveAggregate }),
+    ...(input.useDistributionModel === undefined
+      ? {}
+      : { useDistributionModel: input.useDistributionModel }),
+  });
 }
 
 export interface UseLiveRankEstimateResult {
   estimate: LiveRankEstimate | null;
+  /** The estimate after automatic substitutions. Null once the gameweek settles. */
+  postSubsEstimate: LiveRankEstimate | null;
   /** Null until the curve has loaded: a target cannot be guessed without it. */
   targets: RankTargets | null;
 }
@@ -206,10 +232,15 @@ export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimate
     [viewInput]
   );
 
+  const postSubsEstimate = useMemo(
+    () => (viewInput === null ? null : computePostSubsRankEstimate(viewInput)),
+    [viewInput]
+  );
+
   const targets = useMemo(
     () => (viewInput === null ? null : computeLiveRankTargets(viewInput)),
     [viewInput]
   );
 
-  return { estimate, targets };
+  return { estimate, postSubsEstimate, targets };
 }
