@@ -16,7 +16,7 @@
 //   node scripts/derive-top-1k.mjs --gw=20             # one specific gw
 //   node scripts/derive-top-1k.mjs --max=1000          # default 1000
 import { existsSync } from 'node:fs';
-import { appendFile, readFile, readdir, stat } from 'node:fs/promises';
+import { appendFile, readdir, readFile, stat } from 'node:fs/promises';
 
 const args = parseArgs(process.argv.slice(2));
 const SINGLE_GW = args.gw ? Number(args.gw) : null;

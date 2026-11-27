@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 

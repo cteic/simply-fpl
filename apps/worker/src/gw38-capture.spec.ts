@@ -4,10 +4,10 @@ import { expect } from 'vitest';
 import type { FplLiveGameweek } from '@simplyfpl/types';
 
 import {
-  type CaptureBucket,
+  captureSnapshotToR2,
   GW38_CAPTURE_CRON,
   GW38_RECORDING_KEY,
-  captureSnapshotToR2,
+  type CaptureBucket,
 } from './gw38-capture';
 import { parseRecording } from './replay';
 

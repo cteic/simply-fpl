@@ -8,9 +8,14 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
-import { type Differentials, computeDifferentials } from '@simplyfpl/features/rivals';
-import { type RivalRow, computeRivalsBoard } from '@simplyfpl/features/rivals';
-import { type SelectRivalsResult, selectRivalEntryIds } from '@simplyfpl/features/rivals';
+import {
+  computeDifferentials,
+  computeRivalsBoard,
+  selectRivalEntryIds,
+  type Differentials,
+  type RivalRow,
+  type SelectRivalsResult,
+} from '@simplyfpl/features/rivals';
 import type {
   FplBootstrapStatic,
   FplEntryGameweekPicks,

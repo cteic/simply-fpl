@@ -2,10 +2,10 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
 import {
-  LEAGUE_SUMMARY_TTL_SECONDS,
-  type LeaguesEnv,
   handleLeagueSummary,
+  LEAGUE_SUMMARY_TTL_SECONDS,
   leagueSummaryCacheKey,
+  type LeaguesEnv,
 } from './leagues';
 
 const feature = await loadFeature('./leagues.feature');

@@ -18,7 +18,7 @@
 // Usage:
 //   node scripts/build-replay-bundle.mjs
 //   node scripts/build-replay-bundle.mjs --season=2025-26 --league=936326 --entry=1831434
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';

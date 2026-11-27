@@ -7,15 +7,15 @@ import { useThemeName } from 'tamagui';
 import { fplClient } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
 import {
+  featureSurfaceStyle,
   Input,
   Logo,
   PitchBackground,
+  resolveThemeName,
   TeamIdHelp,
   Text,
   XStack,
   YStack,
-  featureSurfaceStyle,
-  resolveThemeName,
 } from '@simplyfpl/ui';
 
 import { setSavedEntryId } from '@/lib/saved-entry-id';

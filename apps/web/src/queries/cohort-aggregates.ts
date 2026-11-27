@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  type UseCohortAggregatesResult,
   useCohortAggregates as useSharedCohortAggregates,
+  type UseCohortAggregatesResult,
 } from '@simplyfpl/features/cohorts';
 
 export type { CohortAggregates } from '@simplyfpl/features/cohorts';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { styled, Text, XStack, YStack } from 'tamagui';
 
 import { t } from '@simplyfpl/i18n';
 import type { PlayerNewsItem, PlayerNewsStatus } from '@simplyfpl/types';

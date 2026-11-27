@@ -8,16 +8,16 @@ import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-clie
 import { t } from '@simplyfpl/i18n';
 import {
   Card,
-  FNote,
   FilterButton,
+  FNote,
   PageHeader,
   PageShell,
   SectionHeader,
   Shirt,
+  styled,
   Text,
   XStack,
   YStack,
-  styled,
 } from '@simplyfpl/ui';
 import type { ShirtKind } from '@simplyfpl/ui';
 

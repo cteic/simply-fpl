@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Fails when a migration creates a public table and no migration enables RLS on it.
 // Supabase exposes every public table to the anon key through PostgREST unless RLS is on.
-import { readFile, readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 

@@ -5,8 +5,8 @@ import {
   FIXTURES_CACHE_KEY,
   FIXTURES_SLIM_CACHE_KEY,
   FIXTURES_SLIM_TTL_SECONDS,
-  type FixturesEnv,
   handleFixturesSlim,
+  type FixturesEnv,
 } from './fixtures';
 
 const feature = await loadFeature('./fixtures.feature');

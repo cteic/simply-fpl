@@ -9,7 +9,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { CohortSnapshotPayload } from '../cohorts/types';
-import { type ResolvedThreats, resolveThreats } from './resolve-threats';
+import { resolveThreats, type ResolvedThreats } from './resolve-threats';
 
 const feature = await loadFeature('./resolve-threats.feature');
 

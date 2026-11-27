@@ -1,5 +1,5 @@
 import Svg, { Circle, ClipPath, Defs, G, Line, Path, Polygon, Rect } from 'react-native-svg';
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 type LogoVariant = 'wordmark' | 'mark' | 'lockup';
 type LogoSize = 'sm' | 'md' | 'lg';

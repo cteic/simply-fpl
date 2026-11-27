@@ -1,7 +1,7 @@
-import type { Page, Route } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Page, Route } from '@playwright/test';
 
 const WORKER_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
 const WORKER_WS_URL = WORKER_URL.replace(/^http/, 'ws');

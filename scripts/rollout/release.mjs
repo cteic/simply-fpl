@@ -2,7 +2,6 @@
 // effect (wrangler, HTTP, sleeping, logging) comes in through `deps`, so the
 // whole flow runs against fakes in release.test.mjs.
 import {
-  UUID_RE,
   analyticsQuery,
   evaluateAnalytics,
   evaluateProbes,
@@ -10,6 +9,7 @@ import {
   fullDeployArgs,
   isHealthyStatus,
   splitDeployArgs,
+  UUID_RE,
   versionOverrideHeader,
 } from './lib.mjs';
 

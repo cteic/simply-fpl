@@ -11,12 +11,12 @@ import type {
 } from '@simplyfpl/types';
 
 import {
-  NEWS_TEAMS_CACHE_KEY,
-  NEWS_TEAMS_TTL_SECONDS,
-  type NewsEnv,
   handleEntryNews,
   handleNewsTeams,
+  NEWS_TEAMS_CACHE_KEY,
+  NEWS_TEAMS_TTL_SECONDS,
   warmNewsCache,
+  type NewsEnv,
 } from './index';
 
 const feature = await loadFeature('./news.feature');

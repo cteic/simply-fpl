@@ -7,12 +7,12 @@ import {
   type PageLike,
 } from './measure';
 import {
+  runComparison,
   type ComparisonSnapshot,
   type SiteTarget,
   type VsBucket,
   type VsBucketPutOptions,
   type VsEnv,
-  runComparison,
 } from './scheduled';
 
 interface PutCall {

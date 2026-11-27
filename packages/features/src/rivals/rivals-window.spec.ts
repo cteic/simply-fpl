@@ -3,10 +3,10 @@ import { expect } from 'vitest';
 
 import {
   DEFAULT_WINDOW_SIZE,
-  type WindowSize,
   readWindowSize,
   windowSizeToSelectOptions,
   writeWindowSize,
+  type WindowSize,
 } from './rivals-window';
 import type { SelectRivalsOptions } from './select-rivals';
 

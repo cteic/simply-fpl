@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { aggregateToOwnershipMap, aggregatesToOwnershipByTier } from './from-aggregate';
+import { aggregatesToOwnershipByTier, aggregateToOwnershipMap } from './from-aggregate';
 import type { CohortSnapshotPayload } from './types';
 
 function payload(overrides: Partial<CohortSnapshotPayload> = {}): CohortSnapshotPayload {

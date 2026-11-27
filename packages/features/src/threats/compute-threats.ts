@@ -7,7 +7,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { CohortSnapshotPayload } from '../cohorts/types';
-import { type ThreatPlayingStatus, derivePlayingStatus } from './playing-status';
+import { derivePlayingStatus, type ThreatPlayingStatus } from './playing-status';
 
 export type ThreatPosition = 'gk' | 'def' | 'mid' | 'fwd';
 

@@ -4,11 +4,11 @@ import { expect, vi } from 'vitest';
 import type { TeamNewsGroup } from '@simplyfpl/types';
 
 import {
-  SUMMARY_SPEND_KEY,
-  type TeamSummaryEnv,
   generateTeamSummaries,
+  SUMMARY_SPEND_KEY,
   summaryKey,
   teamFingerprint,
+  type TeamSummaryEnv,
 } from './team-summary';
 
 const feature = await loadFeature('./team-summary.feature');

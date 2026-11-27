@@ -5,8 +5,8 @@ import type { ReactNode } from 'react';
 
 import {
   DEFAULT_LOCALE,
-  LOCALE_STORAGE_KEY,
   isSupportedLocale,
+  LOCALE_STORAGE_KEY,
   parseAcceptLanguage,
 } from './locale-registry';
 import type { SupportedLocale } from './locale-registry';

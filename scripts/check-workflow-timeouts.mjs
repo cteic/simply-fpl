@@ -11,7 +11,7 @@
 //
 // Deliberately dependency-free: it runs from a bare checkout with nothing
 // installed, the same as everything else in the quality gate.
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const DIR = '.github/workflows';

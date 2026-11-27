@@ -9,7 +9,7 @@ import type {
   FplLiveGameweek,
 } from '@simplyfpl/types';
 
-import { type H2hResult, computeH2h } from './compute-h2h';
+import { computeH2h, type H2hResult } from './compute-h2h';
 
 const feature = await loadFeature('./compute-h2h.feature');
 

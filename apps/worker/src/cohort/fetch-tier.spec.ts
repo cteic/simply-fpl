@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type FetchTierEnv, TIER_CONFIGS, resumeCohortFetch } from './fetch-tier';
+import { resumeCohortFetch, TIER_CONFIGS, type FetchTierEnv } from './fetch-tier';
 
 function makeKvNamespace(): KVNamespace {
   const store = new Map<string, string>();

@@ -1,6 +1,6 @@
 import {
-  type CohortAggregates,
   useCohortAggregates as useSharedCohortAggregates,
+  type CohortAggregates,
 } from '@simplyfpl/features/cohorts';
 
 const WORKER_URL = process.env['EXPO_PUBLIC_API_URL'] ?? 'http://localhost:8787';

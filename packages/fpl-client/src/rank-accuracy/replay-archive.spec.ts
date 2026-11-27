@@ -1,6 +1,6 @@
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import { loadArchive } from './archive-reader';

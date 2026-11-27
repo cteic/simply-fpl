@@ -1,4 +1,4 @@
-import { type APIRequestContext, expect } from '@playwright/test';
+import { expect, type APIRequestContext } from '@playwright/test';
 
 export async function expectRedirectTo(
   request: APIRequestContext,

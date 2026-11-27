@@ -10,7 +10,7 @@ import type {
   FplTeam,
 } from '@simplyfpl/types';
 
-import { type LiveBattle, computeLiveBattle } from './compute-live-battle';
+import { computeLiveBattle, type LiveBattle } from './compute-live-battle';
 
 const feature = await loadFeature('./compute-live-battle.feature');
 

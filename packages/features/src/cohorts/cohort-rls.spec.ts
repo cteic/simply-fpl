@@ -1,7 +1,7 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
-import { type UserTier, canReadCohortTier } from './cohort-rls';
+import { canReadCohortTier, type UserTier } from './cohort-rls';
 import type { CohortTier } from './types';
 
 const feature = await loadFeature('./cohort-rls.feature');

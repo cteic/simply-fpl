@@ -9,10 +9,10 @@ import type {
 } from '@simplyfpl/types';
 
 import {
-  type SnapshotEnv,
   buildBootstrapLite,
   currentGwFromBootstrap,
   handleEntrySnapshot,
+  type SnapshotEnv,
 } from './snapshot';
 
 function makeBootstrap(currentGwId = 30): FplBootstrapStatic {

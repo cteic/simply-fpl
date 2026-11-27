@@ -1,7 +1,7 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
-import { type FplPassthroughTarget, buildFplPassthroughTarget } from './passthrough';
+import { buildFplPassthroughTarget, type FplPassthroughTarget } from './passthrough';
 
 const feature = await loadFeature('./passthrough.feature');
 

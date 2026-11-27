@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { FplLeagueStanding } from '@simplyfpl/types';
 
-import { SMALL_LEAGUE_THRESHOLD, selectRivalEntryIds } from './select-rivals';
+import { selectRivalEntryIds, SMALL_LEAGUE_THRESHOLD } from './select-rivals';
 
 function makeStanding(entry: number, rank: number): FplLeagueStanding {
   return {

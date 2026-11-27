@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 const Row = styled(XStack, {
   alignItems: 'center',

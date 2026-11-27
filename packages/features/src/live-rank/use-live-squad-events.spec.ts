@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { LiveSquadEvent } from '@simplyfpl/types';
 
-import { LIVE_EVENT_MAX_VISIBLE, enqueueLiveEvents } from './use-live-squad-events';
+import { enqueueLiveEvents, LIVE_EVENT_MAX_VISIBLE } from './use-live-squad-events';
 
 function event(id: string): LiveSquadEvent {
   return {

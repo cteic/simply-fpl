@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { YStack, styled } from 'tamagui';
+import { styled, YStack } from 'tamagui';
 
 const Box = styled(YStack, {
   width: 44,

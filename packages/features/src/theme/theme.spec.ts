@@ -2,7 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type { ThemeName, ThemeStore } from './theme';
-import { DEFAULT_THEME, THEME_STORAGE_KEY, readStoredTheme, writeStoredTheme } from './theme';
+import { DEFAULT_THEME, readStoredTheme, THEME_STORAGE_KEY, writeStoredTheme } from './theme';
 
 const feature = await loadFeature('./theme.feature');
 

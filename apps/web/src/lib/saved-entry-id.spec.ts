@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { SAVED_ENTRY_ID_KEY, readSavedEntryId, setSavedEntryId } from './saved-entry-id';
+import { readSavedEntryId, SAVED_ENTRY_ID_KEY, setSavedEntryId } from './saved-entry-id';
 
 const CHANGE_EVENT = 'simplyfpl:entry-id-changed';
 

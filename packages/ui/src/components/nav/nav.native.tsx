@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 import { Button } from '../button';
 import { LivePill } from '../live-pill';

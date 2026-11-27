@@ -1,4 +1,4 @@
-import { GLOBAL_LEAGUE_ID, RANK_CURVE_SAMPLE_PAGES, buildRankCurve } from '@simplyfpl/fpl-client';
+import { buildRankCurve, GLOBAL_LEAGUE_ID, RANK_CURVE_SAMPLE_PAGES } from '@simplyfpl/fpl-client';
 import type { FplBootstrapStatic, FplEvent, RankCurve, RankCurveSample } from '@simplyfpl/types';
 
 export interface RankCurveEnv {

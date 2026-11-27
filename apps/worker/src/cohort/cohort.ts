@@ -1,8 +1,8 @@
 import type { FplBootstrapStatic, FplEvent } from '@simplyfpl/types';
 
 import type { CohortTier } from './aggregate';
-import { type FetchTierEnv, TIER_CONFIGS, readAggregate, resumeCohortFetch } from './fetch-tier';
-import { type FlushEnv, flushToSupabase } from './flush';
+import { readAggregate, resumeCohortFetch, TIER_CONFIGS, type FetchTierEnv } from './fetch-tier';
+import { flushToSupabase, type FlushEnv } from './flush';
 
 export type CohortMode = 'live' | 'idle' | 'off';
 

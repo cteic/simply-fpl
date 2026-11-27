@@ -4,7 +4,7 @@
  * Non-fatal guard: scan TSX files for JSX text nodes and string attributes
  * that look like user-facing copy. Reports findings but always exits 0.
  */
-import { readFileSync, readdirSync, statSync } from 'fs';
+import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 function loadAllowlist() {
