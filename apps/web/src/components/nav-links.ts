@@ -1,3 +1,5 @@
+import type { GameweekPhase } from '@simplyfpl/types';
+
 export interface NavLinkItem {
   label: string;
   href: string;
@@ -29,4 +31,14 @@ export function buildNavLinks({
     links.push({ label: 'Deadline', href: '/deadline' });
   }
   return links;
+}
+
+/**
+ * Label for the status pill. "Live" only while the gameweek is in progress: an
+ * event stays current until the next deadline, so a gameweek that finished
+ * days ago must read as plain "GW11", not "GW11 Live".
+ */
+export function buildLiveLabel(gameweek: number | null, phase: GameweekPhase | null): string {
+  if (gameweek === null) return 'Live';
+  return phase === 'live' ? `GW${gameweek} Live` : `GW${gameweek}`;
 }
