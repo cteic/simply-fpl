@@ -24,6 +24,16 @@ export interface PricesResult {
 }
 
 export const PRICES_SLIM_CACHE_KEY = 'prices:slim';
+
+/**
+ * How far along FPL's threshold a player must be to be listed, and the most
+ * rows served. A player a few percent toward a change is not news, and listing
+ * everyone moving at all produced 474 rows and a 150 KB payload that both apps
+ * then rendered in full. The list is ordered by progress, so the cap only ever
+ * drops the players furthest from a change.
+ */
+export const PRICES_LIST_FLOOR_PERCENT = 50;
+export const PRICES_LIST_MAX_ROWS = 120;
 export const PRICES_SLIM_TTL_SECONDS = 600;
 export const BOOTSTRAP_CACHE_KEY = 'fpl:/bootstrap-static/';
 export const BOOTSTRAP_TTL_SECONDS = 3600;
@@ -81,23 +91,26 @@ async function fetchBootstrapUpstream(
 
 export function buildSlimPrices(bootstrap: FplBootstrapStatic): SlimPricesResponse {
   const teamNameById = new Map(bootstrap.teams.map((t) => [t.id, t.name]));
-  const changes = predictPriceChanges(bootstrap).map<SlimPriceChange>((change) => ({
-    id: change.player.id,
-    web_name: change.player.web_name,
-    element_type: change.player.element_type,
-    team_name: teamNameById.get(change.player.team) ?? change.team.name,
-    now_cost: change.player.now_cost,
-    ownership: parseFloat(change.player.selected_by_percent) || 0,
-    direction: change.direction === 'fall' ? 'fall' : 'rise',
-    probability: change.probability,
-    progress_percent: change.progressPercent,
-    likelihood: change.likelihood,
-    projected_percent: change.projectedPercent,
-    hourly_rate: change.hourlyRate,
-    locked_until: change.lockedUntil,
-    calibrating: change.calibrating,
-    source: change.source,
-  }));
+  const changes = predictPriceChanges(bootstrap)
+    .filter((change) => change.progressPercent >= PRICES_LIST_FLOOR_PERCENT)
+    .slice(0, PRICES_LIST_MAX_ROWS)
+    .map<SlimPriceChange>((change) => ({
+      id: change.player.id,
+      web_name: change.player.web_name,
+      element_type: change.player.element_type,
+      team_name: teamNameById.get(change.player.team) ?? change.team.name,
+      now_cost: change.player.now_cost,
+      ownership: parseFloat(change.player.selected_by_percent) || 0,
+      direction: change.direction === 'fall' ? 'fall' : 'rise',
+      probability: change.probability,
+      progress_percent: change.progressPercent,
+      likelihood: change.likelihood,
+      projected_percent: change.projectedPercent,
+      hourly_rate: change.hourlyRate,
+      locked_until: change.lockedUntil,
+      calibrating: change.calibrating,
+      source: change.source,
+    }));
   return {
     generated_at: new Date().toISOString(),
     changes,

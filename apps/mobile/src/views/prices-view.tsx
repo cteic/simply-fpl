@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { computeSeasonDefConRate, formatPrice, getClubColor } from '@simplyfpl/fpl-client';
 import type { FplPlayer } from '@simplyfpl/types';
 import {
+  Button,
   Card,
   FNote,
   FilterButton,
@@ -16,6 +17,9 @@ import {
 
 import { Screen } from '@/components/screen';
 import { useBootstrap, usePrices } from '@/queries/fpl';
+
+/** Rows rendered before the user asks for the rest. */
+const INITIAL_ROWS = 30;
 
 const FILTERS = ['All', 'Risers', 'Fallers', 'GK', 'DEF', 'MID', 'FWD'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -31,6 +35,7 @@ export function PricesView() {
   const { data: prices, isLoading, isError } = usePrices();
   const { data: bootstrap } = useBootstrap();
   const [filter, setFilter] = useState<Filter>('All');
+  const [showAll, setShowAll] = useState(false);
 
   const bootstrapById = useMemo(() => {
     if (!bootstrap) return new Map<number, FplPlayer>();
@@ -64,7 +69,7 @@ export function PricesView() {
     });
   }, [prices, bootstrapById]);
 
-  const visibleRows = useMemo(
+  const filteredRows = useMemo(
     () =>
       rows.filter((r) => {
         if (filter === 'All') return true;
@@ -74,6 +79,9 @@ export function PricesView() {
       }),
     [rows, filter]
   );
+  // A first screenful, then the rest on request. Rendering every row up front
+  // kept a long list mounted behind the other tabs and made the app sluggish.
+  const visibleRows = showAll ? filteredRows : filteredRows.slice(0, INITIAL_ROWS);
 
   return (
     <Screen testID="screen-prices" topInset>
@@ -130,7 +138,18 @@ export function PricesView() {
         </Card>
       ) : null}
 
-      <FNote>Price predictions are estimates based on FPL transfer data. Not guaranteed.</FNote>
+      {!showAll && filteredRows.length > INITIAL_ROWS ? (
+        <XStack>
+          <Button tone="ghost" size="sm" onPress={() => setShowAll(true)}>
+            {`Show all ${filteredRows.length}`}
+          </Button>
+        </XStack>
+      ) : null}
+
+      <FNote>
+        Progress and direction are FPL’s own figures. Players at least halfway to a change are
+        listed, closest first.
+      </FNote>
     </Screen>
   );
 }
