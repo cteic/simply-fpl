@@ -150,9 +150,15 @@ Three things block opening a free tier, and they are safety, not polish.
    `frank_reserve_tokens` in migration `0011_frank_daily_budget.sql`, with a
    default cap of five million tokens a day. The route falls back to the old
    check if the function is not deployed, so code and migration can ship in
-   either order. **The SQL has not been run against a database**: no Postgres
-   was available where it was written. Apply the migration, then check it
-   with the queries in the PR description before trusting it.
+   either order.
+
+   Verified against Postgres 16 with `scripts/test-frank-budget.sh`, which
+   applies the migration to a throwaway database and then fires 60
+   simultaneous connections at a cap with room for five. Three rounds granted
+   exactly five each, with the counter landing on the cap, including the cold
+   start where no row exists for the day yet. That matters beyond tidiness:
+   the `migrate` job applies migrations to production on every push to `main`,
+   so SQL that had never run would have run there first.
 
    An earlier draft of this note said to copy `checkAndIncrementDailySpend`
    from `apps/worker/src/news/team-summary.ts` because it "increments and
