@@ -33,6 +33,7 @@ const nextConfig = {
     '@tamagui/themes',
   ],
   typedRoutes: true,
+  reactCompiler: true,
   async headers() {
     return [
       {

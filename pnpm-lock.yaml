@@ -282,6 +282,9 @@ importers:
       '@types/react-dom':
         specifier: ~19.3.0
         version: 19.3.0(@types/react@19.3.3)
+      babel-plugin-react-compiler:
+        specifier: ^1.0.0
+        version: 1.0.0
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -882,14 +885,6 @@ packages:
     resolution: {integrity: sha512-C2FuapQ2Kh1OnVHAoLi5rD3GBJ8COb9Q609T6HEpLqaBAo560PDP5OxBE5dCI/h951MBO/+bCUYU5SZ+8ZlV+w==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/helper-string-parser@7.29.7':
-    resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/helper-validator-identifier@7.28.5':
-    resolution: {integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==}
-    engines: {node: '>=6.9.0'}
-
   '@babel/helper-validator-identifier@7.29.7':
     resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
     engines: {node: '>=6.9.0'}
@@ -1231,10 +1226,6 @@ packages:
 
   '@babel/types@7.29.15':
     resolution: {integrity: sha512-/XKpKDakL//LZ66bq1XsZOswuqeI5MZqPLDu18o3XdkU1fNJ7bdPtzgnc4ZNS+bBGHV0FJG8jjb8SwcC3nNVQQ==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/types@7.29.7':
-    resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
     engines: {node: '>=6.9.0'}
 
   '@cloudflare/kv-asset-handler@0.5.0':
@@ -8673,7 +8664,7 @@ snapshots:
 
   '@babel/generator@7.17.7':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
       jsesc: 2.5.2
       source-map: 0.5.7
 
@@ -8696,7 +8687,7 @@ snapshots:
   '@babel/generator@7.29.7':
     dependencies:
       '@babel/parser': 7.29.15
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
       jsesc: 3.1.0
@@ -8824,10 +8815,6 @@ snapshots:
 
   '@babel/helper-string-parser@7.29.15': {}
 
-  '@babel/helper-string-parser@7.29.7': {}
-
-  '@babel/helper-validator-identifier@7.28.5': {}
-
   '@babel/helper-validator-identifier@7.29.7': {}
 
   '@babel/helper-validator-option@7.27.1': {}
@@ -8857,11 +8844,11 @@ snapshots:
 
   '@babel/parser@7.29.2':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
 
   '@babel/parser@7.29.7':
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
 
   '@babel/plugin-proposal-decorators@7.29.0(@babel/core@7.29.13)':
     dependencies:
@@ -9193,7 +9180,7 @@ snapshots:
       '@babel/helper-hoist-variables': 7.24.7
       '@babel/helper-split-export-declaration': 7.24.7
       '@babel/parser': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
       debug: 4.4.3
       globals: 11.12.0
     transitivePeerDependencies:
@@ -9230,14 +9217,14 @@ snapshots:
       '@babel/helper-globals': 7.29.7
       '@babel/parser': 7.29.15
       '@babel/template': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
   '@babel/types@7.17.0':
     dependencies:
-      '@babel/helper-validator-identifier': 7.28.5
+      '@babel/helper-validator-identifier': 7.29.7
       to-fast-properties: 2.0.0
 
   '@babel/types@7.29.14':
@@ -9248,11 +9235,6 @@ snapshots:
   '@babel/types@7.29.15':
     dependencies:
       '@babel/helper-string-parser': 7.29.15
-      '@babel/helper-validator-identifier': 7.29.7
-
-  '@babel/types@7.29.7':
-    dependencies:
-      '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
   '@cloudflare/kv-asset-handler@0.5.0': {}
@@ -12067,7 +12049,7 @@ snapshots:
       '@babel/runtime': 7.29.2
       '@babel/template': 7.29.7
       '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
       '@tamagui/cli-color': 2.4.0
       '@tamagui/config-default': 2.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/core': 2.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -12949,7 +12931,7 @@ snapshots:
       '@babel/core': 7.29.13
       '@babel/parser': 7.29.15
       '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.15
     transitivePeerDependencies:
       - supports-color
 
