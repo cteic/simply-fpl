@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
@@ -34,6 +34,7 @@ import type {
 } from '@simplyfpl/types';
 import {
   AdSlot,
+  Button,
   Card,
   CohortTable,
   FNote,
@@ -62,6 +63,8 @@ import type {
   WhatIfCandidateOption,
 } from '@simplyfpl/ui';
 
+import { useBackgroundEventAlerts } from '@/hooks/use-background-event-alerts';
+import { buildEventNotification } from '@/lib/event-notifications';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import type { CohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
@@ -572,10 +575,23 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   // hardcoded rising line shown to every user.
   const { story } = useSeasonStory(dataOverride ? null : entryId);
   // Alerts for what just happened to this squad: a goal, bonus, a card.
+  const eventAlerts = useBackgroundEventAlerts();
+  const notifyEvents = eventAlerts.notify;
+  const handleDetected = useCallback(
+    (detected: LiveSquadEvent[]) => {
+      notifyEvents(
+        detected.map((event) =>
+          buildEventNotification(event, t(EVENT_LABEL_KEY[event.kind]), eventDetail(event))
+        )
+      );
+    },
+    [notifyEvents]
+  );
   const { events: squadEvents } = useLiveSquadEvents({
     picks: dataOverride ? null : picks,
     liveGw: dataOverride ? undefined : liveGw,
     bootstrap: dataOverride ? undefined : bootstrap,
+    onDetected: handleDetected,
   });
   const sparkPoints = story
     ? seasonSparklinePoints(story.trajectory, { width: 400, height: 40 })
@@ -804,7 +820,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
 
   return (
     <PageShell>
-      {squadEvents.length > 0 ? (
+      {squadEvents.length > 0 || eventAlerts.offer ? (
         <YStack
           position="fixed"
           top={72}
@@ -826,6 +842,23 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
               tone={EVENT_TONE[event.kind]}
             />
           ))}
+          {eventAlerts.offer ? (
+            <Card pointerEvents="auto" data-testid="event-alerts-offer">
+              <YStack gap={8} padding={12}>
+                <Text fontSize={12} color="$colorMuted">
+                  {t('live_event.alerts_offer')}
+                </Text>
+                <XStack gap={8}>
+                  <Button tone="primary" size="sm" onPress={eventAlerts.enable}>
+                    {t('live_event.alerts_enable')}
+                  </Button>
+                  <Button tone="ghost" size="sm" onPress={eventAlerts.dismiss}>
+                    {t('live_event.alerts_dismiss')}
+                  </Button>
+                </XStack>
+              </YStack>
+            </Card>
+          ) : null}
         </YStack>
       ) : null}
       <XStack
