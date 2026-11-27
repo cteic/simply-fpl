@@ -1,0 +1,56 @@
+name: Rollback web
+
+# Manual rollback of the production web Worker to a named version.
+# Find version ids with `pnpm exec wrangler versions list` in apps/web, or in
+# the "Roll out to production" step summary of any Deploy run.
+# See docs/deploy-rollout.md.
+on:
+  workflow_dispatch:
+    inputs:
+      version_id:
+        description: Version id to send 100% of traffic to
+        required: true
+        type: string
+      reason:
+        description: Why (recorded as the deployment message)
+        required: false
+        type: string
+      dry_run:
+        description: Print the wrangler command instead of running it
+        required: false
+        type: boolean
+        default: false
+
+# Shared with deploy.yml's production runs, so a rollback waits for an
+# in-flight rollout to finish instead of racing it.
+concurrency:
+  group: production-web
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Roll back
+        env:
+          VERSION_ID: ${{ inputs.version_id }}
+          REASON: ${{ inputs.reason }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=(rollback --to "$VERSION_ID" --reason "${REASON:-manual rollback by $GITHUB_ACTOR}")
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          node scripts/rollout/cli.mjs "${args[@]}"

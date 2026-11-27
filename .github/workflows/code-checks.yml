@@ -49,6 +49,8 @@ jobs:
         run: pnpm check:rls
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Rollout script tests
+        run: node --test scripts/rollout/*.test.mjs
       - run: pnpm build:packages
       - run: pnpm build:web
       - name: Bundle size budget
