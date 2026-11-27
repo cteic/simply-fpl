@@ -37,6 +37,27 @@ export async function installWorkerMocks(page: Page): Promise<void> {
   const entry1History = readFixture('entry-1-history.json');
   const league314 = readFixture('leagues-classic-314.json');
 
+  // FPL's points-to-rank curve for the gameweek before the fixtures' GW37. Every
+  // page asks for it through the nav bar's live-rank pill, so without a mock the
+  // request falls through to a real worker that is not running in CI, and the
+  // browser logs a network error that the no-errors assertions then catch.
+  const rankCurvePayload = JSON.stringify({
+    gw: 36,
+    rankedCount: 11_000_000,
+    builtAt: '2026-05-15T00:00:00.000Z',
+    points: [
+      { totalPoints: 2700, rank: 1 },
+      { totalPoints: 2500, rank: 10_000 },
+      { totalPoints: 2350, rank: 100_000 },
+      { totalPoints: 2200, rank: 500_000 },
+      { totalPoints: 2100, rank: 1_000_000 },
+      { totalPoints: 1950, rank: 2_500_000 },
+      { totalPoints: 1800, rank: 5_000_000 },
+      { totalPoints: 1500, rank: 8_500_000 },
+      { totalPoints: 900, rank: 10_800_000 },
+    ],
+  });
+
   const statusPayload = JSON.stringify({
     worker: 'ok',
     kv: 'ok',
@@ -89,6 +110,9 @@ export async function installWorkerMocks(page: Page): Promise<void> {
     }
     if (/^\/fpl\/leagues-classic\/\d+\/standings\/$/.test(pathname)) {
       return route.fulfill(jsonResponse(league314));
+    }
+    if (pathname === '/fpl/rank-curve' || pathname === '/fpl/rank-curve/') {
+      return route.fulfill(jsonResponse(rankCurvePayload));
     }
     if (pathname === '/fpl/fixtures/') return route.fulfill(jsonResponse('[]'));
     if (pathname.startsWith('/kits/')) return route.fulfill(kitPlaceholderResponse());
