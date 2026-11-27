@@ -118,7 +118,11 @@ function RealPlannerView({ entryId }: { entryId: number }) {
         <PlannerGrid cells={uiCells} />
       )}
 
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL's official data.</FNote>
+      <FNote>
+        Fixture difficulty is FPL's own rating. The dot is last gameweek's return: green for 8 or
+        more points, blue for 4 to 7, amber for 1 to 3, grey for none. A player who is a doubt shows
+        amber or red regardless.
+      </FNote>
     </Screen>
   );
 }
@@ -154,7 +158,11 @@ function NoTeamView() {
           </XStack>
         </YStack>
       </Card>
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL's official data.</FNote>
+      <FNote>
+        Fixture difficulty is FPL's own rating. The dot is last gameweek's return: green for 8 or
+        more points, blue for 4 to 7, amber for 1 to 3, grey for none. A player who is a doubt shows
+        amber or red regardless.
+      </FNote>
     </Screen>
   );
 }
