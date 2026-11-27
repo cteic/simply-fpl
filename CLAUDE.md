@@ -176,6 +176,31 @@ If anything matches, fix locally before pushing. Nested ternaries don't grep cle
 
 This applies equally to interactive sessions, scheduled remote agents, and human dev work.
 
+### Automated review before "ready"
+
+CodeRabbit reviews every PR into `dev` and `main` (`.coderabbit.yaml`). Green
+CI is not the finish line. Before reporting a PR as ready to merge:
+
+1. Wait for its review of the **latest** commit. It reviews once per push and
+   can lag CI by several minutes. Compare the review's commit with the head:
+
+   ```
+   gh pr view <N> --json headRefOid -q .headRefOid
+   gh api repos/cteic/simply-fpl/pulls/<N>/reviews -q '.[-1].commit_id'
+   ```
+
+   A `CodeRabbit` check with a `neutral` conclusion means it skipped or was
+   rate-limited, not that it passed. Comment `@coderabbitai review` to retry.
+
+2. Read every inline comment: `gh api repos/cteic/simply-fpl/pulls/<N>/comments`.
+3. Fix each real finding in the same PR, with a regression test where the
+   finding is a bug. Where a finding is wrong, reply on the thread saying why.
+   Never leave a thread unanswered.
+4. Say in the status comment how many findings there were and what happened to
+   each.
+
+If the PR has already merged, fix the open findings in a follow-up PR off `dev`.
+
 ### Git hooks (pre-commit + pre-push)
 
 - **`.husky/pre-commit`** runs `lint-staged` — prettier --write on staged files only (~1s). lint-staged re-stages the formatted versions automatically. Unstaged files in the working tree are never touched, so `git add -p` partial-staging works as expected.
