@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
 
+import { quotaWindowStart } from '@simplyfpl/features/frank';
+import type { FrankQuota as FrankAllowance } from '@simplyfpl/features/frank';
 import type { Database, FrankWeeklyPayload } from '@simplyfpl/types';
 
 const API_BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8787';
@@ -30,29 +32,36 @@ export interface FrankQuota {
 
 async function fetchFrankQuota(
   client: SupabaseClient<Database>,
-  userId: string
+  userId: string,
+  allowance: FrankAllowance
 ): Promise<FrankQuota> {
-  const startOfMonth = new Date();
-  startOfMonth.setUTCDate(1);
-  startOfMonth.setUTCHours(0, 0, 0, 0);
+  // Counted over the same window the route enforces: a week for free users, a
+  // month for paying ones. Counting a month here against a weekly limit there
+  // would show a free user as over their allowance on the eighth of the month.
+  const windowStart = quotaWindowStart(allowance.period);
 
   const { count } = await client
     .from('frank_queries')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId)
-    .gte('created_at', startOfMonth.toISOString());
+    .gte('created_at', windowStart.toISOString());
 
-  return { used: count ?? 0, softCap: 50, hardCap: 80 };
+  return { used: count ?? 0, softCap: allowance.soft, hardCap: allowance.hard };
 }
 
-export function useFrankQuota(client: SupabaseClient<Database>, userId: string | null) {
+export function useFrankQuota(
+  client: SupabaseClient<Database>,
+  userId: string | null,
+  allowance: FrankAllowance | null
+) {
   return useQuery({
-    queryKey: ['frank-quota', userId],
+    queryKey: ['frank-quota', userId, allowance?.period ?? null, allowance?.hard ?? null],
     queryFn: () => {
       if (!userId) throw new Error('userId is required');
-      return fetchFrankQuota(client, userId);
+      if (!allowance) throw new Error('allowance is required');
+      return fetchFrankQuota(client, userId, allowance);
     },
-    enabled: userId !== null,
+    enabled: userId !== null && allowance !== null,
     staleTime: 30 * 1000,
   });
 }

@@ -25,6 +25,7 @@ let mockAnthropicStream: AnyMock;
 let cacheHit: boolean;
 let budgetReserved: number;
 let budgetUnavailable: boolean;
+let profileTier: 'free' | 'pro' | 'ultimate';
 
 class MockMessageStream implements AsyncIterable<unknown> {
   constructor(
@@ -66,7 +67,7 @@ vi.mock('@/lib/supabase-server', () => ({
         select: (_cols: string) => ({
           eq: (_col: string, _val: string) => ({
             maybeSingle: () =>
-              Promise.resolve({ data: { tier: 'ultimate', fpl_entry_id: null }, error: null }),
+              Promise.resolve({ data: { tier: profileTier, fpl_entry_id: null }, error: null }),
           }),
         }),
       }),
@@ -191,6 +192,8 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     cacheHit = false;
     budgetReserved = 0;
     budgetUnavailable = false;
+    profileTier = 'ultimate';
+    vi.stubEnv('FEATURE_FRANK_FREE_TIER', '');
     vi.stubEnv('FRANK_DAILY_SPEND_CAP_TOKENS', '');
     mockAnthropicStream = vi.fn().mockReturnValue(makeDefaultStream());
     vi.stubEnv('FEATURE_FRANK_ONDEMAND', 'true');
@@ -582,6 +585,99 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
         // Deploying the code ahead of the migration must not take Frank down.
         expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
         expect(budgetReserved).toBe(0);
+      });
+    }
+  );
+
+  Scenario(
+    'a free user is turned away while the free tier is off',
+    ({ Given, When, Then, And }) => {
+      let response: Response | null = null;
+
+      Given('a signed-in free user with 0 queries this week', () => {
+        profileTier = 'free';
+        seedRows(0);
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        response = await POST(makeRequest());
+      });
+
+      Then('the response status is 402', () => {
+        expect(response?.status).toBe(402);
+      });
+
+      And('no AI call is made', () => {
+        expect(mockAnthropicStream).not.toHaveBeenCalled();
+      });
+    }
+  );
+
+  Scenario('a free user gets an answer once the free tier is on', ({ Given, And, When, Then }) => {
+    let sseText = '';
+
+    Given('a signed-in free user with 0 queries this week', () => {
+      profileTier = 'free';
+      seedRows(0);
+    });
+
+    And('the free tier is switched on', () => {
+      vi.stubEnv('FEATURE_FRANK_FREE_TIER', 'true');
+    });
+
+    When('they ask Frank a question', async () => {
+      const { POST } = await importRoute();
+      sseText = await drainStream(await POST(makeRequest()));
+    });
+
+    Then('exactly one AI call is made', () => {
+      expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
+    });
+
+    And('the reply reports the weekly free allowance', () => {
+      const done = parseSseEvents(sseText).find((e) => e.event === 'done');
+      const data = done?.data as { used: number; softCap: number; hardCap: number };
+      expect(data.used).toBe(1);
+      expect(data.hardCap).toBe(3);
+      expect(data.softCap).toBe(2);
+    });
+  });
+
+  Scenario(
+    "a free user who has used the week's allowance is told what would lift it",
+    ({ Given, And, When, Then }) => {
+      let response: Response | null = null;
+      let body: { error?: string; period?: string; upgradeTo?: string; limit?: number } = {};
+
+      Given('a signed-in free user with 3 queries this week', () => {
+        profileTier = 'free';
+        seedRows(3);
+      });
+
+      And('the free tier is switched on', () => {
+        vi.stubEnv('FEATURE_FRANK_FREE_TIER', 'true');
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        response = await POST(makeRequest());
+        body = (await response.json()) as typeof body;
+      });
+
+      Then('the response status is 429', () => {
+        expect(response?.status).toBe(429);
+      });
+
+      And('no AI call is made', () => {
+        expect(mockAnthropicStream).not.toHaveBeenCalled();
+      });
+
+      And('the reply names the weekly limit and the tier that lifts it', () => {
+        expect(body.period).toBe('week');
+        expect(body.limit).toBe(3);
+        expect(body.upgradeTo).toBe('pro');
+        expect(body.error).toBe('Weekly quota reached');
       });
     }
   );

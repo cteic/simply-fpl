@@ -19,7 +19,7 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
-import { FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
+import { FEATURE_FRANK_FREE_TIER, FEATURE_FRANK_ONDEMAND } from '@/lib/feature-flags';
 import { SITE_URL } from '@/lib/site-url';
 import { useFrankHistory, useFrankQuota, useFrankWeekly } from '@/queries/frank';
 
@@ -195,10 +195,10 @@ function AskFrankForm() {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const userId = user?.id ?? null;
-  const { data: quota, refetch: refetchQuota } = useFrankQuota(client, userId);
+  const access = resolveFrankAccess(tier, { freeTierEnabled: FEATURE_FRANK_FREE_TIER });
+  const { data: quota, refetch: refetchQuota } = useFrankQuota(client, userId, access.quota);
   const { data: history, refetch: refetchHistory } = useFrankHistory(client, userId);
-
-  const access = resolveFrankAccess(tier);
+  const period = access.quota?.period === 'week' ? 'week' : 'month';
 
   if (!access.canAskOnDemand) {
     const upgradeLabel = TIER_LABELS[access.upgradeTo ?? 'ultimate'];
@@ -254,7 +254,18 @@ function AskFrankForm() {
       });
 
       if (res.status === 429) {
-        setError("You've hit your monthly quota — resets on the 1st.");
+        // The limit is the moment an upgrade is worth mentioning: they have
+        // just had answers they found useful enough to ask for another.
+        const upgrade = access.upgradeTo ? TIER_LABELS[access.upgradeTo] : null;
+        if (period === 'week') {
+          setError(
+            upgrade
+              ? `That's your free questions for this week. ${upgrade} lifts the limit; it resets on Monday.`
+              : "That's your questions for this week. It resets on Monday."
+          );
+        } else {
+          setError("You've hit your monthly quota. It resets on the 1st.");
+        }
         return;
       }
       if (!res.ok && !res.headers.get('content-type')?.includes('text/event-stream')) {
@@ -435,12 +446,12 @@ function AskFrankForm() {
           ) : null}
           {atSoftCap && !error ? (
             <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
-              You've used {quotaUsed} of {hardCap} questions this month.
+              You've used {quotaUsed} of {hardCap} questions this {period}.
             </Text>
           ) : null}
           <ProgressBar
             percent={quotaPercent}
-            labels={[`${quotaUsed} / ${hardCap} questions used this month`]}
+            labels={[`${quotaUsed} / ${hardCap} questions used this ${period}`]}
           />
         </YStack>
       </form>

@@ -89,3 +89,24 @@ Feature: Frank on-demand ask quota and streaming
     When they ask Frank a question
     Then exactly one AI call is made
 
+  Scenario: a free user is turned away while the free tier is off
+    Given a signed-in free user with 0 queries this week
+    When they ask Frank a question
+    Then the response status is 402
+    And no AI call is made
+
+  Scenario: a free user gets an answer once the free tier is on
+    Given a signed-in free user with 0 queries this week
+    And the free tier is switched on
+    When they ask Frank a question
+    Then exactly one AI call is made
+    And the reply reports the weekly free allowance
+
+  Scenario: a free user who has used the week's allowance is told what would lift it
+    Given a signed-in free user with 3 queries this week
+    And the free tier is switched on
+    When they ask Frank a question
+    Then the response status is 429
+    And no AI call is made
+    And the reply names the weekly limit and the tier that lifts it
+
