@@ -102,6 +102,7 @@ function AppContent({ queryClient }: AppContentProps) {
                     tabBarIcon: tabIcon('planner'),
                     title: 'Transfer Planner',
                     tabBarLabel: 'Planner',
+                    headerShown: false,
                   }}
                 />
                 <Tabs.Screen

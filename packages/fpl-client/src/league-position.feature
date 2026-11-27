@@ -37,3 +37,10 @@ Feature: League position
     When I ask for the gameweek phase after the deadline
     Then it is live
     And before the deadline it is pre
+
+  Scenario: Planning starts at the gameweek that can still be changed
+    Given a bootstrap where gameweek 11 is current and gameweek 12 is next
+    When I ask for the planning gameweek
+    Then it is 12
+    And at the end of the season it falls back to the current gameweek
+

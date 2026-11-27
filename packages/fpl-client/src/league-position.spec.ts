@@ -8,7 +8,7 @@ import type {
   LeaguePosition,
 } from '@simplyfpl/types';
 
-import { describeLeaguePosition, getGameweekPhase } from './league-position';
+import { describeLeaguePosition, getGameweekPhase, getPlanningGameweek } from './league-position';
 
 const feature = await loadFeature('./league-position.feature');
 
@@ -194,4 +194,44 @@ describeFeature(feature, ({ Scenario }) => {
       expect(getGameweekPhase(bootstrap(false), Date.parse('2026-11-20T15:00:00Z'))).toBe('pre');
     });
   });
+
+  Scenario(
+    'Planning starts at the gameweek that can still be changed',
+    ({ Given, When, Then, And }) => {
+      let withNext: FplBootstrapStatic;
+      let planning: number | null;
+
+      Given('a bootstrap where gameweek 11 is current and gameweek 12 is next', () => {
+        const base = bootstrap(true);
+        const current = base.events[0];
+        if (!current) throw new Error('fixture needs an event');
+        withNext = {
+          ...base,
+          events: [
+            current,
+            {
+              ...current,
+              id: 12,
+              name: 'Gameweek 12',
+              is_current: false,
+              is_next: true,
+              finished: false,
+            },
+          ],
+        };
+      });
+
+      When('I ask for the planning gameweek', () => {
+        planning = getPlanningGameweek(withNext);
+      });
+
+      Then('it is 12', () => {
+        expect(planning).toBe(12);
+      });
+
+      And('at the end of the season it falls back to the current gameweek', () => {
+        expect(getPlanningGameweek(bootstrap(true))).toBe(11);
+      });
+    }
+  );
 });

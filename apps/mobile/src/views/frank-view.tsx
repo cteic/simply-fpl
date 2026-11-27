@@ -59,7 +59,6 @@ function AiChip() {
 function ProGate() {
   return (
     <Card paddingHorizontal={20} paddingVertical={24} gap={10} alignItems="center">
-      <AiChip />
       <Text
         fontFamily="$body"
         fontSize={15}
