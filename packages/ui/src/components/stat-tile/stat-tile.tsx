@@ -25,6 +25,17 @@ const TileBase = styled(YStack, {
       neutral: { backgroundColor: '$surface', borderLeftColor: '$borderStrong' },
       negative: { backgroundColor: '$surface', borderLeftColor: '$negative' },
     },
+    // Phone density: four tiles share one row instead of a 2x2 block, which
+    // gives back most of a screen's height above the fold.
+    compact: {
+      true: {
+        flexBasis: 72,
+        minWidth: 72,
+        borderLeftWidth: 2,
+        paddingHorizontal: 9,
+        paddingVertical: 8,
+      },
+    },
   } as const,
   defaultVariants: { tone: 'neutral' },
 });
@@ -37,6 +48,9 @@ const Label = styled(Text, {
   letterSpacing: 0.6,
   color: '$colorSubtle',
   marginBottom: 8,
+  variants: {
+    compact: { true: { fontSize: 8.5, letterSpacing: 0.4, marginBottom: 3 } },
+  } as const,
 });
 
 const Sub = styled(Text, {
@@ -44,6 +58,9 @@ const Sub = styled(Text, {
   fontSize: 10.5,
   color: '$colorMuted',
   marginTop: 6,
+  variants: {
+    compact: { true: { fontSize: 9.5, marginTop: 2 } },
+  } as const,
 });
 
 const PulseOverlay = styled(YStack, {
@@ -72,6 +89,8 @@ interface StatTileProps {
   sub?: ReactNode;
   tone?: StatTileTone;
   pulseKey?: string | number | null;
+  /** Tighter tile for phone-width rows of four. */
+  compact?: boolean;
   children?: ReactNode;
 }
 
@@ -81,15 +100,22 @@ export function StatTile({
   sub,
   tone = 'neutral',
   pulseKey,
+  compact = false,
   children,
 }: StatTileProps) {
   const { overlayOpacity, scale, pulseCount } = usePulse(pulseKey);
 
   return (
-    <TileBase tone={tone} position="relative" scale={scale}>
-      <Label>{label}</Label>
+    <TileBase tone={tone} compact={compact} position="relative" scale={scale}>
+      <Label compact={compact} numberOfLines={1}>
+        {label}
+      </Label>
       {value}
-      {sub ? <Sub>{sub}</Sub> : null}
+      {sub ? (
+        <Sub compact={compact} numberOfLines={1}>
+          {sub}
+        </Sub>
+      ) : null}
       {children ?? null}
       {pulseCount > 0 && overlayOpacity > 0 ? (
         <PulseOverlay tone={tone} opacity={overlayOpacity} />

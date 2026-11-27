@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
@@ -17,6 +17,7 @@ import {
   getClubColor,
   getKitUrl,
   predictBonusPoints,
+  seasonSparklinePoints,
 } from '@simplyfpl/fpl-client';
 import type { BonusPrediction, LiveRankEstimate } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
@@ -27,12 +28,17 @@ import type {
   FplFixture,
   FplLiveGameweek,
   FplPlayer,
+  LiveSquadEvent,
+  LiveSquadEventKind,
+  SeasonStory,
 } from '@simplyfpl/types';
 import {
   AdSlot,
+  Button,
   Card,
   CohortTable,
   FNote,
+  LiveEventToast,
   Logo,
   NumberTicker,
   PageHeader,
@@ -51,11 +57,14 @@ import {
 import type {
   BadgeTone,
   CohortTableRow,
+  LiveEventTone,
   ShirtKind,
   StatTileTone,
   WhatIfCandidateOption,
 } from '@simplyfpl/ui';
 
+import { useBackgroundEventAlerts } from '@/hooks/use-background-event-alerts';
+import { buildEventNotification } from '@/lib/event-notifications';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import type { CohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures } from '@/queries/fpl';
@@ -74,7 +83,8 @@ export interface LiveRankDataOverride {
   replayBanner?: string;
 }
 
-const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot, useLiveSquadEvents, useSeasonStory } =
+  liveRank;
 const { computeLiveBattle } = liveBattle;
 
 type SubsMode = 'pre' | 'post';
@@ -309,6 +319,57 @@ interface LiveRankRealViewProps {
   dataOverride?: LiveRankDataOverride;
 }
 
+const EVENT_LABEL_KEY = {
+  goal: 'live_event.goal',
+  assist: 'live_event.assist',
+  bonus: 'live_event.bonus',
+  red_card: 'live_event.red_card',
+  clean_sheet_lost: 'live_event.clean_sheet_lost',
+} as const satisfies Record<LiveSquadEventKind, string>;
+
+const EVENT_TONE: Record<LiveSquadEventKind, LiveEventTone> = {
+  goal: 'positive',
+  assist: 'positive',
+  bonus: 'positive',
+  red_card: 'negative',
+  clean_sheet_lost: 'negative',
+};
+
+function eventDetail(event: LiveSquadEvent): string | undefined {
+  if (event.onBench) return t('live_event.on_bench');
+  if (event.isCaptain) return t('live_event.captain');
+  return undefined;
+}
+
+function eventPoints(event: LiveSquadEvent): string | undefined {
+  if (event.pointsDelta === 0) return undefined;
+  return event.pointsDelta > 0 ? `+${event.pointsDelta}` : `\u2212${Math.abs(event.pointsDelta)}`;
+}
+
+/**
+ * One line of season context under the rank chart: the current run of arrows
+ * and the best rank reached. Null when there is nothing settled to report.
+ */
+function describeSeason(story: SeasonStory): string | null {
+  const parts: string[] = [];
+  if (story.streak.length >= 2) {
+    const key =
+      story.streak.direction === 'green' ? 'live_rank.streak_green' : 'live_rank.streak_red';
+    parts.push(t(key, { count: story.streak.length }));
+  } else if (story.greenArrows + story.redArrows > 0) {
+    parts.push(t('live_rank.arrows_tally', { green: story.greenArrows, red: story.redArrows }));
+  }
+  if (story.bestRank) {
+    parts.push(
+      t('live_rank.best_rank', {
+        rank: story.bestRank.rank.toLocaleString(),
+        gw: story.bestRank.gw,
+      })
+    );
+  }
+  return parts.length > 0 ? parts.join(' \u00b7 ') : null;
+}
+
 /**
  * The hold line: what is still needed to keep position, or how clear they are.
  *
@@ -462,7 +523,7 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
   const preGwRank = entry?.summary_overall_rank ?? 0;
-  const rankDetails = ready
+  const replayRankDetails = ready
     ? computeRankDetails(
         preGwRank,
         livePoints,
@@ -510,7 +571,48 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const estimate = dataOverride ? dataOverride.estimate : liveEstimate.estimate;
   // Null until FPL's curve has loaded. Without it there is nothing to invert,
   // so the line is hidden rather than showing a guessed target.
+  // The manager's settled season. The chart under the rank used to be a
+  // hardcoded rising line shown to every user.
+  const { story } = useSeasonStory(dataOverride ? null : entryId);
+  // Alerts for what just happened to this squad: a goal, bonus, a card.
+  const eventAlerts = useBackgroundEventAlerts();
+  const notifyEvents = eventAlerts.notify;
+  const handleDetected = useCallback(
+    (detected: LiveSquadEvent[]) => {
+      notifyEvents(
+        detected.map((event) =>
+          buildEventNotification(event, t(EVENT_LABEL_KEY[event.kind]), eventDetail(event))
+        )
+      );
+    },
+    [notifyEvents]
+  );
+  const { events: squadEvents } = useLiveSquadEvents({
+    picks: dataOverride ? null : picks,
+    liveGw: dataOverride ? undefined : liveGw,
+    bootstrap: dataOverride ? undefined : bootstrap,
+    onDetected: handleDetected,
+  });
+  const sparkPoints = story
+    ? seasonSparklinePoints(story.trajectory, { width: 400, height: 40 })
+    : null;
+  const seasonLine = story ? describeSeason(story) : null;
   const targets = dataOverride ? null : liveEstimate.targets;
+  // Pre-subs and post-subs ranks come from the same model as the hero figure.
+  // They used to be worked out separately with the flat model and FPL's raw
+  // average, which is zero until a gameweek settles, so the two numbers on one
+  // screen were not comparable, and they were still shown after full time.
+  // Replay keeps the old path because it has no live hook to read.
+  const postSubsEstimate = dataOverride ? null : liveEstimate.postSubsEstimate;
+  let rankDetails: typeof replayRankDetails = dataOverride ? replayRankDetails : null;
+  if (!dataOverride && estimate && postSubsEstimate && preGwRank > 0) {
+    rankDetails = {
+      oldRank: preGwRank,
+      preSubsRank: estimate.liveRank,
+      postSubsRank: postSubsEstimate.liveRank,
+      changePct: (postSubsEstimate.movement / preGwRank) * 100,
+    };
+  }
   // No estimate means the gameweek has finished and FPL has published the real
   // overall rank, so show that rather than an empty hero.
   const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
@@ -520,6 +622,8 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       ? rankDetails.postSubsRank
       : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
   const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
+  // A finished gameweek has a real rank and nothing left to estimate.
+  const settled = estimate === null && gwFinished;
   const liveAgoMs = useLiveAgoMs();
   const agoMs = dataOverride ? dataOverride.agoMs : liveAgoMs;
   const movementLabel =
@@ -716,6 +820,47 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
 
   return (
     <PageShell>
+      {squadEvents.length > 0 || eventAlerts.offer ? (
+        <YStack
+          position="fixed"
+          top={72}
+          right={16}
+          width={320}
+          maxWidth="calc(100vw - 32px)"
+          gap={8}
+          zIndex={50}
+          pointerEvents="none"
+          aria-live="polite"
+        >
+          {squadEvents.map((event) => (
+            <LiveEventToast
+              key={event.id}
+              kind={t(EVENT_LABEL_KEY[event.kind])}
+              title={event.playerName}
+              detail={eventDetail(event)}
+              points={eventPoints(event)}
+              tone={EVENT_TONE[event.kind]}
+            />
+          ))}
+          {eventAlerts.offer ? (
+            <Card pointerEvents="auto" data-testid="event-alerts-offer">
+              <YStack gap={8} padding={12}>
+                <Text fontSize={12} color="$colorMuted">
+                  {t('live_event.alerts_offer')}
+                </Text>
+                <XStack gap={8}>
+                  <Button tone="primary" size="sm" onPress={eventAlerts.enable}>
+                    {t('live_event.alerts_enable')}
+                  </Button>
+                  <Button tone="ghost" size="sm" onPress={eventAlerts.dismiss}>
+                    {t('live_event.alerts_dismiss')}
+                  </Button>
+                </XStack>
+              </YStack>
+            </Card>
+          ) : null}
+        </YStack>
+      ) : null}
       <XStack
         gap={16}
         alignItems="flex-start"
@@ -805,7 +950,8 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                     {movementLabel}
                   </Text>
                 </XStack>
-              ) : (
+              ) : null}
+              {!(estimate && movementLabel) && !settled ? (
                 <XStack
                   alignItems="center"
                   borderWidth={1}
@@ -815,12 +961,14 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
                   borderRadius={99}
                 >
                   <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
-                    live
+                    {t('live_rank.status_live')}
                   </Text>
                 </XStack>
-              )}
+              ) : null}
               <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
-                since GW start
+                {settled
+                  ? t('live_rank.final_after_gw', { gw: currentGw ?? '' })
+                  : t('live_rank.since_gw_start')}
               </Text>
             </XStack>
 
@@ -861,30 +1009,29 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
               </XStack>
             ) : null}
 
-            <YStack height={40} marginTop={14}>
-              <svg
-                viewBox="0 0 400 40"
-                preserveAspectRatio="none"
-                style={{ width: '100%', height: '100%', overflow: 'visible' }}
-              >
-                <polyline
-                  points="0,33 57,34 114,28 171,30 228,19 285,21 342,10 400,6"
-                  fill="none"
-                  stroke={colors.stadiumAccent}
-                  strokeWidth={2.4}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle
-                  cx={400}
-                  cy={6}
-                  r={3.4}
-                  fill={colors.inverse}
-                  stroke={colors.stadiumAccent}
-                  strokeWidth={2}
-                />
-              </svg>
-            </YStack>
+            {sparkPoints ? (
+              <YStack height={40} marginTop={14}>
+                <svg
+                  viewBox="0 0 400 40"
+                  preserveAspectRatio="none"
+                  style={{ width: '100%', height: '100%', overflow: 'visible' }}
+                >
+                  <polyline
+                    points={sparkPoints}
+                    fill="none"
+                    stroke={colors.stadiumAccent}
+                    strokeWidth={2.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </YStack>
+            ) : null}
+            {seasonLine ? (
+              <Text fontFamily="$body" fontSize={11.5} color="rgba(255,255,255,0.72)" marginTop={4}>
+                {seasonLine}
+              </Text>
+            ) : null}
 
             <XStack alignItems="center" gap={10} marginTop={12}>
               <YStack

@@ -2,6 +2,7 @@ import type {
   FplBootstrapStatic,
   FplEntry,
   FplEntryGameweekPicks,
+  FplEntryHistory,
   FplEntrySnapshot,
   FplFixture,
   FplLeague,
@@ -42,6 +43,11 @@ export function createFplClient(config: FplClientConfig = {}) {
 
     getEntry(entryId: number): Promise<FplEntry> {
       return get<FplEntry>(`/fpl/entry/${entryId}/`);
+    },
+
+    /** Settled gameweek-by-gameweek history, past seasons and chips played. */
+    getEntryHistory(entryId: number): Promise<FplEntryHistory> {
+      return get<FplEntryHistory>(`/fpl/entry/${entryId}/history/`);
     },
 
     getEntryPicks(entryId: number, eventId: number): Promise<FplEntryGameweekPicks> {

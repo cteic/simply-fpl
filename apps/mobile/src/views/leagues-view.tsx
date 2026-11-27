@@ -32,6 +32,7 @@ export function LeaguesView() {
     return (
       <Screen testID="screen-leagues" topInset>
         <PageHeader
+          compact
           tone="stadium"
           title="My Leagues"
           meta="Enter your FPL team ID to see your leagues"
@@ -68,6 +69,7 @@ function EntryLeagues({ entryId }: EntryLeaguesProps) {
   return (
     <Screen testID="screen-leagues" topInset>
       <PageHeader
+        compact
         tone="stadium"
         title="My Leagues"
         meta={

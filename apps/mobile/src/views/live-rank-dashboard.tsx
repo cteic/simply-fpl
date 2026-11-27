@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { liveBattle, liveRank } from '@simplyfpl/features';
 import {
   applyAutosubs,
   calculateLivePoints,
   computeDefConProgress,
-  computeRankDetails,
   formatCompactRank,
   getClubColor,
   getKitUrl,
   predictBonusPoints,
+  seasonSparklinePoints,
 } from '@simplyfpl/fpl-client';
 import type { BonusPrediction } from '@simplyfpl/fpl-client';
 import type {
@@ -17,12 +19,16 @@ import type {
   FplEntryGameweekPicks,
   FplLiveGameweek,
   FplPlayer,
+  LiveSquadEvent,
+  LiveSquadEventKind,
+  SeasonStory,
 } from '@simplyfpl/types';
 import {
   BenchDivider,
   CohortTable,
   FNote,
   LiveBattlePanel,
+  LiveEventToast,
   Logo,
   NumberTicker,
   Pitch,
@@ -35,16 +41,23 @@ import {
   XStack,
   YStack,
 } from '@simplyfpl/ui';
-import type { BadgeTone, CohortTableRow, ShirtKind, StatTileTone } from '@simplyfpl/ui';
+import type {
+  BadgeTone,
+  CohortTableRow,
+  LiveEventTone,
+  ShirtKind,
+  StatTileTone,
+} from '@simplyfpl/ui';
 
-import { RankSparkline } from '@/components/rank-sparkline';
+import { RankSparkline, SPARKLINE_HEIGHT, SPARKLINE_WIDTH } from '@/components/rank-sparkline';
 import { RefreshBar } from '@/components/refresh-bar';
 import { Screen } from '@/components/screen';
 import { StadiumGradient } from '@/components/stadium-gradient';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { useLiveAgoMs, useLiveRankEstimate, setLiveLastUpdate } = liveRank;
+const { useLiveAgoMs, useLiveRankEstimate, useLiveSquadEvents, useSeasonStory, setLiveLastUpdate } =
+  liveRank;
 const { computeLiveBattle } = liveBattle;
 
 function formatLiveAgo(ms: number | null): string {
@@ -239,6 +252,51 @@ interface LiveRankDashboardProps {
   onChangeTeam: () => void;
 }
 
+const EVENT_LABEL: Record<LiveSquadEventKind, string> = {
+  goal: 'Goal',
+  assist: 'Assist',
+  bonus: 'Bonus',
+  red_card: 'Red card',
+  clean_sheet_lost: 'Clean sheet lost',
+};
+
+const EVENT_TONE: Record<LiveSquadEventKind, LiveEventTone> = {
+  goal: 'positive',
+  assist: 'positive',
+  bonus: 'positive',
+  red_card: 'negative',
+  clean_sheet_lost: 'negative',
+};
+
+function eventDetail(event: LiveSquadEvent): string | undefined {
+  if (event.onBench) return 'on your bench';
+  if (event.isCaptain) return 'your captain';
+  return undefined;
+}
+
+function eventPoints(event: LiveSquadEvent): string | undefined {
+  if (event.pointsDelta === 0) return undefined;
+  return event.pointsDelta > 0 ? `+${event.pointsDelta}` : `\u2212${Math.abs(event.pointsDelta)}`;
+}
+
+/**
+ * One line of season context under the rank chart: the current run of arrows
+ * and the best rank reached. Null when there is nothing settled to report.
+ */
+function describeSeason(story: SeasonStory): string | null {
+  const parts: string[] = [];
+  if (story.streak.length >= 2) {
+    parts.push(`${story.streak.length} ${story.streak.direction} arrows running`);
+  } else if (story.greenArrows + story.redArrows > 0) {
+    parts.push(`${story.greenArrows} green, ${story.redArrows} red arrows`);
+  }
+  if (story.bestRank) {
+    // "best 1,605,173 (GW1)" read as if the screen were about gameweek 1.
+    parts.push(`season best ${story.bestRank.rank.toLocaleString()} in GW${story.bestRank.gw}`);
+  }
+  return parts.length > 0 ? parts.join(' \u00b7 ') : null;
+}
+
 /**
  * The hold line: what is still needed to keep position, or how clear they are.
  *
@@ -263,8 +321,18 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const aggregates = useCohortAggregates(currentGw);
   // targets is null until FPL's curve has loaded. Without it there is nothing
   // to invert, so the line is hidden rather than showing a guessed target.
-  const { estimate, targets } = useLiveRankEstimate(entryId);
+  const { estimate, postSubsEstimate, targets } = useLiveRankEstimate(entryId);
   const agoMs = useLiveAgoMs();
+  const { story } = useSeasonStory(entryId);
+  const { events: squadEvents } = useLiveSquadEvents({ picks, liveGw, bootstrap });
+  const insets = useSafeAreaInsets();
+  const sparkPoints = story
+    ? seasonSparklinePoints(story.trajectory, {
+        width: SPARKLINE_WIDTH,
+        height: SPARKLINE_HEIGHT,
+      })
+    : null;
+  const seasonLine = story ? describeSeason(story) : null;
   const [subsMode, setSubsMode] = useState<SubsMode>('pre');
 
   useEffect(() => {
@@ -304,17 +372,6 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
       ? calculateLivePoints(postSubsPicks, liveGw, bootstrap, bonusMap)
       : livePoints;
   const preGwRank = entry?.summary_overall_rank ?? 0;
-  const avgEntryScore = bootstrap?.events.find((e) => e.id === currentGw)?.average_entry_score ?? 0;
-  const rankDetails =
-    ready && entry
-      ? computeRankDetails(
-          preGwRank,
-          livePoints,
-          postSubsPoints,
-          avgEntryScore,
-          currentGw ?? undefined
-        )
-      : null;
   const autosubsApply = postSubsPoints !== livePoints;
   const showPostSubs = autosubsApply && subsMode === 'post';
   const displayedPoints = showPostSubs ? postSubsPoints : livePoints;
@@ -339,14 +396,27 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
   const settledRank = entry?.summary_overall_rank ?? null;
   const heroRank =
-    showPostSubs && rankDetails
-      ? rankDetails.postSubsRank
+    showPostSubs && postSubsEstimate
+      ? postSubsEstimate.liveRank
       : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
+  // The other side of the pre/post toggle, from the same model as the hero.
+  let subsAltLabel: string | null = null;
+  if (estimate && postSubsEstimate && autosubsApply) {
+    subsAltLabel = showPostSubs
+      ? `Pre-subs ~${estimate.liveRank.toLocaleString()}`
+      : `Post-subs ~${postSubsEstimate.liveRank.toLocaleString()}`;
+  }
   const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
   const movementLabel =
     estimate && estimate.movement !== 0
       ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
       : null;
+
+  // What the line under the rank says. A settled gameweek has no estimate, so
+  // it must not claim to be live or show movement "since GW start".
+  let heroStatus: 'final' | 'moved' | 'live' = 'live';
+  if (gwFinished && estimate === null) heroStatus = 'final';
+  else if (movementLabel) heroStatus = 'moved';
 
   const totalPointsLabel = entry?.summary_overall_points
     ? entry.summary_overall_points.toLocaleString()
@@ -395,7 +465,8 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           }, 0)
       : 0;
 
-  let gwSub = 'live points';
+  // A settled gameweek's score is final, not live.
+  let gwSub = gwFinished ? 'final' : 'live';
   if (ready && autosubsApply) {
     gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
   }
@@ -414,33 +485,33 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     tone: StatTileTone;
   }[] = [
     {
-      label: 'GW Points',
+      label: 'GW pts',
       value: String(ready ? displayedPoints : '—'),
       tick: ready ? displayedPoints : null,
       sub: gwSub,
       tone: 'positive',
     },
     {
-      label: 'Total Points',
+      label: 'Total',
       value: totalPointsLabel,
       tick: entry?.summary_overall_points ?? null,
       sub: 'overall',
       tone: 'brand',
     },
     {
-      label: 'On Bench',
+      label: 'Bench',
       value: String(ready ? benchPoints : '—'),
       tick: ready ? benchPoints : null,
-      sub: 'autosubs ready',
+      sub: 'on bench',
       tone: 'neutral',
     },
     ...(showSafety
       ? [
           {
-            label: 'Safety Score',
+            label: 'Safety',
             value: safetyValue,
             tick: null,
-            sub: 'green-arrow line',
+            sub: 'green arrow',
             tone: 'positive' as const,
           },
         ]
@@ -448,10 +519,10 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
     ...(showOffTop10k
       ? [
           {
-            label: 'Off Top 10k',
+            label: 'Off 10k',
             value: offTop10kValue,
             tick: null,
-            sub: 'points behind',
+            sub: 'pts behind',
             tone: 'warning' as const,
           },
         ]
@@ -469,7 +540,7 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             label: 'DefCon',
             value: String(defconGwPoints),
             tick: defconGwPoints,
-            sub: 'def contribution pts',
+            sub: 'def pts',
             tone: 'positive' as const,
           },
         ]
@@ -508,181 +579,220 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   const isLoading = snapshotLoading || liveGw === undefined;
 
   return (
-    <Screen testID="screen-home" topInset>
-      <StadiumGradient borderRadius={14} paddingHorizontal={22} paddingVertical={22}>
-        <YStack marginBottom={12}>
-          <Logo variant="lockup" tone="stadium" size="md" />
-        </YStack>
-        <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
-          <Text
-            fontFamily="$body"
-            fontSize={10}
-            fontWeight="600"
-            textTransform="uppercase"
-            letterSpacing={1.4}
-            color="#34D399"
-          >
-            {heroLabel}
-          </Text>
-          {autosubsApply ? (
-            <XStack
-              alignItems="center"
-              borderWidth={1}
-              borderColor="rgba(255,255,255,0.28)"
-              borderRadius={99}
-              overflow="hidden"
-            >
-              <SubsToggleButton
-                label="Pre"
-                active={subsMode === 'pre'}
-                onPress={() => setSubsMode('pre')}
-              />
-              <SubsToggleButton
-                label="Post"
-                active={subsMode === 'post'}
-                onPress={() => setSubsMode('post')}
-              />
-            </XStack>
-          ) : (
+    <YStack flex={1}>
+      <Screen testID="screen-home" topInset>
+        <StadiumGradient borderRadius={12} paddingHorizontal={14} paddingVertical={10}>
+          <XStack alignItems="center" justifyContent="space-between" gap={8} marginBottom={4}>
+            <Logo variant="lockup" tone="stadium" size="sm" />
             <TeamPill teamId={entryId} onPress={onChangeTeam} />
-          )}
-        </XStack>
-
-        <NumberTicker
-          testID="live-rank-value"
-          value={heroRank}
-          format={(n) => n.toLocaleString()}
-          fontFamily="$mono"
-          fontSize={52}
-          lineHeight={56}
-          fontWeight="400"
-          letterSpacing={-2}
-          color="#FFFFFF"
-          marginTop={6}
-        />
-
-        <XStack alignItems="center" gap={10} marginTop={8} flexWrap="wrap">
-          {movementLabel ? (
-            <XStack
-              alignItems="center"
-              backgroundColor="#34D399"
-              paddingHorizontal={10}
-              paddingVertical={3}
-              borderRadius={99}
-            >
-              <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="#0B4F49">
-                {movementLabel}
-              </Text>
-            </XStack>
-          ) : (
-            <XStack
-              alignItems="center"
-              gap={6}
-              borderWidth={1}
-              borderColor="rgba(255,255,255,0.3)"
-              paddingHorizontal={10}
-              paddingVertical={3}
-              borderRadius={99}
-            >
-              <LiveDot />
-              <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.85)">
-                live
-              </Text>
-            </XStack>
-          )}
-          <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.8)">
-            since GW start
-          </Text>
-        </XStack>
-
-        {rankDetails ? (
-          <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap">
-            <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
-              {showPostSubs
-                ? `Pre-subs ~${rankDetails.preSubsRank.toLocaleString()}`
-                : `Post-subs ~${rankDetails.postSubsRank.toLocaleString()}`}
-            </Text>
-            <Text fontFamily="$body" fontSize={12.5} color="rgba(255,255,255,0.55)">
-              was {rankDetails.oldRank.toLocaleString()}
-            </Text>
-            <Text
-              fontFamily="$mono"
-              fontSize={12.5}
-              color={rankDetails.changePct >= 0 ? '#34D399' : 'rgba(255,255,255,0.8)'}
-            >
-              {rankDetails.changePct >= 0 ? '+' : ''}
-              {rankDetails.changePct.toFixed(1)}%
-            </Text>
           </XStack>
-        ) : null}
-
-        {targets ? (
-          <XStack alignItems="center" gap={10} marginTop={6} flexWrap="wrap" testID="rank-targets">
-            <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
-              {describeHold(targets.holdFromHere)}
+          <XStack alignItems="center" justifyContent="space-between" gap={8} flexWrap="wrap">
+            <Text
+              fontFamily="$body"
+              fontSize={10}
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing={1.4}
+              color="#34D399"
+            >
+              {heroLabel}
             </Text>
-            {targets.nextTarget ? (
-              <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.55)">
-                {`top ${formatCompactRank(targets.nextTarget.rank)} needs ${targets.nextTarget.pointsFromHere} more`}
-              </Text>
+            {autosubsApply ? (
+              <XStack
+                alignItems="center"
+                borderWidth={1}
+                borderColor="rgba(255,255,255,0.28)"
+                borderRadius={99}
+                overflow="hidden"
+              >
+                <SubsToggleButton
+                  label="Pre"
+                  active={subsMode === 'pre'}
+                  onPress={() => setSubsMode('pre')}
+                />
+                <SubsToggleButton
+                  label="Post"
+                  active={subsMode === 'post'}
+                  onPress={() => setSubsMode('post')}
+                />
+              </XStack>
             ) : null}
           </XStack>
-        ) : null}
 
-        <RankSparkline />
-
-        <XStack alignItems="center" gap={10} marginTop={12}>
-          <RefreshBar paused={isLoading} />
-          <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
-            {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
-          </Text>
-        </XStack>
-      </StadiumGradient>
-
-      <XStack flexWrap="wrap" gap={10}>
-        {tiles.map((tile) => (
-          <StatTile
-            key={tile.label}
-            label={tile.label}
-            tone={tile.tone}
-            sub={tile.sub}
-            pulseKey={tile.tick}
-            value={
-              tile.tick !== null ? (
-                <NumberTicker
-                  value={tile.tick}
-                  format={(n) => n.toLocaleString()}
-                  fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
-                  color="$color"
-                />
-              ) : (
-                <Text
-                  fontFamily="$mono"
-                  fontSize={26}
-                  lineHeight={28}
-                  fontWeight="400"
-                  color="$color"
-                >
-                  {tile.value}
-                </Text>
-              )
-            }
+          <NumberTicker
+            testID="live-rank-value"
+            value={heroRank}
+            format={(n) => n.toLocaleString()}
+            fontFamily="$mono"
+            fontSize={36}
+            lineHeight={38}
+            fontWeight="400"
+            letterSpacing={-1.5}
+            color="#FFFFFF"
+            marginTop={0}
           />
-        ))}
-      </XStack>
 
-      <YStack>
-        <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />
-        <Pitch teamName={teamName} formation={formation}>
-          {ready
-            ? pitchRows.map((row, i) => (
-                <PitchRow key={`row-${i}`}>
-                  {row.map((p) => (
+          <XStack alignItems="center" gap={8} marginTop={2} flexWrap="wrap">
+            {heroStatus === 'final' ? (
+              <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
+                {`final after GW${currentGw ?? ''}`}
+              </Text>
+            ) : null}
+            {heroStatus === 'moved' ? (
+              <XStack
+                alignItems="center"
+                backgroundColor="#34D399"
+                paddingHorizontal={9}
+                paddingVertical={2}
+                borderRadius={99}
+              >
+                <Text fontFamily="$mono" fontSize={12.5} fontWeight="500" color="#0B4F49">
+                  {movementLabel}
+                </Text>
+              </XStack>
+            ) : null}
+            {heroStatus === 'live' ? (
+              <XStack
+                alignItems="center"
+                gap={6}
+                borderWidth={1}
+                borderColor="rgba(255,255,255,0.3)"
+                paddingHorizontal={9}
+                paddingVertical={2}
+                borderRadius={99}
+              >
+                <LiveDot />
+                <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.85)">
+                  live
+                </Text>
+              </XStack>
+            ) : null}
+            {heroStatus === 'final' ? null : (
+              <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.6)">
+                {`was ${preGwRank.toLocaleString()}`}
+              </Text>
+            )}
+            {subsAltLabel ? (
+              <Text fontFamily="$mono" fontSize={12} color="rgba(255,255,255,0.85)">
+                {subsAltLabel}
+              </Text>
+            ) : null}
+            <Text
+              fontFamily="$body"
+              fontSize={10.5}
+              color="rgba(255,255,255,0.6)"
+              marginLeft="auto"
+            >
+              {isLoading ? 'updating\u2026' : `updated ${formatLiveAgo(agoMs)}`}
+            </Text>
+          </XStack>
+
+          {targets ? (
+            <XStack
+              alignItems="center"
+              gap={10}
+              marginTop={6}
+              flexWrap="wrap"
+              testID="rank-targets"
+            >
+              <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.85)">
+                {describeHold(targets.holdFromHere)}
+              </Text>
+              {targets.nextTarget ? (
+                <Text fontFamily="$mono" fontSize={12.5} color="rgba(255,255,255,0.55)">
+                  {`top ${formatCompactRank(targets.nextTarget.rank)} needs ${targets.nextTarget.pointsFromHere} more`}
+                </Text>
+              ) : null}
+            </XStack>
+          ) : null}
+
+          {sparkPoints ? <RankSparkline points={sparkPoints} /> : null}
+          {seasonLine ? (
+            <Text
+              fontFamily="$body"
+              fontSize={11}
+              color="rgba(255,255,255,0.72)"
+              marginTop={4}
+              numberOfLines={1}
+              testID="season-line"
+            >
+              {seasonLine}
+            </Text>
+          ) : null}
+
+          <XStack marginTop={6}>
+            <RefreshBar paused={isLoading} />
+          </XStack>
+        </StadiumGradient>
+
+        <XStack flexWrap="wrap" gap={6}>
+          {tiles.map((tile) => (
+            <StatTile
+              key={tile.label}
+              compact
+              label={tile.label}
+              tone={tile.tone}
+              sub={tile.sub}
+              pulseKey={tile.tick}
+              value={
+                tile.tick !== null ? (
+                  <NumberTicker
+                    value={tile.tick}
+                    format={(n) => n.toLocaleString()}
+                    fontFamily="$mono"
+                    fontSize={18}
+                    lineHeight={20}
+                    fontWeight="500"
+                    color="$color"
+                  />
+                ) : (
+                  <Text
+                    fontFamily="$mono"
+                    fontSize={13}
+                    lineHeight={20}
+                    fontWeight="500"
+                    color="$color"
+                    numberOfLines={1}
+                  >
+                    {tile.value}
+                  </Text>
+                )
+              }
+            />
+          ))}
+        </XStack>
+
+        <YStack>
+          <Pitch dense teamName={teamName} formation={formation} label={`GW${currentGw ?? '—'}`}>
+            {ready
+              ? pitchRows.map((row, i) => (
+                  <PitchRow key={`row-${i}`} gap={2}>
+                    {row.map((p) => (
+                      <Player
+                        key={p.key}
+                        dense
+                        name={p.name}
+                        detail={p.detail}
+                        position={p.position}
+                        badge={p.badge}
+                        badgeTone={p.badgeTone}
+                        kitUrl={p.kitUrl}
+                        kitUrl2x={p.kitUrl2x}
+                        ownershipPercent={p.ownershipPercent}
+                        accentColor={p.accentColor}
+                      />
+                    ))}
+                  </PitchRow>
+                ))
+              : null}
+            {ready && bench.length > 0 ? (
+              <>
+                <BenchDivider />
+                <PitchRow gap={2}>
+                  {bench.map((p) => (
                     <Player
                       key={p.key}
+                      dense
                       name={p.name}
                       detail={p.detail}
                       position={p.position}
@@ -692,92 +802,95 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
                       kitUrl2x={p.kitUrl2x}
                       ownershipPercent={p.ownershipPercent}
                       accentColor={p.accentColor}
+                      bench
                     />
                   ))}
                 </PitchRow>
-              ))
-            : null}
-          {ready && bench.length > 0 ? (
-            <>
-              <BenchDivider />
-              <PitchRow>
-                {bench.map((p) => (
-                  <Player
-                    key={p.key}
-                    name={p.name}
-                    detail={p.detail}
-                    position={p.position}
-                    badge={p.badge}
-                    badgeTone={p.badgeTone}
-                    kitUrl={p.kitUrl}
-                    kitUrl2x={p.kitUrl2x}
-                    ownershipPercent={p.ownershipPercent}
-                    accentColor={p.accentColor}
-                    bench
-                  />
-                ))}
-              </PitchRow>
-            </>
-          ) : null}
-          {ready && provisionalBonusTotal > 0 ? (
-            <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={8}>
-              Includes provisional bonus (
-              <Text fontFamily="$mono" fontSize={10.5} color="$colorMuted">
-                +{provisionalBonusTotal}b?
+              </>
+            ) : null}
+            {ready && provisionalBonusTotal > 0 ? (
+              <Text fontFamily="$body" fontSize={10.5} color="$colorMuted" marginTop={8}>
+                Includes provisional bonus (
+                <Text fontFamily="$mono" fontSize={10.5} color="$colorMuted">
+                  +{provisionalBonusTotal}b?
+                </Text>
+                ) — not yet confirmed by FPL
               </Text>
-              ) — not yet confirmed by FPL
+            ) : null}
+          </Pitch>
+        </YStack>
+
+        <YStack backgroundColor="$surface" paddingHorizontal={16} paddingVertical={12} gap={6}>
+          <SectionHeader title="Cohort comparison" />
+          {hasCohortData ? (
+            <CohortTable
+              rows={cohortRows}
+              footer="Live cohort data refreshes every 60s · more breakdowns coming soon"
+            />
+          ) : (
+            <Text fontFamily="$body" fontSize={12.5} color="$colorMuted">
+              Cohort benchmarks loading…
             </Text>
-          ) : null}
-        </Pitch>
-      </YStack>
+          )}
+        </YStack>
 
-      <YStack backgroundColor="$surface" paddingHorizontal={16} paddingVertical={12} gap={6}>
-        <SectionHeader title="Cohort comparison" />
-        {hasCohortData ? (
-          <CohortTable
-            rows={cohortRows}
-            footer="Live cohort data refreshes every 60s · more breakdowns coming soon"
+        {battle && battle.isLive && (battle.gains.length > 0 || battle.losses.length > 0) ? (
+          <LiveBattlePanel
+            gains={battle.gains.map((p) => ({
+              id: p.elementId,
+              name: p.name,
+              teamShort: p.teamShort,
+              points: p.livePoints,
+              rankImpact: p.rankImpact,
+            }))}
+            losses={battle.losses.map((p) => ({
+              id: p.elementId,
+              name: p.name,
+              teamShort: p.teamShort,
+              points: p.livePoints,
+              rankImpact: p.rankImpact,
+            }))}
+            totalImpact={battle.totalImpact}
           />
-        ) : (
-          <Text fontFamily="$body" fontSize={12.5} color="$colorMuted">
-            Cohort benchmarks loading…
-          </Text>
-        )}
-      </YStack>
+        ) : null}
 
-      {battle && battle.isLive && (battle.gains.length > 0 || battle.losses.length > 0) ? (
-        <LiveBattlePanel
-          gains={battle.gains.map((p) => ({
-            id: p.elementId,
-            name: p.name,
-            teamShort: p.teamShort,
-            points: p.livePoints,
-            rankImpact: p.rankImpact,
-          }))}
-          losses={battle.losses.map((p) => ({
-            id: p.elementId,
-            name: p.name,
-            teamShort: p.teamShort,
-            points: p.livePoints,
-            rankImpact: p.rankImpact,
-          }))}
-          totalImpact={battle.totalImpact}
-        />
+        <XStack justifyContent="center">
+          <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+            Not your team?{' '}
+            <Text onPress={onChangeTeam} color="$color" fontSize={12} fontFamily="$body">
+              Search again →
+            </Text>
+          </Text>
+        </XStack>
+
+        <FNote>
+          Data via Fantasy Premier League API · Live values refresh every 60s while gameweeks are
+          active.
+        </FNote>
+      </Screen>
+      {squadEvents.length > 0 ? (
+        <YStack
+          position="absolute"
+          top={insets.top + 6}
+          left={12}
+          right={12}
+          gap={6}
+          zIndex={10}
+          pointerEvents="none"
+          testID="live-events"
+        >
+          {squadEvents.map((event) => (
+            <LiveEventToast
+              key={event.id}
+              kind={EVENT_LABEL[event.kind]}
+              title={event.playerName}
+              detail={eventDetail(event)}
+              points={eventPoints(event)}
+              tone={EVENT_TONE[event.kind]}
+            />
+          ))}
+        </YStack>
       ) : null}
-
-      <XStack justifyContent="center">
-        <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-          Not your team?{' '}
-          <Text onPress={onChangeTeam} color="$color" fontSize={12} fontFamily="$body">
-            Search again →
-          </Text>
-        </Text>
-      </XStack>
-
-      <FNote>
-        Data via Fantasy Premier League API · Live values refresh every 60s while gameweeks are
-        active.
-      </FNote>
-    </Screen>
+    </YStack>
   );
 }

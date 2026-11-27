@@ -6,6 +6,13 @@ import type {
   FplTeam,
 } from '@simplyfpl/types';
 
+/**
+ * Threshold progress below which a player's price fields are left out of the
+ * slim payload. Half the scout inbox's own reporting threshold, so nothing the
+ * inbox would show is lost.
+ */
+export const SLIM_PRICE_PROGRESS_FLOOR = 25;
+
 function projectPlayer(p: FplPlayer): FplPlayer {
   const slim: FplPlayer = {
     id: p.id,
@@ -23,19 +30,23 @@ function projectPlayer(p: FplPlayer): FplPlayer {
     chance_of_playing_next_round: p.chance_of_playing_next_round,
     news: '',
   };
-  if (p.price_change_percent !== undefined) slim.price_change_percent = p.price_change_percent;
-  if (p.price_change_hourly_rate !== undefined) {
-    slim.price_change_hourly_rate = p.price_change_hourly_rate;
+  // Price fields ride along only for players meaningfully close to a change,
+  // and only with today's projection. Carrying all five fields and the
+  // three-day projection for every player doubled this payload, 13 KB to 28 KB
+  // gzipped, for the benefit of rows no screen shows. The full detail is served
+  // by /fpl/prices, which reads the unslimmed bootstrap.
+  const progress = Math.abs(Number.parseFloat(p.price_change_percent ?? ''));
+  if (Number.isFinite(progress) && progress >= SLIM_PRICE_PROGRESS_FLOOR) {
+    if (p.price_change_percent !== undefined) slim.price_change_percent = p.price_change_percent;
+    const today = p.price_change_projections?.find((projection) => projection.offset === 0);
+    if (today) slim.price_change_projections = [today];
+    if (typeof p.price_change_locked_until === 'string') {
+      slim.price_change_locked_until = p.price_change_locked_until;
+    }
   }
-  if (p.price_change_projections !== undefined) {
-    slim.price_change_projections = p.price_change_projections;
-  }
-  if (p.price_change_locked_until !== undefined) {
-    slim.price_change_locked_until = p.price_change_locked_until;
-  }
-  if (p.price_change_calibrating !== undefined) {
-    slim.price_change_calibrating = p.price_change_calibrating;
-  }
+  // Only a couple of dozen players carry risks, so the empty arrays on the
+  // other six hundred are not worth shipping.
+  if (Array.isArray(p.scout_risks) && p.scout_risks.length > 0) slim.scout_risks = p.scout_risks;
   return slim;
 }
 

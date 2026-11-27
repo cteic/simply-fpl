@@ -78,6 +78,12 @@ interface PlayerProps {
   badgeTone?: BadgeTone;
   bench?: boolean;
   compact?: boolean;
+  /**
+   * Phone density: a smaller shirt and one line of detail under the name, with
+   * club and ownership sharing it. Three lines of text per player meant a full
+   * squad of fifteen needed two screens.
+   */
+  dense?: boolean;
   kitUrl?: string | undefined;
   kitUrl2x?: string | undefined;
   ownershipPercent?: number | undefined;
@@ -96,6 +102,7 @@ export function Player({
   badgeTone = 'default',
   bench = false,
   compact = false,
+  dense = false,
   kitUrl,
   kitUrl2x,
   ownershipPercent,
@@ -112,6 +119,34 @@ export function Player({
   }
   const detailColor = onPitch ? '$inverseMuted' : undefined;
   const ownershipColor = onPitch ? '$inverseSoft' : undefined;
+  const hasOwnership = ownershipPercent !== undefined && Number.isFinite(ownershipPercent);
+  const ownershipLabel = hasOwnership
+    ? `${ownershipPartial ? '~' : ''}${ownershipPercent.toFixed(0)}%`
+    : null;
+
+  if (dense) {
+    const meta = [detail, ownershipLabel].filter((part) => Boolean(part)).join(' \u00b7 ');
+    return (
+      <Wrap width={66} gap={2}>
+        <ShirtWrap bench={bench}>
+          <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} size={34} />
+          {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
+        </ShirtWrap>
+        <Name bench={bench} maxWidth={64} color={nameColor}>
+          {name}
+        </Name>
+        {meta ? (
+          <XStack alignItems="center" justifyContent="center" gap={3}>
+            {accentColor ? <ClubDot backgroundColor={accentColor} /> : null}
+            <Detail color={detailColor} numberOfLines={1}>
+              {meta}
+            </Detail>
+          </XStack>
+        ) : null}
+      </Wrap>
+    );
+  }
+
   return (
     <Wrap width={compact ? 56 : undefined}>
       <ShirtWrap bench={bench}>
@@ -127,7 +162,7 @@ export function Player({
           <Detail color={detailColor}>{detail}</Detail>
         </XStack>
       ) : null}
-      {ownershipPercent !== undefined && Number.isFinite(ownershipPercent) ? (
+      {hasOwnership ? (
         <Ownership partial={ownershipPartial} color={ownershipColor}>
           {ownershipPartial ? '~' : ''}
           {ownershipPercent.toFixed(1)}%

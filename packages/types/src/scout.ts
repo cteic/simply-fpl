@@ -7,7 +7,11 @@ export type ScoutEventKind =
   | 'suspension'
   | 'unavailable'
   | 'price_fall'
-  | 'price_rise';
+  | 'price_rise'
+  // One booking from a ban. FPL flags this itself; nothing is inferred.
+  | 'suspension_risk'
+  // Cannot play the coming gameweek, e.g. a loanee against their parent club.
+  | 'ineligible';
 
 export type ScoutEventSeverity = 'bad' | 'warn' | 'good';
 

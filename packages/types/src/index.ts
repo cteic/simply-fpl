@@ -23,6 +23,19 @@ export interface FplPlayer {
   price_change_projections?: FplPriceChangeProjection[];
   price_change_locked_until?: string | null;
   price_change_calibrating?: boolean;
+  scout_risks?: FplScoutRisk[];
+}
+
+/**
+ * A risk FPL itself flags on a player: `suspension_risk` when one more booking
+ * brings a ban, `loan_ineligible` when they cannot face their parent club in a
+ * named gameweek.
+ */
+export interface FplScoutRisk {
+  property: string;
+  notes: string;
+  gameweek: number | null;
+  url: string | null;
 }
 
 export interface FplPriceChangeProjection {
@@ -362,6 +375,67 @@ export interface RankCurveSample {
 export interface RankCurvePoint {
   totalPoints: number;
   rank: number;
+}
+
+/** `pre`: before the deadline. `live`: in progress. `settled`: finished. */
+export type GameweekPhase = 'pre' | 'live' | 'settled';
+
+/** A manager's standing in one mini-league. */
+export interface LeaguePosition {
+  rank: number;
+  /** Managers on the page of standings this was read from. */
+  managers: number;
+  /** Places gained since last gameweek. Negative when they dropped. */
+  movement: number;
+  /** The manager directly above, and the points needed to draw level. */
+  above: { name: string; gap: number } | null;
+  /** The manager directly below, and the cushion over them. */
+  below: { name: string; gap: number } | null;
+  /** Points behind first place. Zero when leading. */
+  gapToLeader: number;
+  /** Place within the league on this gameweek's score alone. */
+  gameweekPlace: number;
+}
+
+export type LiveSquadEventKind = 'goal' | 'assist' | 'bonus' | 'red_card' | 'clean_sheet_lost';
+
+/** Something that just happened to one of the manager's players. */
+export interface LiveSquadEvent {
+  /** Stable across re-renders, unique per occurrence. */
+  id: string;
+  kind: LiveSquadEventKind;
+  elementId: number;
+  playerName: string;
+  isCaptain: boolean;
+  onBench: boolean;
+  /** Change to the manager's score from this player in this refresh. */
+  pointsDelta: number;
+}
+
+export type SeasonArrow = 'green' | 'red' | 'flat';
+
+export interface SeasonStoryPoint {
+  gw: number;
+  /** Overall rank after this gameweek. */
+  rank: number;
+  /** Points scored in this gameweek. */
+  points: number;
+  arrow: SeasonArrow;
+}
+
+/** A manager's season so far, built from settled gameweek history. */
+export interface SeasonStory {
+  trajectory: SeasonStoryPoint[];
+  bestRank: { gw: number; rank: number } | null;
+  bestGameweek: { gw: number; points: number; gwRank: number } | null;
+  greenArrows: number;
+  redArrows: number;
+  /** The current run of same-coloured arrows, counted back from the latest gameweek. */
+  streak: { direction: 'green' | 'red' | 'none'; length: number };
+  /** Points left on the bench across the season. */
+  benchPoints: number;
+  /** Points spent on transfer hits across the season. */
+  hitPoints: number;
 }
 
 export interface RankTarget {

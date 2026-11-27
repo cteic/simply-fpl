@@ -6,6 +6,7 @@ import { computeSeasonDefConRate, formatPrice, getClubColor } from '@simplyfpl/f
 import { t } from '@simplyfpl/i18n';
 import type { FplPlayer } from '@simplyfpl/types';
 import {
+  Button,
   Card,
   FNote,
   FilterButton,
@@ -18,8 +19,10 @@ import {
   YStack,
 } from '@simplyfpl/ui';
 
-import { DEMO_BIG_PRICE_ROWS } from '@/components/demo-data';
 import { useBootstrap, usePrices } from '@/queries/fpl';
+
+/** Rows rendered before the user asks for the rest. */
+const INITIAL_ROWS = 30;
 
 const FILTERS = ['All', 'Risers', 'Fallers', 'GK', 'DEF', 'MID', 'FWD'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -35,6 +38,7 @@ export function PricesView() {
   const { data: prices, isLoading, isError } = usePrices();
   const { data: bootstrap } = useBootstrap();
   const [filter, setFilter] = useState<Filter>('All');
+  const [showAll, setShowAll] = useState(false);
 
   const bootstrapById = useMemo(() => {
     if (!bootstrap) return new Map<number, FplPlayer>();
@@ -68,7 +72,7 @@ export function PricesView() {
     });
   }, [prices, bootstrapById]);
 
-  const visibleRows = useMemo(() => {
+  const filteredRows = useMemo(() => {
     return rows.filter((r) => {
       if (filter === 'All') return true;
       if (filter === 'Risers') return r.flow === 'rise';
@@ -76,9 +80,13 @@ export function PricesView() {
       return r.position === filter;
     });
   }, [rows, filter]);
+  // A first screenful, then the rest on request. Rendering every row up front
+  // kept a long list mounted behind the other tabs and made the app sluggish.
+  const visibleRows = showAll ? filteredRows : filteredRows.slice(0, INITIAL_ROWS);
 
-  const showFallback = isError || !prices;
-  const fallbackRows = !isLoading && showFallback ? DEMO_BIG_PRICE_ROWS : null;
+  // A failed request shows that it failed. It used to render a canned list of
+  // price rises, so an outage looked like real predictions for real players.
+  const failed = !isLoading && (isError || !prices);
 
   return (
     <PageShell>
@@ -94,25 +102,17 @@ export function PricesView() {
 
       {isLoading ? <SkeletonPrices /> : null}
 
-      {!isLoading && fallbackRows ? (
+      {failed ? (
         <Card>
-          {fallbackRows.map((row, i) => (
-            <PriceRow
-              key={`demo-${row.name}`}
-              index={i + 1}
-              name={row.name}
-              club={row.club}
-              flow={row.flow}
-              value={row.value}
-              progressPercent={row.progressPercent}
-              accentColor={getClubColor(row.club.split(' · ')[1])}
-              last={i === fallbackRows.length - 1}
-            />
-          ))}
+          <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
+            <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
+              {t('prices.error')}
+            </Text>
+          </YStack>
         </Card>
       ) : null}
 
-      {!isLoading && !fallbackRows ? (
+      {!isLoading && !failed ? (
         <Card>
           {visibleRows.length === 0 ? (
             <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
@@ -138,6 +138,14 @@ export function PricesView() {
             ))
           )}
         </Card>
+      ) : null}
+
+      {!showAll && filteredRows.length > INITIAL_ROWS ? (
+        <XStack>
+          <Button tone="ghost" size="sm" onPress={() => setShowAll(true)}>
+            {t('prices.show_all', { count: filteredRows.length })}
+          </Button>
+        </XStack>
       ) : null}
 
       <FNote>{t('prices.fnote')}</FNote>
