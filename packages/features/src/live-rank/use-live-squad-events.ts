@@ -34,6 +34,12 @@ export interface UseLiveSquadEventsInput {
   picks: FplEntryGameweekPicks | null | undefined;
   liveGw: FplLiveGameweek | undefined;
   bootstrap: FplBootstrapStatic | undefined;
+  /**
+   * Called once with each batch of newly detected events, before they are
+   * queued for display. Lets a platform raise its own alert, such as a browser
+   * notification while the tab is in the background.
+   */
+  onDetected?: (events: LiveSquadEvent[]) => void;
 }
 
 export interface UseLiveSquadEventsResult {
@@ -50,7 +56,9 @@ export interface UseLiveSquadEventsResult {
  * and replaying the whole gameweek on open would be noise.
  */
 export function useLiveSquadEvents(input: UseLiveSquadEventsInput): UseLiveSquadEventsResult {
-  const { picks, liveGw, bootstrap } = input;
+  const { picks, liveGw, bootstrap, onDetected } = input;
+  const onDetectedRef = useRef(onDetected);
+  onDetectedRef.current = onDetected;
   const previousRef = useRef<FplLiveGameweek | undefined>(undefined);
   const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const [events, setEvents] = useState<LiveSquadEvent[]>([]);
@@ -64,6 +72,7 @@ export function useLiveSquadEvents(input: UseLiveSquadEventsInput): UseLiveSquad
     const detected = diffLiveSquadEvents({ previous, next: liveGw, picks, bootstrap });
     if (detected.length === 0) return;
 
+    onDetectedRef.current?.(detected);
     setEvents((current) => enqueueLiveEvents(current, detected));
     const ids = new Set(detected.map((event) => event.id));
     const timer = setTimeout(() => {
