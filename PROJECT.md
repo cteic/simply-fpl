@@ -53,7 +53,6 @@ A Fantasy Premier League companion app that competes directly with [livefpl.net]
 | `packages/ui`              | Shared components (cross-platform, future)     |
 | `packages/tsconfig-config` | Shared TS configs (base, react, react-native)  |
 | `packages/eslint-config`   | Shared ESLint flat config                      |
-| `packages/prettier-config` | Shared Prettier + import ordering              |
 
 ### Infrastructure
 
@@ -271,8 +270,7 @@ simplyfpl-mono/
 │   ├── utils/src/index.ts          # formatRank, formatDeadline, etc.
 │   ├── ui/src/index.ts             # Shared components (stub, to build)
 │   ├── tsconfig-config/            # base, react, react-native tsconfigs
-│   ├── eslint-config/              # Flat config ESLint
-│   └── prettier-config/            # Prettier + import ordering
+│   └── eslint-config/              # Flat config ESLint
 ├── docs/
 │   └── supabase/
 │       └── 001_initial_schema.sql

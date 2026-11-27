@@ -39,11 +39,10 @@
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
+    "@cteic/prettier-config": "^1.0.1",
     "@playwright/test": "^1.59.1",
     "@simplyfpl/eslint-config": "workspace:*",
-    "@simplyfpl/prettier-config": "workspace:*",
     "@simplyfpl/tsconfig-config": "workspace:*",
-    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/node": "^22.0.0",
     "eslint": "^9.39.5",
     "husky": "^9.1.7",
