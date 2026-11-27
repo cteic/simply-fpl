@@ -170,6 +170,9 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: ./.github/workflows/lighthouse.yml
+    uses: cteic/foundry/.github/workflows/lighthouse.yml@2d77a5b026b821c0566d0443c8d2e314986111d1
     with:
       url: ${{ needs.web.outputs.url }}
+      paths: / /h2h
+      config: apps/web/lighthouserc.json
+      node-version: '22'
