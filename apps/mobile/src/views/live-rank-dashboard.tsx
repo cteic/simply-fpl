@@ -465,7 +465,8 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
           }, 0)
       : 0;
 
-  let gwSub = 'live';
+  // A settled gameweek's score is final, not live.
+  let gwSub = gwFinished ? 'final' : 'live';
   if (ready && autosubsApply) {
     gwSub = showPostSubs ? `Pre-subs ${livePoints}` : `Post-subs ${postSubsPoints}`;
   }

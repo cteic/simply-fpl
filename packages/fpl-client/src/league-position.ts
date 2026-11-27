@@ -60,3 +60,17 @@ export function describeLeaguePosition(
     gameweekPlace,
   };
 }
+
+/**
+ * The first gameweek a manager can still make decisions for.
+ *
+ * That is the upcoming one. The current gameweek is either in progress, with
+ * its deadline gone, or finished, and a planner that opens on it spends its
+ * first column on fixtures nobody can act on. Falls back to the current
+ * gameweek only when there is no next one, at the end of the season.
+ */
+export function getPlanningGameweek(bootstrap: FplBootstrapStatic): number | null {
+  const next = bootstrap.events.find((e) => e.is_next);
+  if (next) return next.id;
+  return bootstrap.events.find((e) => e.is_current)?.id ?? null;
+}
