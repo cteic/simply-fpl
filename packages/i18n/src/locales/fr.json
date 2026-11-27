@@ -208,7 +208,7 @@
   "notifications.toggle_on": "Actif",
   "pitch.bench_divider": "Remplaçants",
   "planner.col_player": "Joueur",
-  "planner.fnote": "Les indices de difficulté des matchs (FDR) sont basés sur les données officielles FPL.",
+  "planner.fnote": "Les indices de difficulté des matchs (FDR) sont basés sur les données officielles FPL. Un point orange signale un joueur incertain, un point rouge un joueur forfait.",
   "planner.link_body": "Nous avons besoin de votre ID d'équipe FPL pour charger votre XI et calculer la difficulté des matchs sur les 5 prochains GW.",
   "planner.loading_body": "Chargement des matchs et de votre XI…",
   "planner.meta_no_team": "Entrez votre ID d'équipe FPL pour commencer",

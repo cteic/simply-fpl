@@ -119,9 +119,7 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       )}
 
       <FNote>
-        Fixture difficulty is FPL's own rating. The dot is last gameweek's return: green for 8 or
-        more points, blue for 4 to 7, amber for 1 to 3, grey for none. A player who is a doubt shows
-        amber or red regardless.
+        Fixture difficulty is FPL's own rating. An amber dot is a doubt, a red dot is ruled out.
       </FNote>
     </Screen>
   );
@@ -159,9 +157,7 @@ function NoTeamView() {
         </YStack>
       </Card>
       <FNote>
-        Fixture difficulty is FPL's own rating. The dot is last gameweek's return: green for 8 or
-        more points, blue for 4 to 7, amber for 1 to 3, grey for none. A player who is a doubt shows
-        amber or red regardless.
+        Fixture difficulty is FPL's own rating. An amber dot is a doubt, a red dot is ruled out.
       </FNote>
     </Screen>
   );

@@ -208,7 +208,7 @@
   "notifications.toggle_on": "An",
   "pitch.bench_divider": "Bank",
   "planner.col_player": "Spieler",
-  "planner.fnote": "Spielschwierigkeitswerte (FDR) basieren auf offiziellen FPL-Daten.",
+  "planner.fnote": "Spielschwierigkeitswerte (FDR) basieren auf offiziellen FPL-Daten. Ein gelber Punkt steht für einen fraglichen Spieler, ein roter für einen Ausfall.",
   "planner.link_body": "Wir benötigen deine FPL-Team-ID, um dein XI zu laden und die Spielschwierigkeit über die nächsten 5 GW zu berechnen.",
   "planner.loading_body": "Spiele und dein XI werden geladen…",
   "planner.meta_no_team": "Gib deine FPL-Team-ID ein, um zu beginnen",

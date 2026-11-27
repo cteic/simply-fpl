@@ -205,4 +205,54 @@ describeFeature(feature, ({ Scenario }) => {
       });
     }
   );
+
+  Scenario('The dot shows availability and nothing else', ({ Given, And, When, Then }) => {
+    let result: PlannerGridCell[];
+    const bootstrap = makeBootstrap(1, false, [1, 2, 3]);
+
+    function setPlayer(id: number, eventPoints: number, chance: number | null): void {
+      const player = bootstrap.elements.find((el) => el.id === id);
+      if (!player) throw new Error(`no player ${id}`);
+      player.event_points = eventPoints;
+      player.chance_of_playing_next_round = chance;
+    }
+
+    function flagFor(id: number): string | undefined {
+      return result[0]?.players.find((p) => p.playerId === id)?.form;
+    }
+
+    Given('a fit starter who scored 12 points last gameweek', () => {
+      setPlayer(1, 12, null);
+    });
+
+    And('a starter rated 75% to play', () => {
+      setPlayer(2, 12, 75);
+    });
+
+    And('a starter ruled out', () => {
+      setPlayer(3, 0, 0);
+    });
+
+    When('I compute the planner grid starting at GW1 with count 1', () => {
+      result = computePlannerGrid({
+        picks: makePicks([1, 2, 3]),
+        bootstrap,
+        fixtures: [makeFixture(1, 1, 2, 1)],
+        startGameweek: 1,
+        count: 1,
+      });
+    });
+
+    Then('the fit starter should have no flag', () => {
+      expect(flagFor(1)).toBe('none');
+    });
+
+    And('the doubtful starter should be flagged as a doubt', () => {
+      expect(flagFor(2)).toBe('warning');
+    });
+
+    And('the ruled out starter should be flagged as out', () => {
+      expect(flagFor(3)).toBe('bad');
+    });
+  });
 });

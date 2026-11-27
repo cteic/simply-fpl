@@ -208,7 +208,7 @@
   "notifications.toggle_on": "Activado",
   "pitch.bench_divider": "Suplentes",
   "planner.col_player": "Jugador",
-  "planner.fnote": "Las valoraciones de dificultad de partidos (FDR) se basan en datos oficiales de FPL.",
+  "planner.fnote": "Las valoraciones de dificultad de partidos (FDR) se basan en datos oficiales de FPL. Un punto ámbar indica duda; uno rojo, un jugador descartado.",
   "planner.link_body": "Necesitamos tu ID de equipo FPL para cargar tu XI y calcular la dificultad de los partidos en los próximos 5 GW.",
   "planner.loading_body": "Cargando partidos y tu XI…",
   "planner.meta_no_team": "Introduce tu ID de equipo FPL para empezar",
