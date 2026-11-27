@@ -24,3 +24,12 @@ Feature: Fixture planner grid
     Given a squad of 15 players where positions 12-15 are bench players
     When I compute the planner grid starting at GW1 with count 1
     Then the grid cell should contain exactly 11 players
+
+  Scenario: The dot shows availability and nothing else
+    Given a fit starter who scored 12 points last gameweek
+    And a starter rated 75% to play
+    And a starter ruled out
+    When I compute the planner grid starting at GW1 with count 1
+    Then the fit starter should have no flag
+    And the doubtful starter should be flagged as a doubt
+    And the ruled out starter should be flagged as out

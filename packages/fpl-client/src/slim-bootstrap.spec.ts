@@ -29,10 +29,7 @@ const ELEMENT_FIELDS = [
   'chance_of_playing_next_round',
   'news',
   'price_change_percent',
-  'price_change_hourly_rate',
   'price_change_projections',
-  'price_change_locked_until',
-  'price_change_calibrating',
 ];
 
 function makeRawBootstrap(): FplBootstrapStatic {
@@ -190,10 +187,20 @@ describeFeature(feature, ({ Scenario }) => {
       And("the element keeps FPL's own price-change fields", () => {
         const element = slim.elements[0];
         expect(element?.price_change_percent).toBe('102.1');
-        expect(element?.price_change_hourly_rate).toBe(10_958);
-        expect(element?.price_change_projections?.[0]?.likelihood).toBe(5);
-        expect(element?.price_change_locked_until).toBeNull();
-        expect(element?.price_change_calibrating).toBe(false);
+        expect(element?.price_change_projections).toEqual([
+          { offset: 0, projected_percent: '123.4', likelihood: 5 },
+        ]);
+        // Detail only /fpl/prices needs is not carried in the slim payload.
+        expect(element?.price_change_hourly_rate).toBeUndefined();
+        expect(element?.price_change_calibrating).toBeUndefined();
+
+        // A player nowhere near a change carries no price fields at all.
+        const quiet = buildSlimBootstrap({
+          ...raw,
+          elements: raw.elements.map((e) => ({ ...e, price_change_percent: '3.0' })),
+        }).elements[0];
+        expect(quiet?.price_change_percent).toBeUndefined();
+        expect(quiet?.price_change_projections).toBeUndefined();
       });
 
       And('the bootstrap keeps total_players', () => {

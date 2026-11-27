@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { planner } from '@simplyfpl/features';
 import type { PlannerGridCell } from '@simplyfpl/features/planner';
+import { getPlanningGameweek } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
 import {
   Button,
@@ -61,6 +62,14 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       bootstrap.events.find((e) => e.is_current) ?? bootstrap.events.find((e) => e.is_next);
     return event?.id ?? null;
   }, [bootstrap]);
+  // The squad comes from the latest gameweek FPL has picks for, but the
+  // fixtures start at the next one: the current gameweek is in progress or
+  // already finished, so its column is a fixture nobody can act on.
+  const planningGw = useMemo(
+    () => (bootstrap ? getPlanningGameweek(bootstrap) : null),
+    [bootstrap]
+  );
+  const firstGw = planningGw ?? currentGw;
   const { data: picks, isLoading: picksLoading } = useEntryPicks(entryId, currentGw);
   const { data: fixtures, isLoading: fixturesLoading } = useFixtures(null);
 
@@ -70,10 +79,10 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       picks,
       bootstrap,
       fixtures,
-      startGameweek: currentGw,
+      startGameweek: planningGw ?? currentGw,
       count: 5,
     });
-  }, [bootstrap, picks, fixtures, currentGw]);
+  }, [bootstrap, picks, fixtures, currentGw, planningGw]);
 
   const uiCells: PlannerGwCell[] = useMemo(
     () =>
@@ -93,8 +102,8 @@ function RealPlannerView({ entryId }: { entryId: number }) {
   const meta = isLoading
     ? t('common.loading')
     : t('planner.meta_xi', {
-        startGw: currentGw ?? '—',
-        endGw: (currentGw ?? 0) + 4,
+        startGw: firstGw ?? '—',
+        endGw: (firstGw ?? 0) + 4,
       });
 
   return (

@@ -65,6 +65,11 @@ export {
 } from './estimate-rank';
 export type { DistributionRankEstimate, LoadDistributionOptions } from './estimate-rank';
 export { DISTRIBUTION_GAMEWEEKS } from './score-distributions/distributions.generated';
+export { describeLeaguePosition, getGameweekPhase, getPlanningGameweek } from './league-position';
+export { diffLiveSquadEvents } from './live-events';
+export type { DiffLiveSquadEventsInput } from './live-events';
+export { buildSeasonStory, seasonSparklinePoints } from './season-story';
+export type { SparklineBox } from './season-story';
 export { buildSlimBootstrap } from './slim-bootstrap';
 export { buildSlimFixtures } from './slim-fixtures';
 export { buildSlimLeague } from './slim-league';

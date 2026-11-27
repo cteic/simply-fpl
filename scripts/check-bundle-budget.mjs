@@ -37,7 +37,13 @@ const BUDGETS = {
 // first-load chunks, so growth in a lazy-loaded chunk would pass them unnoticed.
 // Measured at 753.5 kB on Next 16.4 (same figure locally and in CI), plus 2%.
 const TOTAL_NAME = 'All client JS';
-const TOTAL_BUDGET = 769 * 1024;
+//
+// Raised from 769 on 2026-11-27. CI measured 773.9 kB, up 8.2 kB on dev's
+// 765.7. About 4.3 kB of that is 33 new strings in each of seven locale files,
+// six of which are lazily loaded, so no user downloads more than one; the rest
+// is the live alerts, season chart and rank targets on the home route. Both
+// route budgets above still pass. 773.9 plus the same 2%.
+const TOTAL_BUDGET = 789 * 1024;
 
 const KB = 1024;
 

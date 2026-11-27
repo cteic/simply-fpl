@@ -21,6 +21,9 @@ export const FEATURE_PLANNER = process.env.NEXT_PUBLIC_FEATURE_PLANNER === 'true
 export const FEATURE_ADS = process.env.NEXT_PUBLIC_FEATURE_ADS === 'true';
 export const SHOW_AD_PLACEHOLDERS = process.env.NEXT_PUBLIC_SHOW_AD_PLACEHOLDERS === 'true';
 export const FEATURE_FRANK_ONDEMAND = process.env.NEXT_PUBLIC_FEATURE_FRANK_ONDEMAND === 'true';
+// Opens on-demand Frank questions to free and Pro users. The route reads its own
+// server-side FEATURE_FRANK_FREE_TIER, so both must be set for the tier to work.
+export const FEATURE_FRANK_FREE_TIER = process.env.NEXT_PUBLIC_FEATURE_FRANK_FREE_TIER === 'true';
 export const FEATURE_WEB_PUSH = process.env.NEXT_PUBLIC_FEATURE_WEB_PUSH === 'true';
 export const FEATURE_NEWS = process.env.NEXT_PUBLIC_FEATURE_NEWS === 'true';
 export const FEATURE_SCOUT = process.env.NEXT_PUBLIC_FEATURE_SCOUT === 'true';

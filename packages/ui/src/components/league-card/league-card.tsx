@@ -50,20 +50,38 @@ interface LeagueCardProps {
   name: string;
   meta: string;
   rows: LeagueTableRow[];
-  badge?: string;
+  /**
+   * Status chip, e.g. "Live". Omitted by default: the chip used to default to
+   * "Live", so every league claimed to be live on a gameweek that had finished.
+   */
+  badge?: string | undefined;
+  /** One line on where the manager stands against the rest of the league. */
+  summary?: string | undefined;
   onRowClick?: (entryId: number) => void;
 }
 
-export function LeagueCard({ name, meta, rows, badge = 'Live', onRowClick }: LeagueCardProps) {
+const Summary = styled(Text, {
+  fontFamily: '$body',
+  fontSize: 12,
+  color: '$color',
+  paddingHorizontal: 16,
+  paddingVertical: 9,
+  borderBottomWidth: 1,
+  borderBottomColor: '$border',
+  backgroundColor: '$brandBg',
+});
+
+export function LeagueCard({ name, meta, rows, badge, summary, onRowClick }: LeagueCardProps) {
   return (
     <Card>
       <Head>
-        <YStack>
+        <YStack flexShrink={1}>
           <Name>{name}</Name>
           <Meta>{meta}</Meta>
         </YStack>
-        <Badge>{badge}</Badge>
+        {badge ? <Badge>{badge}</Badge> : null}
       </Head>
+      {summary ? <Summary>{summary}</Summary> : null}
       <LeagueTable rows={rows} {...(onRowClick !== undefined ? { onRowClick } : {})} />
     </Card>
   );

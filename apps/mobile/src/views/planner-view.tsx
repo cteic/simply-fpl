@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 
 import { planner } from '@simplyfpl/features';
 import type { PlannerGridCell } from '@simplyfpl/features/planner';
+import { getPlanningGameweek } from '@simplyfpl/fpl-client';
 import {
   Button,
   Card,
@@ -27,7 +28,7 @@ export function PlannerView() {
 
   if (!hydrated) {
     return (
-      <Screen testID="screen-planner">
+      <Screen testID="screen-planner" topInset>
         <Text fontFamily="$body" fontSize={13} color="$colorMuted">
           Loading…
         </Text>
@@ -51,6 +52,14 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       bootstrap.events.find((e) => e.is_current) ?? bootstrap.events.find((e) => e.is_next);
     return event?.id ?? null;
   }, [bootstrap]);
+  // The squad comes from the latest gameweek FPL has picks for, but the
+  // fixtures start at the next one: the current gameweek is in progress or
+  // already finished, so its column is a fixture nobody can act on.
+  const planningGw = useMemo(
+    () => (bootstrap ? getPlanningGameweek(bootstrap) : null),
+    [bootstrap]
+  );
+  const firstGw = planningGw ?? currentGw;
 
   const { data: picks, isLoading: picksLoading } = useEntryPicks(entryId, currentGw);
   const { data: fixtures, isLoading: fixturesLoading } = useFixtures(null);
@@ -61,10 +70,10 @@ function RealPlannerView({ entryId }: { entryId: number }) {
       picks,
       bootstrap,
       fixtures,
-      startGameweek: currentGw,
+      startGameweek: planningGw ?? currentGw,
       count: 5,
     });
-  }, [bootstrap, picks, fixtures, currentGw]);
+  }, [bootstrap, picks, fixtures, currentGw, planningGw]);
 
   const uiCells: PlannerGwCell[] = useMemo(
     () =>
@@ -87,13 +96,13 @@ function RealPlannerView({ entryId }: { entryId: number }) {
   const isLoading = picksLoading || fixturesLoading || !bootstrap || currentGw === null;
 
   return (
-    <Screen testID="screen-planner">
+    <Screen testID="screen-planner" topInset>
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Transfer Planner
         </Text>
         <Text fontFamily="$body" fontSize={12} color="$colorMuted" marginTop={4}>
-          {isLoading ? 'Loading…' : `Your XI · GW${currentGw ?? '—'}–${(currentGw ?? 0) + 4}`}
+          {isLoading ? 'Loading…' : `Your XI · GW${firstGw ?? '—'}–${(firstGw ?? 0) + 4}`}
         </Text>
       </YStack>
 
@@ -109,14 +118,16 @@ function RealPlannerView({ entryId }: { entryId: number }) {
         <PlannerGrid cells={uiCells} />
       )}
 
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL's official data.</FNote>
+      <FNote>
+        Fixture difficulty is FPL's own rating. An amber dot is a doubt, a red dot is ruled out.
+      </FNote>
     </Screen>
   );
 }
 
 function NoTeamView() {
   return (
-    <Screen testID="screen-planner">
+    <Screen testID="screen-planner" topInset>
       <YStack>
         <Text fontFamily="$body" fontSize={21} fontWeight="600" letterSpacing={-0.4} color="$color">
           Transfer Planner
@@ -145,7 +156,9 @@ function NoTeamView() {
           </XStack>
         </YStack>
       </Card>
-      <FNote>Fixture difficulty ratings (FDR) are based on FPL's official data.</FNote>
+      <FNote>
+        Fixture difficulty is FPL's own rating. An amber dot is a doubt, a red dot is ruled out.
+      </FNote>
     </Screen>
   );
 }

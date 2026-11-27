@@ -2,19 +2,28 @@ import Svg, { Circle, Polyline } from 'react-native-svg';
 
 import { YStack } from '@simplyfpl/ui';
 
-const DEFAULT_POINTS = '0,33 57,34 114,28 171,30 228,19 285,21 342,10 400,6';
+export const SPARKLINE_WIDTH = 400;
+export const SPARKLINE_HEIGHT = 20;
 
 interface RankSparklineProps {
-  points?: string;
+  /** SVG polyline points for the manager's real rank after each gameweek. */
+  points: string;
   height?: number;
 }
 
 // Native equivalent of the web rank-trajectory <svg>. Uses react-native-svg
 // rather than a raw <svg> element (which only exists in the DOM).
-export function RankSparkline({ points = DEFAULT_POINTS, height = 40 }: RankSparklineProps) {
+export function RankSparkline({ points, height = SPARKLINE_HEIGHT }: RankSparklineProps) {
+  const last = points.split(' ').pop() ?? '';
+  const [lastX, lastY] = last.split(',').map(Number);
   return (
-    <YStack height={height} marginTop={14}>
-      <Svg width="100%" height="100%" viewBox="0 0 400 40" preserveAspectRatio="none">
+    <YStack height={height} marginTop={4}>
+      <Svg
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
+        preserveAspectRatio="none"
+      >
         <Polyline
           points={points}
           fill="none"
@@ -23,7 +32,9 @@ export function RankSparkline({ points = DEFAULT_POINTS, height = 40 }: RankSpar
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <Circle cx={400} cy={6} r={3.4} fill="#FFFFFF" stroke="#34D399" strokeWidth={2} />
+        {Number.isFinite(lastX) && Number.isFinite(lastY) ? (
+          <Circle cx={lastX} cy={lastY} r={3} fill="#FFFFFF" stroke="#34D399" strokeWidth={2} />
+        ) : null}
       </Svg>
     </YStack>
   );

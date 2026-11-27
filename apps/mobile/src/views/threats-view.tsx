@@ -21,7 +21,7 @@ import { useSavedEntryId } from '@/lib/saved-team';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useBootstrap, useEntryPicks, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { computeThreats, filterThreatsByStatus } = threatsNs;
+const { filterThreatsByStatus, resolveThreats } = threatsNs;
 
 const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }> = [
   { label: 'All', value: 'all' },
@@ -31,6 +31,8 @@ const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }
   { label: "Didn't play", value: 'didnt-play' },
 ];
 
+const EMPTY_THREATS: Threat[] = [];
+
 const POSITION_TO_SHIRT: Record<ThreatPosition, ShirtKind> = {
   gk: 'gk',
   def: 'def',
@@ -38,67 +40,57 @@ const POSITION_TO_SHIRT: Record<ThreatPosition, ShirtKind> = {
   fwd: 'fwd',
 };
 
-const PLACEHOLDER_THREATS: Threat[] = [
-  {
-    elementId: 351,
-    name: 'Haaland',
-    teamShort: 'MCI',
-    teamCode: 43,
-    position: 'fwd',
-    ownedByCount: 78,
-    ownedByPct: 78,
-    captainPct: 41,
-    effectiveOwnershipPct: 119,
-    livePoints: 13,
-    minutes: 90,
-    liveRankImpactIfTheyHaul: 9.52,
-    pointsLostToThreat: 15.47,
-    scorePct: 26,
-    playingStatus: 'played',
-  },
-  {
-    elementId: 328,
-    name: 'M.Salah',
-    teamShort: 'LIV',
-    teamCode: 14,
-    position: 'mid',
-    ownedByCount: 52,
-    ownedByPct: 52,
-    captainPct: 18,
-    effectiveOwnershipPct: 70,
-    livePoints: 9,
-    minutes: 90,
-    liveRankImpactIfTheyHaul: 6.1,
-    pointsLostToThreat: 8.2,
-    scorePct: 18,
-    playingStatus: 'played',
-  },
-];
+/** Rows shown before the list is cut off. Past this the impact is negligible. */
+const MAX_ROWS = 20;
 
 interface ThreatRowProps {
   threat: Threat;
   last: boolean;
 }
 
+function StatCell({ value, label }: { value: string; label: string }) {
+  return (
+    <YStack alignItems="flex-end" width={46}>
+      <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$color" numberOfLines={1}>
+        {value}
+      </Text>
+      <Text
+        fontFamily="$body"
+        fontSize={8.5}
+        fontWeight="600"
+        textTransform="uppercase"
+        letterSpacing={0.6}
+        color="$colorSubtle"
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+    </YStack>
+  );
+}
+
 function ThreatRow({ threat, last }: ThreatRowProps) {
   const isGoalkeeper = threat.position === 'gk';
   const kitUrl = threat.teamCode > 0 ? getKitUrl(threat.teamCode, { isGoalkeeper }) : undefined;
   const clubColor = getClubColor(threat.teamShort);
-  const scoreLabel = threat.scorePct === null ? '—' : `${threat.scorePct.toFixed(0)}%`;
   const lostLabel =
-    threat.pointsLostToThreat > 0 ? `−${threat.pointsLostToThreat.toFixed(1)}` : '0.0';
+    threat.pointsLostToThreat > 0 ? `\u2212${threat.pointsLostToThreat.toFixed(1)}` : '0.0';
 
+  // Four stat columns at a fixed 52pt each left the name column about 30pt on
+  // a phone, so "Haaland" rendered as "H\u2026" and the club line wrapped one word
+  // per row. Score% is dropped here because it is the lost column divided by a
+  // constant, and the name gets the space.
   return (
     <XStack
-      paddingHorizontal={16}
-      paddingVertical={12}
+      paddingHorizontal={12}
+      paddingVertical={8}
       alignItems="center"
-      gap={12}
+      gap={8}
       borderBottomWidth={last ? 0 : 1}
       borderBottomColor="$border"
     >
       <Shirt kind={POSITION_TO_SHIRT[threat.position]} kitUrl={kitUrl} />
-      <YStack flex={1} minWidth={0}>
+      <YStack flex={1} minWidth={96}>
         <Text fontFamily="$body" fontSize={13} fontWeight="500" color="$color" numberOfLines={1}>
           {threat.name}
         </Text>
@@ -112,72 +104,14 @@ function ThreatRow({ threat, last }: ThreatRowProps) {
               flexShrink={0}
             />
           ) : null}
-          <Text fontFamily="$body" fontSize={11} color="$colorSubtle">
-            {threat.teamShort} · {threat.position.toUpperCase()} · {threat.ownedByPct.toFixed(0)}%
-            own
+          <Text fontFamily="$body" fontSize={11} color="$colorSubtle" numberOfLines={1}>
+            {`${threat.teamShort} \u00b7 ${threat.position.toUpperCase()} \u00b7 ${threat.livePoints} pts`}
           </Text>
         </XStack>
       </YStack>
-      <YStack alignItems="flex-end" minWidth={52}>
-        <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$color">
-          {threat.effectiveOwnershipPct.toFixed(0)}%
-        </Text>
-        <Text
-          fontFamily="$body"
-          fontSize={9}
-          fontWeight="600"
-          textTransform="uppercase"
-          letterSpacing={1}
-          color="$colorSubtle"
-        >
-          EO
-        </Text>
-      </YStack>
-      <YStack alignItems="flex-end" minWidth={52}>
-        <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$color">
-          {scoreLabel}
-        </Text>
-        <Text
-          fontFamily="$body"
-          fontSize={9}
-          fontWeight="600"
-          textTransform="uppercase"
-          letterSpacing={1}
-          color="$colorSubtle"
-        >
-          score%
-        </Text>
-      </YStack>
-      <YStack alignItems="flex-end" minWidth={52}>
-        <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$color">
-          {lostLabel}
-        </Text>
-        <Text
-          fontFamily="$body"
-          fontSize={9}
-          fontWeight="600"
-          textTransform="uppercase"
-          letterSpacing={1}
-          color="$colorSubtle"
-        >
-          lost
-        </Text>
-      </YStack>
-      <YStack alignItems="flex-end" minWidth={52}>
-        <Text fontFamily="$mono" fontSize={13} fontWeight="500" color="$color">
-          −{threat.liveRankImpactIfTheyHaul.toFixed(1)}
-        </Text>
-        <Text
-          fontFamily="$body"
-          fontSize={9}
-          fontWeight="600"
-          textTransform="uppercase"
-          letterSpacing={1}
-          color="$colorSubtle"
-        >
-          if 8 pt
-        </Text>
-      </YStack>
+      <StatCell value={`${threat.effectiveOwnershipPct.toFixed(0)}%`} label="owned" />
+      <StatCell value={lostLabel} label="lost" />
+      <StatCell value={`\u2212${threat.liveRankImpactIfTheyHaul.toFixed(1)}`} label="if 8 pt" />
     </XStack>
   );
 }
@@ -194,33 +128,44 @@ export function ThreatsView() {
   const { data: liveGw } = useLiveGameweek(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
 
-  const rows = useMemo<Threat[]>(() => {
-    if (cohort && bootstrap && liveGw && yourPicks) {
-      return computeThreats({
-        yourPicks,
-        cohort,
-        bootstrap,
-        liveGw,
-        fixtures: fixtures ?? [],
-      });
-    }
-    return PLACEHOLDER_THREATS;
-  }, [cohort, bootstrap, liveGw, yourPicks, fixtures]);
+  const resolved = useMemo(() => {
+    if (!bootstrap || !liveGw || !yourPicks || currentGw === null) return null;
+    return resolveThreats({
+      yourPicks,
+      cohort,
+      bootstrap,
+      liveGw,
+      fixtures: fixtures ?? [],
+      gw: currentGw,
+    });
+  }, [cohort, bootstrap, liveGw, yourPicks, fixtures, currentGw]);
 
+  const rows = resolved?.threats ?? EMPTY_THREATS;
   const visibleRows = useMemo(
-    () => filterThreatsByStatus(rows, statusFilter),
+    () => filterThreatsByStatus(rows, statusFilter).slice(0, MAX_ROWS),
     [rows, statusFilter]
   );
 
-  const headline = entryId === null ? 'Save a team on Home to personalise' : `For team ${entryId}`;
+  let meta = 'Save a team on Home to see who can hurt your rank';
+  if (entryId !== null) {
+    meta = `GW${currentGw ?? '\u2014'} \u00b7 players you don\u2019t own, ranked by the rank they can cost you`;
+  }
+
+  let emptyMessage = 'No threats match this filter.';
+  if (entryId === null) emptyMessage = 'Save a team on the Home tab to see your threats.';
+  else if (resolved === null) emptyMessage = 'Loading your threats\u2026';
+
+  let footnote = '';
+  if (resolved?.source === 'top_10k') {
+    footnote = 'Ownership and captaincy from a top-10k sample. Live points refresh every 60s.';
+  } else if (resolved?.source === 'field') {
+    footnote =
+      'Ownership is FPL\u2019s overall figure for every squad, so captaincy is not counted. Live points refresh every 60s.';
+  }
 
   return (
     <Screen testID="screen-threats" topInset>
-      <PageHeader
-        tone="stadium"
-        title="Threats"
-        meta={`${headline} · GW${currentGw ?? '—'} · Players nearby managers own that you don't`}
-      />
+      <PageHeader compact tone="stadium" title="Threats" meta={meta} />
 
       <XStack gap={8} flexWrap="wrap">
         {STATUS_FILTERS.map((f) => (
@@ -241,7 +186,7 @@ export function ThreatsView() {
         {visibleRows.length === 0 ? (
           <YStack paddingHorizontal={16} paddingVertical={28} alignItems="center">
             <Text fontFamily="$body" fontSize={12} color="$colorSubtle">
-              No threats match this filter.
+              {emptyMessage}
             </Text>
           </YStack>
         ) : (
@@ -253,11 +198,7 @@ export function ThreatsView() {
         )}
       </Card>
 
-      <FNote>
-        {cohort !== undefined
-          ? 'Live GW points refresh every 60s. EO and rank impact based on top-10k cohort.'
-          : 'Save a team on the Home tab to see your personal threats.'}
-      </FNote>
+      {footnote ? <FNote>{footnote}</FNote> : null}
     </Screen>
   );
 }

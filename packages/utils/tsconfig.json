@@ -1,5 +1,0 @@
-{
-  "extends": "@simplyfpl/tsconfig-config/tsconfig.base.json",
-  "compilerOptions": { "outDir": "dist" },
-  "include": ["src"]
-}

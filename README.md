@@ -16,7 +16,6 @@ FPL companion app monorepo. Built with Turborepo + pnpm workspaces.
 | -------------------------- | ----------------------------------------------- |
 | `packages/types`           | Shared FPL domain types                         |
 | `packages/fpl-client`      | FPL API client + live rank / price change logic |
-| `packages/utils`           | Pure utility functions                          |
 | `packages/ui`              | Shared UI components (web + mobile)             |
 | `packages/tsconfig-config` | Shared TypeScript configs                       |
 | `packages/eslint-config`   | Shared ESLint config                            |
