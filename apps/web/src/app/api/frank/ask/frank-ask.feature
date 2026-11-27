@@ -57,3 +57,35 @@ Feature: Frank on-demand ask quota and streaming
     Given a signed-in Ultimate user with 0 queries this month
     When they ask Frank a question and close the stream straight away
     Then the reservation stays and records the token usage
+
+  Scenario: the daily budget ends up holding what the answer really cost
+    Given a signed-in Ultimate user with 0 queries this month
+    When they ask Frank a question
+    Then the daily budget holds the tokens the answer used
+
+  Scenario: a request the daily budget cannot cover makes no AI call
+    Given a signed-in Ultimate user with 0 queries this month
+    And the daily token budget is nearly spent
+    When they ask Frank a question
+    Then no AI call is made
+    And the reply says the daily budget is reached
+    And no quota row is left behind
+
+  Scenario: concurrent asks cannot spend past the daily budget
+    Given a signed-in Ultimate user with 0 queries this month
+    And the daily token budget has room for exactly one question
+    When they ask Frank two questions concurrently
+    Then exactly one AI call is made
+
+  Scenario: an AI failure hands the daily reservation back
+    Given a signed-in Ultimate user with 0 queries this month
+    And the AI service is failing
+    When they ask Frank a question
+    Then the daily budget holds nothing
+
+  Scenario: Frank still answers when the budget function is not deployed
+    Given a signed-in Ultimate user with 0 queries this month
+    And the budget function is unavailable
+    When they ask Frank a question
+    Then exactly one AI call is made
+

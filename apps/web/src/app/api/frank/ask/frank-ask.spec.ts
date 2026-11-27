@@ -23,6 +23,8 @@ let frankRows: FrankRow[];
 let nextRowId: number;
 let mockAnthropicStream: AnyMock;
 let cacheHit: boolean;
+let budgetReserved: number;
+let budgetUnavailable: boolean;
 
 class MockMessageStream implements AsyncIterable<unknown> {
   constructor(
@@ -73,6 +75,21 @@ vi.mock('@/lib/supabase-server', () => ({
 
 vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdminClient: () => ({
+    // Stands in for the two budget functions with the same semantics: reserve
+    // adds only when the result stays within the cap.
+    rpc: (fn: string, args: { p_tokens?: number; p_cap?: number; p_delta?: number }) => {
+      if (budgetUnavailable) return Promise.resolve({ data: null, error: { code: 'PGRST202' } });
+      if (fn === 'frank_reserve_tokens') {
+        const tokens = args.p_tokens ?? 0;
+        if (budgetReserved + tokens > (args.p_cap ?? 0)) {
+          return Promise.resolve({ data: false, error: null });
+        }
+        budgetReserved += tokens;
+        return Promise.resolve({ data: true, error: null });
+      }
+      budgetReserved = Math.max(0, budgetReserved + (args.p_delta ?? 0));
+      return Promise.resolve({ data: null, error: null });
+    },
     from: (_table: string) => ({
       select: (_cols: string, _opts?: { count: string; head: boolean }) => ({
         eq: (_col: string, userId: string) => ({
@@ -172,6 +189,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
     frankRows = [];
     nextRowId = 1;
     cacheHit = false;
+    budgetReserved = 0;
+    budgetUnavailable = false;
+    vi.stubEnv('FRANK_DAILY_SPEND_CAP_TOKENS', '');
     mockAnthropicStream = vi.fn().mockReturnValue(makeDefaultStream());
     vi.stubEnv('FEATURE_FRANK_ONDEMAND', 'true');
     vi.stubEnv('ANTHROPIC_API_KEY', 'test-key');
@@ -435,6 +455,133 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
         expect(frankRows).toHaveLength(1);
         expect(frankRows[0]?.tokens_in).toBe(10);
         expect(frankRows[0]?.tokens_out).toBe(20);
+      });
+    }
+  );
+
+  Scenario(
+    'the daily budget ends up holding what the answer really cost',
+    ({ Given, When, Then }) => {
+      Given('a signed-in Ultimate user with 0 queries this month', () => {
+        seedRows(0);
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        await drainStream(await POST(makeRequest()));
+      });
+
+      Then('the daily budget holds the tokens the answer used', () => {
+        // The mock stream reports 10 tokens in and 20 out. The 6,000-token
+        // estimate reserved up front must be replaced by that, not added to it.
+        expect(budgetReserved).toBe(30);
+      });
+    }
+  );
+
+  Scenario(
+    'a request the daily budget cannot cover makes no AI call',
+    ({ Given, And, When, Then }) => {
+      let response: Response | null = null;
+      let body: { advice?: string } = {};
+
+      Given('a signed-in Ultimate user with 0 queries this month', () => {
+        seedRows(0);
+      });
+
+      And('the daily token budget is nearly spent', () => {
+        vi.stubEnv('FRANK_DAILY_SPEND_CAP_TOKENS', '10000');
+        budgetReserved = 9000;
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        response = await POST(makeRequest());
+        body = (await response.json()) as { advice?: string };
+      });
+
+      Then('no AI call is made', () => {
+        expect(mockAnthropicStream).not.toHaveBeenCalled();
+      });
+
+      And('the reply says the daily budget is reached', () => {
+        expect(body.advice).toContain('Daily AI budget reached');
+      });
+
+      And('no quota row is left behind', () => {
+        // The question was never answered, so it must not count against the
+        // user's monthly allowance, and the budget must be untouched.
+        expect(frankRows).toHaveLength(0);
+        expect(budgetReserved).toBe(9000);
+      });
+    }
+  );
+
+  Scenario('concurrent asks cannot spend past the daily budget', ({ Given, And, When, Then }) => {
+    Given('a signed-in Ultimate user with 0 queries this month', () => {
+      seedRows(0);
+    });
+
+    And('the daily token budget has room for exactly one question', () => {
+      vi.stubEnv('FRANK_DAILY_SPEND_CAP_TOKENS', '6000');
+    });
+
+    When('they ask Frank two questions concurrently', async () => {
+      const { POST } = await importRoute();
+      const responses = await Promise.all([POST(makeRequest('one?')), POST(makeRequest('two?'))]);
+      await Promise.all(
+        responses.map((r) =>
+          r.headers.get('content-type')?.includes('text/event-stream') ? drainStream(r) : r.text()
+        )
+      );
+    });
+
+    Then('exactly one AI call is made', () => {
+      expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  Scenario('an AI failure hands the daily reservation back', ({ Given, And, When, Then }) => {
+    Given('a signed-in Ultimate user with 0 queries this month', () => {
+      seedRows(0);
+    });
+
+    And('the AI service is failing', () => {
+      mockAnthropicStream = vi.fn().mockImplementation(() => {
+        throw new Error('upstream down');
+      });
+    });
+
+    When('they ask Frank a question', async () => {
+      const { POST } = await importRoute();
+      await drainStream(await POST(makeRequest()));
+    });
+
+    Then('the daily budget holds nothing', () => {
+      expect(budgetReserved).toBe(0);
+    });
+  });
+
+  Scenario(
+    'Frank still answers when the budget function is not deployed',
+    ({ Given, And, When, Then }) => {
+      Given('a signed-in Ultimate user with 0 queries this month', () => {
+        seedRows(0);
+      });
+
+      And('the budget function is unavailable', () => {
+        budgetUnavailable = true;
+      });
+
+      When('they ask Frank a question', async () => {
+        const { POST } = await importRoute();
+        await drainStream(await POST(makeRequest()));
+      });
+
+      Then('exactly one AI call is made', () => {
+        // Deploying the code ahead of the migration must not take Frank down.
+        expect(mockAnthropicStream).toHaveBeenCalledTimes(1);
+        expect(budgetReserved).toBe(0);
       });
     }
   );

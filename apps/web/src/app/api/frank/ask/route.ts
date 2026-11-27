@@ -11,6 +11,13 @@ import {
 import { resolveTier } from '@simplyfpl/features/subscriptions/entitlement';
 import type { FplEntrySnapshot, FplFixture, FrankWeeklyPayload } from '@simplyfpl/types';
 
+import type { BudgetStore } from '@/lib/frank-budget';
+import {
+  FRANK_RESERVE_TOKENS,
+  reserveDailyTokens,
+  resolveDailyCap,
+  settleDailyTokens,
+} from '@/lib/frank-budget';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
@@ -24,9 +31,7 @@ const FRANK_MODEL = 'claude-haiku-5-5';
 const FRANK_MAX_TOKENS = 1536;
 const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 const FRANK_CACHE_WRITE_SECRET = process.env['FRANK_CACHE_WRITE_SECRET'];
-const FRANK_DAILY_SPEND_CAP = process.env['FRANK_DAILY_SPEND_CAP_TOKENS']
-  ? Number(process.env['FRANK_DAILY_SPEND_CAP_TOKENS'])
-  : null;
+const FRANK_DAILY_SPEND_CAP = resolveDailyCap(process.env['FRANK_DAILY_SPEND_CAP_TOKENS']);
 
 const FRANK_QUOTA_SOFT = 50;
 const FRANK_QUOTA_HARD = 80;
@@ -89,6 +94,35 @@ const enc = new TextEncoder();
 
 function sseChunk(event: string, data: unknown): Uint8Array {
   return enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+/**
+ * The pre-migration budget check: sum today's recorded tokens and compare.
+ *
+ * Not atomic, and it scans a growing table, which is why it is no longer the
+ * primary check. Kept only as the fallback for when frank_reserve_tokens cannot
+ * be reached, so that case is no worse than before.
+ */
+async function legacyBudgetExceeded(
+  client: ReturnType<typeof getSupabaseAdminClient>,
+  cap: number
+): Promise<boolean> {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const { data: todayRows } = await client
+      .from('frank_queries')
+      .select('tokens_in, tokens_out')
+      .gte('created_at', startOfDay.toISOString());
+    const todayTokens = (todayRows ?? []).reduce(
+      (sum: number, row: { tokens_in?: number | null; tokens_out?: number | null }) =>
+        sum + (row.tokens_in ?? 0) + (row.tokens_out ?? 0),
+      0
+    );
+    return todayTokens >= cap;
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -244,31 +278,6 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  if (FRANK_DAILY_SPEND_CAP !== null) {
-    const startOfDay = new Date();
-    startOfDay.setUTCHours(0, 0, 0, 0);
-    const { data: todayRows } = await admin
-      .from('frank_queries')
-      .select('tokens_in, tokens_out')
-      .gte('created_at', startOfDay.toISOString());
-    const todayTokens = (todayRows ?? []).reduce(
-      (sum: number, row: { tokens_in?: number | null; tokens_out?: number | null }) =>
-        sum + (row.tokens_in ?? 0) + (row.tokens_out ?? 0),
-      0
-    );
-    if (todayTokens >= FRANK_DAILY_SPEND_CAP) {
-      return NextResponse.json({
-        advice: weeklyContext
-          ? `Daily AI budget reached. This week's general advice: ${weeklyContext}`
-          : 'Daily AI budget reached. Please try again tomorrow.',
-        follow_up_question: null,
-        used,
-        softCap: FRANK_QUOTA_SOFT,
-        hardCap: FRANK_QUOTA_HARD,
-      });
-    }
-  }
-
   const enrichedContext = buildEnrichedContext({
     snapshot,
     fixtures,
@@ -329,6 +338,36 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Hold tokens out of today's budget before the model is called. This is one
+  // statement in Postgres, so two requests arriving together cannot both read
+  // the pre-spend total and both proceed, which the old sum-then-decide check
+  // allowed.
+  const budgetStore: BudgetStore = {
+    reserve: (tokens, cap) => admin.rpc('frank_reserve_tokens', { p_tokens: tokens, p_cap: cap }),
+    settle: (delta) => admin.rpc('frank_settle_tokens', { p_delta: delta }),
+  };
+  let budget = await reserveDailyTokens(budgetStore, FRANK_RESERVE_TOKENS, FRANK_DAILY_SPEND_CAP);
+  if (budget === 'unavailable') {
+    // The budget function is not deployed yet, or errored. Fall back to the old
+    // check rather than run with no cap, or take Frank down over a migration.
+    budget = (await legacyBudgetExceeded(admin, FRANK_DAILY_SPEND_CAP))
+      ? 'over-cap'
+      : 'unavailable';
+  }
+  if (budget === 'over-cap') {
+    await admin.from('frank_queries').delete().eq('id', reservation.id);
+    return NextResponse.json({
+      advice: weeklyContext
+        ? `Daily AI budget reached. This week's general advice: ${weeklyContext}`
+        : 'Daily AI budget reached. Please try again tomorrow.',
+      follow_up_question: null,
+      used,
+      softCap: FRANK_QUOTA_SOFT,
+      hardCap: FRANK_QUOTA_HARD,
+    });
+  }
+  const tokensReserved = budget === 'reserved' ? FRANK_RESERVE_TOKENS : 0;
+
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
 
@@ -359,6 +398,14 @@ export async function POST(request: NextRequest) {
       }
 
       const finalMsg = await anthropicStream.finalMessage();
+      // Swap the estimate for what was really spent.
+      if (tokensReserved > 0) {
+        await settleDailyTokens(
+          budgetStore,
+          tokensReserved,
+          finalMsg.usage.input_tokens + finalMsg.usage.output_tokens
+        );
+      }
       const parsed = parseFrankJson(fullText);
       const advice = parsed?.advice ?? FRANK_PARSE_ERROR;
       const responsePayload: FrankJsonResponse = parsed ?? { advice: FRANK_PARSE_ERROR };
@@ -400,6 +447,8 @@ export async function POST(request: NextRequest) {
         })
       );
     } catch {
+      // The model was never paid for, so hand the reservation back.
+      if (tokensReserved > 0) await settleDailyTokens(budgetStore, tokensReserved, 0);
       await admin.from('frank_queries').delete().eq('id', reservationId);
       await send(sseChunk('error', { error: 'AI service unavailable' }));
     } finally {
