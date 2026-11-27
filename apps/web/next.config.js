@@ -1,5 +1,7 @@
 import { withTamagui } from '@tamagui/next-plugin';
 
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
 /** @type {import('next').NextConfig} */
 const CSP = [
   "default-src 'self'",
@@ -42,10 +44,19 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
-      {
-        source: '/_next/static/:path*',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
-      },
+      // Only in production, where every file under /_next/static has a content
+      // hash in its name. `next dev` serves unhashed names such as
+      // chunks/app/page.js, so marking those immutable made the browser keep a
+      // stale bundle for a year: edits appeared to do nothing until the cache
+      // was cleared by hand.
+      ...(IS_PRODUCTION
+        ? [
+            {
+              source: '/_next/static/:path*',
+              headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+            },
+          ]
+        : []),
       {
         source: '/',
         headers: [
