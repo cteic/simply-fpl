@@ -14,7 +14,7 @@
             "largest-contentful-paint": [
               "error",
               {
-                "maxNumericValue": 5450,
+                "maxNumericValue": 1250,
                 "aggregationMethod": "median"
               }
             ],
@@ -28,7 +28,7 @@
             "cumulative-layout-shift": [
               "error",
               {
-                "maxNumericValue": 0.15,
+                "maxNumericValue": 0.1,
                 "aggregationMethod": "median"
               }
             ]
