@@ -157,6 +157,32 @@ describeFeature(feature, ({ Scenario }) => {
   });
 
   Scenario(
+    'A league with further pages does not claim a size or a gameweek place',
+    ({ Given, When, Then, And }) => {
+      let position: LeaguePosition | null = null;
+
+      Given('the first page of a league that has more pages', () => {
+        position = null;
+      });
+
+      When('I describe their position from that page alone', () => {
+        position = describeLeaguePosition(league(), ME, { complete: false });
+      });
+
+      Then('the rank and the gaps to neighbours are reported', () => {
+        expect(position?.rank).toBe(10);
+        expect(position?.above).not.toBeNull();
+        expect(position?.below).not.toBeNull();
+      });
+
+      And('the league size and the gameweek place are left unknown', () => {
+        expect(position?.managers).toBeNull();
+        expect(position?.gameweekPlace).toBeNull();
+      });
+    }
+  );
+
+  Scenario(
     'A finished gameweek is settled even though it is still current',
     ({ Given, When, Then }) => {
       let phase: GameweekPhase;

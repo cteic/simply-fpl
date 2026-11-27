@@ -56,8 +56,14 @@ import { StadiumGradient } from '@/components/stadium-gradient';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useEntrySnapshot, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { useLiveAgoMs, useLiveRankEstimate, useLiveSquadEvents, useSeasonStory, setLiveLastUpdate } =
-  liveRank;
+const {
+  selectActiveEstimate,
+  useLiveAgoMs,
+  useLiveRankEstimate,
+  useLiveSquadEvents,
+  useSeasonStory,
+  setLiveLastUpdate,
+} = liveRank;
 const { computeLiveBattle } = liveBattle;
 
 function formatLiveAgo(ms: number | null): string {
@@ -395,10 +401,11 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   // overall rank, so show that rather than an empty hero.
   const gwFinished = bootstrap?.events.find((e) => e.id === currentGw)?.finished === true;
   const settledRank = entry?.summary_overall_rank ?? null;
-  const heroRank =
-    showPostSubs && postSubsEstimate
-      ? postSubsEstimate.liveRank
-      : (estimate?.liveRank ?? (gwFinished ? settledRank : null));
+  // One estimate drives the rank, the arrow and the status line. Reading the
+  // rank from post-subs and the movement from pre-subs could show an improved
+  // rank beside a down arrow.
+  const activeEstimate = selectActiveEstimate(estimate, postSubsEstimate, showPostSubs);
+  const heroRank = activeEstimate?.liveRank ?? (gwFinished ? settledRank : null);
   // The other side of the pre/post toggle, from the same model as the hero.
   let subsAltLabel: string | null = null;
   if (estimate && postSubsEstimate && autosubsApply) {
@@ -408,8 +415,8 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   }
   const heroLabel = estimate === null && gwFinished ? 'overall rank' : 'est. live rank';
   const movementLabel =
-    estimate && estimate.movement !== 0
-      ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
+    activeEstimate && activeEstimate.movement !== 0
+      ? `${activeEstimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(activeEstimate.movement).toLocaleString()}`
       : null;
 
   // What the line under the rank says. A settled gameweek has no estimate, so

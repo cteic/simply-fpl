@@ -83,8 +83,14 @@ export interface LiveRankDataOverride {
   replayBanner?: string;
 }
 
-const { useLiveAgoMs, useLiveRankEstimate, useLiveSnapshot, useLiveSquadEvents, useSeasonStory } =
-  liveRank;
+const {
+  selectActiveEstimate,
+  useLiveAgoMs,
+  useLiveRankEstimate,
+  useLiveSnapshot,
+  useLiveSquadEvents,
+  useSeasonStory,
+} = liveRank;
 const { computeLiveBattle } = liveBattle;
 
 type SubsMode = 'pre' | 'post';
@@ -626,9 +632,11 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   const settled = estimate === null && gwFinished;
   const liveAgoMs = useLiveAgoMs();
   const agoMs = dataOverride ? dataOverride.agoMs : liveAgoMs;
+  // The arrow follows the same side of the pre/post-subs toggle as the rank.
+  const activeEstimate = selectActiveEstimate(estimate, postSubsEstimate, showPostSubs);
   const movementLabel =
-    estimate && estimate.movement !== 0
-      ? `${estimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(estimate.movement).toLocaleString()}`
+    activeEstimate && activeEstimate.movement !== 0
+      ? `${activeEstimate.direction === 'up' ? '↑' : '↓'} ${Math.abs(activeEstimate.movement).toLocaleString()}`
       : null;
   const totalPointsLabel = entry?.summary_overall_points
     ? entry.summary_overall_points.toLocaleString()

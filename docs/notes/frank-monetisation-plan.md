@@ -122,13 +122,14 @@ season is the natural unit an FPL manager thinks in.
 
 Scenarios only. The two inputs that matter, active users and conversion rate,
 are not known for SimplyFPL yet, so both are varied. Blended revenue per paying
-user is taken as €2.60 a month, assuming two thirds choose annual.
+user is taken as €2.72 a month, assuming two thirds choose annual: two thirds
+of €25 over twelve months plus one third of €4.
 
 | monthly active users | paying at 2% | paying at 4% | revenue a month at 2% | at 4%  |
 | -------------------- | ------------ | ------------ | --------------------- | ------ |
-| 5,000                | 100          | 200          | €260                  | €520   |
-| 20,000               | 400          | 800          | €1,040                | €2,080 |
-| 50,000               | 1,000        | 2,000        | €2,600                | €5,200 |
+| 5,000                | 100          | 200          | €272                  | €544   |
+| 20,000               | 400          | 800          | €1,088                | €2,176 |
+| 50,000               | 1,000        | 2,000        | €2,720                | €5,440 |
 
 Against that, the model bill for the whole user base, free and paid, is in the
 tens to low hundreds of dollars a month. The honest reading is that Frank's

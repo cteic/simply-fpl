@@ -96,7 +96,8 @@ export function deriveScoutEvents(
     for (const risk of player.scout_risks) {
       let kind: ScoutEventKind | null = null;
       if (risk.property === 'suspension_risk') kind = 'suspension_risk';
-      else if (risk.property === 'loan_ineligible' && risk.gameweek === nextGw) kind = 'ineligible';
+      else if (risk.property === 'loan_ineligible' && nextGw !== null && risk.gameweek === nextGw)
+        kind = 'ineligible';
       if (kind === null) continue;
       events.push({
         id: `${kind}-${player.id}`,

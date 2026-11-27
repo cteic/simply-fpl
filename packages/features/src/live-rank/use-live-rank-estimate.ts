@@ -169,6 +169,20 @@ export interface UseLiveRankEstimateResult {
   targets: RankTargets | null;
 }
 
+/**
+ * The estimate a screen should show for its pre/post-subs toggle. The rank, the
+ * movement arrow and the status line must all read from this one value: taking
+ * the rank from post-subs and the movement from pre-subs can show an improved
+ * rank beside a down arrow.
+ */
+export function selectActiveEstimate(
+  estimate: LiveRankEstimate | null,
+  postSubsEstimate: LiveRankEstimate | null,
+  showPostSubs: boolean
+): LiveRankEstimate | null {
+  return showPostSubs && postSubsEstimate ? postSubsEstimate : estimate;
+}
+
 export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimateResult {
   const snapshotQuery = useQuery({
     queryKey: ['entry-snapshot', entryId],

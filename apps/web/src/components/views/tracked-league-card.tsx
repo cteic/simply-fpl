@@ -16,7 +16,11 @@ const AD_FREQUENCY = 8;
 
 /** Where the manager stands, in the terms they would use about a rival. */
 function summariseLeaguePosition(position: LeaguePosition): string {
-  const parts = [t('league_card.position', { rank: position.rank, count: position.managers })];
+  const parts = [
+    position.managers === null
+      ? t('league_card.position_only', { rank: position.rank })
+      : t('league_card.position', { rank: position.rank, count: position.managers }),
+  ];
   if (position.above) {
     parts.push(
       position.above.gap === 0
@@ -27,7 +31,9 @@ function summariseLeaguePosition(position: LeaguePosition): string {
   if (position.below) {
     parts.push(t('league_card.clear_of', { gap: position.below.gap, name: position.below.name }));
   }
-  parts.push(t('league_card.gw_place', { place: position.gameweekPlace }));
+  if (position.gameweekPlace !== null) {
+    parts.push(t('league_card.gw_place', { place: position.gameweekPlace }));
+  }
   return parts.join(' \u00b7 ');
 }
 
@@ -84,7 +90,11 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
 
   const totalRows = data.standings.results.length;
   const position =
-    myEntryId === undefined ? null : describeLeaguePosition(data.standings.results, myEntryId);
+    myEntryId === undefined
+      ? null
+      : describeLeaguePosition(data.standings.results, myEntryId, {
+          complete: !data.standings.has_next,
+        });
   // Keep the manager's own row on screen. Cutting at ten hid anyone eleventh
   // or lower in their own league until they expanded the table.
   const myIndex =

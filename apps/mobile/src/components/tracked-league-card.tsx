@@ -21,7 +21,11 @@ function ordinal(n: number): string {
 
 /** Where the manager stands, in the terms they would use about a rival. */
 function summariseLeaguePosition(position: LeaguePosition): string {
-  const parts = [`${ordinal(position.rank)} of ${position.managers}`];
+  const parts = [
+    position.managers === null
+      ? ordinal(position.rank)
+      : `${ordinal(position.rank)} of ${position.managers}`,
+  ];
   if (position.above) {
     parts.push(
       position.above.gap === 0
@@ -30,7 +34,9 @@ function summariseLeaguePosition(position: LeaguePosition): string {
     );
   }
   if (position.below) parts.push(`${position.below.gap} clear of ${position.below.name}`);
-  parts.push(`${ordinal(position.gameweekPlace)} best this GW`);
+  if (position.gameweekPlace !== null) {
+    parts.push(`${ordinal(position.gameweekPlace)} best this GW`);
+  }
   return parts.join(' \u00b7 ');
 }
 
@@ -66,7 +72,9 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
   }
 
   const totalRows = data.standings.results.length;
-  const position = describeLeaguePosition(data.standings.results, myEntryId);
+  const position = describeLeaguePosition(data.standings.results, myEntryId, {
+    complete: !data.standings.has_next,
+  });
   // Keep the manager's own row on screen. Cutting at ten hid anyone eleventh
   // or lower in their own league until they tapped to expand.
   const myIndex = data.standings.results.findIndex((row) => row.entry === myEntryId);

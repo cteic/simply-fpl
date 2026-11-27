@@ -107,12 +107,12 @@ export function StatTile({
 
   return (
     <TileBase tone={tone} compact={compact} position="relative" scale={scale}>
-      <Label compact={compact} numberOfLines={1}>
+      <Label compact={compact} {...(compact ? { numberOfLines: 1 } : {})}>
         {label}
       </Label>
       {value}
       {sub ? (
-        <Sub compact={compact} numberOfLines={1}>
+        <Sub compact={compact} {...(compact ? { numberOfLines: 1 } : {})}>
           {sub}
         </Sub>
       ) : null}

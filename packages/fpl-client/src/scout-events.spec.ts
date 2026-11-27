@@ -331,4 +331,33 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario }) => {
       expect(events).toHaveLength(0);
     });
   });
+
+  Scenario('Ineligibility with no known gameweek is not reported', ({ Given, When, Then }) => {
+    Given(
+      'a bootstrap with no next gameweek and a loanee whose ineligible gameweek is unknown',
+      () => {
+        bootstrap = makeBootstrap([
+          makePlayer({
+            scout_risks: [
+              {
+                property: 'loan_ineligible',
+                notes: 'Cannot face parent club.',
+                gameweek: null,
+                url: null,
+              },
+            ],
+          }),
+        ]);
+        bootstrap.events = [];
+      }
+    );
+
+    When('deriveScoutEvents is called', () => {
+      events = deriveScoutEvents(bootstrap, picks);
+    });
+
+    Then('no events are returned', () => {
+      expect(events).toHaveLength(0);
+    });
+  });
 });

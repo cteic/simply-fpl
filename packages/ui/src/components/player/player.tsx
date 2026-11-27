@@ -8,6 +8,13 @@ import { PBadge } from '../pbadge';
 import { Shirt } from '../shirt';
 import type { ShirtKind } from '../shirt';
 
+/**
+ * Width of a dense player. Five must fit one pitch row on a 360px phone: the
+ * row is 324px wide there, and five at 62 with four 2px gaps need 318. At 66
+ * the fifth midfielder wrapped onto a second row.
+ */
+const DENSE_PLAYER_WIDTH = 62;
+
 const Wrap = styled(YStack, {
   alignItems: 'center',
   gap: 5,
@@ -127,12 +134,12 @@ export function Player({
   if (dense) {
     const meta = [detail, ownershipLabel].filter((part) => Boolean(part)).join(' \u00b7 ');
     return (
-      <Wrap width={66} gap={2}>
+      <Wrap width={DENSE_PLAYER_WIDTH} gap={2}>
         <ShirtWrap bench={bench}>
           <Shirt kind={shirtKind} kitUrl={kitUrl} kitUrl2x={kitUrl2x} size={34} />
           {badge ? <PBadge tone={badgeTone}>{badge}</PBadge> : null}
         </ShirtWrap>
-        <Name bench={bench} maxWidth={64} color={nameColor}>
+        <Name bench={bench} maxWidth={DENSE_PLAYER_WIDTH - 2} color={nameColor}>
           {name}
         </Name>
         {meta ? (

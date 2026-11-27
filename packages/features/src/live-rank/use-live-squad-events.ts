@@ -30,6 +30,19 @@ export function enqueueLiveEvents(
   return [...fresh, ...current].slice(0, max);
 }
 
+/**
+ * The snapshot a new refresh may be compared with. Only one from the same
+ * gameweek: every player's stats restart at zero in a new gameweek, so a diff
+ * across the boundary reads last week's clean sheet as one just lost.
+ */
+export function baselineForGameweek<T>(
+  previous: T | undefined,
+  previousGameweek: number | null,
+  gameweek: number
+): T | undefined {
+  return previousGameweek === gameweek ? previous : undefined;
+}
+
 export interface UseLiveSquadEventsInput {
   picks: FplEntryGameweekPicks | null | undefined;
   liveGw: FplLiveGameweek | undefined;
@@ -60,13 +73,22 @@ export function useLiveSquadEvents(input: UseLiveSquadEventsInput): UseLiveSquad
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
   const previousRef = useRef<FplLiveGameweek | undefined>(undefined);
+  const gameweekRef = useRef<number | null>(null);
   const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const [events, setEvents] = useState<LiveSquadEvent[]>([]);
 
   useEffect(() => {
     if (!liveGw || !picks || !bootstrap) return;
-    const previous = previousRef.current;
+    const gameweek = picks.entry_history.event;
+    const crossedGameweek = gameweekRef.current !== null && gameweekRef.current !== gameweek;
+    const previous = baselineForGameweek(previousRef.current, gameweekRef.current, gameweek);
     previousRef.current = liveGw;
+    gameweekRef.current = gameweek;
+    if (crossedGameweek) {
+      for (const pending of timersRef.current) clearTimeout(pending);
+      timersRef.current.clear();
+      setEvents([]);
+    }
     if (previous === liveGw) return;
 
     const detected = diffLiveSquadEvents({ previous, next: liveGw, picks, bootstrap });

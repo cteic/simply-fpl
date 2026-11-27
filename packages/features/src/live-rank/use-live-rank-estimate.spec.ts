@@ -8,7 +8,11 @@ import type {
 } from '@simplyfpl/types';
 
 import type { LiveRankEstimateInput } from './use-live-rank-estimate';
-import { computeLiveRankEstimate, computeLiveRankTargets } from './use-live-rank-estimate';
+import {
+  computeLiveRankEstimate,
+  computeLiveRankTargets,
+  selectActiveEstimate,
+} from './use-live-rank-estimate';
 
 function liveEl(id: number, totalPoints: number): FplLiveElement {
   return {
@@ -380,5 +384,30 @@ describe('computeLiveRankTargets', () => {
 
   it('returns nothing when the curve is from the wrong gameweek', () => {
     expect(computeLiveRankTargets(withCurve(5))).toBeNull();
+  });
+});
+
+describe('selectActiveEstimate', () => {
+  const pre = {
+    liveRank: 1100,
+    movement: -100,
+    direction: 'down',
+    source: 'official-curve',
+  } as const;
+  const post = { liveRank: 900, movement: 100, direction: 'up', source: 'official-curve' } as const;
+
+  it('shows the pre-subs estimate by default', () => {
+    expect(selectActiveEstimate(pre, post, false)).toBe(pre);
+  });
+
+  it('takes rank and movement from post-subs together, so the arrow matches the rank', () => {
+    const active = selectActiveEstimate(pre, post, true);
+    expect(active?.liveRank).toBe(900);
+    expect(active?.direction).toBe('up');
+  });
+
+  it('falls back to pre-subs when there is no post-subs estimate', () => {
+    expect(selectActiveEstimate(pre, null, true)).toBe(pre);
+    expect(selectActiveEstimate(null, null, true)).toBeNull();
   });
 });

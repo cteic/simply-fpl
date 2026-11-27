@@ -30,12 +30,16 @@ export function getGameweekPhase(
  * against the rest of the league.
  *
  * Works from one page of standings. When the manager is not on it, returns
- * null rather than guessing at rows it cannot see.
+ * null rather than guessing at rows it cannot see. Pass `complete: false` when
+ * the league has further pages: the league size and the gameweek place then
+ * come back null, because both depend on managers this page does not hold.
  */
 export function describeLeaguePosition(
   standings: FplLeagueStanding[],
-  myEntryId: number
+  myEntryId: number,
+  options: { complete?: boolean } = {}
 ): LeaguePosition | null {
+  const complete = options.complete ?? true;
   const ordered = standings.slice().sort((a, b) => a.rank_sort - b.rank_sort);
   const index = ordered.findIndex((row) => row.entry === myEntryId);
   if (index < 0) return null;
@@ -52,12 +56,12 @@ export function describeLeaguePosition(
 
   return {
     rank: me.rank,
-    managers: ordered.length,
+    managers: complete ? ordered.length : null,
     movement: me.last_rank > 0 ? me.last_rank - me.rank : 0,
     above: above ? { name: above.player_name, gap: above.total - me.total } : null,
     below: below ? { name: below.player_name, gap: me.total - below.total } : null,
     gapToLeader: leader && leader.entry !== me.entry ? leader.total - me.total : 0,
-    gameweekPlace,
+    gameweekPlace: complete ? gameweekPlace : null,
   };
 }
 
