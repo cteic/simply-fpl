@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import * as SecureStore from 'expo-secure-store';
 
@@ -38,15 +38,15 @@ export function useSavedEntryId(): SavedTeamState {
     };
   }, []);
 
-  const save = useCallback((id: number) => {
+  const save = (id: number) => {
     setEntryId(id);
     void SecureStore.setItemAsync(STORAGE_KEY, String(id));
-  }, []);
+  };
 
-  const clear = useCallback(() => {
+  const clear = () => {
     setEntryId(null);
     void SecureStore.deleteItemAsync(STORAGE_KEY);
-  }, []);
+  };
 
   return { entryId, hydrated, save, clear };
 }

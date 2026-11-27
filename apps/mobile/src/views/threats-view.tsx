@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { threats as threatsNs } from '@simplyfpl/features';
 import type { Threat, ThreatPosition, ThreatStatusFilter } from '@simplyfpl/features/threats';
@@ -121,30 +121,27 @@ export function ThreatsView() {
   const [statusFilter, setStatusFilter] = useState<ThreatStatusFilter>('all');
 
   const { data: bootstrap } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   const aggregates = useCohortAggregates(currentGw);
   const cohort = aggregates?.tiers.top_10k;
   const { data: yourPicks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
   const { data: liveGw } = useLiveGameweek(currentGw);
   const { data: fixtures } = useFixtures(currentGw);
 
-  const resolved = useMemo(() => {
-    if (!bootstrap || !liveGw || !yourPicks || currentGw === null) return null;
-    return resolveThreats({
-      yourPicks,
-      cohort,
-      bootstrap,
-      liveGw,
-      fixtures: fixtures ?? [],
-      gw: currentGw,
-    });
-  }, [cohort, bootstrap, liveGw, yourPicks, fixtures, currentGw]);
+  const resolved =
+    !bootstrap || !liveGw || !yourPicks || currentGw === null
+      ? null
+      : resolveThreats({
+          yourPicks,
+          cohort,
+          bootstrap,
+          liveGw,
+          fixtures: fixtures ?? [],
+          gw: currentGw,
+        });
 
   const rows = resolved?.threats ?? EMPTY_THREATS;
-  const visibleRows = useMemo(
-    () => filterThreatsByStatus(rows, statusFilter).slice(0, MAX_ROWS),
-    [rows, statusFilter]
-  );
+  const visibleRows = filterThreatsByStatus(rows, statusFilter).slice(0, MAX_ROWS);
 
   let meta = 'Save a team on Home to see who can hurt your rank';
   if (entryId !== null) {

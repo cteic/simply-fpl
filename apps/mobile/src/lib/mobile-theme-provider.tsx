@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import * as SecureStore from 'expo-secure-store';
@@ -30,12 +30,12 @@ export function MobileThemeModeProvider({ children }: MobileThemeModeProviderPro
       .catch(() => {});
   }, []);
 
-  const setTheme = useCallback((next: ThemeName) => {
+  const setTheme = (next: ThemeName) => {
     setThemeState(next);
     SecureStore.setItemAsync(THEME_STORAGE_KEY, next).catch(() => {});
-  }, []);
+  };
 
-  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
+  const value = { theme, setTheme };
 
   return <ThemeModeContext.Provider value={value}>{children}</ThemeModeContext.Provider>;
 }

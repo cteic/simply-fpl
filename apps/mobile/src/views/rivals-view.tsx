@@ -117,20 +117,18 @@ interface RivalsInnerProps {
 function RivalsInner({ leagueId, userEntryId }: RivalsInnerProps) {
   const { data: league, isLoading: leagueLoading, error: leagueError } = useClassicLeague(leagueId);
   const { data: bootstrap } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   const { data: liveGw } = useLiveGameweek(currentGw);
 
   const standings: FplLeagueStanding[] = league?.standings.results ?? [];
-  const { rivalEntryIds, userStanding, isWholeLeague } = useMemo(
-    () => selectRivalEntryIds(standings, userEntryId),
-    [standings, userEntryId]
+  const { rivalEntryIds, userStanding, isWholeLeague } = selectRivalEntryIds(
+    standings,
+    userEntryId
   );
 
-  const allEntryIds = useMemo(() => {
-    const ids = new Set<number>(rivalEntryIds);
-    ids.add(userEntryId);
-    return Array.from(ids);
-  }, [rivalEntryIds, userEntryId]);
+  const allEntryIdSet = new Set<number>(rivalEntryIds);
+  allEntryIdSet.add(userEntryId);
+  const allEntryIds = Array.from(allEntryIdSet);
 
   const { data: picksMap, errors: picksErrors } = useRivalPicks(allEntryIds, currentGw);
   const { data: userPicksFromHook } = useEntryPicks(userEntryId, currentGw);

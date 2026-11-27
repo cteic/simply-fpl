@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useLocalSearchParams } from 'expo-router';
 
@@ -112,7 +112,7 @@ function HeadToHeadInner({
   theirEntryId: number;
 }) {
   const { data: bootstrap } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   const { data: yourEntry, isLoading: yourLoading } = useEntry(yourEntryId);
   const { data: theirEntry, isLoading: theirLoading } = useEntry(theirEntryId);
   const { data: yourPicks } = useEntryPicks(yourEntryId, currentGw);
@@ -120,10 +120,9 @@ function HeadToHeadInner({
   const { data: liveGw } = useLiveGameweek(currentGw);
 
   const ready = yourEntry && theirEntry && yourPicks && theirPicks && bootstrap && liveGw;
-  const result: H2hResult | null = useMemo(() => {
-    if (!ready) return null;
-    return computeH2h({ yourEntry, theirEntry, yourPicks, theirPicks, bootstrap, liveGw });
-  }, [ready, yourEntry, theirEntry, yourPicks, theirPicks, bootstrap, liveGw]);
+  const result: H2hResult | null = ready
+    ? computeH2h({ yourEntry, theirEntry, yourPicks, theirPicks, bootstrap, liveGw })
+    : null;
 
   if (yourLoading || theirLoading || !result) {
     return (
