@@ -6,4 +6,4 @@
 # works. The file carries an inline `gitleaks:allow`, but the scan walks git
 # history and the June 2026 commit predates that annotation. History cannot be
 # annotated retrospectively, so the fingerprint is pinned here instead.
-2653ffc1e2b64bc0892c359d585a71d01e60377f:packages/features/src/push/use-notifications-opt-in.spec.ts:generic-api-key:8
+9bff08f5d5a1bae108cb8546186556926acc8b71:packages/features/src/push/use-notifications-opt-in.spec.ts:generic-api-key:8

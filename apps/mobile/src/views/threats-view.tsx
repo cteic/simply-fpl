@@ -21,7 +21,7 @@ import { useSavedEntryId } from '@/lib/saved-team';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useBootstrap, useEntryPicks, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { filterThreatsByStatus, resolveThreats } = threatsNs;
+const { filterThreatsByStatus, resolveThreats, threatsEmptyState } = threatsNs;
 
 const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }> = [
   { label: 'All', value: 'all' },
@@ -109,33 +109,43 @@ function ThreatRow({ threat, last }: ThreatRowProps) {
           </Text>
         </XStack>
       </YStack>
-      <StatCell value={`${threat.effectiveOwnershipPct.toFixed(0)}%`} label="owned" />
+      <StatCell value={`${threat.effectiveOwnershipPct.toFixed(0)}%`} label="EO" />
       <StatCell value={lostLabel} label="lost" />
       <StatCell value={`\u2212${threat.liveRankImpactIfTheyHaul.toFixed(1)}`} label="if 8 pt" />
     </XStack>
   );
 }
 
+const EMPTY_MESSAGE = {
+  no_team: 'Save a team on the Home tab to see your threats.',
+  unavailable: 'Threats are not available right now. Try again shortly.',
+  loading: 'Loading your threats\u2026',
+  no_match: 'No threats match this filter.',
+} as const;
+
 export function ThreatsView() {
   const { entryId } = useSavedEntryId();
   const [statusFilter, setStatusFilter] = useState<ThreatStatusFilter>('all');
 
-  const { data: bootstrap } = useBootstrap();
+  const { data: bootstrap, isError: bootstrapFailed } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const aggregates = useCohortAggregates(currentGw);
   const cohort = aggregates?.tiers.top_10k;
-  const { data: yourPicks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
-  const { data: liveGw } = useLiveGameweek(currentGw);
-  const { data: fixtures } = useFixtures(currentGw);
+  const { data: yourPicks, isError: picksFailed } = useEntryPicks(
+    entryId ?? 0,
+    entryId === null ? null : currentGw
+  );
+  const { data: liveGw, isError: liveFailed } = useLiveGameweek(currentGw);
+  const { data: fixtures, isError: fixturesFailed } = useFixtures(currentGw);
 
   const resolved = useMemo(() => {
-    if (!bootstrap || !liveGw || !yourPicks || currentGw === null) return null;
+    if (!bootstrap || !liveGw || !yourPicks || !fixtures || currentGw === null) return null;
     return resolveThreats({
       yourPicks,
       cohort,
       bootstrap,
       liveGw,
-      fixtures: fixtures ?? [],
+      fixtures,
       gw: currentGw,
     });
   }, [cohort, bootstrap, liveGw, yourPicks, fixtures, currentGw]);
@@ -151,9 +161,14 @@ export function ThreatsView() {
     meta = `GW${currentGw ?? '\u2014'} \u00b7 players you don\u2019t own, ranked by the rank they can cost you`;
   }
 
-  let emptyMessage = 'No threats match this filter.';
-  if (entryId === null) emptyMessage = 'Save a team on the Home tab to see your threats.';
-  else if (resolved === null) emptyMessage = 'Loading your threats\u2026';
+  const emptyState = threatsEmptyState({
+    hasEntry: entryId !== null,
+    resolved: resolved !== null,
+    bootstrapLoaded: bootstrap !== undefined,
+    gameweek: currentGw,
+    failed: bootstrapFailed || picksFailed || liveFailed || fixturesFailed,
+  });
+  const emptyMessage = EMPTY_MESSAGE[emptyState];
 
   let footnote = '';
   if (resolved?.source === 'top_10k') {

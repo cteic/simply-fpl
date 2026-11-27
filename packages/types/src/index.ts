@@ -383,8 +383,8 @@ export type GameweekPhase = 'pre' | 'live' | 'settled';
 /** A manager's standing in one mini-league. */
 export interface LeaguePosition {
   rank: number;
-  /** Managers on the page of standings this was read from. */
-  managers: number;
+  /** League size. Null when only part of the standings was read. */
+  managers: number | null;
   /** Places gained since last gameweek. Negative when they dropped. */
   movement: number;
   /** The manager directly above, and the points needed to draw level. */
@@ -393,8 +393,11 @@ export interface LeaguePosition {
   below: { name: string; gap: number } | null;
   /** Points behind first place. Zero when leading. */
   gapToLeader: number;
-  /** Place within the league on this gameweek's score alone. */
-  gameweekPlace: number;
+  /**
+   * Place within the league on this gameweek's score alone. Null when only
+   * part of the standings was read, since unseen managers may have scored more.
+   */
+  gameweekPlace: number | null;
 }
 
 export type LiveSquadEventKind = 'goal' | 'assist' | 'bonus' | 'red_card' | 'clean_sheet_lost';

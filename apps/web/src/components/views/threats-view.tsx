@@ -24,7 +24,7 @@ import type { ShirtKind } from '@simplyfpl/ui';
 import { useCohortAggregates } from '@/queries/cohort-aggregates';
 import { useBootstrap, useEntryPicks, useFixtures, useLiveGameweek } from '@/queries/fpl';
 
-const { filterThreatsByStatus, resolveThreats } = threatsNs;
+const { filterThreatsByStatus, resolveThreats, threatsEmptyState } = threatsNs;
 
 const STATUS_FILTERS: ReadonlyArray<{ label: string; value: ThreatStatusFilter }> = [
   { label: t('threats.filter_all'), value: 'all' },
@@ -57,6 +57,13 @@ function readSavedEntryId(): number | null {
   return parsed;
 }
 
+const EMPTY_MESSAGE_KEY = {
+  no_team: 'threats.empty_no_team',
+  unavailable: 'threats.empty_unavailable',
+  loading: 'threats.empty_loading',
+  no_match: 'threats.empty_filter',
+} as const;
+
 export function ThreatsView() {
   const [entryId, setEntryId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<ThreatStatusFilter>('all');
@@ -64,24 +71,27 @@ export function ThreatsView() {
     setEntryId(readSavedEntryId());
   }, []);
 
-  const { data: bootstrap } = useBootstrap();
+  const { data: bootstrap, isError: bootstrapFailed } = useBootstrap();
   const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
   const { data: aggregates } = useCohortAggregates(currentGw);
   const cohort = aggregates?.tiers.top_10k;
-  const { data: yourPicks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
-  const { data: liveGw } = useLiveGameweek(currentGw);
-  const { data: fixtures } = useFixtures(currentGw);
+  const { data: yourPicks, isError: picksFailed } = useEntryPicks(
+    entryId ?? 0,
+    entryId === null ? null : currentGw
+  );
+  const { data: liveGw, isError: liveFailed } = useLiveGameweek(currentGw);
+  const { data: fixtures, isError: fixturesFailed } = useFixtures(currentGw);
 
   // Real ownership or nothing. This used to fall back to invented rows, with
   // made-up players and percentages, whenever the sampled cohort was missing.
   const resolved = useMemo(() => {
-    if (!bootstrap || !liveGw || !yourPicks || currentGw === null) return null;
+    if (!bootstrap || !liveGw || !yourPicks || !fixtures || currentGw === null) return null;
     return resolveThreats({
       yourPicks,
       cohort,
       bootstrap,
       liveGw,
-      fixtures: fixtures ?? [],
+      fixtures,
       gw: currentGw,
     });
   }, [cohort, bootstrap, liveGw, yourPicks, fixtures, currentGw]);
@@ -97,9 +107,14 @@ export function ThreatsView() {
       ? t('threats.meta_no_team')
       : t('threats.meta_team', { gw: currentGw ?? '\u2014' });
 
-  let emptyMessage = t('threats.empty_filter');
-  if (entryId === null) emptyMessage = t('threats.empty_no_team');
-  else if (resolved === null) emptyMessage = t('threats.empty_loading');
+  const emptyState = threatsEmptyState({
+    hasEntry: entryId !== null,
+    resolved: resolved !== null,
+    bootstrapLoaded: bootstrap !== undefined,
+    gameweek: currentGw,
+    failed: bootstrapFailed || picksFailed || liveFailed || fixturesFailed,
+  });
+  const emptyMessage = t(EMPTY_MESSAGE_KEY[emptyState]);
 
   let footnote = '';
   if (resolved?.source === 'top_10k') footnote = t('threats.note_top10k');

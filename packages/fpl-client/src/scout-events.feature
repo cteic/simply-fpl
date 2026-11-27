@@ -67,3 +67,7 @@ Feature: Scout event derivation
     When deriveScoutEvents is called
     Then no events are returned
 
+  Scenario: Ineligibility with no known gameweek is not reported
+    Given a bootstrap with no next gameweek and a loanee whose ineligible gameweek is unknown
+    When deriveScoutEvents is called
+    Then no events are returned

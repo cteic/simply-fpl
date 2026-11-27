@@ -27,6 +27,12 @@ Feature: League position
     When I describe the position of a manager who is not in it
     Then no position is returned
 
+  Scenario: A league with further pages does not claim a size or a gameweek place
+    Given the first page of a league that has more pages
+    When I describe their position from that page alone
+    Then the rank and the gaps to neighbours are reported
+    And the league size and the gameweek place are left unknown
+
   Scenario: A finished gameweek is settled even though it is still current
     Given a bootstrap whose current gameweek has finished
     When I ask for the gameweek phase
