@@ -47,6 +47,10 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
+      # Stops Turbo re-hashing racily clean files on every call. See
+      # code-checks.yml for the full reason.
+      - name: Refresh the git index
+        run: git update-index -q --refresh
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -73,6 +77,10 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
+      # Stops Turbo re-hashing racily clean files on every call. See
+      # code-checks.yml for the full reason.
+      - name: Refresh the git index
+        run: git update-index -q --refresh
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

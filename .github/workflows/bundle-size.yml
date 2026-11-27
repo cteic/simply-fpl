@@ -57,6 +57,10 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+      # Stops Turbo re-hashing racily clean files on every call. See
+      # code-checks.yml for the full reason.
+      - name: Refresh the git index
+        run: git update-index -q --refresh
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -86,6 +90,7 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           git worktree add "$RUNNER_TEMP/base" "$BASE_SHA"
+          git -C "$RUNNER_TEMP/base" update-index -q --refresh
           (cd "$RUNNER_TEMP/base" && pnpm install --frozen-lockfile && bash -c "$BUILD_COMMAND")
           node "$MEASURE_SCRIPT" --next-dir "$RUNNER_TEMP/base/$NEXT_DIR" --json bundle-size-base.json || true
 
