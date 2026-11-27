@@ -58,7 +58,7 @@ export function DeadlineView() {
   const { data: bootstrap } = useBootstrap();
   const nextDeadline = useMemo(() => (bootstrap ? getNextDeadline(bootstrap) : null), [bootstrap]);
   const countdown = useCountdown(nextDeadline?.deadlineTime ?? null);
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   const { data: picks } = useEntryPicks(entryId ?? 0, entryId === null ? null : currentGw);
 
   const brief = useMemo<DeadlineBrief | null>(() => {

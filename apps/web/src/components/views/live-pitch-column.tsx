@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { cohorts } from '@simplyfpl/features';
 import type { CohortSnapshotPayload } from '@simplyfpl/features/cohorts';
@@ -72,10 +72,7 @@ export function LivePitchColumn({
 }: LivePitchColumnProps) {
   const [ownershipMode, setOwnershipMode] = useState<OwnershipMode>('global');
 
-  const top10kOwnership = useMemo(
-    () => (top10kPayload ? aggregateToOwnershipMap(top10kPayload) : undefined),
-    [top10kPayload]
-  );
+  const top10kOwnership = top10kPayload ? aggregateToOwnershipMap(top10kPayload) : undefined;
 
   function ownershipFor(playerKey: number, globalPct: number | undefined) {
     if (ownershipMode === 'global') {

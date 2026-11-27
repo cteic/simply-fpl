@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import { deriveScoutEvents, getCurrentGameweek } from '@simplyfpl/fpl-client';
 import { useTranslation } from '@simplyfpl/i18n';
 import {
@@ -25,17 +23,19 @@ export function ScoutView() {
   const { t, locale } = useTranslation();
   const entryId = useSavedEntryId();
   const { data: bootstrap, isLoading: bootstrapLoading } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   const { data: picks, isLoading: picksLoading } = useEntryPicks(
     entryId ?? 0,
     entryId === null ? null : currentGw
   );
 
-  const rows = useMemo<ScoutRowModel[]>(() => {
-    if (!bootstrap || !picks) return [];
-    const pickIds = new Set(picks.picks.map((p) => p.element));
-    return buildScoutRows(deriveScoutEvents(bootstrap, pickIds), locale);
-  }, [bootstrap, picks, locale]);
+  const rows: ScoutRowModel[] =
+    !bootstrap || !picks
+      ? []
+      : buildScoutRows(
+          deriveScoutEvents(bootstrap, new Set(picks.picks.map((p) => p.element))),
+          locale
+        );
 
   const meta =
     entryId !== null && currentGw !== null

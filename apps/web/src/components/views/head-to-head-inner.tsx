@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import { ads, h2h } from '@simplyfpl/features';
 import type { H2hPlayer, H2hResult, H2hSide } from '@simplyfpl/features/h2h';
 import { getCurrentGameweek } from '@simplyfpl/fpl-client';
@@ -33,7 +31,7 @@ interface InnerProps {
 export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProps) {
   const adFree = ads.useAdFree();
   const { data: bootstrap, isError: bootstrapError } = useBootstrap();
-  const currentGw = useMemo(() => (bootstrap ? getCurrentGameweek(bootstrap) : null), [bootstrap]);
+  const currentGw = bootstrap ? getCurrentGameweek(bootstrap) : null;
   const {
     data: yourEntry,
     isLoading: yourEntryLoading,
@@ -57,17 +55,16 @@ export default function HeadToHeadInner({ yourEntryId, theirEntryId }: InnerProp
     liveGwError;
 
   const ready = yourEntry && theirEntry && yourPicks && theirPicks && bootstrap && liveGw;
-  const result: H2hResult | null = useMemo(() => {
-    if (!ready) return null;
-    return computeH2h({
-      yourEntry,
-      theirEntry,
-      yourPicks,
-      theirPicks,
-      bootstrap,
-      liveGw,
-    });
-  }, [ready, yourEntry, theirEntry, yourPicks, theirPicks, bootstrap, liveGw]);
+  const result: H2hResult | null = ready
+    ? computeH2h({
+        yourEntry,
+        theirEntry,
+        yourPicks,
+        theirPicks,
+        bootstrap,
+        liveGw,
+      })
+    : null;
 
   if (anyError) {
     return (

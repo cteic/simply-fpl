@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
@@ -460,23 +460,22 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
     avgEntryScore,
   });
 
-  const captainSwapCandidates = useMemo<WhatIfCandidateOption[]>(() => {
-    if (!ready) return [];
-    return picks.picks
-      .filter((p) => p.position <= 11 && !p.is_captain)
-      .map((p) => {
-        const player = bootstrap.elements.find((e) => e.id === p.element);
-        const live = liveGw.elements.find((e) => e.id === p.element);
-        return {
-          id: p.element,
-          name: player?.web_name ?? '?',
-          livePoints: live?.stats.total_points ?? 0,
-        };
-      })
-      .sort((a, b) => b.livePoints - a.livePoints);
-  }, [ready, picks, bootstrap, liveGw]);
+  const captainSwapCandidates: WhatIfCandidateOption[] = ready
+    ? picks.picks
+        .filter((p) => p.position <= 11 && !p.is_captain)
+        .map((p) => {
+          const player = bootstrap.elements.find((e) => e.id === p.element);
+          const live = liveGw.elements.find((e) => e.id === p.element);
+          return {
+            id: p.element,
+            name: player?.web_name ?? '?',
+            livePoints: live?.stats.total_points ?? 0,
+          };
+        })
+        .sort((a, b) => b.livePoints - a.livePoints)
+    : [];
 
-  const transferCandidates = useMemo<WhatIfCandidateOption[]>(() => {
+  function buildTransferCandidates(): WhatIfCandidateOption[] {
     if (!ready || whatIfFromId === null) return [];
     const fromPlayer = bootstrap.elements.find((e) => e.id === whatIfFromId);
     if (!fromPlayer) return [];
@@ -496,7 +495,8 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
       })
       .sort((a, b) => b.livePoints - a.livePoints)
       .slice(0, 40);
-  }, [ready, bootstrap, liveGw, picks, whatIfFromId]);
+  }
+  const transferCandidates = buildTransferCandidates();
 
   const whatIfCandidates = whatIfType === 'captain' ? captainSwapCandidates : transferCandidates;
 
@@ -577,16 +577,13 @@ function LiveRankInner({ entryId, dataOverride }: InnerProps) {
   // Alerts for what just happened to this squad: a goal, bonus, a card.
   const eventAlerts = useBackgroundEventAlerts();
   const notifyEvents = eventAlerts.notify;
-  const handleDetected = useCallback(
-    (detected: LiveSquadEvent[]) => {
-      notifyEvents(
-        detected.map((event) =>
-          buildEventNotification(event, t(EVENT_LABEL_KEY[event.kind]), eventDetail(event))
-        )
-      );
-    },
-    [notifyEvents]
-  );
+  const handleDetected = (detected: LiveSquadEvent[]) => {
+    notifyEvents(
+      detected.map((event) =>
+        buildEventNotification(event, t(EVENT_LABEL_KEY[event.kind]), eventDetail(event))
+      )
+    );
+  };
   const { events: squadEvents } = useLiveSquadEvents({
     picks: dataOverride ? null : picks,
     liveGw: dataOverride ? undefined : liveGw,

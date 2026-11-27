@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { t } from '@simplyfpl/i18n';
 import type { FplEntryLeague } from '@simplyfpl/types';
@@ -33,10 +33,7 @@ export function RivalsSection({ entryId }: RivalsSectionProps) {
   const { data: entry, isLoading } = useEntry(entryId);
   const [selectedLeagueId, setSelectedLeagueId] = useState<number | null>(null);
 
-  const leagues = useMemo(
-    () => pickableLeagues(entry?.leagues?.classic ?? []),
-    [entry?.leagues?.classic]
-  );
+  const leagues = pickableLeagues(entry?.leagues?.classic ?? []);
   const activeLeagueId = selectedLeagueId ?? leagues[0]?.id ?? null;
 
   if (isLoading) {

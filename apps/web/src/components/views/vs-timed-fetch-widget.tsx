@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { t } from '@simplyfpl/i18n';
 import { Card, SectionHeader, SpeedMetricBar, Text, XStack, YStack } from '@simplyfpl/ui';
@@ -93,7 +93,7 @@ async function runAverage(
 export function VsTimedFetchWidget() {
   const [state, setState] = useState<WidgetState>({ status: 'idle' });
 
-  const runTest = useCallback(async () => {
+  const runTest = async () => {
     setState({ status: 'running', completed: 0, total: RUNS_PER_TARGET * 2 });
 
     let completed = 0;
@@ -133,7 +133,7 @@ export function VsTimedFetchWidget() {
       simplyfplMs: simplyfplResult.avgMs,
       livefplMs: livefplResult.avgMs,
     });
-  }, []);
+  };
 
   return (
     <YStack gap={12}>

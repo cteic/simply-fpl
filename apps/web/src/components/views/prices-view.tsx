@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { computeSeasonDefConRate, formatPrice, getClubColor } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
@@ -40,46 +40,42 @@ export function PricesView() {
   const [filter, setFilter] = useState<Filter>('All');
   const [showAll, setShowAll] = useState(false);
 
-  const bootstrapById = useMemo(() => {
-    if (!bootstrap) return new Map<number, FplPlayer>();
-    return new Map(bootstrap.elements.map((e) => [e.id, e]));
-  }, [bootstrap]);
+  const bootstrapById = bootstrap
+    ? new Map(bootstrap.elements.map((e) => [e.id, e]))
+    : new Map<number, FplPlayer>();
 
-  const rows = useMemo(() => {
-    if (!prices) return [];
-    return prices.changes.map((change) => {
-      const positionLabel = POSITION_BY_ELEMENT_TYPE[change.element_type] ?? 'MID';
-      const player = bootstrapById.get(change.id);
-      const defconRate = player ? computeSeasonDefConRate(change.element_type, player) : null;
-      const defconBar = defconRate?.eligible
-        ? {
-            percentage: defconRate.percentage,
-            breakdown: `${defconRate.cbitPer90.toFixed(1)} CBIT/90 vs ${defconRate.threshold} threshold`,
-          }
-        : undefined;
-      return {
-        id: change.id,
-        name: change.web_name,
-        club: `${positionLabel} · ${change.team_name} · ${formatPrice(change.now_cost)}`,
-        accentColor: getClubColor(change.team_name),
-        flow: change.direction,
-        value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
-        progressPercent: change.progress_percent,
-        locked: change.locked_until !== null,
-        position: positionLabel,
-        defconBar,
-      };
-    });
-  }, [prices, bootstrapById]);
+  const rows = !prices
+    ? []
+    : prices.changes.map((change) => {
+        const positionLabel = POSITION_BY_ELEMENT_TYPE[change.element_type] ?? 'MID';
+        const player = bootstrapById.get(change.id);
+        const defconRate = player ? computeSeasonDefConRate(change.element_type, player) : null;
+        const defconBar = defconRate?.eligible
+          ? {
+              percentage: defconRate.percentage,
+              breakdown: `${defconRate.cbitPer90.toFixed(1)} CBIT/90 vs ${defconRate.threshold} threshold`,
+            }
+          : undefined;
+        return {
+          id: change.id,
+          name: change.web_name,
+          club: `${positionLabel} · ${change.team_name} · ${formatPrice(change.now_cost)}`,
+          accentColor: getClubColor(change.team_name),
+          flow: change.direction,
+          value: change.direction === 'rise' ? '+0.1m' : '−0.1m',
+          progressPercent: change.progress_percent,
+          locked: change.locked_until !== null,
+          position: positionLabel,
+          defconBar,
+        };
+      });
 
-  const filteredRows = useMemo(() => {
-    return rows.filter((r) => {
-      if (filter === 'All') return true;
-      if (filter === 'Risers') return r.flow === 'rise';
-      if (filter === 'Fallers') return r.flow === 'fall';
-      return r.position === filter;
-    });
-  }, [rows, filter]);
+  const filteredRows = rows.filter((r) => {
+    if (filter === 'All') return true;
+    if (filter === 'Risers') return r.flow === 'rise';
+    if (filter === 'Fallers') return r.flow === 'fall';
+    return r.position === filter;
+  });
   // A first screenful, then the rest on request. Rendering every row up front
   // kept a long list mounted behind the other tabs and made the app sluggish.
   const visibleRows = showAll ? filteredRows : filteredRows.slice(0, INITIAL_ROWS);

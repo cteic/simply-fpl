@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { replay } from '@simplyfpl/features';
 import { Text, YStack } from '@simplyfpl/ui';
@@ -42,27 +42,21 @@ export function ReplayView() {
     speed: initialSpeed,
   });
 
-  const bundle = useMemo<ReplayBundle | undefined>(() => {
-    if (!manifest || !bootstrap) return undefined;
-    if (byGw.size === 0) return undefined;
-    return { manifest, bootstrap, byGw };
-  }, [manifest, bootstrap, byGw]);
+  const bundle: ReplayBundle | undefined =
+    !manifest || !bootstrap || byGw.size === 0 ? undefined : { manifest, bootstrap, byGw };
 
   const replayData = useReplayLiveRank({ bundle, clock: state });
 
-  const dataOverride = useMemo(
-    () => ({
-      snapshot: replayData.snapshot,
-      snapshotLoading: replayData.snapshotLoading,
-      snapshotError: replayData.snapshotError,
-      liveGw: replayData.liveGw,
-      fixtures: replayData.fixtures,
-      estimate: replayData.estimate,
-      agoMs: replayData.agoMs,
-      replayBanner: replayData.replayLabel,
-    }),
-    [replayData]
-  );
+  const dataOverride = {
+    snapshot: replayData.snapshot,
+    snapshotLoading: replayData.snapshotLoading,
+    snapshotError: replayData.snapshotError,
+    liveGw: replayData.liveGw,
+    fixtures: replayData.fixtures,
+    estimate: replayData.estimate,
+    agoMs: replayData.agoMs,
+    replayBanner: replayData.replayLabel,
+  };
 
   function handlePlay() {
     setHasStarted(true);
