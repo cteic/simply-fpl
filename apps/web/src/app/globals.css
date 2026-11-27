@@ -67,3 +67,9 @@ a {
     transform: translateY(0);
   }
 }
+
+/* Returning visitors: keep the server-rendered hero hidden until the client
+   swaps in their dashboard. See saved-entry-hint.ts. */
+html[data-saved-entry] [data-testid='home-unified-hero'] {
+  visibility: hidden;
+}
