@@ -70,11 +70,8 @@ export function useTranslation(): {
   locale: SupportedLocale;
 } {
   const { locale } = useLocale();
-  return useMemo(
-    () => ({
-      t: (key: TranslationKey, vars?: Vars) => t(key, vars, locale),
-      locale,
-    }),
-    [locale]
-  );
+  return {
+    t: (key: TranslationKey, vars?: Vars) => t(key, vars, locale),
+    locale,
+  };
 }
