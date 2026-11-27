@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
-export const SAVED_ENTRY_ID_KEY = 'simplyfpl:lastEntryId';
+import { SAVED_ENTRY_ID_KEY } from './saved-entry-key';
+
+export { SAVED_ENTRY_ID_KEY };
+
 const CHANGE_EVENT = 'simplyfpl:entry-id-changed';
 
 export function readSavedEntryId(): number | null {
