@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
 import { SkeletonLeagueTable, TeamNewsCardSkeleton, YStack } from '@simplyfpl/ui';
 

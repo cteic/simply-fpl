@@ -40,7 +40,7 @@ Turborepo monorepo using `pnpm`, following **clean architecture** layers:
 **Application**: React Query hooks in `apps/*/src/queries/`, auth hooks in `apps/*/src/hooks/`, cross-platform business logic in `packages/features`
 **Domain/Logic**: `packages/fpl-client` (FPL API client + live rank + price change logic, no React)
 **Types**: `packages/types` (all shared domain types — no logic here)
-**Foundation**: `packages/tsconfig-config`, `packages/eslint-config`, `packages/prettier-config`
+**Foundation**: `packages/tsconfig-config`, `packages/eslint-config`; Prettier comes from `@cteic/prettier-config`
 **Infrastructure**: `apps/worker` (Cloudflare Worker — FPL proxy + KV cache)
 
 ```
@@ -55,8 +55,7 @@ Turborepo monorepo using `pnpm`, following **clean architecture** layers:
 │   ├── fpl-client/             Pure FPL API client + live rank / price logic (no React)
 │   ├── types/                  Shared domain types
 │   ├── tsconfig-config/        Shared TS configs
-│   ├── eslint-config/          Shared ESLint config
-│   └── prettier-config/        Shared Prettier config
+│   └── eslint-config/          Shared ESLint config
 ```
 
 ### Where code goes

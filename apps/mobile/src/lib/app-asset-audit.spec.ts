@@ -4,8 +4,6 @@ import { inflateSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 
 import {
-  type ContentExtent,
-  type PngHeader,
   androidSafeZoneRadius,
   auditAdaptiveIcon,
   auditStoreIcon,
@@ -14,6 +12,8 @@ import {
   isPng,
   measureContentExtent,
   readPngHeader,
+  type ContentExtent,
+  type PngHeader,
 } from './app-asset-audit';
 
 // Vitest runs with the package root as its working directory, the same

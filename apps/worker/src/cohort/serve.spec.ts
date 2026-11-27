@@ -1,7 +1,7 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
-import { type CohortServeEnv, handleCohortAggregates } from './serve';
+import { handleCohortAggregates, type CohortServeEnv } from './serve';
 
 const feature = await loadFeature('./serve.feature');
 

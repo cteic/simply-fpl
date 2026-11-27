@@ -19,7 +19,6 @@ FPL companion app monorepo. Built with Turborepo + pnpm workspaces.
 | `packages/ui`              | Shared UI components (web + mobile)             |
 | `packages/tsconfig-config` | Shared TypeScript configs                       |
 | `packages/eslint-config`   | Shared ESLint config                            |
-| `packages/prettier-config` | Shared Prettier config                          |
 
 ## Getting started
 

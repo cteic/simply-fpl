@@ -1,4 +1,4 @@
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { styled, Text, XStack, YStack } from 'tamagui';
 
 import { t } from '@simplyfpl/i18n';
 

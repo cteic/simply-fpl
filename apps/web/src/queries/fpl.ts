@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { fplClient } from '@simplyfpl/fpl-client';
-import { getCurrentGameweek } from '@simplyfpl/fpl-client';
+import { fplClient, getCurrentGameweek } from '@simplyfpl/fpl-client';
 import type { FplBootstrapStatic, SlimPricesResponse } from '@simplyfpl/types';
 
 export type { SlimPriceChange, SlimPricesResponse } from '@simplyfpl/types';

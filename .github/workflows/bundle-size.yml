@@ -1,12 +1,11 @@
 name: Bundle Size
 
-# One self-contained workflow for the bundle size report, so it can move to
-# cteic/foundry as a reusable workflow. It builds the PR, measures it with the
-# budget script, compares with the base branch and comments the difference.
-# The job fails when a budget in the script is broken.
+# Thin caller for foundry's reusable bundle-size workflow. The budgets stay in
+# scripts/check-bundle-budget.mjs; the shared workflow builds the branch, runs
+# that script, compares with the base commit and comments the table.
 #
-# The base measurement is cached by commit. A push to dev stores it, so most
-# PRs build once. A PR whose base has no stored measurement builds the base too.
+# The pin is a commit on cteic/foundry main, never a branch: a reusable
+# workflow runs repo code, so the version has to be fixed.
 
 on:
   pull_request:
@@ -16,145 +15,19 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
   push:
     branches: [dev]
-  workflow_call:
-    inputs:
-      node-version:
-        description: Node.js version
-        type: string
-        default: '22'
-      build-command:
-        description: Builds the web app from the repo root
-        type: string
-        default: pnpm build:packages && pnpm build:web
-      measure-script:
-        description: Script that accepts --next-dir, --json, --base and --markdown
-        type: string
-        default: scripts/check-bundle-budget.mjs
-      next-dir:
-        description: Build output directory, relative to the repo root
-        type: string
-        default: apps/web/.next
-
-concurrency:
-  group: bundle-size-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
 
-env:
-  NODE_VERSION: ${{ inputs.node-version || '22' }}
-  BUILD_COMMAND: ${{ inputs.build-command || 'pnpm build:packages && pnpm build:web' }}
-  MEASURE_SCRIPT: ${{ inputs.measure-script || 'scripts/check-bundle-budget.mjs' }}
-  NEXT_DIR: ${{ inputs.next-dir || 'apps/web/.next' }}
-
 jobs:
   bundle-size:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
     permissions:
       contents: read
       pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Build
-        run: bash -c "$BUILD_COMMAND"
-
-      - name: Restore the base measurement
-        if: github.event_name == 'pull_request'
-        id: base-cache
-        uses: actions/cache@v4
-        with:
-          path: bundle-size-base.json
-          key: bundle-size-${{ github.event.pull_request.base.sha }}-${{ hashFiles(env.MEASURE_SCRIPT) }}
-
-      # The base is measured with this branch's script, so a change to the
-      # script itself never shows up as a size change.
-      - name: Build and measure the base
-        if: github.event_name == 'pull_request' && steps.base-cache.outputs.cache-hit != 'true'
-        # A base that no longer builds must not fail the PR. The report then
-        # has no "vs base" column.
-        continue-on-error: true
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          git fetch --no-tags --depth=1 origin "$BASE_SHA"
-          git worktree add "$RUNNER_TEMP/base" "$BASE_SHA"
-          (cd "$RUNNER_TEMP/base" && pnpm install --frozen-lockfile && bash -c "$BUILD_COMMAND")
-          node "$MEASURE_SCRIPT" --next-dir "$RUNNER_TEMP/base/$NEXT_DIR" --json bundle-size-base.json || true
-
-      - name: Measure
-        id: measure
-        run: |
-          if [ -f bundle-size-base.json ]; then
-            node "$MEASURE_SCRIPT" --next-dir "$NEXT_DIR" --json bundle-size.json --markdown bundle-size.md --base bundle-size-base.json
-          else
-            node "$MEASURE_SCRIPT" --next-dir "$NEXT_DIR" --json bundle-size.json --markdown bundle-size.md
-          fi
-
-      - name: Job summary
-        if: ${{ !cancelled() && hashFiles('bundle-size.md') != '' }}
-        run: |
-          {
-            echo '## Bundle size'
-            echo
-            cat bundle-size.md
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      # A pull request from a fork gets a read-only token, so it only gets the
-      # job summary above.
-      - name: Comment on the PR
-        if: >-
-          ${{ !cancelled() && github.event_name == 'pull_request' && hashFiles('bundle-size.md') != '' &&
-          github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: actions/github-script@v7
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          STATUS: ${{ steps.measure.outcome }}
-        with:
-          script: |
-            const fs = require('node:fs');
-            const marker = '<!-- bundle-size -->';
-            const table = fs.readFileSync('bundle-size.md', 'utf8');
-            const base = `${process.env.BASE_REF} at ${process.env.BASE_SHA.slice(0, 7)}`;
-            const verdict =
-              process.env.STATUS === 'success' ? 'Within budget.' : 'Over budget. The job fails.';
-            const body = [
-              marker,
-              '### Bundle size',
-              '',
-              `${verdict} Compared with \`${base}\`. Sizes are gzipped.`,
-              '',
-              table,
-            ].join('\n');
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const comments = await github.paginate(github.rest.issues.listComments, {
-              owner,
-              repo,
-              issue_number,
-            });
-            const existing = comments.find((comment) => comment.body?.startsWith(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            }
-
-      # Stored under this commit so PRs based on it skip the base build.
-      - name: Name the measurement as a base
-        if: ${{ !cancelled() && github.event_name == 'push' && hashFiles('bundle-size.json') != '' }}
-        run: cp bundle-size.json bundle-size-base.json
-      - name: Store the measurement for later PRs
-        if: ${{ !cancelled() && github.event_name == 'push' && hashFiles('bundle-size-base.json') != '' }}
-        uses: actions/cache/save@v4
-        with:
-          path: bundle-size-base.json
-          key: bundle-size-${{ github.sha }}-${{ hashFiles(env.MEASURE_SCRIPT) }}
+    uses: cteic/foundry/.github/workflows/bundle-size.yml@2d77a5b026b821c0566d0443c8d2e314986111d1
+    with:
+      build-dir: apps/web/.next
+      # check-bundle-budget.mjs names the flag --next-dir, not --build-dir.
+      build-dir-flag: --next-dir
+      build-command: pnpm build:packages && pnpm build:web
+      node-version: '22'

@@ -1,6 +1,6 @@
 'use client';
 
-import { XStack, YStack, styled } from 'tamagui';
+import { styled, XStack, YStack } from 'tamagui';
 
 import { colors } from '../../theme';
 import { Card } from '../card';

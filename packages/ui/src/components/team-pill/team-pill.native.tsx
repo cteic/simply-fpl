@@ -1,5 +1,5 @@
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 const ICON_COLOR = '#6B6B63';
 

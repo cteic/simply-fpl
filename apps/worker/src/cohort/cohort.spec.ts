@@ -9,7 +9,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { CohortSnapshotPayload, CohortTier } from './aggregate';
-import { type CohortEnv, runScheduled } from './cohort';
+import { runScheduled, type CohortEnv } from './cohort';
 import { TIER_CONFIGS } from './fetch-tier';
 
 const feature = await loadFeature('./cohort.feature');

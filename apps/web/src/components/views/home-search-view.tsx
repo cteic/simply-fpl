@@ -13,11 +13,11 @@ import {
   Logo,
   PageHeader,
   PageShell,
+  resolveThemeName,
   SectionHeader,
   Text,
   XStack,
   YStack,
-  resolveThemeName,
 } from '@simplyfpl/ui';
 
 import { readSavedEntryId, setSavedEntryId } from '@/lib/saved-entry-id';

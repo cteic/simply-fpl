@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { PRODUCTION_SITE_URL, isProductionSiteUrl, resolveSiteUrl } from './site-url';
+import { isProductionSiteUrl, PRODUCTION_SITE_URL, resolveSiteUrl } from './site-url';
 
 describe('resolveSiteUrl', () => {
   it('falls back to the launch domain in production', () => {

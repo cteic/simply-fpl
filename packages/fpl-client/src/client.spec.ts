@@ -1,5 +1,5 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, expect } from 'vitest';
 
 import type { FplBootstrapStatic, FplEntry, FplLiveGameweek } from '@simplyfpl/types';

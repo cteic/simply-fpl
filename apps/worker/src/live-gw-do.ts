@@ -9,12 +9,12 @@ import type {
 import { isGameweekFinishedAndBonusLocked, pickCadenceMs } from './cadence';
 import { captureSnapshotToR2 } from './gw38-capture';
 import {
-  type ReplayRow,
   computeNextEmitDelayMs,
   isValidRecordingId,
   loadRecordingText,
   parseRecording,
   parseSpeed,
+  type ReplayRow,
 } from './replay';
 import { diffLiveSnapshots } from './snapshot-diff';
 

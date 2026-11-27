@@ -1,8 +1,8 @@
 import {
-  type CohortTier,
-  type PartialAggregate,
   aggregateToPayload,
   payloadToPlayerStatRows,
+  type CohortTier,
+  type PartialAggregate,
 } from './aggregate';
 
 export interface FlushEnv {

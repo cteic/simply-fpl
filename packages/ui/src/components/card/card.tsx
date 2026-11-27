@@ -1,6 +1,6 @@
 'use client';
 
-import { YStack, styled } from 'tamagui';
+import { styled, YStack } from 'tamagui';
 
 export const Card = styled(YStack, {
   backgroundColor: '$surface',

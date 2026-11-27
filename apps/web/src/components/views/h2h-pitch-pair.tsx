@@ -3,7 +3,7 @@
 import type { H2hPlayer, H2hPosition, H2hSide } from '@simplyfpl/features/h2h';
 import { getClubColor, getKitUrl } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
-import { BenchDivider, Pitch, PitchRow, Player, XStack, YStack, styled } from '@simplyfpl/ui';
+import { BenchDivider, Pitch, PitchRow, Player, styled, XStack, YStack } from '@simplyfpl/ui';
 import type { ShirtKind } from '@simplyfpl/ui';
 
 const PitchPairWrap = styled(XStack, {

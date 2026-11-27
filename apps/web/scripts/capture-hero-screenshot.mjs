@@ -1,6 +1,6 @@
-import { chromium } from '@playwright/test';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { chromium } from '@playwright/test';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const TARGET = process.env.HERO_TARGET ?? 'https://simplyfpl.com/';

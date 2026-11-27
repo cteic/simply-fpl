@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { MOTION_DURATIONS, easeOutQuart } from '../theme/motion';
+import { easeOutQuart, MOTION_DURATIONS } from '../theme/motion';
 import { useReducedMotion } from './use-reduced-motion';
 
 /**

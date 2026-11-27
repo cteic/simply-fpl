@@ -6,8 +6,8 @@ import { t } from '@simplyfpl/i18n';
 import type { FplEntryLeague } from '@simplyfpl/types';
 import {
   Card,
-  FNote,
   FilterButton,
+  FNote,
   PageHeader,
   PageShell,
   SkeletonLeagueTable,

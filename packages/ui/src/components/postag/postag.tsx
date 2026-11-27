@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, styled } from 'tamagui';
+import { styled, Text } from 'tamagui';
 
 const Tag = styled(Text, {
   alignSelf: 'flex-start',

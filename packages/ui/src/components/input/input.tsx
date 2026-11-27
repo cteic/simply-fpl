@@ -1,6 +1,6 @@
 'use client';
 
-import { Input as TamaguiInput, styled } from 'tamagui';
+import { styled, Input as TamaguiInput } from 'tamagui';
 
 export const Input = styled(TamaguiInput, {
   unstyled: true,

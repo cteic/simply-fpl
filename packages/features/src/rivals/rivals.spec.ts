@@ -9,9 +9,9 @@ import type {
   FplLiveGameweek,
 } from '@simplyfpl/types';
 
-import { type Differentials, computeDifferentials } from './compute-differentials';
-import { type RivalRow, computeRivalsBoard } from './compute-rivals-board';
-import { type SelectRivalsResult, selectRivalEntryIds } from './select-rivals';
+import { computeDifferentials, type Differentials } from './compute-differentials';
+import { computeRivalsBoard, type RivalRow } from './compute-rivals-board';
+import { selectRivalEntryIds, type SelectRivalsResult } from './select-rivals';
 
 function makeStanding(entry: number, rank: number): FplLeagueStanding {
   return {

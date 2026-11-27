@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { XStack, styled } from 'tamagui';
+import { styled, XStack } from 'tamagui';
 
 const Row = styled(XStack, {
   display: 'grid' as never,

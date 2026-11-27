@@ -6,8 +6,8 @@ import {
   BOOTSTRAP_SLIM_CACHE_KEY,
   BOOTSTRAP_SLIM_TTL_SECONDS,
   BOOTSTRAP_TTL_SECONDS,
-  type BootstrapEnv,
   handleBootstrapSlim,
+  type BootstrapEnv,
 } from './bootstrap';
 
 const feature = await loadFeature('./bootstrap.feature');

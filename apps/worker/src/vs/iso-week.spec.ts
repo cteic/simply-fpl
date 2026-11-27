@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isValidIsoWeekKey, isoWeekKey } from './iso-week';
+import { isoWeekKey, isValidIsoWeekKey } from './iso-week';
 
 describe('isoWeekKey', () => {
   it('returns the ISO year-week for a known Monday', () => {

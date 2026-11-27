@@ -3,7 +3,7 @@ import { expect } from 'vitest';
 
 import type { CohortOwnershipMap } from '../effective-ownership/compute-eo';
 import { aggregateToOwnershipMap } from './from-aggregate';
-import { type PitchOwnership, resolvePitchOwnership } from './pitch-ownership';
+import { resolvePitchOwnership, type PitchOwnership } from './pitch-ownership';
 import type { CohortSnapshotPayload } from './types';
 
 const feature = await loadFeature('./pitch-ownership.feature');

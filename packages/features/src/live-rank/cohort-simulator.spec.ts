@@ -1,7 +1,7 @@
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type { ExpectedCurve, ManagerDistribution } from '@simplyfpl/fpl-client';

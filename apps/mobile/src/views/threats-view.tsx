@@ -5,8 +5,8 @@ import type { Threat, ThreatPosition, ThreatStatusFilter } from '@simplyfpl/feat
 import { getClubColor, getCurrentGameweek, getKitUrl } from '@simplyfpl/fpl-client';
 import {
   Card,
-  FNote,
   FilterButton,
+  FNote,
   PageHeader,
   SectionHeader,
   Shirt,

@@ -8,7 +8,7 @@ import type {
   FplFixture,
 } from '@simplyfpl/types';
 
-import { type PlannerGridCell, computePlannerGrid } from './compute-planner-grid';
+import { computePlannerGrid, type PlannerGridCell } from './compute-planner-grid';
 
 const feature = await loadFeature('./compute-planner-grid.feature');
 

@@ -172,21 +172,22 @@ export function usePlayerStats(playerId: number, workerUrl: string) {
 In any server component or route handler that returns stats data:
 
 ```ts
-const tier = resolveTier({ tier: profile?.tier ?? null })
+const tier = resolveTier({ tier: profile?.tier ?? null });
 if (tier === 'free') {
-  return NextResponse.json({ error: 'Pro tier required' }, { status: 402 })
+  return NextResponse.json({ error: 'Pro tier required' }, { status: 402 });
 }
 ```
 
 For client-side UI gating (non-sensitive — already gated server-side):
 
 ```tsx
-import { FEATURE_STATS } from '@/lib/feature-flags'
-import { useTier } from '@simplyfpl/features'
+import { useTier } from '@simplyfpl/features';
 
-if (!FEATURE_STATS) return null
-const { tier } = useTier()
-if (tier === 'free') return <ProUpsellBanner />
+import { FEATURE_STATS } from '@/lib/feature-flags';
+
+if (!FEATURE_STATS) return null;
+const { tier } = useTier();
+if (tier === 'free') return <ProUpsellBanner />;
 ```
 
 ### 6. Phase 2 additions (SportMonks)

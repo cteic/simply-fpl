@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Image } from 'react-native';
 
 import Svg, { Path } from 'react-native-svg';
-import { YStack, styled } from 'tamagui';
+import { styled, YStack } from 'tamagui';
 
 const Box = styled(YStack, {
   width: 44,

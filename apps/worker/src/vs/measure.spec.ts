@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  measure,
   type BrowserLauncher,
   type BrowserLike,
   type BrowserWorker,
   type MeasureEnv,
   type PageLike,
-  measure,
 } from './measure';
 
 interface PageOptions {

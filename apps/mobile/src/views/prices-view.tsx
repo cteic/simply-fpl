@@ -5,8 +5,8 @@ import type { FplPlayer } from '@simplyfpl/types';
 import {
   Button,
   Card,
-  FNote,
   FilterButton,
+  FNote,
   PageHeader,
   PriceRow,
   SkeletonPrices,

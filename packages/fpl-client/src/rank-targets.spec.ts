@@ -1,6 +1,6 @@
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type {
@@ -13,9 +13,9 @@ import type {
 
 import { buildRankCurve, rankForPoints } from './rank-curve';
 import {
+  computeRankTargets,
   DEFAULT_TARGET_RANKS,
   REACHABLE_GW_POINTS,
-  computeRankTargets,
   seasonHighestGwScore,
 } from './rank-targets';
 

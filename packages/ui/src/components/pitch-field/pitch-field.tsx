@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { YStack, styled } from 'tamagui';
+import { styled, YStack } from 'tamagui';
 
 import { PitchBackground } from '../pitch-background';
 

@@ -3,7 +3,7 @@ import { expect } from 'vitest';
 
 import type { FplBootstrapStatic } from '@simplyfpl/types';
 
-import { type CohortOwnershipByTier, type EoRow, computeEffectiveOwnership } from './compute-eo';
+import { computeEffectiveOwnership, type CohortOwnershipByTier, type EoRow } from './compute-eo';
 
 const feature = await loadFeature('./compute-eo.feature');
 

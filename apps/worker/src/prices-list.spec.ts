@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { FplBootstrapStatic, FplPlayer } from '@simplyfpl/types';
 
-import { PRICES_LIST_FLOOR_PERCENT, PRICES_LIST_MAX_ROWS, buildSlimPrices } from './prices';
+import { buildSlimPrices, PRICES_LIST_FLOOR_PERCENT, PRICES_LIST_MAX_ROWS } from './prices';
 
 function player(id: number, progress: number): FplPlayer {
   return {

@@ -5,7 +5,7 @@ import type { FplBootstrapStatic } from '@simplyfpl/types';
 
 import { aggregatesToOwnershipByTier } from '../cohorts/from-aggregate';
 import type { CohortSnapshotPayload } from '../cohorts/types';
-import { type EoRow, computeEffectiveOwnership } from './compute-eo';
+import { computeEffectiveOwnership, type EoRow } from './compute-eo';
 
 const feature = await loadFeature('./eo-from-aggregates.feature');
 

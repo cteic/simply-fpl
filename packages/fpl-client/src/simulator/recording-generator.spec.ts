@@ -5,7 +5,7 @@ import type { FplBootstrapStatic, FplEntryGameweekPicks, FplEntryPick } from '@s
 
 import { buildExpectedCurve } from './expected-curve';
 import type { SquadPlayer } from './manager-pool';
-import { DEF_TYPE, FWD_TYPE, GK_TYPE, MID_TYPE, buildManagerPool } from './manager-pool';
+import { buildManagerPool, DEF_TYPE, FWD_TYPE, GK_TYPE, MID_TYPE } from './manager-pool';
 import type { RecordingRow } from './recording';
 import { normaliseRecordingRows, parseRecording } from './recording';
 

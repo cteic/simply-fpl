@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, XStack, YStack, styled, useThemeName } from 'tamagui';
+import { styled, Text, useThemeName, XStack, YStack } from 'tamagui';
 
 import { featureSurfaceStyle, resolveThemeName } from '../../theme';
 

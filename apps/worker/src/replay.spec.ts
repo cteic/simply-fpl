@@ -3,13 +3,13 @@ import { describe, expect, it } from 'vitest';
 import type { FplLiveGameweek } from '@simplyfpl/types';
 
 import {
-  type ReplayEnv,
-  type ReplayRow,
   computeNextEmitDelayMs,
   isValidRecordingId,
   loadRecordingText,
   parseRecording,
   parseSpeed,
+  type ReplayEnv,
+  type ReplayRow,
 } from './replay';
 
 function makeLive(totalPoints: number): FplLiveGameweek {

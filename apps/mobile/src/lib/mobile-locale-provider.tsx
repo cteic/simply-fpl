@@ -5,9 +5,9 @@ import * as SecureStore from 'expo-secure-store';
 
 import {
   DEFAULT_LOCALE,
+  isSupportedLocale,
   LOCALE_STORAGE_KEY,
   LocaleProvider,
-  isSupportedLocale,
   useLocale,
 } from '@simplyfpl/i18n';
 import type { SupportedLocale } from '@simplyfpl/i18n';

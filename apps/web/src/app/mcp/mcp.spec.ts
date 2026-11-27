@@ -8,12 +8,12 @@ import type {
 } from '@simplyfpl/types';
 
 import {
-  LIVE_RANK_TOOL_DEFINITION,
   computeLiveRank,
   createLiveRankTool,
+  LIVE_RANK_TOOL_DEFINITION,
   parseEntryIdArgument,
 } from './live-rank-tool';
-import { JSON_RPC_ERROR_CODES, MCP_PROTOCOL_VERSION, handleJsonRpc } from './protocol';
+import { handleJsonRpc, JSON_RPC_ERROR_CODES, MCP_PROTOCOL_VERSION } from './protocol';
 
 const API_BASE_URL = 'https://api.test';
 

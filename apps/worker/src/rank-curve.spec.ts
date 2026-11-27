@@ -5,11 +5,11 @@ import { RANK_CURVE_SAMPLE_PAGES } from '@simplyfpl/fpl-client';
 import type { FplBootstrapStatic, FplEvent, RankCurve } from '@simplyfpl/types';
 
 import {
-  RANK_CURVE_TTL_SECONDS,
-  type RankCurveEnv,
   handleRankCurve,
   latestSettledEvent,
+  RANK_CURVE_TTL_SECONDS,
   rankCurveCacheKey,
+  type RankCurveEnv,
 } from './rank-curve';
 
 const feature = await loadFeature('./rank-curve.feature');

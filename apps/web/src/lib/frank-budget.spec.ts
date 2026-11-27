@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  type BudgetStore,
   FRANK_DEFAULT_DAILY_CAP_TOKENS,
   reserveDailyTokens,
   resolveDailyCap,
   settleDailyTokens,
+  type BudgetStore,
 } from './frank-budget';
 
 /**

@@ -8,11 +8,11 @@ import {
   type PageLike,
 } from './measure';
 import {
+  runComparison,
   type SiteTarget,
   type VsBucket,
   type VsBucketPutOptions,
   type VsEnv,
-  runComparison,
 } from './scheduled';
 
 const TARGETS: SiteTarget[] = [

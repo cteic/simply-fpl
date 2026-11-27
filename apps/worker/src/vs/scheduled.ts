@@ -1,5 +1,5 @@
 import { isoWeekKey } from './iso-week';
-import { type BrowserLauncher, type MeasureEnv, type MeasureResult, measure } from './measure';
+import { measure, type BrowserLauncher, type MeasureEnv, type MeasureResult } from './measure';
 
 export interface VsBucketPutOptions {
   httpMetadata?: { contentType?: string };

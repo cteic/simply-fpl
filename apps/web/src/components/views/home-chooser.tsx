@@ -8,8 +8,8 @@ import { DashboardView } from '@/components/dashboard/dashboard-view';
 import { readSavedEntryId, setSavedEntryId } from '@/lib/saved-entry-id';
 
 import { HeroPreSaveView } from './hero-presave-view';
-import { type HomeChoice, resolveHomeChoice } from './home-choice';
-import { type HomeSearchParams, HomeSearchParamsWatcher } from './home-search-params';
+import { resolveHomeChoice, type HomeChoice } from './home-choice';
+import { HomeSearchParamsWatcher, type HomeSearchParams } from './home-search-params';
 import { clearSavedEntryHint } from './saved-entry-hint';
 
 export function HomeChooser() {

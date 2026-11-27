@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { styled, Text, XStack, YStack } from 'tamagui';
 
 import { FdrBadge } from '../fdr-badge';
 import type { PlannerGwCell } from './planner-grid.types';

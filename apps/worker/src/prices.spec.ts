@@ -8,12 +8,12 @@ import {
   BOOTSTRAP_TTL_SECONDS,
   FIXTURES_CACHE_KEY,
   FIXTURES_TTL_SECONDS,
+  handlePrices,
   PRICES_SLIM_CACHE_KEY,
   PRICES_SLIM_TTL_SECONDS,
+  warmPricesCache,
   type PricesEnv,
   type SlimPricesResponse,
-  handlePrices,
-  warmPricesCache,
 } from './prices';
 
 const feature = await loadFeature('./prices.feature');

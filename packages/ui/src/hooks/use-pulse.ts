@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { MOTION_DURATIONS, easeOutQuart, shouldPulse } from '../theme/motion';
+import { easeOutQuart, MOTION_DURATIONS, shouldPulse } from '../theme/motion';
 import { useReducedMotion } from './use-reduced-motion';
 
 const OVERLAY_PEAK_OPACITY = 0.22;

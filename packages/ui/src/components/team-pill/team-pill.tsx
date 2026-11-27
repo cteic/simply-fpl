@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 const PillBase = styled(XStack, {
   alignItems: 'center',

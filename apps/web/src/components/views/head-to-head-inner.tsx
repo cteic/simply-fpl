@@ -13,10 +13,10 @@ import {
   PageHeader,
   PageShell,
   SectionHeader,
+  styled,
   Text,
   XStack,
   YStack,
-  styled,
 } from '@simplyfpl/ui';
 
 import { useBootstrap, useEntry, useEntryPicks, useLiveGameweek } from '@/queries/fpl';

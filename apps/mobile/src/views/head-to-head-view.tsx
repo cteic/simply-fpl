@@ -16,10 +16,10 @@ import {
   PitchRow,
   Player,
   SectionHeader,
+  styled,
   Text,
   XStack,
   YStack,
-  styled,
 } from '@simplyfpl/ui';
 import type { ShirtKind } from '@simplyfpl/ui';
 

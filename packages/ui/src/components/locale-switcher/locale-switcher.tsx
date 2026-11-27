@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 import { LOCALE_LABELS, SUPPORTED_LOCALES, t } from '@simplyfpl/i18n';
 import type { SupportedLocale } from '@simplyfpl/i18n';

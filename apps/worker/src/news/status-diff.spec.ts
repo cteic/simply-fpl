@@ -4,10 +4,10 @@ import { expect } from 'vitest';
 import type { FplPlayer } from '@simplyfpl/types';
 
 import {
-  type PlayerStatusChange,
-  type PlayerStatusSnapshot,
   buildSnapshot,
   detectPlayerStatusChanges,
+  type PlayerStatusChange,
+  type PlayerStatusSnapshot,
 } from './status-diff';
 
 const feature = await loadFeature('./status-diff.feature');

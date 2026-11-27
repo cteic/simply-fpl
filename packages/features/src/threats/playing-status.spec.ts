@@ -9,7 +9,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { CohortSnapshotPayload } from '../cohorts/types';
-import { type Threat, computeThreats, filterThreatsByStatus } from './compute-threats';
+import { computeThreats, filterThreatsByStatus, type Threat } from './compute-threats';
 
 const feature = await loadFeature('./playing-status.feature');
 

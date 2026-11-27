@@ -2,11 +2,11 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 
 import {
+  checkRateLimit,
+  handleVsTimedFetch,
   type KvStore,
   type TargetFetcher,
   type TimedFetchEnv,
-  checkRateLimit,
-  handleVsTimedFetch,
 } from './timed-fetch';
 
 function makeKv(initial: Record<string, unknown> = {}): KvStore {

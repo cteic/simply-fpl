@@ -60,7 +60,7 @@ PR [#48](https://github.com/pete-watters/simply-fpl/pull/48) open against `dev`,
 - **`pnpm.overrides`** in root `package.json`:
   - `@types/react@^19` and `@types/react-dom@^19` (forces every transitive consumer to React 19 types)
   - `react-native-web@^0.21` (React 19-compatible RN-Web)
-- **`.prettierrc.js`** at repo root re-exports `@simplyfpl/prettier-config`.
+- **`.prettierrc.js`** at repo root extends `@cteic/prettier-config` with this repo's import-order groups.
 - **`pnpm format` / `pnpm format:check`** wired at root via prettier directly (dropped the turbo task — prettier doesn't need parallelization).
 - **`.gitignore`** — added `.tamagui` (Tamagui build cache), `.vercel` (Vercel link).
 - **CLAUDE.md** — merged at repo root, captures architecture, package boundaries, code style, FPL/Supabase/Stripe specifics, and verification rules.

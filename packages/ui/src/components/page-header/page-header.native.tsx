@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { styled, Text, XStack, YStack } from 'tamagui';
 
 import { colors } from '../../theme/colors';
 

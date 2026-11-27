@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { styled, Text, XStack, YStack } from 'tamagui';
 
 import { DefConBar } from '../defcon-bar';
 import type { DefConBarProps } from '../defcon-bar';

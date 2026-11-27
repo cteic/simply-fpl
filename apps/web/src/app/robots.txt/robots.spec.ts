@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildRobotsTxt,
   CITATION_CRAWLERS,
   DISALLOWED_PATHS,
   TRAINING_ONLY_CRAWLERS,
-  buildRobotsTxt,
 } from './build-robots-txt';
 
 const PROD = { siteUrl: 'https://simplyfpl.com', isProduction: true };

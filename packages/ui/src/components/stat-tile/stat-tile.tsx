@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, YStack, styled } from 'tamagui';
+import { styled, Text, YStack } from 'tamagui';
 
 import { usePulse } from '../../hooks/use-pulse';
 import type { StatTileTone } from './stat-tile-tone';

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, XStack, styled } from 'tamagui';
+import { styled, Text, XStack } from 'tamagui';
 
 import { t } from '@simplyfpl/i18n';
 

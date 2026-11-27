@@ -9,8 +9,8 @@ import { t } from '@simplyfpl/i18n';
 import {
   Button,
   Card,
-  FNote,
   FilterButton,
+  FNote,
   PageHeader,
   PageShell,
   SectionHeader,

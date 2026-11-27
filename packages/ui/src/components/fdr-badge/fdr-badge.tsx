@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, styled } from 'tamagui';
+import { styled, Text } from 'tamagui';
 
 const Badge = styled(Text, {
   fontFamily: '$mono',

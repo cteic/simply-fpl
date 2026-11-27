@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 
-import { Text, XStack, YStack, styled } from 'tamagui';
+import { styled, Text, XStack, YStack } from 'tamagui';
 
 const CardBase = styled(YStack, {
   backgroundColor: '$surface',

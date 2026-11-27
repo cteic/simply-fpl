@@ -6,7 +6,7 @@ import type {
 } from '@simplyfpl/types';
 
 import type { CohortSnapshotPayload } from '../cohorts/types';
-import { type Threat, computeThreats } from './compute-threats';
+import { computeThreats, type Threat } from './compute-threats';
 
 /** Where the ownership figures behind a threat list came from. */
 export type ThreatSource = 'top_10k' | 'field';

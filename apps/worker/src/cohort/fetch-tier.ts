@@ -1,11 +1,11 @@
 import type { FplEntryGameweekPicks, FplLeague } from '@simplyfpl/types';
 
 import {
-  type CohortTier,
-  type PartialAggregate,
   addTransfers,
   emptyAggregate,
   mergePicks,
+  type CohortTier,
+  type PartialAggregate,
 } from './aggregate';
 
 export interface TierConfig {
