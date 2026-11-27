@@ -11,9 +11,12 @@ on:
   # path and creates it. The API-worker job stays skipped; it requires a push.
   workflow_dispatch:
 
+# PR runs cancel each other. Production runs never cancel: a rollout stopped
+# between traffic splits would leave production on two versions. They share a
+# group with rollback-web.yml so a rollout and a rollback never overlap.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.event_name == 'pull_request' && format('{0}-{1}', github.workflow, github.ref) || 'production-web' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   migrate:
@@ -56,7 +59,9 @@ jobs:
   web:
     needs: migrate
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # A production push adds a staged rollout (dark soak, optional canary
+    # watch) after the build. See docs/deploy-rollout.md.
+    timeout-minutes: 30
     permissions:
       contents: read
       deployments: write
@@ -75,7 +80,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:packages
-      - name: Deploy web worker (push) or upload preview version (PR)
+      # Read before the upload: the version serving production now is the one a
+      # failed rollout returns to.
+      - name: Record stable production version
+        id: stable
+        if: github.event_name == 'push'
+        run: node scripts/rollout/cli.mjs stable
+      - name: Deploy (dispatch), upload rollout candidate (push) or preview version (PR)
         id: deploy
         working-directory: apps/web
         env:
@@ -84,15 +95,45 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -o pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            pnpm run upload 2>&1 | tee deploy.log
-          else
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             pnpm run deploy 2>&1 | tee deploy.log
+          else
+            pnpm run upload 2>&1 | tee deploy.log
           fi
           URL=$(grep -oE 'https://[a-z0-9.-]*simply-fpl[a-z0-9.-]*\.workers\.dev' deploy.log | head -1)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
+      # Production rollout: dark at 0%, optional canary, promote. Any failed
+      # check sends traffic back to the stable version and fails this job.
+      - name: Find rollout candidate version
+        id: candidate
+        if: github.event_name == 'push'
+        run: node scripts/rollout/cli.mjs parse-upload apps/web/deploy.log
+      - name: Roll out to production
+        id: rollout
+        if: github.event_name == 'push'
+        env:
+          ROLLOUT_CANARY_PERCENT: ${{ vars.ROLLOUT_CANARY_PERCENT }}
+          ROLLOUT_WATCH_SECONDS: ${{ vars.ROLLOUT_WATCH_SECONDS }}
+          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
+          CANDIDATE: ${{ steps.candidate.outputs.version_id }}
+          STABLE: ${{ steps.stable.outputs.version_id }}
+        run: node scripts/rollout/cli.mjs release --candidate "$CANDIDATE" --stable "$STABLE"
+      # `versions upload` does not apply route changes in wrangler.jsonc; this
+      # does, once the new version is serving all traffic.
+      - name: Apply routes
+        if: github.event_name == 'push'
+        working-directory: apps/web
+        run: pnpm exec wrangler triggers deploy
+      # Exercises the same smoke suite the rollout uses, against this PR's
+      # preview version. Changes nothing in production.
+      - name: Smoke check preview version
+        if: github.event_name == 'pull_request' && steps.deploy.outputs.url
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.url }}
+        run: node scripts/rollout/cli.mjs smoke --url "$PREVIEW_URL"
       - name: Comment preview URL on PR
         if: github.event_name == 'pull_request' && steps.deploy.outputs.url
         uses: actions/github-script@v7
