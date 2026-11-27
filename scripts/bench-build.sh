@@ -27,6 +27,13 @@ fi
 export TURBO_CACHE_DIR="$PWD/.turbo/bench-cache"
 mkdir -p "$OUT"
 
+# A fresh checkout leaves files with the same mtime as the git index, so git
+# treats them as "racily clean" and re-reads them on every `git status`. Turbo
+# runs `git status` with GIT_OPTIONAL_LOCKS=0, which never writes the index
+# back, so every run pays again. In this repo that is up to 3 s before Turbo
+# starts its own timer. One refresh records the stat data and removes the cost.
+git update-index -q --refresh
+
 {
   echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "commit: $(git rev-parse --short HEAD)"
