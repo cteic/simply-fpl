@@ -186,18 +186,26 @@ CI is not the finish line. Before reporting a PR as ready to merge:
 
    ```
    gh pr view <N> --json headRefOid -q .headRefOid
-   gh api repos/cteic/simply-fpl/pulls/<N>/reviews -q '.[-1].commit_id'
+   gh api repos/cteic/simply-fpl/pulls/<N>/reviews --paginate \
+     -q '.[] | select(.user.login == "coderabbitai[bot]") | .commit_id' | tail -1
    ```
 
    A `CodeRabbit` check with a `neutral` conclusion means it skipped or was
-   rate-limited, not that it passed. Comment `@coderabbitai review` to retry.
+   rate-limited, not that it passed. Comment `@coderabbitai review` once to
+   retry. If it answers that the rate limit is hit, stop asking and note the
+   reset time in the status comment.
 
-2. Read every inline comment: `gh api repos/cteic/simply-fpl/pulls/<N>/comments`.
+2. Read every inline comment:
+   `gh api repos/cteic/simply-fpl/pulls/<N>/comments --paginate`.
 3. Fix each real finding in the same PR, with a regression test where the
    finding is a bug. Where a finding is wrong, reply on the thread saying why.
    Never leave a thread unanswered.
 4. Say in the status comment how many findings there were and what happened to
    each.
+
+Reviews are rate-limited per hour, so spend them carefully: open PRs as drafts
+(drafts are not reviewed), run the full local gate before the first push, and
+batch fixes into one push rather than one push per finding.
 
 If the PR has already merged, fix the open findings in a follow-up PR off `dev`.
 

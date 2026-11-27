@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { LiveSquadEvent } from '@simplyfpl/types';
 
+import { snapshotForGameweek } from './use-live-snapshot';
 import {
   LIVE_EVENT_MAX_VISIBLE,
   baselineForGameweek,
@@ -59,5 +60,21 @@ describe('baselineForGameweek', () => {
 
   it('has nothing to compare with on the first refresh', () => {
     expect(baselineForGameweek(undefined, null, 11)).toBeUndefined();
+  });
+});
+
+describe('snapshotForGameweek', () => {
+  const stored = { elements: [] };
+
+  it('returns the snapshot for the gameweek it arrived for', () => {
+    expect(snapshotForGameweek(stored, 11, 11)).toBe(stored);
+  });
+
+  it("withholds last gameweek's snapshot once the gameweek moves on", () => {
+    expect(snapshotForGameweek(stored, 11, 12)).toBeUndefined();
+  });
+
+  it('returns nothing without a gameweek', () => {
+    expect(snapshotForGameweek(stored, 11, null)).toBeUndefined();
   });
 });

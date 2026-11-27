@@ -28,6 +28,10 @@ describe('threatsEmptyState', () => {
     expect(threatsEmptyState({ ...BASE, gameweek: null })).toBe('unavailable');
   });
 
+  it('is unavailable when a refetch failed, even though stale data resolved a list', () => {
+    expect(threatsEmptyState({ ...BASE, resolved: true, failed: true })).toBe('unavailable');
+  });
+
   it('reports no match once the list is computed and the filter empties it', () => {
     expect(threatsEmptyState({ ...BASE, resolved: true })).toBe('no_match');
   });

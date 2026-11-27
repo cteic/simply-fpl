@@ -53,6 +53,20 @@ export function applyDelta(
   return { elements: Array.from(byId.values()) };
 }
 
+/**
+ * The stored snapshot, but only for the gameweek it was received for. The
+ * socket for a new gameweek takes a moment to deliver, and until it does the
+ * stored data is last gameweek's. Handing that out under the new gameweek let
+ * callers diff one gameweek against another.
+ */
+export function snapshotForGameweek<T>(
+  stored: T | undefined,
+  storedGameweek: number | null,
+  gameweek: number | null
+): T | undefined {
+  return gameweek !== null && storedGameweek === gameweek ? stored : undefined;
+}
+
 export function useLiveSnapshot(
   gw: number | null,
   options: { apiUrl?: string; webSocketImpl?: typeof WebSocket } = {}
@@ -62,7 +76,8 @@ export function useLiveSnapshot(
     (typeof process !== 'undefined' ? process.env['NEXT_PUBLIC_API_URL'] : undefined) ??
     DEFAULT_API_URL;
 
-  const [data, setData] = useState<FplLiveGameweek | undefined>(undefined);
+  const [storedData, setData] = useState<FplLiveGameweek | undefined>(undefined);
+  const [dataGameweek, setDataGameweek] = useState<number | null>(null);
   const [shouldFallback, setShouldFallback] = useState(false);
   const failuresRef = useRef(0);
   const wsRef = useRef<WebSocket | null>(null);
@@ -115,11 +130,13 @@ export function useLiveSnapshot(
         }
         if (parsed.type === 'snapshot' && isLiveGameweek(parsed.data)) {
           setData(parsed.data);
+          setDataGameweek(gw);
           setLiveLastUpdate(typeof parsed.ts === 'number' ? parsed.ts : Date.now());
         } else if (parsed.type === 'delta' && Array.isArray(parsed.elements)) {
           const changed = parsed.elements.filter(isLiveElement);
           if (changed.length === 0) return;
           setData((current) => applyDelta(current, changed));
+          setDataGameweek(gw);
           setLiveLastUpdate(typeof parsed.ts === 'number' ? parsed.ts : Date.now());
         }
       };
@@ -191,6 +208,7 @@ export function useLiveSnapshot(
     };
   }
 
+  const data = snapshotForGameweek(storedData, dataGameweek, gw);
   return {
     data,
     source: data ? 'ws' : 'idle',

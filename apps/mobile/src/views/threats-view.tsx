@@ -136,16 +136,16 @@ export function ThreatsView() {
     entryId === null ? null : currentGw
   );
   const { data: liveGw, isError: liveFailed } = useLiveGameweek(currentGw);
-  const { data: fixtures } = useFixtures(currentGw);
+  const { data: fixtures, isError: fixturesFailed } = useFixtures(currentGw);
 
   const resolved = useMemo(() => {
-    if (!bootstrap || !liveGw || !yourPicks || currentGw === null) return null;
+    if (!bootstrap || !liveGw || !yourPicks || !fixtures || currentGw === null) return null;
     return resolveThreats({
       yourPicks,
       cohort,
       bootstrap,
       liveGw,
-      fixtures: fixtures ?? [],
+      fixtures,
       gw: currentGw,
     });
   }, [cohort, bootstrap, liveGw, yourPicks, fixtures, currentGw]);
@@ -166,7 +166,7 @@ export function ThreatsView() {
     resolved: resolved !== null,
     bootstrapLoaded: bootstrap !== undefined,
     gameweek: currentGw,
-    failed: bootstrapFailed || picksFailed || liveFailed,
+    failed: bootstrapFailed || picksFailed || liveFailed || fixturesFailed,
   });
   const emptyMessage = EMPTY_MESSAGE[emptyState];
 
