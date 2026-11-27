@@ -216,7 +216,18 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      /** Holds tokens out of today's Frank budget. False when the cap cannot cover them. */
+      frank_reserve_tokens: {
+        Args: { p_tokens: number; p_cap: number };
+        Returns: boolean;
+      };
+      /** Adjusts today's reservation by (actual - reserved). */
+      frank_settle_tokens: {
+        Args: { p_delta: number };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

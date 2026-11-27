@@ -143,14 +143,28 @@ actually sees.
 
 Three things block opening a free tier, and they are safety, not polish.
 
-1. **The global daily budget is not atomic** (#412). It reads every row for the
-   day, sums the tokens, then acts, with no reservation. Two requests together
-   both see the pre-spend total, and the scan grows with the table. This is the
-   only thing between a bug or a scraper and an unbounded bill. Copy
-   `checkAndIncrementDailySpend` from `apps/worker/src/news/team-summary.ts`,
-   which increments and checks a KV counter in one step.
-2. **The per-user quota is nearly atomic** (#415). Good enough for a few
-   hundred Ultimate users, not for the open internet.
+1. **The global daily budget was not atomic** (#412). It read every row for
+   the day, summed the tokens, then decided, so two requests together both saw
+   the pre-spend total, and with `FRANK_DAILY_SPEND_CAP_TOKENS` unset there
+   was no cap at all. Now one Postgres statement,
+   `frank_reserve_tokens` in migration `0011_frank_daily_budget.sql`, with a
+   default cap of five million tokens a day. The route falls back to the old
+   check if the function is not deployed, so code and migration can ship in
+   either order. **The SQL has not been run against a database**: no Postgres
+   was available where it was written. Apply the migration, then check it
+   with the queries in the PR description before trusting it.
+
+   An earlier draft of this note said to copy `checkAndIncrementDailySpend`
+   from `apps/worker/src/news/team-summary.ts` because it "increments and
+   checks in one step". That was wrong. It is a KV read followed by a KV
+   write and races the same way; KV has no atomic increment. It is driven by a
+   cron rather than by users, so the exposure is small, but it is not a
+   pattern to copy.
+
+2. **The per-user quota fails safe** (#415). Two racing requests both insert a
+   reservation, both recount, both see the over-limit total and both back out.
+   It can wrongly reject one request at the boundary; it cannot over-admit. That
+   is a nuisance to fix, not a spending risk.
 3. **Frank on mobile is a paywall stub.** It renders "Available on Pro and
    above" and nothing else, so a free tier needs the ask UI built there.
 
@@ -162,8 +176,8 @@ in, not an assumption from me.
 
 ## Build order
 
-1. Atomic global budget, then atomic per-user quota (#412, #415). Nothing else
-   ships until a cap is a cap.
+1. Apply and verify the atomic global budget (#412). Nothing else ships until
+   a cap is a cap.
 2. Free tier: three questions a week behind an env flag, default off, so
    turning it on is a decision rather than a deploy side effect.
 3. Put the squad in the prompt properly. The status note records that picks go
