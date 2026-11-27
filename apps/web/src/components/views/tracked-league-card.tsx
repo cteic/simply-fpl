@@ -3,14 +3,33 @@
 import { useState } from 'react';
 
 import { ads } from '@simplyfpl/features';
+import { describeLeaguePosition, getGameweekPhase } from '@simplyfpl/fpl-client';
 import { t } from '@simplyfpl/i18n';
+import type { LeaguePosition } from '@simplyfpl/types';
 import { AdSlot, Button, Card, LeagueCard, LeagueTable, Text, XStack, YStack } from '@simplyfpl/ui';
 import type { LeagueTableRow } from '@simplyfpl/ui';
 
 import { FEATURE_SCOUT } from '@/lib/feature-flags';
-import { useClassicLeague } from '@/queries/fpl';
+import { useBootstrap, useClassicLeague } from '@/queries/fpl';
 
 const AD_FREQUENCY = 8;
+
+/** Where the manager stands, in the terms they would use about a rival. */
+function summariseLeaguePosition(position: LeaguePosition): string {
+  const parts = [t('league_card.position', { rank: position.rank, count: position.managers })];
+  if (position.above) {
+    parts.push(
+      position.above.gap === 0
+        ? t('league_card.level_with', { name: position.above.name })
+        : t('league_card.behind', { gap: position.above.gap, name: position.above.name })
+    );
+  }
+  if (position.below) {
+    parts.push(t('league_card.clear_of', { gap: position.below.gap, name: position.below.name }));
+  }
+  parts.push(t('league_card.gw_place', { place: position.gameweekPlace }));
+  return parts.join(' \u00b7 ');
+}
 
 interface TrackedLeagueCardProps {
   leagueId: number;
@@ -20,6 +39,7 @@ interface TrackedLeagueCardProps {
 export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProps) {
   const adFree = ads.useAdFree();
   const { data, isLoading, error } = useClassicLeague(leagueId);
+  const { data: bootstrap } = useBootstrap();
   const [expanded, setExpanded] = useState(false);
 
   if (isLoading) {
@@ -63,8 +83,20 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
   }
 
   const totalRows = data.standings.results.length;
+  const position =
+    myEntryId === undefined ? null : describeLeaguePosition(data.standings.results, myEntryId);
+  // Keep the manager's own row on screen. Cutting at ten hid anyone eleventh
+  // or lower in their own league until they expanded the table.
+  const myIndex =
+    myEntryId === undefined
+      ? -1
+      : data.standings.results.findIndex((row) => row.entry === myEntryId);
+  const collapsedCount = Math.max(10, myIndex + 1);
   const visible =
-    expanded || totalRows <= 10 ? data.standings.results : data.standings.results.slice(0, 10);
+    expanded || totalRows <= collapsedCount
+      ? data.standings.results
+      : data.standings.results.slice(0, collapsedCount);
+  const phase = bootstrap ? getGameweekPhase(bootstrap) : null;
 
   const rows: LeagueTableRow[] = visible.map((row) => ({
     position: row.rank,
@@ -97,6 +129,8 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
             name={data.league.name}
             meta={`Classic · ${totalRows} managers`}
             rows={chunk}
+            badge={phase === 'live' ? t('league_card.badge_live') : undefined}
+            summary={position ? summariseLeaguePosition(position) : undefined}
             {...(onRowClick !== undefined ? { onRowClick } : {})}
           />
         ) : (
@@ -129,7 +163,7 @@ export function TrackedLeagueCard({ leagueId, myEntryId }: TrackedLeagueCardProp
             {t('league_card.cta_press')}
           </Button>
         ) : null}
-        {totalRows > 10 ? (
+        {totalRows > collapsedCount ? (
           <Button tone="ghost" size="sm" onPress={() => setExpanded((v: boolean) => !v)}>
             {expanded
               ? t('league_card.show_top_10')
