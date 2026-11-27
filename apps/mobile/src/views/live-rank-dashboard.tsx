@@ -286,12 +286,13 @@ function eventPoints(event: LiveSquadEvent): string | undefined {
 function describeSeason(story: SeasonStory): string | null {
   const parts: string[] = [];
   if (story.streak.length >= 2) {
-    parts.push(`${story.streak.length} ${story.streak.direction} arrows in a row`);
+    parts.push(`${story.streak.length} ${story.streak.direction} arrows running`);
   } else if (story.greenArrows + story.redArrows > 0) {
-    parts.push(`${story.greenArrows} green \u00b7 ${story.redArrows} red`);
+    parts.push(`${story.greenArrows} green, ${story.redArrows} red arrows`);
   }
   if (story.bestRank) {
-    parts.push(`best ${story.bestRank.rank.toLocaleString()} (GW${story.bestRank.gw})`);
+    // "best 1,605,173 (GW1)" read as if the screen were about gameweek 1.
+    parts.push(`season best ${story.bestRank.rank.toLocaleString()} in GW${story.bestRank.gw}`);
   }
   return parts.length > 0 ? parts.join(' \u00b7 ') : null;
 }
@@ -579,8 +580,8 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
   return (
     <YStack flex={1}>
       <Screen testID="screen-home" topInset>
-        <StadiumGradient borderRadius={14} paddingHorizontal={16} paddingVertical={14}>
-          <XStack alignItems="center" justifyContent="space-between" gap={8} marginBottom={8}>
+        <StadiumGradient borderRadius={12} paddingHorizontal={14} paddingVertical={10}>
+          <XStack alignItems="center" justifyContent="space-between" gap={8} marginBottom={4}>
             <Logo variant="lockup" tone="stadium" size="sm" />
             <TeamPill teamId={entryId} onPress={onChangeTeam} />
           </XStack>
@@ -622,15 +623,15 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             value={heroRank}
             format={(n) => n.toLocaleString()}
             fontFamily="$mono"
-            fontSize={44}
-            lineHeight={46}
+            fontSize={36}
+            lineHeight={38}
             fontWeight="400"
-            letterSpacing={-2}
+            letterSpacing={-1.5}
             color="#FFFFFF"
-            marginTop={2}
+            marginTop={0}
           />
 
-          <XStack alignItems="center" gap={8} marginTop={6} flexWrap="wrap">
+          <XStack alignItems="center" gap={8} marginTop={2} flexWrap="wrap">
             {heroStatus === 'final' ? (
               <Text fontFamily="$body" fontSize={12} color="rgba(255,255,255,0.8)">
                 {`final after GW${currentGw ?? ''}`}
@@ -675,6 +676,14 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
                 {subsAltLabel}
               </Text>
             ) : null}
+            <Text
+              fontFamily="$body"
+              fontSize={10.5}
+              color="rgba(255,255,255,0.6)"
+              marginLeft="auto"
+            >
+              {isLoading ? 'updating\u2026' : `updated ${formatLiveAgo(agoMs)}`}
+            </Text>
           </XStack>
 
           {targets ? (
@@ -710,11 +719,8 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             </Text>
           ) : null}
 
-          <XStack alignItems="center" gap={10} marginTop={8}>
+          <XStack marginTop={6}>
             <RefreshBar paused={isLoading} />
-            <Text fontFamily="$body" fontSize={11} color="rgba(255,255,255,0.72)">
-              {isLoading ? 'Updating…' : `Updated ${formatLiveAgo(agoMs)} · refreshes every 60s`}
-            </Text>
           </XStack>
         </StadiumGradient>
 
@@ -756,14 +762,14 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
         </XStack>
 
         <YStack>
-          <SectionHeader title={`Your Team · GW${currentGw ?? '—'}`} />
-          <Pitch teamName={teamName} formation={formation}>
+          <Pitch dense teamName={teamName} formation={formation} label={`GW${currentGw ?? '—'}`}>
             {ready
               ? pitchRows.map((row, i) => (
-                  <PitchRow key={`row-${i}`}>
+                  <PitchRow key={`row-${i}`} gap={2}>
                     {row.map((p) => (
                       <Player
                         key={p.key}
+                        dense
                         name={p.name}
                         detail={p.detail}
                         position={p.position}
@@ -781,10 +787,11 @@ export function LiveRankDashboard({ entryId, onChangeTeam }: LiveRankDashboardPr
             {ready && bench.length > 0 ? (
               <>
                 <BenchDivider />
-                <PitchRow>
+                <PitchRow gap={2}>
                   {bench.map((p) => (
                     <Player
                       key={p.key}
+                      dense
                       name={p.name}
                       detail={p.detail}
                       position={p.position}

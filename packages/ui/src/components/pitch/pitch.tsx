@@ -62,10 +62,28 @@ interface PitchProps {
   teamName: string;
   formation: string;
   label?: string;
+  /** Phone density: a one-line header and tighter rows. */
+  dense?: boolean;
   children: ReactNode;
 }
 
-export function Pitch({ teamName, formation, label, children }: PitchProps) {
+export function Pitch({ teamName, formation, label, dense = false, children }: PitchProps) {
+  if (dense) {
+    return (
+      <Card>
+        <Head paddingHorizontal={12} paddingVertical={6}>
+          <XStack alignItems="center" gap={8} flexShrink={1}>
+            <Title numberOfLines={1}>{teamName}</Title>
+            {label ? <Label marginBottom={0}>{label}</Label> : null}
+          </XStack>
+          <FormationTag>{formation}</FormationTag>
+        </Head>
+        <Body paddingHorizontal={6} paddingVertical={8} gap={8}>
+          {children}
+        </Body>
+      </Card>
+    );
+  }
   return (
     <Card>
       <Head>
