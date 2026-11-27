@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   createReplayClock,
@@ -75,18 +75,13 @@ export function useReplayClock(init: ReplayClockInit = {}): UseReplayClockResult
     };
   }, [state.status]);
 
-  const play = useCallback(() => setState(playReplayClock), []);
-  const pause = useCallback(() => setState(pauseReplayClock), []);
-  const toggle = useCallback(
-    () => setState((s) => (s.status === 'playing' ? pauseReplayClock(s) : playReplayClock(s))),
-    []
-  );
-  const restart = useCallback(() => setState(restartReplayClock), []);
-  const seek = useCallback((gw: number) => setState((s) => seekReplayClock(s, gw)), []);
-  const setSpeed = useCallback(
-    (speed: ReplaySpeed) => setState((s) => setReplaySpeed(s, speed)),
-    []
-  );
+  const play = () => setState(playReplayClock);
+  const pause = () => setState(pauseReplayClock);
+  const toggle = () =>
+    setState((s) => (s.status === 'playing' ? pauseReplayClock(s) : playReplayClock(s)));
+  const restart = () => setState(restartReplayClock);
+  const seek = (gw: number) => setState((s) => seekReplayClock(s, gw));
+  const setSpeed = (speed: ReplaySpeed) => setState((s) => setReplaySpeed(s, speed));
 
   return { state, play, pause, toggle, restart, seek, setSpeed };
 }

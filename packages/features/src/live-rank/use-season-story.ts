@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useQuery } from '@tanstack/react-query';
 
 import { buildSeasonStory, fplClient } from '@simplyfpl/fpl-client';
@@ -27,6 +25,6 @@ export function useSeasonStory(entryId: number | null): UseSeasonStoryResult {
     retry: 1,
   });
 
-  const story = useMemo(() => (query.data ? buildSeasonStory(query.data) : null), [query.data]);
+  const story = query.data ? buildSeasonStory(query.data) : null;
   return { story };
 }

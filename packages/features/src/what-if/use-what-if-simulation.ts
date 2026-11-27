@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { simulateWhatIf } from '@simplyfpl/fpl-client';
 import type { WhatIfResult, WhatIfSwap } from '@simplyfpl/fpl-client';
@@ -33,32 +33,29 @@ export function useWhatIfSimulation({
   const [result, setResult] = useState<WhatIfResult | null>(null);
   const [activeSwap, setActiveSwap] = useState<WhatIfSwap | null>(null);
 
-  const simulate = useCallback(
-    (swap: WhatIfSwap) => {
-      if (!picks || !liveGw || !bootstrap) {
-        setResult(null);
-        setActiveSwap(null);
-        return;
-      }
-      const computed = simulateWhatIf(
-        picks,
-        liveGw,
-        bootstrap,
-        swap,
-        preGwRank,
-        avgEntryScore,
-        currentLivePoints
-      );
-      setResult(computed);
-      setActiveSwap(swap);
-    },
-    [picks, liveGw, bootstrap, preGwRank, avgEntryScore, currentLivePoints]
-  );
+  const simulate = (swap: WhatIfSwap) => {
+    if (!picks || !liveGw || !bootstrap) {
+      setResult(null);
+      setActiveSwap(null);
+      return;
+    }
+    const computed = simulateWhatIf(
+      picks,
+      liveGw,
+      bootstrap,
+      swap,
+      preGwRank,
+      avgEntryScore,
+      currentLivePoints
+    );
+    setResult(computed);
+    setActiveSwap(swap);
+  };
 
-  const reset = useCallback(() => {
+  const reset = () => {
     setResult(null);
     setActiveSwap(null);
-  }, []);
+  };
 
   return { result, activeSwap, simulate, reset };
 }

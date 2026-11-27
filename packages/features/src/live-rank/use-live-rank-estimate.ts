@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useQuery } from '@tanstack/react-query';
 
 import {
@@ -214,33 +212,24 @@ export function useLiveRankEstimate(entryId: number | null): UseLiveRankEstimate
   const fixtures = fixturesQuery.data;
   const curve = curveQuery.data;
 
-  const viewInput = useMemo(() => {
-    if (!snapshot || !snapshot.picks || gw === null || !liveGw) return null;
-    return {
-      entry: snapshot.entry,
-      picks: snapshot.picks,
-      bootstrap: snapshot.bootstrap,
-      liveGw,
-      fixtures: fixtures ?? [],
-      gw,
-      curve,
-    };
-  }, [snapshot, gw, liveGw, fixtures, curve]);
+  const viewInput =
+    !snapshot || !snapshot.picks || gw === null || !liveGw
+      ? null
+      : {
+          entry: snapshot.entry,
+          picks: snapshot.picks,
+          bootstrap: snapshot.bootstrap,
+          liveGw,
+          fixtures: fixtures ?? [],
+          gw,
+          curve,
+        };
 
-  const estimate = useMemo(
-    () => (viewInput === null ? null : computeLiveRankEstimate(viewInput)),
-    [viewInput]
-  );
+  const estimate = viewInput === null ? null : computeLiveRankEstimate(viewInput);
 
-  const postSubsEstimate = useMemo(
-    () => (viewInput === null ? null : computePostSubsRankEstimate(viewInput)),
-    [viewInput]
-  );
+  const postSubsEstimate = viewInput === null ? null : computePostSubsRankEstimate(viewInput);
 
-  const targets = useMemo(
-    () => (viewInput === null ? null : computeLiveRankTargets(viewInput)),
-    [viewInput]
-  );
+  const targets = viewInput === null ? null : computeLiveRankTargets(viewInput);
 
   return { estimate, postSubsEstimate, targets };
 }
