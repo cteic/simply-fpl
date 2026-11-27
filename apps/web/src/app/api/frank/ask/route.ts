@@ -6,6 +6,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import {
   buildEnrichedContext,
   computeFrankAskCacheKey,
+  quotaWindowStart,
   resolveFrankAccess,
 } from '@simplyfpl/features/frank';
 import { resolveTier } from '@simplyfpl/features/subscriptions/entitlement';
@@ -33,8 +34,9 @@ const API_BASE_URL = process.env['API_URL'] ?? 'http://localhost:8787';
 const FRANK_CACHE_WRITE_SECRET = process.env['FRANK_CACHE_WRITE_SECRET'];
 const FRANK_DAILY_SPEND_CAP = resolveDailyCap(process.env['FRANK_DAILY_SPEND_CAP_TOKENS']);
 
-const FRANK_QUOTA_SOFT = 50;
-const FRANK_QUOTA_HARD = 80;
+// Opens on-demand questions to free and Pro users, each with their own quota.
+// Off unless set to the literal string 'true'.
+const FRANK_FREE_TIER = process.env['FEATURE_FRANK_FREE_TIER'] === 'true';
 const FRANK_PARSE_ERROR = 'Frank had trouble formatting that answer — try rephrasing';
 
 interface AskBody {
@@ -146,18 +148,26 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   const tier = resolveTier({ tier: profile?.tier ?? null });
-  const access = resolveFrankAccess(tier);
+  const access = resolveFrankAccess(tier, { freeTierEnabled: FRANK_FREE_TIER });
+  const quota = access.quota;
 
-  if (!access.canAskOnDemand) {
+  if (!access.canAskOnDemand || quota === null) {
     return NextResponse.json(
       { error: 'Ultimate tier required', tier, upgradeTo: access.upgradeTo },
       { status: 402 }
     );
   }
 
-  const startOfMonth = new Date();
-  startOfMonth.setUTCDate(1);
-  startOfMonth.setUTCHours(0, 0, 0, 0);
+  // A tier's allowance is counted over its own window: a week for free users,
+  // a month for paying ones.
+  const windowStart = quotaWindowStart(quota.period);
+  const quotaReachedBody = (usedSoFar: number) => ({
+    error: quota.period === 'week' ? 'Weekly quota reached' : 'Monthly quota reached',
+    used: usedSoFar,
+    limit: quota.hard,
+    period: quota.period,
+    upgradeTo: access.upgradeTo,
+  });
 
   const admin = getSupabaseAdminClient();
 
@@ -165,15 +175,12 @@ export async function POST(request: NextRequest) {
     .from('frank_queries')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
-    .gte('created_at', startOfMonth.toISOString());
+    .gte('created_at', windowStart.toISOString());
 
   const used = monthlyCount ?? 0;
 
-  if (used >= FRANK_QUOTA_HARD) {
-    return NextResponse.json(
-      { error: 'Monthly quota reached', used, limit: FRANK_QUOTA_HARD },
-      { status: 429 }
-    );
+  if (used >= quota.hard) {
+    return NextResponse.json(quotaReachedBody(used), { status: 429 });
   }
 
   let body: unknown;
@@ -223,8 +230,8 @@ export async function POST(request: NextRequest) {
           advice: hit.advice,
           follow_up_question: hit.follow_up_question ?? null,
           used,
-          softCap: FRANK_QUOTA_SOFT,
-          hardCap: FRANK_QUOTA_HARD,
+          softCap: quota.soft,
+          hardCap: quota.hard,
         });
       }
     }
@@ -326,16 +333,13 @@ export async function POST(request: NextRequest) {
     .from('frank_queries')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
-    .gte('created_at', startOfMonth.toISOString());
+    .gte('created_at', windowStart.toISOString());
 
   const usedWithReservation = reservedCount ?? used + 1;
 
-  if (usedWithReservation > FRANK_QUOTA_HARD) {
+  if (usedWithReservation > quota.hard) {
     await admin.from('frank_queries').delete().eq('id', reservation.id);
-    return NextResponse.json(
-      { error: 'Monthly quota reached', used: usedWithReservation - 1, limit: FRANK_QUOTA_HARD },
-      { status: 429 }
-    );
+    return NextResponse.json(quotaReachedBody(usedWithReservation - 1), { status: 429 });
   }
 
   // Hold tokens out of today's budget before the model is called. This is one
@@ -362,8 +366,8 @@ export async function POST(request: NextRequest) {
         : 'Daily AI budget reached. Please try again tomorrow.',
       follow_up_question: null,
       used,
-      softCap: FRANK_QUOTA_SOFT,
-      hardCap: FRANK_QUOTA_HARD,
+      softCap: quota.soft,
+      hardCap: quota.hard,
     });
   }
   const tokensReserved = budget === 'reserved' ? FRANK_RESERVE_TOKENS : 0;
@@ -442,8 +446,8 @@ export async function POST(request: NextRequest) {
           advice,
           follow_up_question: parsed?.follow_up_question ?? null,
           used: usedWithReservation,
-          softCap: FRANK_QUOTA_SOFT,
-          hardCap: FRANK_QUOTA_HARD,
+          softCap: quota.soft,
+          hardCap: quota.hard,
         })
       );
     } catch {
