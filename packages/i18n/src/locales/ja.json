@@ -208,7 +208,7 @@
   "notifications.toggle_on": "オン",
   "pitch.bench_divider": "ベンチ",
   "planner.col_player": "選手",
-  "planner.fnote": "対戦難易度評価（FDR）は FPL の公式データに基づいています。",
+  "planner.fnote": "対戦難易度評価（FDR）は FPL の公式データに基づいています。黄色の点は出場が微妙な選手、赤い点は欠場の選手です。",
   "planner.link_body": "XI を読み込み、今後 5 GW の対戦難易度を計算するために FPL チーム ID が必要です。",
   "planner.loading_body": "フィクスチャとあなたの XI を読み込み中…",
   "planner.meta_no_team": "FPL チーム ID を入力して開始",

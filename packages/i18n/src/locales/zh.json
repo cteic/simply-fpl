@@ -208,7 +208,7 @@
   "notifications.toggle_on": "开",
   "pitch.bench_divider": "替补席",
   "planner.col_player": "球员",
-  "planner.fnote": "赛事难度评级（FDR）基于 FPL 官方数据。",
+  "planner.fnote": "赛事难度评级（FDR）基于 FPL 官方数据。黄点表示出场成疑，红点表示确定缺阵。",
   "planner.link_body": "我们需要您的 FPL 球队 ID 来加载您的 XI 并计算接下来 5 个 GW 的赛事难度。",
   "planner.loading_body": "正在加载赛程和您的 XI…",
   "planner.meta_no_team": "输入您的 FPL 球队 ID 开始",

@@ -208,7 +208,7 @@
   "notifications.toggle_on": "On",
   "pitch.bench_divider": "Bench",
   "planner.col_player": "Player",
-  "planner.fnote": "Fixture difficulty ratings (FDR) are based on FPL's official data.",
+  "planner.fnote": "Fixture difficulty ratings (FDR) are based on FPL's official data. An amber dot marks a doubt, a red dot a player who is ruled out.",
   "planner.link_body": "We need your FPL team ID to load your XI and compute their fixture difficulty across the next 5 gameweeks.",
   "planner.loading_body": "Loading fixtures and your XI…",
   "planner.meta_no_team": "Enter your FPL team ID to start",

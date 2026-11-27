@@ -136,19 +136,15 @@ function buildPlayerCell(
   };
 }
 
-function deriveForm(player: FplPlayer): PlannerForm {
-  const cop = player.chance_of_playing_next_round;
-  if (cop !== null) {
-    if (cop === 0) return 'bad';
-    if (cop < 50) return 'warning';
-    if (cop < 100) return 'avg';
-  }
-  const form = Number.parseFloat(String(player.event_points ?? 0));
-  if (Number.isNaN(form)) return 'avg';
-  if (form >= 8) return 'good';
-  if (form >= 4) return 'avg';
-  if (form > 0) return 'warning';
-  return 'none';
+/**
+ * The dot means one thing: availability. It used to mix last gameweek's points
+ * with injury status, so an amber dot could be a 2-point return or a 25% doubt
+ * and the reader could not tell which.
+ */
+export function deriveForm(player: FplPlayer): PlannerForm {
+  const chance = player.chance_of_playing_next_round;
+  if (chance === null || chance >= 100) return 'none';
+  return chance === 0 ? 'bad' : 'warning';
 }
 
 function dgwLabel(base: string, players: PlannerPlayerCell[]): string {
